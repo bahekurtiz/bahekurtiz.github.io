@@ -154,5 +154,18 @@ collections:
           - { name: terms, label: "Terms & Conditions", widget: text }
           - { name: site_url, label: "वेबसाइट का पता", widget: string }
           - { name: google_site_verification, label: "Google Search Console कोड", widget: string, required: false }
+          - { name: meta_pixel_id, label: "Meta (Facebook) Pixel ID – सिर्फ़ नंबर", widget: string, required: false, hint: "Events Manager → Data sources → Pixel ID (15-16 अंक)। खाली छोड़ो तो Pixel बंद रहेगा।" }
+          - { name: reels_title, label: "रील सेक्शन की हेडिंग", widget: string, required: false, default: "Watch & Shop" }
+          - name: reels
+            label: "Instagram / Facebook रील (हर पेज के नीचे छोटे बॉक्स में)"
+            widget: list
+            required: false
+            summary: "{{fields.caption}} – {{fields.link}}"
+            hint: "6-10 रील डालो। वीडियो 15 सेकंड से छोटा और 8 MB से कम रखो।"
+            fields:
+              - { name: video, label: "रील का वीडियो (mp4, optional)", widget: file, required: false, media_folder: /static/media/reels, public_folder: /media/reels }
+              - { name: cover, label: "कवर फ़ोटो (वीडियो न हो तो ज़रूरी)", widget: image, required: false, media_folder: /static/media/reels, public_folder: /media/reels }
+              - { name: link, label: "Instagram / Facebook रील का लिंक", widget: string, required: false }
+              - { name: caption, label: "छोटी लाइन (जैसे: Rani Pink Kurti ₹599)", widget: string, required: false }
           - { name: currency, label: "Currency", widget: hidden, default: INR }
           - { name: github_repo, label: "GitHub repo", widget: hidden }
