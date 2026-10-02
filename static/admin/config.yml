@@ -1,0 +1,158 @@
+# Bahe Kurtiz admin panel (Sveltia CMS).
+# __REPO__ / __BRANCH__ are filled in automatically when the site is built on GitHub.
+backend:
+  name: github
+  repo: __REPO__
+  branch: __BRANCH__
+  commit_messages:
+    create: "नया प्रोडक्ट: {{slug}}"
+    update: "अपडेट: {{slug}}"
+    delete: "हटाया: {{slug}}"
+
+site_url: __SITE_URL__
+display_url: __SITE_URL__
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+media_folder: static/images/products
+public_folder: /images/products
+
+# Big phone/camera photos are shrunk and converted to WebP before upload (fast site, small repo)
+media_libraries:
+  default:
+    config:
+      max_file_size: 25000000
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 1600
+          height: 1600
+
+collections:
+  - name: products
+    label: "प्रोडक्ट (Products)"
+    label_singular: "प्रोडक्ट"
+    folder: content/products
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{title}}"
+    identifier_field: title
+    summary: "{{title}} · {{category}} · ₹{{price}}"
+    sortable_fields: [sort_order, title, price]
+    preview_path: "products/{{slug}}/"
+    fields:
+      - { name: title, label: "नाम (Product name)", widget: string, hint: "अंग्रेज़ी में लिखो, जैसे: Rani Pink Embroidered Kurti. नाम में रंग + कपड़ा + स्टाइल लिखो, Google पर इसी से मिलेगा" }
+      - name: category
+        label: "कैटेगरी (Category)"
+        widget: select
+        options: [Kurti, Kurti Set, Dress, Co-ord Set, Top, Dupatta, Accessories]
+        default: Kurti
+      - { name: color, label: "रंग (Colour)", widget: string, required: false }
+      - { name: price, label: "दाम ₹ (Selling price)", widget: number, value_type: int, required: false, hint: "खाली छोड़ोगे तो 'Price on WhatsApp' दिखेगा" }
+      - { name: mrp, label: "MRP ₹ (कटा हुआ दाम, optional)", widget: number, value_type: int, required: false }
+      - name: sizes
+        label: "साइज़ (Sizes)"
+        widget: select
+        multiple: true
+        options: [XS, S, M, L, XL, XXL, 3XL, 4XL, 5XL, Free Size]
+        default: [S, M, L, XL, XXL]
+        required: false
+      - { name: fabric, label: "कपड़ा (Fabric)", widget: string, required: false, hint: "जैसे: Georgette, Cotton, Rayon" }
+      - { name: description, label: "जानकारी (Description)", widget: text, required: false, hint: "2-3 लाइन। खाली लाइन = नया पैराग्राफ़" }
+      - name: images
+        label: "फ़ोटो (Photos) – पहली फ़ोटो मुख्य होगी"
+        widget: list
+        field: { name: image, label: "फ़ोटो", widget: image }
+      - { name: in_stock, label: "स्टॉक में है? (In stock)", widget: boolean, default: true, hint: "बंद करोगे तो 'Made to order' दिखेगा" }
+      - { name: featured, label: "होमपेज पर दिखाओ (Show on homepage)", widget: boolean, default: true }
+      - { name: sort_order, label: "क्रम (Order – छोटा नंबर पहले)", widget: number, value_type: int, default: 50 }
+      - { name: seo_title, label: "SEO टाइटल (optional)", widget: string, required: false, hint: "खाली छोड़ दो तो नाम से अपने-आप बनेगा" }
+      - { name: seo_description, label: "SEO डिस्क्रिप्शन (optional, 150 अक्षर)", widget: string, required: false }
+
+  - name: blog
+    label: "ब्लॉग (Blog)"
+    label_singular: "ब्लॉग पोस्ट"
+    folder: content/blog
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{title}}"
+    identifier_field: title
+    summary: "{{date}} · {{title}}"
+    sortable_fields: [date, title]
+    preview_path: "blog/{{slug}}/"
+    fields:
+      - { name: title, label: "टाइटल", widget: string, hint: "अंग्रेज़ी/Hinglish में लिखो (इसी से लिंक बनेगा), जैसे: 5 Best Cotton Kurtis for Office" }
+      - { name: date, label: "तारीख़", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", default: "{{now}}" }
+      - { name: cover, label: "कवर फ़ोटो", widget: image, required: false }
+      - { name: excerpt, label: "छोटा सार (1-2 लाइन)", widget: text, required: false }
+      - { name: tags, label: "टैग", widget: list, required: false }
+      - { name: body, label: "पूरा लेख", widget: markdown, hint: "## से सेक्शन हेडिंग बनाओ। फ़ोटो और लिंक टूलबार से डालो" }
+      - name: related_products
+        label: "इस पोस्ट में कौन-से प्रोडक्ट दिखाने हैं"
+        widget: relation
+        collection: products
+        value_field: "{{slug}}"
+        search_fields: [title]
+        display_fields: [title]
+        multiple: true
+        required: false
+      - { name: draft, label: "ड्राफ़्ट (अभी छुपाओ)", widget: boolean, default: false }
+      - { name: seo_title, label: "SEO टाइटल (optional)", widget: string, required: false }
+      - { name: seo_description, label: "SEO डिस्क्रिप्शन (optional, 150 अक्षर)", widget: string, required: false }
+
+  - name: settings
+    label: "सेटिंग्स (Settings)"
+    files:
+      - name: site
+        label: "वेबसाइट सेटिंग्स"
+        file: content/settings.json
+        format: json
+        fields:
+          - { name: brand_name, label: "ब्रांड का नाम", widget: string }
+          - { name: tagline, label: "टैगलाइन", widget: string }
+          - { name: announcement, label: "ऊपर चलने वाली पट्टी (हर मैसेज के बीच | लगाओ)", widget: string, required: false }
+          - { name: hero_title, label: "होमपेज बड़ी हेडिंग", widget: string }
+          - { name: hero_subtitle, label: "होमपेज छोटी लाइन", widget: string, required: false }
+          - { name: hero_image, label: "होमपेज बड़ी फ़ोटो", widget: image, required: false }
+          - { name: about_title, label: "Our Story हेडिंग", widget: string }
+          - { name: about_text, label: "Our Story टेक्स्ट", widget: text }
+          - { name: whatsapp, label: "WhatsApp नंबर (ऑर्डर यहीं आएँगे)", widget: string }
+          - { name: phone, label: "दिखने वाला फ़ोन नंबर", widget: string, required: false }
+          - { name: email, label: "ईमेल", widget: string, required: false }
+          - { name: address, label: "पता", widget: string, required: false }
+          - name: social_links
+            label: "सोशल मीडिया लिंक (जितने चाहो जोड़ो)"
+            widget: list
+            summary: "{{fields.name}} – {{fields.url}}"
+            fields:
+              - { name: name, label: "नाम (Instagram, Facebook, LinkedIn, Google Business Profile, YouTube…)", widget: string }
+              - { name: url, label: "पूरा लिंक (https://…)", widget: string }
+          - name: marketplace_links
+            label: "दूसरे स्टोर लिंक (optional, जैसे Etsy)"
+            widget: list
+            summary: "{{fields.name}} – {{fields.url}}"
+            fields:
+              - { name: name, label: "नाम", widget: string }
+              - { name: url, label: "पूरा लिंक (https://…)", widget: string }
+          - { name: shipping_charge, label: "डिलीवरी चार्ज ₹ (0 = फ़्री)", widget: number, value_type: int, required: false }
+          - { name: free_shipping_above, label: "इतने ₹ से ऊपर फ़्री डिलीवरी (0 = लागू नहीं)", widget: number, value_type: int, required: false }
+          - { name: cod_enabled, label: "COD", widget: hidden, default: false }
+          - { name: cod_charge, label: "COD charge", widget: hidden, default: 0 }
+          - { name: prepaid_discount_percent, label: "ऑनलाइन पेमेंट पर छूट %", widget: number, value_type: int, required: false }
+          - { name: upi_id, label: "UPI ID (Razorpay चालू न हो तब काम आएगी)", widget: string, required: false }
+          - { name: dispatch_note, label: "डिस्पैच लाइन (प्रोडक्ट पेज पर)", widget: string, required: false }
+          - { name: shipping_policy, label: "Shipping Policy", widget: text }
+          - { name: return_policy, label: "Return / Refund Policy", widget: text }
+          - { name: privacy_policy, label: "Privacy Policy", widget: text }
+          - { name: terms, label: "Terms & Conditions", widget: text }
+          - { name: site_url, label: "वेबसाइट का पता", widget: string }
+          - { name: google_site_verification, label: "Google Search Console कोड", widget: string, required: false }
+          - { name: currency, label: "Currency", widget: hidden, default: INR }
+          - { name: github_repo, label: "GitHub repo", widget: hidden }
