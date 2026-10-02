@@ -88,6 +88,30 @@ const orgLd = {
   telephone: waNumber ? "+" + waNumber : undefined, email: S.email || undefined, sameAs, priceRange: "₹₹",
 };
 
+// ---------- Meta Pixel (ID from admin settings) ----------
+const pixelId = digits(S.meta_pixel_id);
+const pixelHead = pixelId ? `<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${pixelId}');fbq('track','PageView');</script>` : "";
+const pixelBody = pixelId ? `<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"></noscript>` : "";
+
+// ---------- Instagram / Facebook reels strip (shown at the bottom of every page) ----------
+const reels = (Array.isArray(S.reels) ? S.reels : []).map((r) => ({ link: String(r?.link || "").trim(), video: String(r?.video || "").trim(), cover: String(r?.cover || "").trim(), caption: String(r?.caption || "").trim() }))
+  .filter((r) => r.video || r.cover);
+const igLink = socials.find((x) => /insta/i.test(x.name))?.url || "";
+const igHandle = (igLink.match(/instagram\.com\/([^/?#]+)/i) || [])[1] || "";
+const reelsHtml = !reels.length ? "" : `<section class="reels" aria-label="Reels">
+  <div class="wrap">
+    <div class="section-head"><div><p class="eyebrow">${esc(S.reels_eyebrow || "As seen on Instagram")}</p><h2>${esc(S.reels_title || "Watch & Shop")}</h2></div>${igLink ? `<a class="link" href="${esc(igLink)}" target="_blank" rel="noopener">${igHandle ? "@" + esc(igHandle) : "Follow us"} →</a>` : ""}</div>
+    <div class="reel-row">${reels.map((r) => {
+      const fb = /facebook\.com|fb\.watch/i.test(r.link);
+      const media = r.video
+        ? `<video src="${esc(u(r.video))}"${r.cover ? ` poster="${esc(u(r.cover))}"` : ""} muted loop playsinline preload="none" data-reel aria-hidden="true"></video>`
+        : `<img src="${esc(u(r.cover))}" alt="${esc(r.caption || brand + " reel")}" width="540" height="960" loading="lazy" decoding="async">`;
+      const inner = `${media}<span class="reel-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></span>${r.caption ? `<span class="reel-cap">${esc(r.caption)}</span>` : ""}<span class="reel-src">${socialIcon(fb ? "facebook" : "instagram")}</span>`;
+      return r.link ? `<a class="reel" href="${esc(r.link)}" target="_blank" rel="noopener" aria-label="${esc(r.caption || "Watch reel")} on ${fb ? "Facebook" : "Instagram"}">${inner}</a>` : `<div class="reel">${inner}</div>`;
+    }).join("")}</div>
+  </div>
+</section>`;
+
 // ---------- layout ----------
 const annItems = String(S.announcement || "").split("|").map((x) => x.trim()).filter(Boolean);
 
@@ -116,8 +140,10 @@ ${S.google_site_verification ? `<meta name="google-site-verification" content="$
 <link rel="stylesheet" href="${u("assets/style.css")}">
 <link rel="alternate" type="application/rss+xml" title="${esc(brand)} Blog" href="${u("blog/feed.xml")}">
 ${lds}
+${pixelHead}
 </head>
 <body class="${bodyClass}">
+${pixelBody}
 <a class="skip" href="#main">Skip to content</a>
 ${annItems.length ? `<div class="announce" aria-label="Announcements"><div class="announce-track">${[...annItems, ...annItems, ...annItems, ...annItems].map((a, i) => `<span${i >= annItems.length ? ' aria-hidden="true"' : ""}>${esc(a)}</span>`).join("")}</div></div>` : ""}
 <header class="site-header">
@@ -160,6 +186,7 @@ ${annItems.length ? `<div class="announce" aria-label="Announcements"><div class
 <main id="main">
 ${body}
 </main>
+${noindex ? "" : reelsHtml}
 <section class="usp">
   <div class="wrap usp-grid">
     <div>${I.needle}<strong>Made in Jaipur</strong><span>Designed and stitched by our own team</span></div>
@@ -297,7 +324,7 @@ for (const p of products) {
   const disc = num(S.prepaid_discount_percent);
   const body = `
 <nav class="wrap crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u(cat.url)}">${esc(cat.plural)}</a> / <span>${esc(p.title)}</span></nav>
-<section class="wrap product" data-product="${esc(p.slug)}">
+<section class="wrap product" data-product="${esc(p.slug)}" data-price="${p.price ?? ""}">
   <div class="gallery">
     <div class="slides" data-slides>
       ${p.images.map((im, i) => `<figure class="slide"><img src="${esc(u(im))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></figure>`).join("")}
