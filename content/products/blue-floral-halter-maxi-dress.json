@@ -2,16 +2,17 @@
   "title": "Blue Floral Halter Neck Maxi Dress",
   "category": "Dress",
   "color": "Blue & Grey",
-  "price": null,
-  "mrp": null,
+  "price": 1499,
+  "mrp": 2499,
   "sizes": [
     "S",
     "M",
     "L",
     "XL",
-    "XXL"
+    "XXL",
+    "XS"
   ],
-  "fabric": "",
+  "fabric": "cotton",
   "description": "A flowy floral maxi dress in soft blue and grey tones. A halter neck with a lace-up open back, a fitted bodice and a full, gathered skirt with a ruffle hem that twirls beautifully.\n\nPerfect for brunches, holidays and summer evenings. Made in Jaipur.",
   "images": [
     "/images/products/blue-halter-1.jpg",
