@@ -7,6 +7,9 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
 
+  // ---------- Meta Pixel events (only if pixel is on) ----------
+  const track = (ev, data) => { try { window.fbq && window.fbq("track", ev, data); } catch {} };
+
   // ---------- storage (safe) ----------
   const KEY = "bk_bag_v1";
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
@@ -41,6 +44,8 @@
     const b = [...bag]; const f = b.find((i) => i.slug === slug && i.size === size);
     if (f) f.qty = Math.min(10, f.qty + qty); else b.push({ slug, size, qty });
     setBag(b);
+    const pr = Number($("[data-product]")?.dataset.price) || undefined;
+    track("AddToCart", { content_ids: [slug], content_type: "product", value: pr, currency: "INR" });
   }
   async function renderCart() {
     const box = $("[data-cart-items]"); if (!box) return;
@@ -146,6 +151,7 @@
     setupPayOptions().catch(() => { $("[data-place]").disabled = false; });
     const form = $("[data-co-form]"), err = $("[data-co-error]"), btn = $("[data-place]");
     const fail = (m, extra = "") => { err.innerHTML = esc(m) + extra; err.hidden = false; btn.disabled = false; };
+    track("InitiateCheckout", { num_items: count(), currency: "INR" });
     form.addEventListener("submit", async (e) => {
       e.preventDefault(); if (btn.disabled) return; err.hidden = true;
       const f = Object.fromEntries(new FormData(form)); for (const k in f) f[k] = String(f[k]).trim();
@@ -168,6 +174,7 @@
               let ok = false; try { const v = await fetch(url("api/verify-payment"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(resp) }); ok = v.ok && (await v.json()).ok === true; } catch {}
               const txt = orderText(cat, f, ref, o.amount / 100, `PAID online (Payment ID ${resp.razorpay_payment_id})`);
               if (ok) {
+                track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" });
                 setBag([]);
                 showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">Payment ID: ${esc(resp.razorpay_payment_id)}</p>${BK.wa ? `<a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener">Get updates on WhatsApp</a>` : ""}<p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
               } else {
@@ -192,5 +199,16 @@
       const txt = orderText(cat, f, ref, t.total, "Prepaid – please share payment details");
       showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Tap below to send your order <strong>${ref}</strong> to us on WhatsApp. We will confirm it and share payment details.</p><a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a><p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
     });
+  }
+
+  // product view
+  const pv = $("[data-product]");
+  if (pv) track("ViewContent", { content_ids: [pv.dataset.product], content_type: "product", value: Number(pv.dataset.price) || undefined, currency: "INR" });
+
+  // reels: play muted only while visible (saves data)
+  const vids = $$("video[data-reel]");
+  if (vids.length && "IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting) { if (v.preload === "none") v.preload = "metadata"; v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.5 });
+    vids.forEach((v) => io.observe(v));
   }
 })();
