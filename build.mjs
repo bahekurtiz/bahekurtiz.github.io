@@ -75,6 +75,102 @@ const offUsd = (p) => (p.price_usd && p.mrp_usd && p.mrp_usd > p.price_usd ? Mat
 const uniq = (arr) => [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 const fabrics = uniq(products.map((p) => p.fabric).filter((f) => f && f !== "Other"));
 const prints = uniq(products.flatMap((p) => p.print_work));
+// ---------- Fabric & print guide data (built-in; grows with the admin lists) ----------
+const CRAFT = {
+  print: {
+    "Hand Block Print": ["Rajasthan", "Wooden blocks are hand-carved, dipped in colour and pressed onto the fabric one by one. Small shifts in each print show it was made by hand.", "Gentle hand wash in cold water, dry in shade."],
+    "Sanganeri Print": ["Sanganer, Jaipur", "Fine floral and paisley motifs printed by hand on a light or white base. Sanganeri prints carry a Geographical Indication (GI) tag.", "Cold hand wash, dry inside-out in shade."],
+    "Bagru Print": ["Bagru, near Jaipur", "Earthy reds, blacks and browns from natural dyes, printed with wooden blocks by the Chhipa community. Bagru prints carry a GI tag.", "Wash separately in cold water the first few times."],
+    "Dabu Print": ["Rajasthan", "A mud-resist print: a paste of clay, gum and lime is blocked onto cloth before dyeing, leaving soft, crackled patterns.", "Cold hand wash, mild soap, dry in shade."],
+    "Ajrakh Print": ["Kutch (Gujarat) and Barmer (Rajasthan)", "Deep indigo and madder-red geometric prints made through many rounds of resist printing and natural dyeing.", "Wash separately in cold water; colour softens beautifully over time."],
+    "Indigo Print": ["Rajasthan & Gujarat", "Patterns printed or resisted on fabric dyed in indigo blue, one of the oldest natural dyes.", "Wash separately, cold water, dry in shade."],
+    "Kalamkari": ["Andhra Pradesh", "'Kalam' means pen: motifs are hand-drawn or block printed with natural dyes, often telling stories from nature and mythology.", "Cold hand wash, avoid strong detergent."],
+    "Bagh Print": ["Bagh, Madhya Pradesh", "Red and black geometric and floral block prints on a white base, made with natural dyes.", "Cold hand wash, dry in shade."],
+    "Jaipuri Print": ["Jaipur", "The classic Jaipur look: bright florals, buttis and borders, hand block or screen printed.", "Cold wash, dry in shade."],
+    "Mughal Print": ["Rajasthan", "Motifs inspired by Mughal art: flowering plants, vines and arches in fine detail.", "Cold hand wash."],
+    "Indigo Dabu": ["Rajasthan", "Dabu mud-resist combined with indigo dyeing for blue-and-white crackle patterns.", "Wash separately in cold water."],
+    "Bandhani": ["Rajasthan & Gujarat", "Tie-dye art: tiny points of cloth are tied tightly with thread before dyeing, creating dotted patterns.", "Dry clean first wash, then gentle cold hand wash."],
+    "Leheriya": ["Rajasthan", "'Lehar' means wave: cloth is rolled and tied diagonally before dyeing to make wave-like stripes. Loved for Teej and monsoon.", "Cold hand wash, dry in shade."],
+    "Shibori / Tie-Dye": ["Japan-inspired, made in India", "Fabric is folded, twisted or bound before dyeing for soft, unique patterns.", "Wash separately in cold water."],
+    "Batik": ["India & Indonesia", "Wax is applied on cloth before dyeing; the wax resists colour and creates fine crackle lines.", "Cold hand wash."],
+    "Ikat": ["Odisha, Telangana, Gujarat", "Threads are tie-dyed before weaving, so the pattern appears with a soft, feathered edge.", "Gentle hand wash or dry clean."],
+    "Madhubani Print": ["Bihar", "Folk-art motifs of nature and festivals inspired by Madhubani painting.", "Cold hand wash."],
+    "Pichwai Print": ["Nathdwara, Rajasthan", "Lotus, cows and temple motifs inspired by Pichwai painting.", "Cold hand wash."],
+    "Screen Print": ["India", "Colour is pushed through a fine mesh screen; crisp, even prints at an easy price.", "Machine wash gentle, cold."],
+    "Digital Print": ["India", "Designs printed directly by machine, allowing rich detail and many colours.", "Gentle cold wash, dry in shade."],
+    "Floral Print": ["", "Flower motifs in any technique – the most loved print family for kurtis.", "Follow the care of the fabric."],
+    "All Over Print": ["", "The print covers the whole garment evenly.", "Follow the care of the fabric."],
+    "Foil Print": ["India", "Metallic foil pressed onto the fabric for a festive shine.", "Hand wash inside-out, do not iron on the foil."],
+    "Hand Painted": ["India", "Each motif is painted by hand with a brush – no two pieces are the same.", "Dry clean or gentle cold hand wash."],
+    "Gota Patti": ["Rajasthan", "Gold or silver ribbon (gota) cut into shapes and hand-stitched onto fabric – a Rajasthani festive classic.", "Dry clean recommended."],
+    "Embroidered": ["India", "Thread work added by hand or machine for texture and detail.", "Gentle hand wash inside-out or dry clean."],
+    "Thread Work": ["India", "Colourful thread embroidery on necklines, sleeves or all over.", "Gentle hand wash inside-out."],
+    "Chikankari": ["Lucknow", "Delicate white-on-white hand embroidery from Lucknow, with a GI tag.", "Gentle hand wash or dry clean."],
+    "Zari Work": ["India", "Metallic gold or silver thread embroidery for festive wear.", "Dry clean."],
+    "Mirror Work": ["Rajasthan & Gujarat", "Small mirrors stitched into embroidery that catch the light.", "Dry clean or very gentle hand wash."],
+    "Sequin Work": ["India", "Sequins stitched on for sparkle at parties and weddings.", "Dry clean."],
+    "Kantha": ["West Bengal", "Running-stitch embroidery that forms soft, rippled patterns.", "Gentle hand wash."],
+    "Phulkari": ["Punjab", "Bright floral embroidery in silk thread – 'phul' means flower.", "Dry clean."],
+    "Kutch Work": ["Kutch, Gujarat", "Dense, colourful embroidery often with mirrors, from the Kutch region.", "Dry clean."],
+    "Pintuck": ["", "Fine stitched folds that add texture without extra embellishment.", "Follow the care of the fabric."],
+    "Lace Work": ["", "Lace trims or panels on hems, sleeves and yokes.", "Gentle hand wash."],
+    "Solid / Plain": ["", "A single colour, no print – easy to style with printed dupattas and bottoms.", "Follow the care of the fabric."],
+  },
+  fabric: {
+    "Cotton": ["Natural", "Soft, breathable and skin-friendly – the best everyday fabric for Indian summers.", "Cold wash; may shrink slightly on the first wash."],
+    "Pure Cotton": ["Natural", "100% cotton: breathable, absorbent and comfortable all day.", "Cold wash, dry in shade."],
+    "Cambric Cotton": ["Natural", "Fine, tightly woven, smooth cotton that holds block prints crisply.", "Cold wash, iron medium."],
+    "Mul Cotton (Mulmul)": ["Natural", "Very light, airy and soft cotton – feels like a breeze in summer.", "Gentle hand wash, dry in shade."],
+    "Cotton Slub": ["Natural", "Cotton with small natural thicker threads (slubs) for a textured, handloom feel.", "Cold wash."],
+    "Cotton Flex": ["Blend", "Cotton with a little stretch for an easy fit.", "Cold wash."],
+    "Cotton Blend": ["Blend", "Cotton mixed with another fibre for less wrinkling and more strength.", "Cold wash."],
+    "Cotton Silk": ["Blend", "Cotton's comfort with a soft silk sheen – good for festive daywear.", "Gentle hand wash or dry clean."],
+    "Cotton Linen": ["Blend", "Breathable, textured and cool – a relaxed, premium look.", "Cold wash, iron while damp."],
+    "Voile": ["Natural", "Light, semi-sheer cotton that drapes softly.", "Gentle hand wash."],
+    "Poplin": ["Natural", "Smooth, crisp cotton weave that keeps its shape.", "Machine wash cold."],
+    "Linen": ["Natural", "Made from flax: very breathable, gets softer with every wash.", "Cold wash, iron while damp."],
+    "Khadi": ["Natural, handspun", "Hand-spun and hand-woven fabric – breathable and full of character.", "Gentle hand wash."],
+    "Rayon": ["Semi-natural", "Made from wood pulp: smooth, flowy and cool on the skin.", "Gentle cold hand wash; do not wring."],
+    "Rayon Slub": ["Semi-natural", "Rayon with a textured slub weave and lovely drape.", "Gentle cold hand wash."],
+    "Viscose": ["Semi-natural", "Silky, soft and flowy – drapes beautifully in long kurtis and dresses.", "Gentle cold hand wash or dry clean."],
+    "Modal": ["Semi-natural", "Very soft, breathable and resistant to shrinking.", "Gentle cold wash."],
+    "Modal Silk": ["Blend", "Modal with a silk-like sheen – light and festive.", "Dry clean recommended."],
+    "Muslin": ["Natural / blend", "Soft, finely woven fabric with a gentle sheen.", "Gentle hand wash."],
+    "Chanderi": ["Chanderi, Madhya Pradesh", "Light, sheer handloom fabric with a soft shine. Chanderi carries a GI tag.", "Dry clean recommended."],
+    "Chanderi Silk": ["Chanderi, Madhya Pradesh", "Chanderi woven with silk for a richer sheen – perfect for festivals.", "Dry clean."],
+    "Maheshwari": ["Maheshwar, Madhya Pradesh", "Light handloom cotton-silk with a reversible border, GI tagged.", "Dry clean."],
+    "Kota Doria": ["Kota, Rajasthan", "Airy, chequered weave (khats) from Kota – light and elegant. GI tagged.", "Gentle hand wash or dry clean."],
+    "Banarasi": ["Varanasi", "Rich woven fabric often with zari motifs – a wedding favourite.", "Dry clean only."],
+    "Jacquard": ["", "Pattern is woven into the fabric itself, not printed.", "Gentle hand wash or dry clean."],
+    "Art Silk": ["Synthetic", "Silk-like look and shine at an easy price.", "Gentle hand wash or dry clean."],
+    "Silk Blend": ["Blend", "Silk mixed with another fibre for sheen and strength.", "Dry clean."],
+    "Tussar Silk": ["Jharkhand, Bihar, Odisha", "Wild silk with a natural gold tone and rich texture.", "Dry clean."],
+    "Dola Silk": ["Blend", "Soft, light silk-like fabric that takes prints and embroidery well.", "Dry clean."],
+    "Russian Silk": ["Synthetic", "Smooth and shiny with good fall.", "Gentle hand wash or dry clean."],
+    "Roman Silk": ["Synthetic", "Soft, slightly stretchy silk-look fabric.", "Gentle hand wash."],
+    "Georgette": ["Synthetic / silk", "Light, flowy and slightly crinkled – great for anarkalis and gowns.", "Gentle hand wash or dry clean."],
+    "Faux Georgette": ["Synthetic", "Georgette look and flow, easy care.", "Gentle hand wash."],
+    "Chiffon": ["Synthetic / silk", "Sheer, very light and floaty.", "Gentle hand wash or dry clean."],
+    "Crepe": ["Synthetic / blend", "Fine crinkled texture that resists wrinkles – good for travel and office.", "Gentle hand wash."],
+    "Satin": ["Synthetic / silk", "Glossy, smooth face with luxurious drape.", "Dry clean recommended."],
+    "Organza": ["Synthetic / silk", "Crisp, sheer and structured – often used for dupattas and overlays.", "Dry clean."],
+    "Tissue": ["", "Fabric woven with metallic threads for a glowing festive look.", "Dry clean."],
+    "Net": ["Synthetic", "Open mesh fabric used for dupattas and party wear.", "Dry clean."],
+    "Hakoba / Schiffli": ["", "Fabric with cut-work eyelet embroidery – light and pretty for summer.", "Gentle hand wash."],
+    "Velvet": ["", "Soft, plush pile – rich and warm for winter weddings.", "Dry clean only."],
+    "Denim": ["Cotton", "Sturdy twill cotton for casual tunics and dresses.", "Machine wash cold, inside-out."],
+    "Wool": ["Natural", "Warm natural fibre for winter kurtis.", "Dry clean or wool wash."],
+    "Bamboo": ["Semi-natural", "Very soft, breathable and kind to the skin.", "Gentle cold wash."],
+    "Tencel": ["Semi-natural", "Smooth, breathable fibre made from wood pulp in a closed-loop process.", "Gentle cold wash."],
+    "Polyester": ["Synthetic", "Strong, wrinkle-resistant and quick to dry.", "Machine wash cold."],
+    "Lycra": ["Synthetic", "Stretch fibre, usually blended for comfort fit.", "Cold wash, no high heat."],
+  },
+};
+
+const craftCount = (type, n) => products.filter((p) => (type === "fabric" ? p.fabric === n : p.print_work.includes(n))).length;
+const craftUrl = (n) => `craft/${slugify(n)}/`;
+const craftInfo = (type, n) => CRAFT[type][n] || null;
+const craftLink = (type, n) => craftCount(type, n) ? `<a href="${u(craftUrl(n))}">${esc(n)}</a>` : esc(n);
 const occasions = uniq(products.flatMap((p) => p.occasion));
 const addDays = (iso, d) => { const t = new Date(iso + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - d); return t.toISOString().slice(0, 10); };
 const nice = (iso) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
@@ -259,7 +355,7 @@ ${pixelHead}
 <body class="${bodyClass}">
 ${pixelBody}
 <a class="skip" href="#main">Skip to content</a>
-${annItems.length ? `<div class="announce" aria-label="Announcements"><div class="announce-track">${[...annItems, ...annItems, ...annItems, ...annItems].map((a, i) => `<span${i >= annItems.length ? ' aria-hidden="true"' : ""}>${esc(a)}</span>`).join("")}</div></div>` : ""}
+<div class="announce" aria-label="Announcements">${annItems.length ? `<div class="announce-track">${[...annItems, ...annItems, ...annItems, ...annItems].map((a, i) => `<span${i >= annItems.length ? ' aria-hidden="true"' : ""}>${esc(a)}</span>`).join("")}</div>` : `<div class="announce-track"><span>Hand block printed in Jaipur · Ships worldwide</span></div>`}<div class="announce-cta"><a href="${u("wholesale/")}" class="ann-trade">For boutiques & brands</a><button type="button" class="ann-follow" data-follow><span data-follow-label>＋ Follow</span></button></div></div>
 <header class="site-header">
   <div class="wrap nav">
     <button class="icon-btn menu-btn" aria-label="Open menu" aria-expanded="false" data-open-menu>${I.menu}</button>
@@ -299,6 +395,7 @@ ${annItems.length ? `<div class="announce" aria-label="Announcements"><div class
   <a href="${u("wishlist/")}">Wishlist</a>
   <a href="${u("feed/")}">▶ Feed – watch & shop</a>
   <a href="${u("mirror/")}">🪞 Mirror – try your look</a>
+  <a href="${u("craft/")}">🧵 Fabric & print guide</a>
   <button class="mnav-cur" type="button" data-follow><span data-follow-label>＋ Follow Bahe Kurtiz</span></button>
   <a href="${u("refer/")}">🎁 Saheli Credit · Refer & Earn</a>
   <a href="${u("gift-card/")}">💌 E-Gift Card</a>
@@ -497,7 +594,7 @@ ${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter
 ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class="shopby"><div class="wrap">
   ${occasions.length ? `<div class="shopby-row"><p class="eyebrow">Shop by occasion</p><div class="pills">${occasions.map((o) => `<a class="pill" href="${u("occasion/" + slugify(o) + "/")}">${esc(o)}</a>`).join("")}</div></div>` : ""}
   ${prints.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by print</p><div class="pills">${prints.map((x) => `<a class="pill" href="${u(qs("print", x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
-  ${fabrics.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by fabric</p><div class="pills">${fabrics.map((x) => `<a class="pill" href="${u(qs("fabric", x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
+  ${fabrics.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by fabric</p><div class="pills">${fabrics.map((x) => `<a class="pill" href="${u(craftUrl(x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
 </div></section>` : ""}
 <section class="b2b">
   <div class="wrap b2b-grid">
@@ -558,6 +655,14 @@ listing({ file: "shop/index.html", pathname: "shop/", h1: "Shop All", intro: `${
   title: `Shop Women's Kurtis & Dresses Online | ${brand}`, description: `Browse all kurtis and dresses by ${brand}, Jaipur. Embroidered kurtis, floral dresses and more with secure online payment and pan-India delivery.` });
 { const best = products.filter((p) => p.bestseller); if (best.length) listing({ file: "bestsellers/index.html", pathname: "bestsellers/", h1: "Bestsellers", intro: `Our most loved styles, made in Jaipur`, items: best, crumbs: "<span>Bestsellers</span>",
   title: `Bestsellers – Most Loved Kurtis & Dresses | ${brand}`, description: `Shop the bestselling kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints loved by our customers.` }); }
+// ---------- Fabric & print guide + one page per fabric / print that has products ----------
+{ const sec = (type, title) => { const names = uniq([...Object.keys(CRAFT[type]), ...(type === "fabric" ? fabrics : prints)]);
+    const rows = names.map((n) => ({ n, c: craftInfo(type, n), k: craftCount(type, n) })).sort((a, b) => b.k - a.k || a.n.localeCompare(b.n));
+    return `<section class="wrap section"><h2>${title}</h2><div class="craft-grid">${rows.map(({ n, c, k }) => `<article class="craft-card" id="${slugify(n)}"><h3>${esc(n)}</h3>${c?.[0] ? `<p class="eyebrow">${esc(c[0])}</p>` : ""}${c ? `<p>${esc(c[1])}</p><p class="muted small">🧺 ${esc(c[2])}</p>` : ""}${k ? `<a class="btn btn-sm" href="${u(craftUrl(n))}">Shop ${k} ${k === 1 ? "style" : "styles"} →</a>` : `<a class="link small" href="https://wa.me/${waNumber}?text=${encodeURIComponent("Hi " + brand + ", do you have " + n + " kurtis?")}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`}</article>`).join("")}</div></section>`; };
+  add("craft/index.html", page({ title: `Fabric & Print Guide – Bagru, Sanganeri, Ajrakh, Chanderi | ${brand}`, description: clip(`A simple guide to Indian hand block prints and fabrics – Sanganeri, Bagru, Dabu, Ajrakh, Kalamkari, Chanderi, Mul Cotton, Rayon and more – with care tips, from ${brand}, Jaipur.`), pathname: "craft/",
+    body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Craft guide</p><h1>Fabric & Print Guide</h1><p class="lead">Every print has a place, a community and a story. Here is what each one means, where it comes from, and how to care for it.</p></div></section>${sec("print", "Prints & handwork")}${sec("fabric", "Fabrics")}` }));
+  for (const [type, names] of [["print", prints], ["fabric", fabrics]]) for (const n of names) { const items = products.filter((p) => (type === "fabric" ? p.fabric === n : p.print_work.includes(n))); if (!items.length) continue; const c = craftInfo(type, n);
+    listing({ file: `${craftUrl(n)}index.html`, pathname: craftUrl(n), h1: `${n} ${type === "fabric" ? "Kurtis & Dresses" : "Kurtis & Dresses"}`, intro: `${items.length} ${items.length === 1 ? "style" : "styles"}${c?.[0] ? " · " + c[0] : ""}`, items, crumbs: `<a href="${u("craft/")}">Fabric & print guide</a> / <span>${esc(n)}</span>`, title: `${n} Kurtis & Dresses Online – Made in Jaipur | ${brand}`, description: clip(`Shop ${n} kurtis, kurta sets and dresses by ${brand}, Jaipur. ${c ? c[1] : ""}`), seo: c ? `${c[1]}\n\nCare: ${c[2]}` : "" }); } }
 for (const o of occasions) { const items = products.filter((p) => p.occasion.includes(o)); const slug = slugify(o); listing({ file: `occasion/${slug}/index.html`, pathname: `occasion/${slug}/`, h1: `${o} Wear`, intro: `${items.length} styles for ${o.toLowerCase()}, made in Jaipur`, items, crumbs: `<span>${esc(o)}</span>`, title: `${o} Kurtis & Dresses – Hand Block Print | ${brand}`, description: `Shop ${o.toLowerCase()} kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints, secure prepaid payment.` }); }
 const catSeo = Object.fromEntries((Array.isArray(S.category_seo) ? S.category_seo : []).map((x) => [String(x?.category || "").trim(), String(x?.text || "").trim()]));
 for (const c of categories) {
@@ -607,9 +712,10 @@ for (const p of products) {
     <ul class="perks"><li>${I.truck}${esc(S.dispatch_note || "Ships from Jaipur")}</li>${p.ships_abroad && intlOn ? `<li>${I.globe}Ships worldwide · <a href="${u(S.intl_shipping_policy ? "international-shipping/" : "shipping/")}">delivery times</a></li>` : ""}<li>${I.shield}Secure prepaid payment</li><li>${I.swap}<a href="${u("returns/")}">Easy exchange policy</a></li></ul>
     <details open><summary>Description</summary><div>${paras(p.description) || "<p>Handcrafted in Jaipur.</p>"}</div></details>
     <details><summary>Product details</summary><dl class="specs">
-      ${p.color ? `<dt>Colour</dt><dd>${esc(p.color)}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${esc(p.fabric)}</dd>` : ""}${p.print_work.length ? `<dt>Print / work</dt><dd>${esc(p.print_work.join(", "))}</dd>` : ""}
+      ${p.color ? `<dt>Colour</dt><dd>${esc(p.color)}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${craftLink("fabric", p.fabric)}</dd>` : ""}${p.print_work.length ? `<dt>Print / work</dt><dd>${p.print_work.map((n) => craftLink("print", n)).join(", ")}</dd>` : ""}
       ${p.sizes.length ? `<dt>Sizes</dt><dd>${esc(p.sizes.join(", "))}</dd>` : ""}<dt>Made in</dt><dd>Jaipur, India</dd><dt>Status</dt><dd>${p.in_stock ? "In stock" : "Made to order"}</dd>
     </dl></details>
+    ${(() => { const rows = [...p.print_work.map((n) => ["print", n]), ...(p.fabric ? [["fabric", p.fabric]] : [])].map(([t, n]) => [n, craftInfo(t, n)]).filter(([, c]) => c); return rows.length ? `<details><summary>About the fabric & print</summary><div class="craft-about">${rows.map(([n, c]) => `<p><b>${esc(n)}</b>${c[0] ? ` <small class="muted">· ${esc(c[0])}</small>` : ""}<br>${esc(c[1])}<br><small>🧺 Care: ${esc(c[2])}</small></p>`).join("")}<p><a class="link" href="${u("craft/")}">Fabric & print guide →</a></p></div></details>` : ""; })()}
     <details class="passport" data-passport><summary>Craft passport</summary><div class="passport-body"><dl class="specs"><dt>Made in</dt><dd>Sanganer, Jaipur, India</dd><dt>Maker</dt><dd>${esc(brand)}</dd>${p.print_work.length ? `<dt>Craft</dt><dd>${esc(p.print_work.join(", "))}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${esc(p.fabric)}</dd>` : ""}<dt>Product ID</dt><dd>${esc(p.slug)}</dd></dl><div class="passport-qr"><div data-qr-box data-qr="${esc(SITE_URL + "/" + p.url + "?src=qr")}"></div><small>Scan to see this piece online. Printed on our tags.</small></div></div></details>
     <details><summary>Shipping & returns</summary><div>${paras(String(S.shipping_policy || "").split(/\n\s*\n/)[1] || S.dispatch_note)}<p><a href="${u("shipping/")}">Shipping (India)</a> · <a href="${u("returns/")}">Returns (India)</a>${S.intl_shipping_policy ? ` · <a href="${u("international-shipping/")}">International shipping</a>` : ""}${S.intl_return_policy ? ` · <a href="${u("international-returns/")}">International returns</a>` : ""}</p></div></details>
   </div>
@@ -899,6 +1005,134 @@ add("404.html", page({ title: `Page not found | ${brand}`, description: "Page no
   body: `<section class="wrap section prose center"><h1>This page has moved</h1><p>The page you are looking for is not here anymore. Our latest collection is waiting for you.</p><p><a class="btn" href="${u("shop/")}">Shop the collection</a></p></section>` }));
 
 // ---------- write ----------
+// ---------- Owner business dashboard: /admin/dashboard/ (reads the Google Sheet Apps Script, owner key only) ----------
+function dashMain() {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const inr = (n) => "₹" + Math.round(n || 0).toLocaleString("en-IN");
+  const KK = "bk_owner_key"; const getK = () => { try { return localStorage.getItem(KK) || ""; } catch { return ""; } };
+  const root = $("[data-dash]"), URL0 = (window.BK && window.BK.sheet) || "";
+  let D = null, month = "";
+  const box = (h) => { $("[data-dash-body]").innerHTML = h; };
+  if (!URL0) { box(`<div class="dash-card"><h2>Pehle Google Sheet jodo</h2><p>Admin → Settings → "ग्राहक डेटा – Google Sheet का Web App लिंक" mein Apps Script ka link daalo. Phir yahan wapas aao.</p></div>`); return; }
+  const login = (msg) => { box(`<form class="dash-card dash-login" data-login><h2>Owner login</h2><p class="muted">Apps Script mein jo <b>OWNER_KEY</b> rakha hai, wahi yahan daalo. Ye sirf is phone mein save hoga.</p>${msg ? `<p class="dash-err">${esc(msg)}</p>` : ""}<input name="k" type="password" placeholder="Owner key" required autocomplete="current-password"><button class="btn" type="submit">Dashboard kholo</button></form>`);
+    $("[data-login]").addEventListener("submit", (e) => { e.preventDefault(); try { localStorage.setItem(KK, e.target.k.value.trim()); } catch {} load(); }); };
+  const post = (data) => fetch(URL0, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, key: getK() }) });
+  async function load() {
+    if (!getK()) return login();
+    $("[data-dash-status]").textContent = "Loading…";
+    try { const r = await fetch(URL0 + (URL0.includes("?") ? "&" : "?") + "key=" + encodeURIComponent(getK()) + "&t=" + Date.now()); D = await r.json(); } catch { $("[data-dash-status]").textContent = ""; return box(`<div class="dash-card"><h2>Data nahi aaya</h2><p>Internet check karo. Agar Apps Script abhi purana hai to naya v3 code paste karke "New version" deploy karo.</p><button class="btn" type="button" onclick="location.reload()">Dobara try karo</button></div>`); }
+    if (D.error === "key") { try { localStorage.removeItem(KK); } catch {} $("[data-dash-status]").textContent = ""; return login("Key galat hai. Dobara daalo."); }
+    $("[data-dash-status]").textContent = "Updated " + new Date(D.updated).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+    if (!month) { const cur = new Date().toISOString().slice(0, 7); month = D.months.some((m) => m.month === cur) ? cur : ""; }
+    render();
+  }
+  const sumM = (ms) => ms.reduce((a, b) => { for (const k of ["sales", "orders", "pending", "refunds", "shipLost", "ship", "expenses", "returns", "rto", "exchanges", "cancels", "net"]) a[k] = (a[k] || 0) + (b[k] || 0); for (const c in b.exp) a.exp[c] = (a.exp[c] || 0) + b.exp[c]; return a; }, { exp: {} });
+  const mName = (k) => { const [y, m] = k.split("-"); return new Date(+y, +m - 1, 1).toLocaleString("en-IN", { month: "short", year: "2-digit" }); };
+  function chart(ms) {
+    const L = ms.slice(-12); if (!L.length) return `<p class="muted">Abhi koi data nahi. Pehla order aate hi chart banega.</p>`;
+    const W = 640, H = 230, pl = 54, pb = 28, pt = 12, cost = (m) => m.refunds + m.shipLost + m.ship + m.expenses;
+    const max = Math.max(1, ...L.map((m) => Math.max(m.sales, cost(m)))); const step = Math.pow(10, Math.floor(Math.log10(max))); const top = Math.ceil(max / step) * step;
+    const gw = (W - pl - 8) / L.length, bw = Math.min(22, gw / 2 - 4), y = (v) => pt + (H - pt - pb) * (1 - v / top);
+    const ticks = [0, top / 2, top].map((v) => `<line x1="${pl}" x2="${W - 4}" y1="${y(v)}" y2="${y(v)}" class="dash-grid"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end" class="dash-ax">${v >= 1e5 ? (v / 1e5).toFixed(1) + "L" : v >= 1e3 ? Math.round(v / 1e3) + "k" : v}</text>`).join("");
+    const bar = (x, v, c, i, lab) => { const h = Math.max(0, y(0) - y(v)); return `<path d="M${x},${y(0)} v${-Math.max(0, h - 4)} q0,-4 4,-4 h${bw - 8} q4,0 4,4 v${Math.max(0, h - 4)} z" fill="${c}" data-tip="${esc(lab)}" data-i="${i}"/>`; };
+    const bars = L.map((m, i) => { const x = pl + i * gw + gw / 2 - bw - 1; return bar(x, m.sales, "#009688", i, `${mName(m.month)} · Sales ${inr(m.sales)}`) + bar(x + bw + 2, cost(m), "#c0702a", i, `${mName(m.month)} · Kharcha ${inr(cost(m))}`) + `<text x="${pl + i * gw + gw / 2}" y="${H - 8}" text-anchor="middle" class="dash-ax">${mName(m.month)}</text><rect x="${pl + i * gw}" y="${pt}" width="${gw}" height="${H - pt - pb}" fill="transparent" data-hit="${i}"/>`; }).join("");
+    return `<div class="dash-legend"><span><i style="background:#009688"></i>Sales</span><span><i style="background:#c0702a"></i>Kharcha (refund + shipping + expenses)</span></div><div class="dash-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly sales vs costs">${ticks}${bars}</svg><div class="dash-tip" data-tipbox hidden></div></div>
+      <details class="dash-table-wrap"><summary>Table dekho</summary><table class="dash-table"><thead><tr><th>Month</th><th>Sales</th><th>Kharcha</th><th>Profit</th></tr></thead><tbody>${L.map((m) => `<tr><td>${mName(m.month)}</td><td>${inr(m.sales)}</td><td>${inr(cost(m))}</td><td class="${m.net < 0 ? "neg" : "pos"}">${inr(m.net)}</td></tr>`).join("")}</tbody></table></details>`;
+  }
+  const hbars = (rows, unit = "") => { if (!rows.length) return `<p class="muted small">Abhi data nahi.</p>`; const mx = Math.max(...rows.map((r) => r[1])); return `<ul class="dash-hbars">${rows.map(([k, v]) => `<li><span class="dash-hl">${esc(k)}</span><span class="dash-hb"><i style="width:${Math.max(3, v / mx * 100)}%"></i></span><b>${unit === "₹" ? inr(v) : v}</b></li>`).join("")}</ul>`; };
+  function insights(t, all) {
+    const out = [], ret = t.returns + t.rto, rate = t.orders ? ret / t.orders * 100 : 0;
+    if (t.orders && rate > 15) out.push(`⚠️ Return + RTO ${rate.toFixed(0)}% hai. 10% se neeche laana target rakho.`);
+    const rs = D.reasons[0]; if (rs && rs[1] >= 3) out.push(rs[0].startsWith("Size") ? "📏 Sabse zyada return size ki wajah se. Size chart aur model ka size har product mein bharo." : rs[0].includes("RTO") ? "📦 RTO zyada hai. Prepaid hi rakho aur dispatch se pehle WhatsApp par confirm karo." : `🔎 Sabse zyada return ki wajah: ${rs[0]}.`);
+    if (t.pending) out.push(`💳 ${t.pending} order ka payment pending hai. Customer ko yaad dilao ya status update karo.`);
+    if (D.customers.buyers) out.push(`🔁 Repeat customers: ${D.customers.repeat} / ${D.customers.buyers} (${Math.round(D.customers.repeat / D.customers.buyers * 100)}%). Saheli Credit aur festival message se badhao.`);
+    if (t.sales && t.exp["Ads & marketing"]) out.push(`📣 Ads par ${inr(t.exp["Ads & marketing"])} kharcha, sales ka ${Math.round(t.exp["Ads & marketing"] / t.sales * 100)}%.`);
+    if (all.length >= 2) { const a = all[all.length - 1], b = all[all.length - 2]; if (b.sales) out.push(`${a.sales >= b.sales ? "📈" : "📉"} ${mName(a.month)} ki sales pichhle mahine se ${Math.abs(Math.round((a.sales - b.sales) / b.sales * 100))}% ${a.sales >= b.sales ? "zyada" : "kam"}.`); }
+    return out.length ? `<ul class="dash-ins">${out.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted small">Data aate hi yahan sujhaav dikhenge.</p>`;
+  }
+  function render() {
+    const ms = D.months, sel = month ? ms.filter((m) => m.month === month) : ms, t = sumM(sel);
+    const ord = D.orders.filter((o) => !month || o.month === month);
+    const tile = (l, v, cls = "", sub = "") => `<div class="dash-tile ${cls}"><span>${l}</span><b>${v}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
+    const retRate = t.orders ? Math.round((t.returns + t.rto) / t.orders * 100) : 0;
+    box(`<div class="dash-filter"><label>Mahina <select data-month><option value="">Sab (all time)</option>${ms.slice().reverse().map((m) => `<option value="${m.month}"${m.month === month ? " selected" : ""}>${mName(m.month)}</option>`).join("")}</select></label><button class="btn btn-ghost btn-sm" type="button" data-csv>⬇ CSV report</button><button class="btn btn-ghost btn-sm" type="button" data-logout>Logout</button></div>
+      <div class="dash-tiles">${tile("Sales", inr(t.sales), "", `${t.orders || 0} paid orders`)}${tile("Net profit", inr(t.net), t.net < 0 ? "neg" : "pos", "sales − sab kharche")}${tile("Avg order", inr(t.orders ? t.sales / t.orders : 0))}${tile("Pending payment", t.pending || 0)}${tile("Return + RTO", `${(t.returns || 0) + (t.rto || 0)}`, retRate > 15 ? "warn" : "", `${retRate}% · RTO ${t.rto || 0}`)}${tile("Refunds", inr(t.refunds))}${tile("Shipping", inr(t.ship + (t.exp.Shipping || 0)), "", `+ RTO loss ${inr(t.shipLost)}`)}${tile("Expenses", inr(t.expenses), "", t.exp.Investment ? `Investment ${inr(t.exp.Investment)}` : "")}</div>
+      <details class="dash-card dash-studio" data-studio><summary><h2>📣 Marketing Studio – ad 1 minute mein banao</h2></summary><div data-studio-body><p class="muted">Loading products…</p></div></details>
+      <section class="dash-card"><h2>Sujhaav</h2>${insights(t, ms)}</section>
+      <section class="dash-card"><h2>Mahine ka hisaab</h2>${chart(ms)}</section>
+      <div class="dash-2"><section class="dash-card"><h2>Return / RTO ki wajah</h2>${hbars(D.reasons)}</section><section class="dash-card"><h2>Kharcha kahan gaya</h2>${hbars(Object.entries(t.exp).sort((a, b) => b[1] - a[1]), "₹")}</section>
+      <section class="dash-card"><h2>Top products</h2>${hbars(D.top)}</section><section class="dash-card"><h2>Kahan se orders</h2>${hbars(D.countries.length > 1 ? D.countries : D.states)}</section>
+      <section class="dash-card"><h2>Payment type</h2>${hbars(D.payments)}</section><section class="dash-card"><h2>Customer kahan se aaye (ads / source)</h2>${hbars(D.source_sales || [], "₹")}<p class="muted small">Ads ka link Marketing Studio se banao, tabhi yahan dikhega.</p></section><section class="dash-card"><h2>Customers</h2><ul class="dash-kv"><li>Kharidne wale<b>${D.customers.buyers}</b></li><li>Repeat customers<b>${D.customers.repeat}</b></li><li>Sign-ups<b>${D.customers.signups}</b></li><li>Followers<b>${D.customers.follows}</b></li><li>Checkout shuru kiya<b>${D.customers.checkouts}</b></li><li>Wholesale enquiry<b>${D.customers.wholesale}</b></li><li>Gift cards<b>${D.customers.gift_cards}</b></li><li>RTO wale state<b>${esc(D.rto_states.map((r) => r[0] + " " + r[1]).join(", ") || "–")}</b></li></ul></section></div>
+      <section class="dash-card"><h2>Orders & payment history <small class="muted">(${ord.length})</small></h2><input type="search" placeholder="Naam, order no. ya product dhundo" data-q class="dash-q">
+        <div class="dash-orders">${ord.length ? ord.map((o) => `<div class="dash-o" data-o="${esc([o.ref, o.name, o.items, o.city].join(" ").toLowerCase())}"><div><b>${esc(o.ref)}</b> · ${esc(o.day)}<br>${esc(o.name)}${o.city ? " · " + esc(o.city) : ""}${o.country && o.country !== "India" ? " · " + esc(o.country) : ""}<br><small class="muted">${esc(o.items)}</small></div><div class="dash-o-r"><b>${o.cur === "USD" ? "$" + o.total : inr(o.inr)}</b><small>${esc(o.payment || "")}</small><span class="dash-st st-${esc(o.status.toLowerCase())}">${esc(o.status)}</span><button type="button" class="link small" data-edit="${esc(o.ref)}">Update</button></div></div>`).join("") : `<p class="muted">Is mahine koi order nahi.</p>`}</div></section>
+      <div class="dash-2"><form class="dash-card dash-form" data-f="expense"><h2>➕ Kharcha / investment likho</h2><label>Date<input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}"></label><label>Kis cheez ka<select name="category">${D.lists.exp_cats.map((c) => `<option>${c}</option>`).join("")}</select></label><label>Amount ₹<input type="number" name="amount" min="0" step="1" required inputmode="numeric"></label><label>Note<input name="note" placeholder="jaise: 50 m cotton, Delhivery bill"></label><button class="btn" type="submit">Save</button></form>
+      <form class="dash-card dash-form" data-f="return"><h2>↩️ Return / RTO likho</h2><label>Order no.<input name="ref_order" placeholder="BK-..." required list="dash-refs"></label><label>Type<select name="rtype">${D.lists.ret_types.map((c) => `<option>${c}</option>`).join("")}</select></label><label>Wajah<select name="reason">${D.lists.reasons.map((c) => `<option>${c}</option>`).join("")}</select></label><label>Refund ₹<input type="number" name="refund" min="0" value="0" inputmode="numeric"></label><label>Shipping loss ₹<input type="number" name="ship_lost" min="0" value="0" inputmode="numeric"></label><label>Product wapas aaya?<select name="back"><option>Yes</option><option>No</option></select></label><label>Note<input name="note"></label><button class="btn" type="submit">Save</button></form></div>
+      <datalist id="dash-refs">${D.orders.slice(0, 200).map((o) => `<option value="${esc(o.ref)}">${esc(o.name)}</option>`).join("")}</datalist>
+      <dialog class="dash-dlg" data-dlg><form method="dialog" data-f="status"><h2>Order update</h2><p data-dlg-ref></p><input type="hidden" name="ref_order"><label>Status<select name="status">${D.lists.statuses.map((c) => `<option>${c}</option>`).join("")}</select></label><label>Shipping kharcha ₹<input type="number" name="ship_cost" min="0" inputmode="numeric"></label><label>Note<input name="note" placeholder="AWB / courier"></label><div class="dash-dlg-b"><button class="btn" value="save">Save</button><button class="btn btn-ghost" value="cancel" formnovalidate>Cancel</button></div></form></dialog>`);
+    $("[data-month]").addEventListener("change", (e) => { month = e.target.value; render(); });
+    $("[data-logout]").addEventListener("click", () => { try { localStorage.removeItem(KK); } catch {} login(); });
+    $("[data-q]").addEventListener("input", (e) => { const q = e.target.value.toLowerCase().trim(); $$("[data-o]").forEach((x) => (x.hidden = q && !x.dataset.o.includes(q))); });
+    $("[data-csv]").addEventListener("click", () => { const rows = [["Order", "Date", "Name", "City", "State", "Country", "Amount INR", "Total", "Currency", "Payment", "Status", "Shipping", "Items"], ...ord.map((o) => [o.ref, o.day, o.name, o.city, o.state, o.country, o.inr, o.total, o.cur, o.payment, o.status, o.ship, o.items])];
+      const csv = rows.map((r) => r.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n"); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })); a.download = `bahe-kurtiz-report-${month || "all"}.csv`; a.click(); });
+    const dlg = $("[data-dlg]");
+    $$("[data-edit]").forEach((b) => b.addEventListener("click", () => { const f = $("[data-f=status]"); f.ref_order.value = b.dataset.edit; $("[data-dlg-ref]").textContent = b.dataset.edit; const o = D.orders.find((x) => x.ref === b.dataset.edit); if (o) f.status.value = o.status; dlg.showModal(); }));
+    dlg.addEventListener("close", async () => { if (dlg.returnValue !== "save") return; const f = $("[data-f=status]"); await post({ type: "status", ...Object.fromEntries(new FormData(f)) }); toast("Saved ✓"); setTimeout(load, 1800); });
+    $$("form[data-f=expense],form[data-f=return]").forEach((f) => f.addEventListener("submit", async (e) => { e.preventDefault(); const b = f.querySelector("button"); b.disabled = true; await post({ type: f.dataset.f, ...Object.fromEntries(new FormData(f)) }); toast("Saved ✓"); setTimeout(load, 1800); }));
+    studio();
+    const tipbox = $("[data-tipbox]");
+    $$("[data-hit]").forEach((h) => { const show = () => { const m = D.months.slice(-12)[+h.dataset.hit]; const c = m.refunds + m.shipLost + m.ship + m.expenses; tipbox.innerHTML = `<b>${mName(m.month)}</b><br><i style="background:#009688"></i>Sales ${inr(m.sales)}<br><i style="background:#c0702a"></i>Kharcha ${inr(c)}<br>Profit ${inr(m.net)} · ${m.orders} orders`; tipbox.hidden = false; const r = h.getBoundingClientRect(), p = h.ownerSVGElement.parentNode.getBoundingClientRect(); tipbox.style.left = Math.min(p.width - 170, Math.max(0, r.left - p.left + r.width / 2 - 85)) + "px"; $$("[data-i]").forEach((b) => b.style.opacity = b.dataset.i === h.dataset.hit ? 1 : .45); };
+      h.addEventListener("pointerenter", show); h.addEventListener("click", show); h.addEventListener("pointerleave", () => { tipbox.hidden = true; $$("[data-i]").forEach((b) => (b.style.opacity = 1)); }); });
+  }
+  // ---------- Marketing Studio: tracked link + ad copy + ad images for any country ----------
+  let CAT = null, FX = null;
+  const C_LIST = [["US", "United States", "USD"], ["GB", "United Kingdom", "GBP"], ["CA", "Canada", "CAD"], ["AU", "Australia", "AUD"], ["NZ", "New Zealand", "NZD"], ["AE", "UAE", "AED"], ["SG", "Singapore", "SGD"], ["MY", "Malaysia", "MYR"], ["DE", "Germany", "EUR"], ["FR", "France", "EUR"], ["NL", "Netherlands", "EUR"], ["IE", "Ireland", "EUR"], ["JP", "Japan", "JPY"], ["IN", "India", "INR"]];
+  const CH = { meta: ["Meta ads (Facebook + Instagram)", "meta", "paid"], google: ["Google ads / Shopping", "google", "cpc"], pinterest: ["Pinterest ads", "pinterest", "paid"], insta: ["Instagram post / reel (free)", "instagram", "social"], wa: ["WhatsApp broadcast", "whatsapp_bc", "broadcast"], b2b: ["Boutiques / brands (B2B email)", "b2b", "email"] };
+  const HOOK = { everyday: "Everyday comfort", diwali: "Diwali", wedding: "Wedding season", summer: "Summer", navratri: "Navratri", eid: "Eid", gifting: "Gifting / Christmas" };
+  async function studio() {
+    const sb = $("[data-studio-body]"); if (!sb) return;
+    try { CAT ||= await (await fetch((window.BK?.base || "/") + "data/catalog.json")).json(); } catch { sb.innerHTML = "<p>Products load nahi hue.</p>"; return; }
+    if (!FX) { try { FX = (await (await fetch("https://open.er-api.com/v6/latest/USD")).json()).rates; } catch { FX = { USD: 1 }; } }
+    const ps = Object.entries(CAT.products).filter(([, p]) => p.image);
+    const opt = (o) => Object.entries(o).map(([k, v]) => `<option value="${k}">${Array.isArray(v) ? v[0] : v}</option>`).join("");
+    sb.innerHTML = `<div class="studio-f"><label>Product<select data-s="p">${ps.map(([k, p]) => `<option value="${esc(k)}">${esc(p.title)}</option>`).join("")}</select></label><label>Desh (country)<select data-s="c">${C_LIST.map((c) => `<option value="${c[0]}">${c[1]}</option>`).join("")}</select></label><label>Kahan chalana hai<select data-s="ch">${opt(CH)}</select></label><label>Mauka<select data-s="h">${opt(HOOK)}</select></label><button class="btn" type="button" data-s-go>✨ Ad kit banao</button></div><div data-s-out></div>`;
+    $("[data-s-go]").addEventListener("click", makeKit);
+  }
+  const money = (usd, inrV, cur) => { if (cur === "INR") return inrV ? "₹" + Number(inrV).toLocaleString("en-IN") : ""; if (!usd) return ""; const r = FX?.[cur] || (cur === "USD" ? 1 : 0); if (!r) return "$" + usd; try { return new Intl.NumberFormat("en", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(usd * r); } catch { return "$" + usd; } };
+  function makeKit() {
+    const g = (k) => $(`[data-s="${k}"]`).value, k = g("p"), p = CAT.products[k], cc = C_LIST.find((c) => c[0] === g("c")), ch = CH[g("ch")], hk = g("h"), hook = HOOK[hk];
+    const brand = window.BK?.brand || "Bahe Kurtiz", ym = new Date().toISOString().slice(2, 7).replace("-", "");
+    const camp = `${cc[0].toLowerCase()}-${hk}-${ym}`;
+    const b2b = g("ch") === "b2b", path = b2b ? "wholesale/" : String(p.url).replace(/^\//, "");
+    const link = `${location.origin}/${path}?country=${cc[0]}&utm_source=${ch[1]}&utm_medium=${ch[2]}&utm_campaign=${camp}`;
+    const price = money(p.price_usd, p.price, cc[2]); const noUsd = cc[0] !== "IN" && !p.price_usd;
+    const craft = String(p.print || "").split(",")[0].trim() || "Hand block print", fab = p.fabric || "cotton";
+    const H = [`${p.title} – handmade in Jaipur`, `${hook} ready: ${craft} from Jaipur`, price ? `${craft} kurtis from ${price}` : `Authentic ${craft} from Jaipur`];
+    const T = b2b ? `Hello,\n\nI am from ${brand}, a hand block print studio in Sanganer, Jaipur (India). We make kurtis, kurta sets and dresses in ${craft} on ${fab} and supply boutiques and brands in ${cc[1]}.\n\n• Small minimum orders, mixed designs\n• Private label available\n• Samples and catalogue on request\n• Worldwide shipping from Jaipur\n\nCatalogue & trade enquiry: ${link}\n\nWarm regards,\n${brand}`
+      : `${hook === "Everyday comfort" ? "Comfort that looks handmade – because it is." : hook + " is better in something made by hand."} ${p.title}: ${craft} on breathable ${fab}, printed with wooden blocks in Sanganer, Jaipur.${price ? " Now " + price + "." : ""} Ships to ${cc[1]}. Secure prepaid checkout.`;
+    const D2 = `Hand block printed in Jaipur · Ships to ${cc[1]}`;
+    const tags = `#handblockprint #jaipurkurti #${craft.replace(/[^a-z]/gi, "").toLowerCase()} #indianwear #kurti #${cc[1].replace(/\s/g, "").toLowerCase()}indians #ethnicwear #madeinindia`;
+    const steps = { meta: [`Meta Ads Manager kholo (business.facebook.com) → Create → Sales.`, `Location: ${cc[1]} · Women · Age 25–55 · Interests: Indian fashion, Kurta, Saree, Bollywood, Diwali + "Expats (India)".`, `Budget ₹500–800/din se shuru karo, 3–5 din chalao, phir jo ad achha chale usi par budget badhao.`, `Neeche wali square aur story photo upload karo, headline aur text copy-paste karo.`, `Website URL mein upar wala link daalo.`], google: [`Google Merchant Center mein products feed: bahekurtiz.com/feeds/google-merchant-usd.xml (bahar ke liye, pehle se bana hai).`, `Google Ads → New campaign → Sales → Performance Max / Shopping.`, `Country: ${cc[1]} · Budget ₹500/din se shuru.`, `Headlines aur description neeche se copy karo; final URL upar wala link.`], pinterest: [`Pinterest Business → Ads → Create campaign → Consideration.`, `Country: ${cc[1]} · Interests: Women's fashion, Indian wedding, Boho.`, `Story (tall) photo upload karo, link upar wala.`], insta: [`Story/tall photo download karo, Instagram par post karo.`, `Caption mein text + hashtags paste karo.`, `Bio link ya story link sticker mein upar wala link lagao.`], wa: [`Sirf un customers ko bhejo jinhone offers ke liye haan bola hai.`, `Square photo + text + link bhejo.`], b2b: [`Boutique / brand ka email ya Instagram dhundo (Google Maps, Instagram "indian boutique ${cc[1]}").`, `Neeche wala email copy karke bhejo, saath mein square photo.`, `Reply aaye to Sheet mein "wholesale" row dekho; rate aur MOQ aap final karo.`] }[g("ch")];
+    const blk = (t, v) => `<div class="studio-b"><div class="studio-bh"><b>${t}</b><button type="button" class="link small" data-copy>Copy</button></div><pre>${esc(v)}</pre></div>`;
+    $("[data-s-out]").innerHTML = `${noUsd ? `<p class="dash-err">Is product ka $ price admin mein nahi bhara. Bahar ke ads se pehle $ price daalo.</p>` : ""}
+      ${blk("🔗 Tracked link (isi se pata chalega kitni sale aayi)", link)}${b2b ? blk("✉️ Email / DM", T) : blk("Headlines", H.join("\n")) + blk("Text", T) + blk("Description", D2) + blk("Hashtags", tags)}
+      <div class="studio-imgs"><figure><canvas data-cv="sq" width="1080" height="1080"></canvas><button class="btn btn-ghost btn-sm" type="button" data-dl="sq">⬇ Square photo</button></figure><figure><canvas data-cv="st" width="1080" height="1920"></canvas><button class="btn btn-ghost btn-sm" type="button" data-dl="st">⬇ Story photo</button></figure></div>
+      <div class="studio-b"><b>Ab ye karo</b><ol>${steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>`;
+    $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.closest(".studio-b").querySelector("pre").textContent); toast("Copied ✓"); } catch {} }));
+    const im = new Image(); im.onload = () => { for (const [key, W, Hh] of [["sq", 1080, 1080], ["st", 1080, 1920]]) { const cv = $(`[data-cv="${key}"]`), x = cv.getContext("2d"); const s = Math.max(W / im.width, Hh / im.height); x.drawImage(im, (W - im.width * s) / 2, (Hh - im.height * s) / 2, im.width * s, im.height * s);
+        const gr = x.createLinearGradient(0, Hh * 0.55, 0, Hh); gr.addColorStop(0, "rgba(8,59,58,0)"); gr.addColorStop(1, "rgba(8,59,58,.92)"); x.fillStyle = gr; x.fillRect(0, Hh * 0.5, W, Hh * 0.5);
+        x.fillStyle = "#e8c776"; x.font = "600 34px system-ui"; x.fillText((b2b ? "WHOLESALE · PRIVATE LABEL" : hook.toUpperCase()), 60, Hh - (key === "st" ? 360 : 250));
+        x.fillStyle = "#fff"; x.font = "700 62px Georgia, serif"; const words = (b2b ? "Hand block prints for your boutique" : p.title).split(" "); let line = "", y = Hh - (key === "st" ? 290 : 180); const lines = []; for (const w of words) { if (x.measureText(line + w).width > W - 120) { lines.push(line); line = ""; } line += w + " "; } lines.push(line); lines.slice(0, 2).forEach((l, i) => x.fillText(l.trim(), 60, y + i * 70));
+        x.font = "600 44px system-ui"; x.fillStyle = "#fff"; if (price && !b2b) x.fillText(price, 60, Hh - (key === "st" ? 120 : 40)); x.font = "500 30px system-ui"; x.fillStyle = "#cfe3e1"; x.textAlign = "right"; x.fillText(`${brand} · Jaipur`, W - 60, Hh - (key === "st" ? 120 : 40)); x.textAlign = "left"; } };
+    im.src = (window.BK?.base || "/") + String(p.image).replace(/^\//, "");
+    $$("[data-dl]").forEach((b) => b.addEventListener("click", () => { $(`[data-cv="${b.dataset.dl}"]`).toBlob((bl) => { const a = document.createElement("a"); a.href = URL.createObjectURL(bl); a.download = `ad-${camp}-${b.dataset.dl}.jpg`; a.click(); }, "image/jpeg", 0.9); }));
+  }
+  const toast = (m) => { const t = document.querySelector("[data-toast]"); if (!t) return; t.textContent = m; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2000); };
+  root && load();
+}
+add("admin/dashboard/index.html", page({ title: `Business Dashboard | ${brand}`, description: "Owner dashboard", pathname: "admin/dashboard/", noindex: true, bodyClass: "dash-page", mini: null,
+  body: `<section class="wrap section dash" data-dash><div class="dash-head"><div><p class="eyebrow">Owner only</p><h1>Business Dashboard</h1></div><span class="muted small" data-dash-status></span></div><div data-dash-body><p class="muted">Loading…</p></div></section><script>addEventListener("DOMContentLoaded", () => (${dashMain.toString()})());</script>` }));
+
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.cpSync(path.join(ROOT, "static"), OUT, { recursive: true });
 for (const [file, html] of pages) {
@@ -960,7 +1194,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...categories.map((c) => c.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "refer/", "gift-card/", "feed/", "mirror/", ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...categories.map((c) => c.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "refer/", "gift-card/", "feed/", "mirror/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x); return `<url><loc>${SITE_URL}/${x}</loc>${bp ? `<lastmod>${bp.date}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
