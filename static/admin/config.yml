@@ -166,6 +166,7 @@ collections:
         field: { name: image, label: "फ़ोटो", widget: image }
       - { name: video, label: "छोटी रील / वीडियो (optional, mp4)", widget: file, required: false, media_folder: /static/media/products, public_folder: /media/products, hint: "10-15 सेकंड, 8 MB से कम। फ़ोटो के साथ अपने-आप चलती रहेगी (बिना आवाज़)।" }
       - { name: match_products, label: "Shop the Look – साथ में मैच होने वाले प्रोडक्ट (optional)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], multiple: true, required: false, hint: "जैसे कुर्ती के साथ पलाज़ो / दुपट्टा। प्रोडक्ट पेज पर 'Complete the look' में दिखेंगे" }
+      - { name: tryon_png, label: "Mirror के लिए कटआउट फ़ोटो (पारदर्शी PNG, सिर्फ़ कपड़ा) – optional", widget: image, required: false, hint: "बैकग्राउंड हटाकर सिर्फ़ ड्रेस वाली PNG डालोगे तो Mirror में ड्रेस ग्राहक की फ़ोटो पर ज़्यादा असली लगेगी" }
       - { name: in_stock, label: "स्टॉक में है? (In stock)", widget: boolean, default: true, hint: "बंद करोगे तो 'Made to order' दिखेगा" }
       - { name: featured, label: "होमपेज पर दिखाओ (Show on homepage)", widget: boolean, default: true }
       - { name: bestseller, label: "⭐ Bestseller (होमपेज के Bestsellers में + बैज)", widget: boolean, default: false }
@@ -205,6 +206,59 @@ collections:
       - { name: draft, label: "ड्राफ़्ट (अभी छुपाओ)", widget: boolean, default: false }
       - { name: seo_title, label: "SEO टाइटल (optional)", widget: string, required: false }
       - { name: seo_description, label: "SEO डिस्क्रिप्शन (optional, 150 अक्षर)", widget: string, required: false }
+
+  - name: banners
+    label: "बैनर (Banners) – होमपेज स्लाइडर"
+    label_singular: "बैनर"
+    folder: content/banners
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{title}}"
+    identifier_field: title
+    summary: "{{order}} · {{title}} · {{start}} → {{end}}"
+    sortable_fields: [order, title]
+    fields:
+      - { name: title, label: "बड़ी हेडिंग (जैसे: Diwali Sale – Flat 20% Off)", widget: string }
+      - { name: image, label: "मोबाइल बैनर (खड़ा, 1080×1350 या 1200×1800)", widget: image, media_folder: /static/images/banners, public_folder: /images/banners }
+      - { name: image_desktop, label: "कंप्यूटर बैनर (चौड़ा, 1920×760)", widget: image, required: false, media_folder: /static/images/banners, public_folder: /images/banners }
+      - { name: eyebrow, label: "ऊपर की छोटी लाइन (जैसे: Festive Edit)", widget: string, required: false }
+      - { name: subtitle, label: "छोटी लाइन", widget: string, required: false }
+      - { name: button, label: "बटन का नाम (जैसे: Shop Sale)", widget: string, required: false }
+      - { name: link, label: "बटन का लिंक (जैसे: occasion/festive/ या shop/)", widget: string, required: false }
+      - { name: start, label: "कब से दिखाना है (खाली = अभी से)", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", required: false }
+      - { name: end, label: "कब तक (खाली = हमेशा) – तारीख के बाद अपने-आप हट जाएगा", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", required: false }
+      - { name: order, label: "क्रम (1 = सबसे पहले)", widget: number, value_type: int, default: 10 }
+      - { name: active, label: "चालू है?", widget: boolean, default: true }
+
+  - name: stories
+    label: "Stories (Instagram जैसी) – होमपेज के ऊपर"
+    label_singular: "Story"
+    folder: content/stories
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{title}}"
+    identifier_field: title
+    summary: "{{order}} · {{title}}"
+    description: "कोई Story नहीं डालोगे तो प्रोडक्ट्स से अपने-आप बन जाएँगी (New, Bestsellers, Festive…)"
+    fields:
+      - { name: title, label: "नाम (छोटा, जैसे: New, Diwali, Factory)", widget: string }
+      - { name: cover, label: "गोल फ़ोटो (optional)", widget: image, required: false, media_folder: /static/images/stories, public_folder: /images/stories }
+      - name: slides
+        label: "Story की स्लाइड (फ़ोटो या 15 सेकंड वीडियो)"
+        widget: list
+        fields:
+          - { name: image, label: "फ़ोटो (खड़ी 1080×1920)", widget: image, required: false, media_folder: /static/images/stories, public_folder: /images/stories }
+          - { name: video, label: "या वीडियो (mp4, 8MB से कम)", widget: file, required: false, media_folder: /static/media/stories, public_folder: /media/stories }
+          - { name: caption, label: "लाइन", widget: string, required: false }
+          - { name: product, label: "Shop स्टिकर – कौन सा प्रोडक्ट", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], required: false }
+          - { name: link, label: "या कोई और लिंक", widget: string, required: false }
+      - { name: order, label: "क्रम", widget: number, value_type: int, default: 10 }
+      - { name: end, label: "कब तक दिखानी है (खाली = हमेशा)", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", required: false }
+      - { name: active, label: "चालू है?", widget: boolean, default: true }
 
   - name: landing
     label: "SEO पेज (Google पर आने के लिए)"
@@ -310,6 +364,15 @@ collections:
               - { name: name, label: "त्योहार (जैसे Karwa Chauth, Diwali)", widget: string }
               - { name: date, label: "त्योहार की तारीख", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD" }
               - { name: link, label: "Shop बटन का लिंक (जैसे occasion/festive/)", widget: string, required: false }
+          - name: currency_rates
+            label: "दूसरे देशों की करेंसी रेट (optional) – 1 USD = ?"
+            widget: list
+            required: false
+            summary: "1 USD = {{fields.per_usd}} {{fields.code}}"
+            hint: "खाली छोड़ो तो रोज़ का रेट इंटरनेट से अपने-आप आएगा। यहाँ डालोगे तो यही चलेगा। ग्राहक से पैसा हमेशा USD में ही लिया जाता है"
+            fields:
+              - { name: code, label: "करेंसी कोड (GBP, EUR, AED, CAD…)", widget: string }
+              - { name: per_usd, label: "1 USD = कितने", widget: number, value_type: float }
           - { name: usd_rate, label: "डॉलर रेट (1 $ = कितने ₹) – विदेश दाम अपने-आप बनाने के लिए", widget: number, value_type: float, required: false, hint: "जैसे 70 लिखोगे तो ₹1400 वाला प्रोडक्ट $20 दिखेगा (ऊपर की ओर गोल)। जिस प्रोडक्ट में $ दाम खुद भरा है, वहाँ वही दिखेगा। खाली = अपने-आप नहीं बनेगा" }
           - { name: cod_enabled, label: "COD", widget: hidden, default: false }
           - { name: cod_charge, label: "COD charge", widget: hidden, default: 0 }
@@ -324,6 +387,11 @@ collections:
           - { name: terms, label: "Terms & Conditions", widget: text }
           - { name: site_url, label: "वेबसाइट का पता", widget: string }
           - { name: google_site_verification, label: "Google Search Console कोड", widget: string, required: false }
+          - { name: referral_offer, label: "Refer & Earn – रेफर करने वाले को क्या मिलेगा", widget: string, required: false, hint: "जैसे: ₹150 off on your next order. खाली = 'a thank-you discount on your next order'" }
+          - { name: referral_friend_offer, label: "Refer & Earn – नए दोस्त को क्या मिलेगा", widget: string, required: false, hint: "जैसे: ₹100 off on the first order" }
+          - { name: referral_terms, label: "Refer & Earn – और शर्तें (optional)", widget: string, required: false }
+          - { name: gift_amounts_inr, label: "E-Gift Card – ₹ amounts", widget: list, field: { name: v, label: "₹", widget: number }, required: false, hint: "खाली = ₹1000, ₹1500, ₹2500" }
+          - { name: gift_amounts_usd, label: "E-Gift Card – $ amounts (विदेश)", widget: list, field: { name: v, label: "$", widget: number }, required: false, hint: "खाली = $25, $40, $60" }
           - { name: customer_sheet_url, label: "ग्राहक डेटा – Google Sheet का Web App लिंक", widget: string, required: false, hint: "Sign-in, checkout और ऑर्डर वाले ग्राहक इस Sheet में अपने-आप आएँगे। लिंक https://script.google.com/macros/s/... से शुरू होगा" }
           - { name: google_client_id, label: "Google Sign-in – Client ID (optional)", widget: string, required: false, hint: "console.cloud.google.com → Credentials → OAuth Client ID (Web). डालोगे तो 'Continue with Google' बटन आएगा" }
           - { name: login_popup, label: "25 सेकंड बाद Sign-in पॉपअप दिखाओ (14 दिन में एक बार)", widget: boolean, default: true }
@@ -335,6 +403,11 @@ collections:
           - { name: pinterest_verification, label: "Pinterest website verify कोड (p:domain_verify)", widget: string, required: false, hint: "Pinterest → Settings → Claimed accounts → Website → HTML tag में content=\"...\" वाला कोड" }
           - { name: facebook_domain_verification, label: "Facebook domain verify कोड", widget: string, required: false, hint: "Meta Business → Brand safety → Domains → Meta-tag में content=\"...\" वाला कोड" }
           - { name: meta_pixel_id, label: "Meta (Facebook) Pixel ID – सिर्फ़ नंबर", widget: string, required: false, hint: "Events Manager → Data sources → Pixel ID (15-16 अंक)। खाली छोड़ो तो Pixel बंद रहेगा।" }
+          - { name: live_on, label: "🔴 अभी YouTube LIVE चल रहा है?", widget: boolean, default: false, hint: "Live शुरू करते ही इसे ON करके Save करो, खत्म होने पर OFF। 2-3 मिनट में वेबसाइट पर LIVE पट्टी आ जाएगी" }
+          - { name: live_url, label: "YouTube live / video का लिंक", widget: string, required: false }
+          - { name: live_title, label: "Live का टाइटल", widget: string, required: false }
+          - { name: live_next, label: "अगला live कब है (तारीख + समय)", widget: datetime, required: false }
+          - { name: legal_name, label: "कंपनी का कानूनी नाम (GST वाला, जैसे Anushka Creation)", widget: string, required: false }
           - { name: reels_title, label: "रील सेक्शन की हेडिंग", widget: string, required: false, default: "Watch & Shop" }
           - name: reels
             label: "Shoppable रील (होमपेज पर + हर पेज के नीचे)"
