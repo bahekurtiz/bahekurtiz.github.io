@@ -36,12 +36,15 @@
     const consent = !!document.querySelector("[data-co-consent]")?.checked || !!getUser()?.consent;
     const u0 = getUser() || {};
     setUser({ ...u0, name: f.name || u0.name, phone: f.phone || u0.phone, email: f.email || u0.email, city: f.city || u0.city, state: f.state || u0.state, pincode: f.pincode || u0.pincode, address: f.address || u0.address, country: f.country || u0.country || "", consent });
-    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ...extra });
+    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: aiText().replace(/\n?Found us via: /, ""), gift: f.gift_to ? "yes" : "", ...extra });
   }
   function paintUser() { const u0 = getUser(); document.querySelectorAll("[data-acct-dot]").forEach((d) => (d.hidden = !u0)); }
 
   const giftText = (f) => (f.gift_to || f.gift_msg ? `\n\n🎁 GIFT${f.gift_to ? "\nFor: " + f.gift_to : ""}${f.gift_msg ? "\nCard message: " + f.gift_msg : ""}${f.gift_hide === "yes" ? "\nDo NOT put price/invoice in the parcel" : ""}` : "");
+  const gcText = () => { try { const g = localStorage.getItem("bk_gc"); return g ? `\nGift card: ${g}` : ""; } catch { return ""; } };
   const refText = () => { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); return r && Date.now() - r.t < 30 * 864e5 ? `\nReferred by: ${r.code}` : ""; } catch { return ""; } };
+  try { const src = (new URLSearchParams(location.search).get("utm_source") || "") + " " + (document.referrer || ""); const m = src.match(/chatgpt|openai|perplexity|gemini|copilot|claude|bard/i); if (m) localStorage.setItem("bk_ai", JSON.stringify({ src: m[0].toLowerCase(), t: Date.now() })); } catch {}
+  const aiText = () => { try { const a = JSON.parse(localStorage.getItem("bk_ai") || "null"); return a && Date.now() - a.t < 30 * 864e5 ? `\nFound us via: ${a.src}` : ""; } catch { return ""; } };
   try { const rc = new URLSearchParams(location.search).get("ref"); if (rc && /^[A-Za-z0-9-]{3,20}$/.test(rc)) localStorage.setItem("bk_ref", JSON.stringify({ code: rc, t: Date.now() })); } catch {}
 
   // ---------- overlay helpers ----------
@@ -188,11 +191,11 @@
   const orderRef = () => { const d = new Date(); return "BK" + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(); };
   function orderText(cat, f, ref, total, payLine) {
     const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${inr(p.price * i.qty)}`; }).join("\n");
-    return `New order ${ref}\n\n${lines}\n\nTotal: ${inr(total)}\nPayment: ${payLine}\n\nName: ${f.name}\nPhone: ${f.phone}${f.email ? "\nEmail: " + f.email : ""}\nAddress: ${f.address}, ${f.city}, ${f.state} - ${f.pincode}${giftText(f)}${refText()}`;
+    return `New order ${ref}\n\n${lines}\n\nTotal: ${inr(total)}\nPayment: ${payLine}\n\nName: ${f.name}\nPhone: ${f.phone}${f.email ? "\nEmail: " + f.email : ""}\nAddress: ${f.address}, ${f.city}, ${f.state} - ${f.pincode}${giftText(f)}${refText()}${aiText()}${gcText()}`;
   }
   const waUrl = (txt) => `https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}`;
   function showDone(html) {
-    co.hidden = true; const d = $("[data-done]"); d.innerHTML = html; d.hidden = false; scrollTo({ top: 0, behavior: "smooth" });
+    co.hidden = true; const d = $("[data-done]"); d.innerHTML = html + `<div class="done-refer"><p><b>🎁 Love it? Share with friends.</b> They get a welcome offer and you get a thank-you reward.</p><a class="btn btn-ghost" href="${url("refer/")}">Get my Refer & Earn link</a>${BK.wa ? ` <a class="btn btn-ghost" download="Bahe-Kurtiz.vcf" href="data:text/vcard;charset=utf-8,${encodeURIComponent(`BEGIN:VCARD\nVERSION:3.0\nFN:${BK.brand}\nORG:${BK.brand}\nTEL;TYPE=CELL:+${BK.wa}\nURL:${location.origin}\nEND:VCARD`)}">📇 Save our number</a><p class="muted small">Save our number to get order updates and new designs on WhatsApp.</p>` : ""}</div>`; d.hidden = false; scrollTo({ top: 0, behavior: "smooth" });
     $$("[data-clear-bag]", d).forEach((a) => a.addEventListener("click", () => setBag([])));
   }
   if (co) {
@@ -209,9 +212,9 @@
         btn.disabled = true;
         let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
         const t = totals(cat, "paypal"); const ref = orderRef();
-        saveCustomer(f, "order", { ref, total: t.total, currency: "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+        saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
         const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${usd(p.price_usd * i.qty)}`; }).join("\n");
-        const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? usd(t.shipping) : "Free"}\nTotal: ${usd(t.total)} USD\nPayment: Please send PayPal invoice\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}`;
+        const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? usd(t.shipping) : "Free"}\nTotal: ${usd(t.total)} USD\nPayment: Please send PayPal invoice\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}${aiText()}${gcText()}`;
         track("Lead", { value: t.total, currency: "USD" });
         const mail = cat.settings.email ? `mailto:${cat.settings.email}?subject=${encodeURIComponent("Order " + ref)}&body=${encodeURIComponent(txt)}` : "";
         showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${usd(t.total)} USD</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
@@ -222,7 +225,7 @@
       btn.disabled = true;
       let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
       const t = totals(cat, method); const ref = orderRef();
-      saveCustomer(f, "order", { ref, total: t.total, currency: "INR", payment: method, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+      saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "INR", payment: method, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
       const items = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
       const waFallback = () => BK.wa ? ` <a class="link" href="${waUrl(orderText(cat, f, ref, totals(cat, "whatsapp").total, "Online payment failed – please help"))}" target="_blank" rel="noopener">Order on WhatsApp instead →</a>` : "";
       if (method === "online") {
@@ -284,21 +287,50 @@
     vids.forEach((v) => io.observe(v));
   }
 
-  // ---------- ₹ / $ currency switch ----------
-  $$("[data-cur]").forEach((b) => b.addEventListener("click", () => {
-    const toUSD = !isUSD();
-    document.documentElement.classList.toggle("usd", toUSD);
-    try { localStorage.setItem("bk_cur", toUSD ? "USD" : "INR"); } catch {}
-    toast(toUSD ? "Showing prices in US $ · we ship worldwide" : "Showing prices in ₹ INR");
-    if (co) location.reload(); else renderCart();
-  }));
+  // ---------- country & currency (all countries; local prices shown approx., charged in USD) ----------
+  const flag = (c) => (c && c.length === 2 ? String.fromCodePoint(...[...c.toUpperCase()].map((ch) => 127397 + ch.charCodeAt(0))) : "🌍");
+  const CL = BK.countries || [];
+  const getCC = () => { try { return JSON.parse(localStorage.getItem("bk_country") || "null"); } catch { return null; } };
+  let cc = getCC();
+  if (!cc && CL.length) { // first visit: guess from browser
+    let code = ""; try { const z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; if (/Calcutta|Kolkata/.test(z)) code = "IN"; } catch {}
+    if (!code) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i); code = m ? m[1].toUpperCase() : (isUSD() ? "US" : "IN"); }
+    const row = CL.find((r) => r[0] === code); cc = row ? { c: row[0], n: row[1], cur: row[2] } : null;
+  }
+  let rates = { USD: 1, ...(BK.rates || {}) };
+  const fmtLocal = (v, cur) => { try { return new Intl.NumberFormat("en", { style: "currency", currency: cur, minimumFractionDigits: 0, maximumFractionDigits: v * rates[cur] >= 10 ? 0 : 2 }).format(v * rates[cur]); } catch { return null; } };
+  function applyLocal() {
+    const cur = cc?.cur || (isUSD() ? "USD" : "INR");
+    $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" ? "$" : cur}` : el.textContent));
+    $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${cur}` : el.textContent));
+    const local = cur !== "INR" && cur !== "USD" && rates[cur];
+    document.documentElement.classList.toggle("local-cur", !!local);
+    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? "≈ " + t : el.dataset.usdText; el.title = t ? `${el.dataset.usdText} USD – charged in US $` : ""; });
+  }
+  function setCountry(row, silent) {
+    cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
+    const wasUSD = isUSD(), toUSD = cc.c !== "IN"; document.documentElement.classList.toggle("usd", toUSD);
+    if (!silent) { toast(cc.c === "IN" ? "Showing prices in ₹ for India" : `Prices for ${cc.n}${cc.cur !== "USD" ? " (approx. " + cc.cur + ", charged in US $)" : " in US $"}`); if (co && wasUSD !== toUSD) return location.reload(); }
+    ensureRates().then(applyLocal); renderCart().catch(() => {});
+  }
+  let ratesP;
+  const ensureRates = () => { const cur = cc?.cur; if (!cur || cur === "USD" || cur === "INR" || rates[cur]) return Promise.resolve(); return (ratesP ||= (async () => { try { const c = JSON.parse(localStorage.getItem("bk_rates") || "null"); if (c && Date.now() - c.t < 12 * 36e5) { rates = { ...c.r, ...(BK.rates || {}), USD: 1 }; return; } } catch {} try { const r = await fetch("https://open.er-api.com/v6/latest/USD"); const j = await r.json(); if (j && j.rates) { rates = { ...j.rates, ...(BK.rates || {}), USD: 1 }; try { localStorage.setItem("bk_rates", JSON.stringify({ t: Date.now(), r: j.rates })); } catch {} } } catch {} })()); };
+  const cm = $("[data-country-modal]"), cq = $("[data-country-q]"), clist = $("[data-country-list]");
+  const renderCL = () => { const q = (cq.value || "").trim().toLowerCase(); const rows = CL.filter((r) => !q || r[1].toLowerCase().includes(q) || r[0].toLowerCase() === q || r[2].toLowerCase() === q); const top = q ? rows : [...CL.filter((r) => ["IN", "US", "GB", "AE", "CA", "AU"].includes(r[0])), ...rows]; clist.innerHTML = [...new Map(top.map((r) => [r[0], r])).values()].slice(0, 260).map((r) => `<button type="button" data-cc="${r[0]}"${cc?.c === r[0] ? ' class="on"' : ""}><span>${flag(r[0])} ${esc(r[1])}</span><small>${r[0] === "IN" ? "₹ INR" : r[2]}</small></button>`).join(""); };
+  $$("[data-country]").forEach((b) => b.addEventListener("click", () => { if (!cm?.showModal) return; closeAll(); cq.value = ""; renderCL(); cm.showModal(); document.documentElement.classList.add("locked"); setTimeout(() => cq.focus(), 50); }));
+  cq?.addEventListener("input", renderCL);
+  clist?.addEventListener("click", (e) => { const b = e.target.closest("[data-cc]"); if (!b) return; const row = CL.find((r) => r[0] === b.dataset.cc); if (row) { cm.close(); setCountry(row); } });
+  $("[data-close-country]")?.addEventListener("click", () => cm.close());
+  cm?.addEventListener("close", unlockIfFree); cm?.addEventListener("click", (e) => { if (e.target === cm) cm.close(); });
+  if (cc && CL.length) { document.documentElement.classList.toggle("usd", cc.c !== "IN"); ensureRates().then(applyLocal); applyLocal(); }
+  if (CL.length && "MutationObserver" in window) { let mt; new MutationObserver((ms) => { if (ms.some((m) => [...m.addedNodes].some((n) => n.nodeType === 1 && (n.matches?.("[data-usdv]") || n.querySelector?.("[data-usdv]"))))) { clearTimeout(mt); mt = setTimeout(applyLocal, 50); } }).observe(document.body, { childList: true, subtree: true }); }
 
   // ---------- small product card (wishlist / recently viewed) ----------
   const off = (a, b) => (a && b && b > a ? Math.round((1 - a / b) * 100) : 0);
   const priceBoth = (p) => {
     const i = p.price == null ? `<span class="price ask">Price on request</span>` : `<span class="price">${inr(p.price)}</span>${off(p.price, p.mrp) ? `<s class="mrp">${inr(p.mrp)}</s>` : ""}`;
     if (!BK.intl) return i;
-    const u2 = p.price_usd == null ? `<span class="price ask">India only</span>` : `<span class="price">${usd(p.price_usd)}</span>${off(p.price_usd, p.mrp_usd) ? `<s class="mrp">${usd(p.mrp_usd)}</s>` : ""}`;
+    const u2 = p.price_usd == null ? `<span class="price ask">India only</span>` : `<span class="price" data-usdv="${p.price_usd}">${usd(p.price_usd)}</span>${off(p.price_usd, p.mrp_usd) ? `<s class="mrp" data-usdv="${p.mrp_usd}">${usd(p.mrp_usd)}</s>` : ""}`;
     return `<span class="cur-inr">${i}</span><span class="cur-usd">${u2}</span>`;
   };
   const miniCard = (slug, p) => `<article class="card" data-slug="${esc(slug)}"><a class="card-link" href="${url(p.url)}"><div class="card-img${p.image2 ? " has-alt" : ""}"><img src="${esc(url(p.image))}" alt="${esc(p.title)}" width="1200" height="1800" loading="lazy">${p.image2 ? `<img class="alt" src="${esc(url(p.image2))}" alt="" width="1200" height="1800" loading="lazy">` : ""}</div><div class="card-body"><h3>${esc(p.title)}</h3><div class="card-price">${priceBoth(p)}</div></div></a><button class="wish" type="button" data-wish="${esc(slug)}" aria-label="Save to wishlist" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.2-9.3C1.7 7.4 4 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.1 0 5.4 2.9 4.3 6.2C19.5 15.4 12 20 12 20z"/></svg></button></article>`;
@@ -410,6 +442,7 @@
     const f = Object.fromEntries(new FormData(bf)); for (const k in f) f[k] = String(f[k]).trim();
     const txt = `Wholesale / private label enquiry\n\nName: ${f.name}\nBusiness: ${f.business || "-"}\nCountry: ${f.country}\nType: ${f.type}\nProducts: ${f.products || "-"}\nQuantity: ${f.qty || "-"}\nDetails: ${f.msg || "-"}`;
     track("Lead", { content_name: "wholesale" });
+    sendSheet({ type: "wholesale", name: f.name, phone: "", email: "", country: f.country, items: `${f.type} | ${f.business || "-"} | ${f.products || "-"} | qty ${f.qty || "-"} | ${f.msg || ""}`, consent: "no" });
     if (BK.wa) window.open(`https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}`, "_blank", "noopener");
     else if (BK.email) location.href = `mailto:${BK.email}?subject=${encodeURIComponent("Wholesale enquiry")}&body=${encodeURIComponent(txt)}`;
   });
@@ -435,6 +468,10 @@
   // ---------- hero slider ----------
   const hero = $("[data-hero]");
   if (hero) {
+    // scheduled banners: hide slides outside their start/end dates
+    const dnow = new Date().toISOString().slice(0, 10), allS = $$(".hero-slide", hero);
+    const off = allS.filter((x) => (x.dataset.start && x.dataset.start > dnow) || (x.dataset.end && x.dataset.end < dnow));
+    if (off.length && off.length < allS.length) { off.forEach((x) => x.remove()); const dots = $$("[data-hero-go]", hero); dots.slice(allS.length - off.length).forEach((d) => d.remove()); $$("[data-hero-go]", hero).forEach((d, k) => (d.dataset.heroGo = k)); const first = $(".hero-slide", hero); if (first) { first.classList.add("on"); first.inert = false; first.removeAttribute("aria-hidden"); } }
     const sl = $$(".hero-slide", hero), hd = $$("[data-hero-go]", hero); let hi = 0, ht;
     const track = $("[data-hero-track]", hero);
     const show = (i) => { hi = (i + sl.length) % sl.length; if (track) track.style.transform = `translateX(-${hi * 100}%)`; sl.forEach((x, k) => { x.classList.toggle("on", k === hi); x.setAttribute("aria-hidden", k !== hi); x.inert = k !== hi; }); hd.forEach((d, k) => d.classList.toggle("on", k === hi)); };
@@ -566,4 +603,227 @@
 
   // ---------- installable app ----------
   if ("serviceWorker" in navigator && location.protocol === "https:") addEventListener("load", () => navigator.serviceWorker.register(url("sw.js")).catch(() => {}));
+
+  // ---------- QR codes (craft passport + printable tags) ----------
+  let qrLib;
+  const loadQR = () => (qrLib ||= new Promise((res, rej) => { if (window.QRCode) return res(); const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }));
+  const drawQR = (root = document) => { const boxes = $$("[data-qr-box]", root).filter((b) => !b.dataset.done); if (!boxes.length) return; loadQR().then(() => boxes.forEach((b) => { b.dataset.done = 1; try { new window.QRCode(b, { text: b.dataset.qr, width: 112, height: 112, colorDark: "#0e5b59", colorLight: "#ffffff" }); } catch {} })).catch(() => {}); };
+  $("[data-passport]")?.addEventListener("toggle", (e) => { if (e.target.open) drawQR(e.target); });
+  if (document.body.classList.contains("tags-page")) drawQR();
+
+  // ---------- voice search (Hindi + English) ----------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition, mic = $("[data-mic]");
+  if (SR && mic && sin) {
+    mic.hidden = false;
+    const HI = { "कुर्ती": "kurti", "कुर्ता": "kurta", "ड्रेस": "dress", "सूट": "set", "सेट": "set", "सूती": "cotton", "कॉटन": "cotton", "रेयॉन": "rayon", "लिनन": "linen", "जॉर्जेट": "georgette", "अनारकली": "anarkali", "दुपट्टा": "dupatta", "प्लाज़ो": "palazzo", "पलाज़ो": "palazzo", "प्रिंट": "print", "ब्लॉक": "block", "बगरू": "bagru", "दाबू": "dabu", "सांगानेरी": "sanganeri", "लाल": "red", "नीला": "blue", "नीली": "blue", "हरा": "green", "हरी": "green", "पीला": "yellow", "पीली": "yellow", "गुलाबी": "pink", "काला": "black", "काली": "black", "सफ़ेद": "white", "सफेद": "white", "मैरून": "maroon", "शादी": "wedding", "त्योहार": "festive", "ऑफिस": "office" };
+    mic.addEventListener("click", () => {
+      const r = new SR(); r.lang = "hi-IN"; r.interimResults = false; r.maxAlternatives = 1;
+      mic.classList.add("listening"); sin.placeholder = "Boliye… (Hindi ya English)";
+      r.onresult = (e) => { let t = e.results[0][0].transcript || ""; t = t.replace(/(\d[\d,]*)\s*(से कम|se kam|ke andar|के अंदर|under)/gi, "").split(/\s+/).map((w) => HI[w] || w).join(" ").trim(); sin.value = t; runSearch(); };
+      r.onend = () => { mic.classList.remove("listening"); sin.placeholder = "Search kurtis, dresses, block print, cotton…"; };
+      r.onerror = () => toast("Mic not available – please type"); try { r.start(); } catch {}
+    });
+  }
+
+  // ---------- "Picked for you" (from what this visitor viewed) ----------
+  (async () => {
+    const fy = $("[data-foryou]"); if (!fy) return; const seen = getR(); if (!seen.length) return;
+    const cat = await catalog().catch(() => null); if (!cat) return;
+    const likes = { cat: {}, fab: {} }; seen.forEach((k) => { const p = cat.products[k]; if (!p) return; likes.cat[p.cat] = (likes.cat[p.cat] || 0) + 2; if (p.fabric) likes.fab[p.fabric] = (likes.fab[p.fabric] || 0) + 1; });
+    const ranked = Object.entries(cat.products).filter(([k, p]) => !seen.includes(k) && p.price).map(([k, p]) => [k, (likes.cat[p.cat] || 0) + (likes.fab[p.fabric] || 0)]).filter(([, sc]) => sc > 0).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (ranked.length < 2) return; $("[data-foryou-grid]").innerHTML = ranked.map(([k]) => miniCard(k, cat.products[k])).join(""); fy.hidden = false; paintWish();
+  })();
+
+  // ---------- Style Finder (3 taps) ----------
+  const fm = $("[data-finder]"), fb = $("[data-finder-body]");
+  if (fm && fb) {
+    const ans = {};
+    const steps = [
+      { k: "occ", q: "What is the occasion?", opts: () => (BK.occasions?.length ? BK.occasions : ["Daily", "Office", "Festive"]).concat(["Anything"]) },
+      { k: "fab", q: "Which fabric do you like?", opts: () => (BK.fabrics?.length ? BK.fabrics : ["Cotton", "Rayon"]).slice(0, 8).concat(["Any fabric"]) },
+      { k: "bud", q: "Your budget?", opts: () => (isUSD() ? ["Under $20", "$20–40", "$40+", "Any budget"] : ["Under ₹999", "₹1,000–1,999", "₹2,000+", "Any budget"]) },
+    ];
+    const show = async (n) => {
+      if (n < steps.length) { const st = steps[n]; fb.innerHTML = `<p class="eyebrow">Step ${n + 1} of 3</p><h2>${esc(st.q)}</h2><div class="finder-opts">${st.opts().map((o) => `<button class="pill" type="button" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div>`; $$("[data-o]", fb).forEach((b) => b.onclick = () => { ans[st.k] = b.dataset.o; show(n + 1); }); return; }
+      const cat = await catalog().catch(() => null); if (!cat) { fb.innerHTML = "<p>Please check your internet and try again.</p>"; return; }
+      const inBud = (p) => { const v = isUSD() ? p.price_usd : p.price; if (v == null) return false; const b = ans.bud || ""; if (/Any/.test(b)) return true; if (isUSD()) return /Under/.test(b) ? v < 20 : /20/.test(b) && /40/.test(b) ? v >= 20 && v <= 40 : v > 40; return /Under/.test(b) ? v < 1000 : /1,000/.test(b) ? v >= 1000 && v < 2000 : v >= 2000; };
+      let hits = Object.entries(cat.products).filter(([, p]) => (/Anything/.test(ans.occ) || (p.occ || []).includes(ans.occ)) && (/Any fabric/.test(ans.fab) || p.fabric === ans.fab) && inBud(p));
+      let note = ""; if (!hits.length) { hits = Object.entries(cat.products).filter(([, p]) => inBud(p)); note = `<p class="muted">No exact match yet – here are styles in your budget.</p>`; }
+      fb.innerHTML = `<p class="eyebrow">Your picks</p><h2>${hits.length} styles for you</h2>${note}<div class="grid finder-grid">${hits.slice(0, 12).map(([k, p]) => miniCard(k, p)).join("")}</div><button class="btn btn-ghost" type="button" data-f-again>Start again</button>`;
+      $("[data-f-again]", fb).onclick = () => show(0); paintWish(); track("Search", { search_string: `finder ${ans.occ}|${ans.fab}|${ans.bud}` });
+    };
+    $$("[data-open-finder]").forEach((b) => b.addEventListener("click", () => { show(0); fm.showModal(); document.documentElement.classList.add("locked"); }));
+    $("[data-close-finder]")?.addEventListener("click", () => fm.close());
+    fm.addEventListener("close", unlockIfFree); fm.addEventListener("click", (e) => { if (e.target === fm) fm.close(); });
+  }
+
+  // ---------- refer & earn ----------
+  const myCode = () => { const u0 = getUser(); if (!u0?.phone) return ""; const d = u0.phone.replace(/\D/g, "").slice(-10); let h = 7; for (const ch of d + "bk") h = (h * 31 + ch.charCodeAt(0)) >>> 0; return "BK" + h.toString(36).toUpperCase().slice(-5); };
+  const myLink = (path = "") => `${location.origin}/${path}?ref=${myCode()}`;
+  const ro = $("[data-refer-out]");
+  const paintRefer = () => {
+    if (!ro) return; const code = myCode(); if (!code) return;
+    const link = myLink();
+    ro.innerHTML = `<p class="eyebrow">Your personal link</p><div class="ref-link"><input readonly value="${esc(link)}" aria-label="Your referral link"><button class="btn" type="button" data-ref-copy>Copy</button></div><p>Your code: <b>${code}</b></p><div class="hero-cta"><a class="btn btn-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Maine Bahe Kurtiz se hand block print kurtis li hain – bahut sundar hain! 🌸 Mere link se dekho – tumhe welcome offer milega (aur mujhe bhi ek thank-you reward): ${link}`)}">Share on WhatsApp</a><button class="btn btn-ghost" type="button" data-status-home>✨ Make WhatsApp Status</button></div>`;
+    $("[data-ref-copy]", ro).onclick = async () => { try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch { toast(link); } };
+    $("[data-status-home]", ro).onclick = () => makeStatus(null);
+    try { if (!localStorage.getItem("bk_ref_sent")) { sendSheet({ type: "referrer", name: getUser()?.name || "", phone: getUser()?.phone || "", ref: code }); localStorage.setItem("bk_ref_sent", "1"); } } catch {}
+  };
+  paintRefer();
+  const _setUser = setUser; // repaint after sign-in
+  lf?.addEventListener("submit", () => setTimeout(paintRefer, 50));
+
+  // ---------- "Make WhatsApp Status" image (1080×1920) ----------
+  async function makeStatus(prodEl) {
+    toast("Making your status…");
+    const W = 1080, H = 1920, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d");
+    const grad = g.createLinearGradient(0, 0, W, H); grad.addColorStop(0, "#093f3e"); grad.addColorStop(1, "#147370"); g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    g.fillStyle = "rgba(232,201,131,.12)"; for (let y = 60; y < H; y += 140) for (let x = (y / 140) % 2 ? 130 : 60; x < W; x += 140) { g.beginPath(); g.arc(x, y, 14, 0, 7); g.fill(); }
+    const load = (src) => new Promise((res) => { if (!src) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+    const title = prodEl ? ($(".buybox h1")?.textContent || "").trim() : "Hand block printed in Jaipur";
+    const priceEl = prodEl ? $(".pdp-price " + (isUSD() ? ".cur-usd .price" : ".cur-inr .price"), document) || $(".pdp-price .price") : null;
+    const price = priceEl ? priceEl.textContent.trim() : "";
+    const imgSrc = prodEl ? ($(".slide img")?.currentSrc || $(".slide img")?.src) : ($(".hero-slide img")?.currentSrc || "");
+    const im = await load(imgSrc), logo = await load($(".logo-img")?.src);
+    // photo card
+    const cx = 90, cy = 210, cw = W - 180, ch = 1180; g.save(); g.beginPath(); g.roundRect ? g.roundRect(cx, cy, cw, ch, 36) : g.rect(cx, cy, cw, ch); g.clip(); g.fillStyle = "#f6efe2"; g.fillRect(cx, cy, cw, ch);
+    if (im) { const r = Math.max(cw / im.width, ch / im.height), iw = im.width * r, ih = im.height * r; g.drawImage(im, cx + (cw - iw) / 2, cy + (ch - ih) / 5, iw, ih); } g.restore();
+    if (logo) { const lw = 360, lh = lw * logo.height / logo.width; g.save(); g.filter = "brightness(0) invert(1)"; g.drawImage(logo, (W - lw) / 2, 60, lw, lh); g.restore(); }
+    g.fillStyle = "#fff"; g.textAlign = "center"; g.font = "600 58px Georgia, serif";
+    const words = title.split(" "); let line = "", y = 1480; const lines = []; for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > W - 160) { lines.push(line); line = w; } else line = t; } lines.push(line); lines.slice(0, 2).forEach((l, k) => g.fillText(l, W / 2, y + k * 70));
+    if (price) { g.fillStyle = "#e8c983"; g.font = "700 72px Georgia, serif"; g.fillText(price, W / 2, y + 170); }
+    g.fillStyle = "#e3eeeb"; g.font = "500 38px system-ui, sans-serif"; g.fillText("Hand block printed in Sanganer, Jaipur", W / 2, 1760);
+    const code = myCode(); g.fillStyle = "#fff"; g.font = "600 44px system-ui, sans-serif"; g.fillText(`${location.host}${code ? "  ·  code " + code : ""}`, W / 2, 1840);
+    cv.toBlob(async (b) => {
+      if (!b) return; const file = new File([b], "bahe-kurtiz-status.jpg", { type: "image/jpeg" });
+      const link = prodEl ? location.origin + location.pathname + (code ? "?ref=" + code : "") : myLink();
+      try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: link }); return; } } catch (e) { if (e?.name === "AbortError") return; }
+      const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "bahe-kurtiz-status.jpg"; a.click(); toast("Status image saved – add it to WhatsApp status");
+    }, "image/jpeg", 0.9);
+  }
+  $("[data-status]")?.addEventListener("click", () => makeStatus($(".product")));
+
+  // ---------- festival calendar (.ics, made on the phone, nothing sent) ----------
+  $("[data-ics]")?.addEventListener("click", () => {
+    const fs_ = BK.fests || []; if (!fs_.length) return;
+    const d8 = (d) => d.replace(/-/g, "");
+    const ev = fs_.map((f, k) => `BEGIN:VEVENT\r\nUID:bk-${d8(f.date)}-${k}@bahekurtiz\r\nDTSTAMP:${d8(new Date().toISOString().slice(0, 10))}T000000Z\r\nDTSTART;VALUE=DATE:${d8(f.date)}\r\nSUMMARY:${f.name}\r\nDESCRIPTION:Festive outfits from ${BK.brand}: ${location.origin}/\r\nBEGIN:VALARM\r\nTRIGGER:-P14D\r\nACTION:DISPLAY\r\nDESCRIPTION:${f.name} in 2 weeks – order your outfit\r\nEND:VALARM\r\nEND:VEVENT`).join("\r\n");
+    const blob = new Blob([`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//${BK.brand}//Festivals//EN\r\n${ev}\r\nEND:VCALENDAR`], { type: "text/calendar" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "bahe-festivals.ics"; a.click(); toast("Calendar file saved – open it to add reminders");
+  });
+
+  // ---------- e-gift card ----------
+  const gcf = $("[data-gc-form]");
+  gcf?.addEventListener("submit", (e) => {
+    e.preventDefault(); if (!gcf.reportValidity()) return; const f = Object.fromEntries(new FormData(gcf)); for (const k in f) f[k] = String(f[k]).trim();
+    const amt = isUSD() ? (f.amt_usd || "") : (f.amt || "");
+    const txt = `GIFT CARD order\n\nAmount: ${amt}${isUSD() ? " USD" : ""}\nFor: ${f.to}${f.to_phone ? " (" + f.to_phone + ")" : ""}\nMessage: ${f.msg || "-"}\n\nFrom: ${f.from}\nPhone: ${f.from_phone}\nPayment: prepaid – please share payment details${refText()}`;
+    sendSheet({ type: "gift_card", name: f.from, phone: f.from_phone, items: `Gift card ${amt} for ${f.to}`, consent: "no" });
+    if (BK.wa) window.open(`https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}`, "_blank", "noopener");
+  });
+  const gcm = $("[data-gc-make]");
+  gcm?.addEventListener("submit", async (e) => {
+    e.preventDefault(); if (!gcm.reportValidity()) return; const f = Object.fromEntries(new FormData(gcm)); for (const k in f) f[k] = String(f[k]).trim();
+    const W = 1200, H = 750, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d");
+    const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, "#3b0d1f"); gr.addColorStop(1, "#7a1f3d"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.fillStyle = "rgba(232,201,131,.14)"; for (let y = 40; y < H; y += 110) for (let x = (y / 110) % 2 ? 95 : 40; x < W; x += 110) { g.beginPath(); g.arc(x, y, 12, 0, 7); g.fill(); }
+    g.strokeStyle = "#e8c983"; g.lineWidth = 4; g.strokeRect(36, 36, W - 72, H - 72);
+    const logo = await new Promise((r) => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = $(".logo-img")?.src || ""; });
+    if (logo) { const lw = 300, lh = lw * logo.height / logo.width; g.save(); g.filter = "brightness(0) invert(1)"; g.drawImage(logo, 80, 80, lw, lh); g.restore(); }
+    g.fillStyle = "#e8c983"; g.font = "600 40px system-ui, sans-serif"; g.fillText("E-GIFT CARD", 80, 300);
+    g.fillStyle = "#fff"; g.font = "600 76px Georgia, serif"; g.fillText(`For ${f.to}`, 80, 400);
+    g.fillStyle = "#e8c983"; g.font = "700 96px Georgia, serif"; g.fillText(f.amt, 80, 520);
+    g.fillStyle = "#fff"; g.font = "600 40px ui-monospace, monospace"; g.fillText(`Code: ${f.code}`, 80, 610);
+    g.font = "400 30px system-ui, sans-serif"; g.fillStyle = "#f6e7c8"; g.fillText(`Redeem: ${location.host}/redeem/?c=${f.code}`, 80, 670);
+    cv.toBlob(async (b) => { const file = new File([b], "bahe-gift-card.png", { type: "image/png" }); const link = `${location.origin}/redeem/?c=${encodeURIComponent(f.code)}`;
+      try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: `🎁 A gift for you from ${BK.brand}! ${link}` }); return; } } catch (er) { if (er?.name === "AbortError") return; }
+      const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "bahe-gift-card.png"; a.click(); toast("Gift card image saved"); }, "image/png");
+  });
+  const rd = $("[data-redeem]");
+  if (rd) { const c = new URLSearchParams(location.search).get("c"); if (c && /^[A-Za-z0-9-]{4,24}$/.test(c)) { try { localStorage.setItem("bk_gc", c); } catch {} $("[data-redeem-code]").textContent = c; } }
+
+  // ---------- stories (tap through, hold to pause, swipe down to close) ----------
+  const smd = $("[data-story-modal]"), sst = $("[data-story-stage]");
+  if (smd && (BK.stories || []).length) {
+    let si = 0, sj = 0, tmr = null, paused = false, t0 = 0, left = 0;
+    const DUR = 5000;
+    const seen = () => { try { return JSON.parse(localStorage.getItem("bk_seen_st") || "[]"); } catch { return []; } };
+    const markSeen = (k) => { try { localStorage.setItem("bk_seen_st", JSON.stringify([...new Set([...seen(), k])])); } catch {} };
+    $$("[data-story]").forEach((b) => { if (seen().includes(BK.stories[+b.dataset.story]?.t)) b.classList.add("seen"); });
+    const stop = () => { clearTimeout(tmr); tmr = null; };
+    const next = () => { const st = BK.stories[si]; if (sj < st.s.length - 1) { sj++; render(); } else if (si < BK.stories.length - 1) { si++; sj = 0; render(); } else smd.close(); };
+    const prev = () => { if (sj > 0) sj--; else if (si > 0) { si--; sj = BK.stories[si].s.length - 1; } render(); };
+    const run = (ms) => { stop(); t0 = Date.now(); left = ms; tmr = setTimeout(next, ms); const bar = $(".st-bar.on i", sst); if (bar) { bar.style.transition = "none"; bar.style.width = (100 - ms / DUR * 100) + "%"; requestAnimationFrame(() => { bar.style.transition = `width ${ms}ms linear`; bar.style.width = "100%"; }); } };
+    function render() {
+      const st = BK.stories[si], x = st.s[sj]; markSeen(st.t); $(`[data-story="${si}"]`)?.classList.add("seen");
+      sst.innerHTML = `<div class="st-bars">${st.s.map((_, k) => `<span class="st-bar${k < sj ? " done" : k === sj ? " on" : ""}"><i></i></span>`).join("")}</div>
+        <div class="st-head"><b>${esc(st.t)}</b><button class="st-x" type="button" aria-label="Close">✕</button></div>
+        ${x.vid ? `<video src="${esc(x.vid)}" ${x.img ? `poster="${esc(x.img)}"` : ""} playsinline autoplay muted></video>` : `<img src="${esc(x.img)}" alt="">`}
+        <button class="st-tap prev" type="button" aria-label="Previous"></button><button class="st-tap next" type="button" aria-label="Next"></button>
+        <div class="st-foot">${x.cap ? `<p>${esc(x.cap)}</p>` : ""}${x.link ? `<a class="st-shop" href="${esc(x.link)}">🛍 ${esc(x.shop || "Shop now")}</a>` : ""}</div>`;
+      $(".st-x", sst).onclick = () => smd.close(); $(".st-tap.prev", sst).onclick = prev; $(".st-tap.next", sst).onclick = next;
+      const v = $("video", sst);
+      if (v) { v.play().catch(() => {}); v.onloadedmetadata = () => run(Math.min(15000, (v.duration || 5) * 1000)); v.onended = next; run(15000); } else run(DUR);
+    }
+    const hold = (on) => { if (on && tmr) { paused = true; left -= Date.now() - t0; stop(); $("video", sst)?.pause(); const bar = $(".st-bar.on i", sst); if (bar) { const w = getComputedStyle(bar).width; bar.style.transition = "none"; bar.style.width = w; } } else if (!on && paused) { paused = false; $("video", sst)?.play().catch(() => {}); run(Math.max(300, left)); } };
+    sst.addEventListener("pointerdown", (e) => { if (!e.target.closest("a,.st-x")) hold(true); });
+    sst.addEventListener("pointerup", () => hold(false)); sst.addEventListener("pointercancel", () => hold(false));
+    let y0 = null; sst.addEventListener("touchstart", (e) => (y0 = e.touches[0].clientY), { passive: true }); sst.addEventListener("touchend", (e) => { if (y0 !== null && e.changedTouches[0].clientY - y0 > 90) smd.close(); y0 = null; });
+    document.addEventListener("keydown", (e) => { if (!smd.open) return; if (e.key === "ArrowRight") next(); if (e.key === "ArrowLeft") prev(); });
+    $$("[data-story]").forEach((b) => b.addEventListener("click", () => { si = +b.dataset.story; sj = 0; smd.showModal(); document.documentElement.classList.add("locked"); render(); track("ViewContent", { content_name: "story " + BK.stories[si].t }); }));
+    smd.addEventListener("close", () => { stop(); sst.innerHTML = ""; unlockIfFree(); });
+  }
+
+  // ---------- feed (vertical reels) ----------
+  const feed = $("[data-feed]");
+  if (feed) {
+    const vids = $$("video", feed);
+    if ("IntersectionObserver" in window) { const io4 = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.6 }); vids.forEach((v) => io4.observe(v)); }
+    feed.addEventListener("click", async (e) => {
+      const sh = e.target.closest("[data-feed-share]"); if (sh) { const link = sh.dataset.feedShare + "?utm_source=whatsapp&utm_medium=share&utm_campaign=feed"; try { if (navigator.share) { await navigator.share({ url: link, text: "Ye dekho 👗" }); return; } } catch (er) { if (er?.name === "AbortError") return; } window.open(`https://wa.me/?text=${encodeURIComponent("Ye dekho 👗 " + link)}`, "_blank", "noopener"); return; }
+      const snd = e.target.closest("[data-feed-sound]"); if (snd) { const v = snd.closest(".feed-item").querySelector("video"); if (v) { v.muted = !v.muted; snd.firstChild.textContent = v.muted ? "🔇" : "🔊"; } }
+    });
+    let lastTap = 0; feed.addEventListener("pointerup", (e) => { if (e.target.closest("a,button")) return; const now = Date.now(); if (now - lastTap < 300) { const w = e.target.closest(".feed-item")?.querySelector("[data-wish]"); if (w && !w.classList.contains("on")) { w.click(); const h = document.createElement("span"); h.className = "feed-heart"; h.textContent = "❤"; e.target.closest(".feed-item").appendChild(h); setTimeout(() => h.remove(), 900); } } lastTap = now; });
+  }
+
+  // ---------- Follow Bahe Kurtiz ----------
+  const isFollow = () => { try { return localStorage.getItem("bk_follow") === "1"; } catch { return false; } };
+  const paintFollow = () => $$("[data-follow-label]").forEach((el) => (el.textContent = isFollow() ? "✓ Following" : el.closest(".mnav") ? "＋ Follow Bahe Kurtiz" : "＋ Follow"));
+  paintFollow();
+  $$("[data-follow]").forEach((b) => b.addEventListener("click", () => {
+    if (isFollow()) { toast("You are following – thank you 💚"); return; }
+    const u0 = getUser();
+    if (!u0?.phone) { openLogin(); const t = $("[data-login-title]"); if (t) t.textContent = "Follow Bahe Kurtiz"; const c = $("[data-login-form] [name=consent]"); if (c) c.checked = true; try { localStorage.setItem("bk_follow_pending", "1"); } catch {} return; }
+    try { localStorage.setItem("bk_follow", "1"); } catch {} sendSheet({ type: "follow", name: u0.name, phone: u0.phone, email: u0.email || "", consent: "yes" }); paintFollow(); toast("Following! New drops will reach you first 💚"); track("Subscribe", {});
+  }));
+  lf?.addEventListener("submit", () => setTimeout(() => { try { if (localStorage.getItem("bk_follow_pending") === "1" && getUser()?.phone && lf.consent?.checked) { localStorage.removeItem("bk_follow_pending"); localStorage.setItem("bk_follow", "1"); sendSheet({ type: "follow", name: getUser().name, phone: getUser().phone, consent: "yes" }); paintFollow(); } } catch {} }, 80));
+
+  // ---------- Mirror (beta) ----------
+  const mir = $("[data-mirror]");
+  if (mir) {
+    const me = $("[data-mirror-me]"), dr = $("[data-mirror-dress]"), stage = $("[data-mirror-stage]"), board = $("[data-mirror-board]"), looks = [];
+    let cur = null, pos = { x: 50, y: 30 }, sc = 60;
+    $("[data-mirror-file]").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; me.src = URL.createObjectURL(f); me.hidden = false; $("[data-mirror-empty]").hidden = true; });
+    const place = () => { dr.style.width = sc + "%"; dr.style.left = pos.x + "%"; dr.style.top = pos.y + "%"; };
+    catalog().then((cat) => {
+      const box = $("[data-mirror-picks]"); const list = Object.entries(cat.products).filter(([, p]) => p.image);
+      box.innerHTML = list.map(([k, p]) => `<button type="button" data-mp="${esc(k)}"><img src="${esc(url(p.cutout || p.image))}" alt="${esc(p.title)}" loading="lazy"><span>${esc(p.title)}</span></button>`).join("");
+      box.addEventListener("click", (e) => { const b = e.target.closest("[data-mp]"); if (!b) return; const p = cat.products[b.dataset.mp]; cur = { k: b.dataset.mp, p }; dr.src = url(p.cutout || p.image); dr.hidden = false; dr.classList.toggle("is-cutout", !!p.cutout); $$("[data-mp]", box).forEach((x) => x.classList.toggle("on", x === b)); place(); if (me.hidden) toast("Add your photo to see it together"); });
+    }).catch(() => {});
+    $("[data-mirror-scale]").addEventListener("input", (e) => { sc = +e.target.value; place(); });
+    $("[data-mirror-op]").addEventListener("input", (e) => { dr.style.opacity = e.target.value / 100; });
+    let drag = null; dr.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY, px: pos.x, py: pos.y }; dr.setPointerCapture(e.pointerId); e.preventDefault(); });
+    dr.addEventListener("pointermove", (e) => { if (!drag) return; const r = stage.getBoundingClientRect(); pos.x = drag.px + (e.clientX - drag.x) / r.width * 100; pos.y = drag.py + (e.clientY - drag.y) / r.height * 100; place(); });
+    dr.addEventListener("pointerup", () => (drag = null));
+    const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
+      const draw = (im) => { const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity; g.drawImage(im, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, ir.width / r.width * W, ir.height / r.height * H); g.globalAlpha = 1; };
+      if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); g.fillStyle = "rgba(14,91,89,.85)"; g.fillRect(0, H - 56, W, 56); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(`${cur ? cur.p.title : ""}`.slice(0, 44), 16, H - 20); cv.toBlob(res, "image/jpeg", 0.88); });
+    $("[data-mirror-save]").addEventListener("click", async () => { if (!cur) { toast("Pick a dress first"); return; } const b = await snap(); looks.push({ b, t: cur.p.title, u: cur.p.url }); board.innerHTML = looks.map((l, i) => `<figure><img src="${URL.createObjectURL(l.b)}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption></figure>`).join(""); toast(`Look ${looks.length} saved`); });
+    $("[data-mirror-share]").addEventListener("click", async () => {
+      if (!looks.length) { toast("Save at least one look first"); return; }
+      const text = `Kaunsi pehnu? 🤔\n${looks.map((l, i) => `${i + 1}. ${l.t} – ${location.origin}/${String(l.u).replace(/^\//, "")}`).join("\n")}`;
+      try { const files = looks.map((l, i) => new File([l.b], `look-${i + 1}.jpg`, { type: "image/jpeg" })); if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, text }); return; } } catch (e) { if (e?.name === "AbortError") return; }
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+    });
+  }
 })();
