@@ -196,11 +196,12 @@ const reelsHtml = () => !reels.length ? "" : `<section class="reels" aria-label=
     <div class="reel-row">${reels.map((r, i) => {
       const fb = /facebook\.com|fb\.watch/i.test(r.link);
       const p = products.find((x) => x.slug === r.product);
-      const media = r.ig ? `<iframe src="${esc(r.ig)}" title="${esc(r.caption || "Instagram reel")}" loading="lazy" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; picture-in-picture"></iframe>` : r.video
+      const igPoster = r.ig ? (r.cover ? u(r.cover) : p?.images[0] ? u(p.images[0]) : "") : "";
+      const media = r.ig ? (igPoster ? `<img src="${esc(igPoster)}" alt="${esc(r.caption || brand + " reel")}" loading="lazy" decoding="async">` : `<span class="reel-ig-ph"></span>`) : r.video
         ? `<video src="${esc(u(r.video))}"${r.cover ? ` poster="${esc(u(r.cover))}"` : ""} muted loop playsinline preload="none" data-reel aria-hidden="true"></video>`
         : `<img src="${esc(u(r.cover))}" alt="${esc(r.caption || brand + " reel")}" width="540" height="960" loading="lazy" decoding="async">`;
       const inner = `${media}<span class="reel-play" aria-hidden="true">${I.play}</span>${r.caption ? `<span class="reel-cap">${esc(r.caption)}</span>` : ""}${r.link ? `<span class="reel-src">${socialIcon(fb ? "facebook" : "instagram")}</span>` : ""}`;
-      const box = r.ig ? `<div class="reel reel-ig">${media}</div>` : r.video || p ? `<button class="reel" type="button" data-reel-open="${i}" aria-label="Play reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>`
+      const box = r.ig ? `<button class="reel reel-igf" type="button" data-ig="${esc(r.ig)}" aria-label="Play Instagram reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>` : r.video || p ? `<button class="reel" type="button" data-reel-open="${i}" aria-label="Play reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>`
         : r.link ? `<a class="reel" href="${esc(r.link)}" target="_blank" rel="noopener" aria-label="${esc(r.caption || "Watch reel")} on ${fb ? "Facebook" : "Instagram"}">${inner}</a>` : `<div class="reel">${inner}</div>`;
       const shop = p ? `<a class="reel-prod" href="${u(p.url)}"><img src="${esc(u(p.images[0] || ""))}" alt="" width="60" height="90" loading="lazy"><span><em>${esc(p.title)}</em><span class="card-price">${priceHtml(p)}</span></span><b>Shop</b></a>` : "";
       return `<div class="reel-item">${box}${shop}</div>`;
@@ -406,7 +407,7 @@ const card = (p, i = 9) => {
   <a href="${u(p.url)}" class="card-link">
     <div class="card-img${b ? " has-alt" : ""}">
       ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1800" ${i < 2 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">` : ""}
-      ${b ? `<img class="alt" src="${esc(u(b))}" alt="" width="1200" height="1800" loading="lazy" decoding="async">` : ""}
+      ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="" width="1200" height="1800" decoding="async">` : ""}
       <div class="tags">${p.bestseller ? `<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale">-${off}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
     <div class="card-body">
@@ -735,16 +736,22 @@ if (S.intl_return_policy) infoPage("international-returns/index.html", "internat
   <div class="feed-side">${it.p ? `<button class="feed-act wish" type="button" data-wish="${esc(it.p.slug)}" aria-label="Like" aria-pressed="false">${I.heart}<span>Like</span></button>` : ""}<button class="feed-act" type="button" data-feed-share="${esc(it.p ? SITE_URL + "/" + it.p.url : SITE_URL)}" aria-label="Share">${I.wa}<span>Share</span></button>${it.vid ? `<button class="feed-act" type="button" data-feed-sound aria-label="Sound">🔇<span>Sound</span></button>` : ""}</div>
   <div class="feed-info"><p class="feed-brand">${esc(brand)} · Jaipur</p>${it.cap ? `<p class="feed-cap">${esc(it.cap)}</p>` : ""}${it.p ? `<a class="feed-shop" href="${u(it.p.url)}"><span>${esc(it.p.title)}</span><b class="card-price">${priceHtml(it.p)}</b><em>Shop →</em></a>` : ""}</div></article>`).join("")}</section>` })); }
 
-// ---------- Mirror (beta): your photo + dresses side by side, ask family to vote ----------
-add("mirror/index.html", page({ title: `Mirror – Try Your Look | ${brand}`, description: clip(`Upload your photo and place ${brand} dresses beside or over it. Compare looks for a wedding or function and ask your family on WhatsApp which one suits you.`), pathname: "mirror/", bodyClass: "mirror-page", mini: null,
-  body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Mirror · beta</p><h1>Try your look</h1><p class="lead">Add your photo, pick dresses, and see them together. Drag and resize the dress on your photo, then ask family on WhatsApp: "Kaunsi pehnu?" Your photo stays on your phone – it is never uploaded.</p></div></section>
+// ---------- Mirror 2.0: your photo, dresses appear on you one by one, Haan / Na, family vote ----------
+add("mirror/index.html", page({ title: `Mirror – Try Every Dress On Your Photo | ${brand}`, description: clip(`Add your photo and every ${brand} dress appears on you, one by one. Tap Haan or Na, make your shortlist for the wedding or function, and ask family on WhatsApp which one suits you.`), pathname: "mirror/", bodyClass: "mirror-page", mini: null,
+  body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Mirror · beta</p><h1>Har dress, aap par</h1><p class="lead">Apni photo daalo. Har dress ek-ek karke aap par aayegi. Pasand aaye to <b>💚 Haan</b>, nahi to <b>✕ Na</b>. Aakhir mein family se poochho: "Kaunsi pehnu?" Your photo stays on your phone – it is never uploaded.</p></div></section>
 <section class="wrap section mirror" data-mirror>
-  <div class="mirror-stage" data-mirror-stage><div class="mirror-empty" data-mirror-empty><p><b>Step 1:</b> add a full-length photo of yourself</p><label class="btn">📷 Add my photo<input type="file" accept="image/*" capture="user" data-mirror-file hidden></label></div><img data-mirror-me alt="" hidden><img class="mirror-dress" data-mirror-dress alt="" hidden></div>
-  <div class="mirror-side"><p class="label">Step 2: pick a dress <small class="muted">(tap to try)</small></p><div class="mirror-picks" data-mirror-picks></div>
-    <div class="mirror-tools"><label>Size <input type="range" min="20" max="140" value="60" data-mirror-scale></label><label>See-through <input type="range" min="40" max="100" value="100" data-mirror-op></label></div>
-    <p class="label">Step 3: compare</p><div class="mirror-board" data-mirror-board><p class="muted small">Tap "Save this look" for each dress, then share all looks.</p></div>
-    <div class="hero-cta"><button class="btn btn-ghost" type="button" data-mirror-save>Save this look</button><button class="btn btn-wa" type="button" data-mirror-share>${I.wa} Ask family: kaunsi?</button></div>
-    <p class="muted small">Beta: this is a simple photo overlay, not an exact fit. Use the size chart for your real size. Realistic AI try-on will come when it becomes affordable.</p></div>
+  <div class="mirror-main">
+    <div class="mirror-stage" data-mirror-stage><div class="mirror-empty" data-mirror-empty><p><b>Step 1:</b> apni full-length photo daalo<br><small class="muted">Seedhe khade ho, saamne se, achhi roshni mein</small></p><label class="btn">📷 Add my photo<input type="file" accept="image/*" data-mirror-file hidden></label></div><img data-mirror-me alt="" hidden><img class="mirror-dress" data-mirror-dress alt="" hidden><div class="mirror-hud" data-mirror-hud hidden><span data-mirror-count></span><span data-mirror-name></span></div><p class="mirror-status" data-mirror-status hidden></p><div class="mirror-flash" data-mirror-flash></div></div>
+    <div class="mirror-vote" data-mirror-vote hidden><button type="button" class="mv-no" data-mirror-no aria-label="Na">✕<small>Na</small></button><button type="button" class="mv-play" data-mirror-play aria-label="Pause">⏸</button><button type="button" class="mv-yes" data-mirror-yes aria-label="Haan">💚<small>Haan</small></button></div>
+    <p class="muted small center" data-mirror-tip hidden>Swipe ← Na · Haan → · Dress ko ungli se khiskao · Photo par tap karo to dress wahan aayegi</p>
+  </div>
+  <div class="mirror-side">
+    <p class="label">Occasion</p><div class="mirror-occ" data-mirror-occ></div>
+    <p class="label">Ya khud chuno <small class="muted">(tap to try)</small></p><div class="mirror-picks" data-mirror-picks></div>
+    <div class="mirror-tools"><label>Dress size <input type="range" min="20" max="120" value="52" data-mirror-scale></label><label>See-through <input type="range" min="40" max="100" value="100" data-mirror-op></label></div>
+    <p class="label">💚 Aapki pasand <span data-mirror-liked-n></span></p><div class="mirror-board" data-mirror-board><p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p></div>
+    <div class="mirror-actions"><button class="btn btn-wa" type="button" data-mirror-share>${I.wa} Family se poochho: kaunsi?</button><button class="btn btn-ghost" type="button" data-mirror-card>🖼️ Top 3 vote card</button><button class="btn btn-ghost" type="button" data-mirror-wish>♡ Sab wishlist mein</button></div>
+    <p class="muted small">Beta: ye photo ke upar dress ka andaaza hai, exact fitting nahi. Size ke liye size chart dekho.</p></div>
 </section>` }));
 
 // ---------- wishlist (filled by the browser) ----------
