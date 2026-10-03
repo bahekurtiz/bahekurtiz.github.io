@@ -79,8 +79,8 @@ const prints = uniq(products.flatMap((p) => p.print_work));
 const CRAFT = {
   print: {
     "Hand Block Print": ["Rajasthan", "Wooden blocks are hand-carved, dipped in colour and pressed onto the fabric one by one. Small shifts in each print show it was made by hand.", "Gentle hand wash in cold water, dry in shade."],
-    "Sanganeri Print": ["Sanganer, Jaipur", "Fine floral and paisley motifs printed by hand on a light or white base. Sanganeri prints carry a Geographical Indication (GI) tag.", "Cold hand wash, dry inside-out in shade."],
-    "Bagru Print": ["Bagru, near Jaipur", "Earthy reds, blacks and browns from natural dyes, printed with wooden blocks by the Chhipa community. Bagru prints carry a GI tag.", "Wash separately in cold water the first few times."],
+    "Sanganeri Print": ["Sanganer, Jaipur", "Fine floral and paisley motifs printed by hand on a light or white base. Sanganeri printing as a craft is GI-registered.", "Cold hand wash, dry inside-out in shade."],
+    "Bagru Print": ["Bagru, near Jaipur", "Earthy reds, blacks and browns from natural dyes, printed with wooden blocks by the Chhipa community. Bagru printing as a craft is GI-registered.", "Wash separately in cold water the first few times."],
     "Dabu Print": ["Rajasthan", "A mud-resist print: a paste of clay, gum and lime is blocked onto cloth before dyeing, leaving soft, crackled patterns.", "Cold hand wash, mild soap, dry in shade."],
     "Ajrakh Print": ["Kutch (Gujarat) and Barmer (Rajasthan)", "Deep indigo and madder-red geometric prints made through many rounds of resist printing and natural dyeing.", "Wash separately in cold water; colour softens beautifully over time."],
     "Indigo Print": ["Rajasthan & Gujarat", "Patterns printed or resisted on fabric dyed in indigo blue, one of the oldest natural dyes.", "Wash separately, cold water, dry in shade."],
@@ -105,7 +105,7 @@ const CRAFT = {
     "Gota Patti": ["Rajasthan", "Gold or silver ribbon (gota) cut into shapes and hand-stitched onto fabric – a Rajasthani festive classic.", "Dry clean recommended."],
     "Embroidered": ["India", "Thread work added by hand or machine for texture and detail.", "Gentle hand wash inside-out or dry clean."],
     "Thread Work": ["India", "Colourful thread embroidery on necklines, sleeves or all over.", "Gentle hand wash inside-out."],
-    "Chikankari": ["Lucknow", "Delicate white-on-white hand embroidery from Lucknow, with a GI tag.", "Gentle hand wash or dry clean."],
+    "Chikankari": ["Lucknow", "Delicate white-on-white hand embroidery from Lucknow; the craft is GI-registered.", "Gentle hand wash or dry clean."],
     "Zari Work": ["India", "Metallic gold or silver thread embroidery for festive wear.", "Dry clean."],
     "Mirror Work": ["Rajasthan & Gujarat", "Small mirrors stitched into embroidery that catch the light.", "Dry clean or very gentle hand wash."],
     "Sequin Work": ["India", "Sequins stitched on for sparkle at parties and weddings.", "Dry clean."],
@@ -136,10 +136,10 @@ const CRAFT = {
     "Modal": ["Semi-natural", "Very soft, breathable and resistant to shrinking.", "Gentle cold wash."],
     "Modal Silk": ["Blend", "Modal with a silk-like sheen – light and festive.", "Dry clean recommended."],
     "Muslin": ["Natural / blend", "Soft, finely woven fabric with a gentle sheen.", "Gentle hand wash."],
-    "Chanderi": ["Chanderi, Madhya Pradesh", "Light, sheer handloom fabric with a soft shine. Chanderi carries a GI tag.", "Dry clean recommended."],
+    "Chanderi": ["Chanderi, Madhya Pradesh", "Light, sheer handloom fabric with a soft shine. Chanderi weaving is GI-registered.", "Dry clean recommended."],
     "Chanderi Silk": ["Chanderi, Madhya Pradesh", "Chanderi woven with silk for a richer sheen – perfect for festivals.", "Dry clean."],
-    "Maheshwari": ["Maheshwar, Madhya Pradesh", "Light handloom cotton-silk with a reversible border, GI tagged.", "Dry clean."],
-    "Kota Doria": ["Kota, Rajasthan", "Airy, chequered weave (khats) from Kota – light and elegant. GI tagged.", "Gentle hand wash or dry clean."],
+    "Maheshwari": ["Maheshwar, Madhya Pradesh", "Light handloom cotton-silk with a reversible border; the weave is GI-registered.", "Dry clean."],
+    "Kota Doria": ["Kota, Rajasthan", "Airy, chequered weave (khats) from Kota – light and elegant; the weave is GI-registered.", "Gentle hand wash or dry clean."],
     "Banarasi": ["Varanasi", "Rich woven fabric often with zari motifs – a wedding favourite.", "Dry clean only."],
     "Jacquard": ["", "Pattern is woven into the fabric itself, not printed.", "Gentle hand wash or dry clean."],
     "Art Silk": ["Synthetic", "Silk-like look and shine at an easy price.", "Gentle hand wash or dry clean."],
@@ -175,8 +175,10 @@ const occasions = uniq(products.flatMap((p) => p.occasion));
 const addDays = (iso, d) => { const t = new Date(iso + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - d); return t.toISOString().slice(0, 10); };
 const nice = (iso) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 // default festive dates (Karwa Chauth 29 Oct 2026, Diwali 8 Nov 2026) until the owner sets their own list in admin
-const festAll = (Array.isArray(S.festivals) ? S.festivals : [{ name: "Karwa Chauth", date: "2026-10-29" }, { name: "Diwali", date: "2026-11-08" }]).map((f) => ({ name: String(f?.name || "").trim(), date: String(f?.date || "").slice(0, 10) })).filter((f) => f.name && f.date >= today);
-const festNext = (Array.isArray(S.festivals) ? S.festivals : [{ name: "Karwa Chauth", date: "2026-10-29", link: "occasion/festive/" }, { name: "Diwali", date: "2026-11-08", link: "occasion/festive/" }]).map((f) => ({ name: String(f?.name || "").trim(), date: String(f?.date || "").slice(0, 10), link: (() => { const l = String(f?.link || "").trim(); const m = l.match(/^occasion\/([^/]+)\/?$/); return m && !occasions.some((o) => slugify(o) === m[1]) ? "shop/" : l; })() })).filter((f) => f.name && /^\d{4}-\d{2}-\d{2}$/.test(f.date))
+// default festival dates (New Delhi panchang; owner can override in admin → Settings → festivals)
+const FEST_DEFAULT = [["Karwa Chauth", "2026-10-29"], ["Diwali", "2026-11-08"], ["Holi", "2027-03-22"], ["Eid al-Fitr", "2027-03-10"], ["Raksha Bandhan", "2027-08-17"], ["Navratri", "2027-09-30"], ["Karwa Chauth", "2027-10-18"], ["Diwali", "2027-10-29"]].map(([name, date]) => ({ name, date, link: "occasion/festive/" }));
+const festAll = (Array.isArray(S.festivals) ? S.festivals : FEST_DEFAULT).map((f) => ({ name: String(f?.name || "").trim(), date: String(f?.date || "").slice(0, 10) })).filter((f) => f.name && f.date >= today);
+const festNext = (Array.isArray(S.festivals) ? S.festivals : FEST_DEFAULT).map((f) => ({ name: String(f?.name || "").trim(), date: String(f?.date || "").slice(0, 10), link: (() => { const l = String(f?.link || "").trim(); const m = l.match(/^occasion\/([^/]+)\/?$/); return m && !occasions.some((o) => slugify(o) === m[1]) ? "shop/" : l; })() })).filter((f) => f.name && /^\d{4}-\d{2}-\d{2}$/.test(f.date))
   .map((f) => { const inDays = (num(S.dispatch_days) || 3) + (num(S.transit_days_max) || 7), usDays = (num(S.dispatch_days) || 3) + (num(S.intl_eta_max) || 12); const a = addDays(f.date, inDays), b = addDays(f.date, usDays); return { ...f, dateText: nice(f.date), order_by_in: a, order_by_intl: b, order_by_in_text: nice(a), order_by_intl_text: nice(b) }; })
   .filter((f) => f.order_by_in >= today).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
 // every country name (from the built-in Unicode list), for checkout and the wholesale form
@@ -265,43 +267,46 @@ const orgLd = {
 const ga4 = String(S.ga4_id || "").trim().match(/^G-[A-Z0-9]+$/i)?.[0] || "";
 const clarity = String(S.clarity_id || "").trim().match(/^[a-z0-9]{6,14}$/i)?.[0] || "";
 const pinTag = digits(S.pinterest_tag_id);
-const trackHead = [
-  ga4 ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${ga4}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${ga4}');</script>` : "",
-  clarity ? `<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","${clarity}");</script>` : "",
-  pinTag ? `<script>!function(e){if(!window.pintrk){window.pintrk=function(){window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var n=window.pintrk;n.queue=[],n.version="3.0";var t=document.createElement("script");t.async=!0,t.src=e;var r=document.getElementsByTagName("script")[0];r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");pintrk('load','${pinTag}');pintrk('page');</script>` : "",
-].filter(Boolean).join("\n");
+// analytics: tiny stubs now, real scripts after first tap/scroll (or 4s); never on /admin/; EU/UK consent mode
+const trackHead = (ga4 || clarity || pinTag) ? `<script>(function(){if(location.pathname.indexOf("/admin/")>-1)return;var w=window,d=document,c=null;try{c=localStorage.getItem("bk_consent")}catch(e){}var eu=/^Europe\\//.test((Intl.DateTimeFormat().resolvedOptions().timeZone)||"");w.BKeu=eu;var deny=eu&&c!=="yes",g=deny?"denied":"granted",S=[];
+w.dataLayer=w.dataLayer||[];w.gtag=function(){dataLayer.push(arguments)};gtag("consent","default",{ad_storage:g,ad_user_data:g,ad_personalization:g,analytics_storage:g});
+${ga4 ? `gtag("js",new Date());gtag("config","${ga4}");S.push("https://www.googletagmanager.com/gtag/js?id=${ga4}");` : ""}
+${pinTag ? `if(!deny){w.pintrk=function(){w.pintrk.queue.push(Array.prototype.slice.call(arguments))};w.pintrk.queue=[];w.pintrk.version="3.0";pintrk("load","${pinTag}");pintrk("page");S.push("https://s.pinimg.com/ct/core.js");}` : ""}
+${clarity ? `if(!deny){w.clarity=w.clarity||function(){(w.clarity.q=w.clarity.q||[]).push(arguments)};S.push("https://www.clarity.ms/tag/${clarity}");}` : ""}
+w.BKtags=S;})();</script>` : "";
 
 const crumbLd = (list) => ({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [["Home", ""], ...list].map(([name, path_], i) => ({ "@type": "ListItem", position: i + 1, name, item: SITE_URL + "/" + path_ })) });
 // ---------- Meta Pixel (ID from admin settings) ----------
 const pixelId = digits(S.meta_pixel_id);
-const pixelHead = pixelId ? `<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${pixelId}');fbq('track','PageView');</script>` : "";
+const pixelHead = `<script>(function(){var w=window;if(location.pathname.indexOf("/admin/")>-1)return;var S=w.BKtags||[];${pixelId ? `!function(f){if(f.fbq)return;var n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[]}(w);var c=null;try{c=localStorage.getItem("bk_consent")}catch(e){}if(w.BKeu&&c!=="yes")fbq("consent","revoke");fbq("init","${pixelId}");fbq("track","PageView");S.push("https://connect.facebook.net/en_US/fbevents.js");` : ""}if(!S.length)return;var L=function(){if(L.d)return;L.d=1;S.forEach(function(s){var t=document.createElement("script");t.async=1;t.src=s;document.head.appendChild(t)})};["pointerdown","keydown","scroll","touchstart"].forEach(function(e){addEventListener(e,L,{once:true,passive:true})});setTimeout(L,4000)})();</script>`;
 const pixelBody = pixelId ? `<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"></noscript>` : "";
 
 // ---------- Shoppable reels (Instagram-style videos, each can be linked to a product) ----------
 const igCode = (l) => (String(l || "").match(/instagram\.com\/(?:[^/]+\/)?(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i) || [])[1] || "";
-const reels = (Array.isArray(S.reels) ? S.reels : []).map((r) => ({ link: String(r?.link || "").trim(), video: String(r?.video || "").trim(), cover: String(r?.cover || "").trim(), caption: String(r?.caption || "").trim(), product: slugify(String(r?.product || "")) }))
+const reels = (Array.isArray(S.reels) ? S.reels : []).map((r) => ({ link: String(r?.link || "").trim(), video: String(r?.video || "").trim(), cover: String(r?.cover || "").trim(), caption: String(r?.caption || "").trim(), creator: String(r?.creator || "").trim().replace(/^@?/, "@").replace(/^@$/, ""), creator_link: String(r?.creator_link || "").trim(), product: slugify(String(r?.product || "")) }))
   .map((r) => ({ ...r, ig: !r.video && !r.cover && igCode(r.link) ? `https://www.instagram.com/reel/${igCode(r.link)}/embed/` : "" }))
   .filter((r) => r.video || r.cover || r.ig);
 const ytChan = socials.find((x) => /you/i.test(x.name))?.url || "";
 const igLink = socials.find((x) => /insta/i.test(x.name))?.url || "";
 const igHandle = (igLink.match(/instagram\.com\/([^/?#]+)/i) || [])[1] || "";
 const reelData = () => reels.map((r) => { const p = products.find((x) => x.slug === r.product); return { video: r.video ? u(r.video) : "", cover: r.cover ? u(r.cover) : "", ig: r.ig, link: r.link, caption: r.caption, product: p ? { slug: p.slug, title: p.title, url: u(p.url), image: u(p.images[0] || ""), price: priceHtml(p) } : null }; });
-const reelsHtml = () => !reels.length ? "" : `<section class="reels" aria-label="Shoppable reels">
-  <div class="wrap">
-    <div class="section-head"><div><p class="eyebrow">${esc(S.reels_eyebrow || "Watch & shop")}</p><h2>${esc(S.reels_title || "Watch & Shop")}</h2></div>${igLink ? `<a class="link" href="${esc(igLink)}" target="_blank" rel="noopener">${igHandle ? "@" + esc(igHandle) : "Follow us"} →</a>` : ""}</div>
-    <div class="reel-row">${reels.map((r, i) => {
+const reelItem = (r, i, noShop = false) => {
       const fb = /facebook\.com|fb\.watch/i.test(r.link);
       const p = products.find((x) => x.slug === r.product);
       const igPoster = r.ig ? (r.cover ? u(r.cover) : p?.images[0] ? u(p.images[0]) : "") : "";
       const media = r.ig ? (igPoster ? `<img src="${esc(igPoster)}" alt="${esc(r.caption || brand + " reel")}" loading="lazy" decoding="async">` : `<span class="reel-ig-ph"></span>`) : r.video
         ? `<video src="${esc(u(r.video))}"${r.cover ? ` poster="${esc(u(r.cover))}"` : ""} muted loop playsinline preload="none" data-reel aria-hidden="true"></video>`
         : `<img src="${esc(u(r.cover))}" alt="${esc(r.caption || brand + " reel")}" width="540" height="960" loading="lazy" decoding="async">`;
-      const inner = `${media}<span class="reel-play" aria-hidden="true">${I.play}</span>${r.caption ? `<span class="reel-cap">${esc(r.caption)}</span>` : ""}${r.link ? `<span class="reel-src">${socialIcon(fb ? "facebook" : "instagram")}</span>` : ""}`;
+      const inner = `${media}<span class="reel-play" aria-hidden="true">${I.play}</span>${r.creator ? `<span class="reel-by">Styled by ${esc(r.creator)}</span>` : ""}${r.caption ? `<span class="reel-cap">${esc(r.caption)}</span>` : ""}${r.link ? `<span class="reel-src">${socialIcon(fb ? "facebook" : "instagram")}</span>` : ""}`;
       const box = r.ig ? `<button class="reel reel-igf" type="button" data-ig="${esc(r.ig)}" aria-label="Play Instagram reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>` : r.video || p ? `<button class="reel" type="button" data-reel-open="${i}" aria-label="Play reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>`
         : r.link ? `<a class="reel" href="${esc(r.link)}" target="_blank" rel="noopener" aria-label="${esc(r.caption || "Watch reel")} on ${fb ? "Facebook" : "Instagram"}">${inner}</a>` : `<div class="reel">${inner}</div>`;
-      const shop = p ? `<a class="reel-prod" href="${u(p.url)}"><img src="${esc(u(p.images[0] || ""))}" alt="" width="60" height="90" loading="lazy"><span><em>${esc(p.title)}</em><span class="card-price">${priceHtml(p)}</span></span><b>Shop</b></a>` : "";
+      const shop = p && !noShop ? `<a class="reel-prod" href="${u(p.url)}"><img src="${esc(u(p.images[0] || ""))}" alt="" width="60" height="90" loading="lazy"><span><em>${esc(p.title)}</em><span class="card-price">${priceHtml(p)}</span></span><b>Shop</b></a>` : "";
       return `<div class="reel-item">${box}${shop}</div>`;
-    }).join("")}</div>
+};
+const reelsHtml = () => !reels.length ? "" : `<section class="reels" aria-label="Shoppable reels">
+  <div class="wrap">
+    <div class="section-head"><div><p class="eyebrow">${esc(S.reels_eyebrow || "Watch & shop")}</p><h2>${esc(S.reels_title || "Watch & Shop")}</h2></div>${igLink ? `<a class="link" href="${esc(igLink)}" target="_blank" rel="noopener">${igHandle ? "@" + esc(igHandle) : "Follow us"} →</a>` : ""}</div>
+    <div class="reel-row">${reels.map((r, i) => reelItem(r, i)).join("")}</div>
   </div>
 </section>`;
 
@@ -427,7 +432,7 @@ ${["home", "pdp", "checkout-page"].includes(bodyClass) ? "" : `<section class="u
     <div>${I.needle}<strong>Made in Jaipur</strong><span>Designed and stitched by our own team</span></div>
     <div>${I.shield}<strong>Secure prepaid payments</strong><span class="cur-inr">UPI, cards & netbanking via Razorpay</span>${intlOn ? `<span class="cur-usd">PayPal & international cards</span>` : ""}</div>
     <div>${intlOn ? I.globe : I.truck}<strong>${intlOn ? "Ships worldwide" : "Pan-India delivery"}</strong><span>${esc(S.dispatch_note || "Ships from Jaipur")}</span></div>
-    <div>${I.swap}<strong>Easy exchange</strong><span><a href="${u("returns/")}">See our return policy</a></span></div>
+    ${num(S.return_days) ? `<div>${I.swap}<strong>${num(S.return_days)}-day size exchange</strong><span><a href="${u("returns/")}">See our return policy</a></span></div>` : ""}
   </div>
 </section>`}
 ${waNumber && bodyClass !== "checkout-page" ? `<section class="join"><div class="wrap join-row"><div><h2>New designs, first on WhatsApp</h2><p>Get new arrivals and restock alerts straight on WhatsApp. No spam.</p></div><a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}! Please add me to your new arrivals updates.`))}" target="_blank" rel="noopener">${I.wa} Join on WhatsApp</a></div></section>` : ""}
@@ -520,7 +525,7 @@ const sizeRows = (Array.isArray(S.size_chart) && S.size_chart.length ? S.size_ch
   .map((r) => ({ size: String(r.size || ""), bust: num(r.bust), waist: num(r.waist), hip: num(r.hip) })).filter((r) => r.size);
 const cm = (n) => (n === null ? "–" : `${n}" <small>${Math.round(n * 2.54)} cm</small>`);
 const sizeDialog = `<dialog class="size-modal" data-size-modal aria-labelledby="sz-h"><div class="size-box"><div class="drawer-head"><h2 id="sz-h">Size chart</h2><button class="icon-btn" type="button" data-close-size aria-label="Close">${I.close}</button></div>
-<p class="muted">Body measurements in inches (cm). If you are between two sizes, choose the bigger one. ${esc(S.size_note || "Need help? WhatsApp us your bust and height and we will suggest a size.")}</p>
+<p class="muted">Body measurements in inches (cm). Between two sizes? Relaxed styles: take your usual size. Fitted styles: size up. ${esc(S.size_note || "Need help? WhatsApp us your bust and height and we will suggest a size.")}</p>
 <div class="table-scroll"><table class="size-table"><thead><tr><th>Size</th><th>Bust</th><th>Waist</th><th>Hip</th></tr></thead><tbody>${sizeRows.map((r) => `<tr><th>${esc(r.size)}</th><td>${cm(r.bust)}</td><td>${cm(r.waist)}</td><td>${cm(r.hip)}</td></tr>`).join("")}</tbody></table></div>
 <p class="muted small">How to measure: Bust – around the fullest part. Waist – around the natural waistline. Hip – around the fullest part of the hips.</p></div></dialog>`;
 const circles = (active = "") => categories.length ? `<nav class="circles" aria-label="Categories"><div class="circles-row">
@@ -580,7 +585,7 @@ ${slides.length > 1 ? `<div class="hero-dots">${slides.map((_, i) => `<button ty
     <div>${I.box}<span><strong>Wholesale & private label</strong><a href="${u("wholesale/")}">Bulk orders for boutiques →</a></span></div>
   </div>
 </section>
-${live.on && live.url ? `<section class="wrap section live" id="live"><div class="section-head"><div><p class="eyebrow"><span class="live-dot"></span> Live now</p><h2>${esc(live.title)}</h2></div><a class="link" href="${esc(live.url)}" target="_blank" rel="noopener">Open on YouTube →</a></div>${live.id ? `<div class="live-frame"><iframe src="https://www.youtube-nocookie.com/embed/${live.id}?autoplay=1&mute=1&playsinline=1" title="${esc(live.title)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>` : ""}<p class="muted">Like something in the live? ${waNumber ? `<a class="link" href="${esc(waLink("Hi " + brand + "! I saw this in your live: "))}" target="_blank" rel="noopener">Order it on WhatsApp</a>` : ""} or search it on the site.</p></section>` : ""}
+${live.on && live.url ? `<section class="wrap section live" id="live"><div class="section-head"><div><p class="eyebrow"><span class="live-dot"></span> Live now</p><h2>${esc(live.title)}</h2></div><a class="link" href="${esc(live.url)}" target="_blank" rel="noopener">Open on YouTube →</a></div>${live.id ? `<div class="live-frame"><button type="button" class="yt-facade" data-yt="${esc(live.id)}" aria-label="Play live: ${esc(live.title)}"><img src="https://i.ytimg.com/vi/${esc(live.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async"><span class="yt-play">▶</span></button></div>` : ""}<p class="muted">Like something in the live? ${waNumber ? `<a class="link" href="${esc(waLink("Hi " + brand + "! I saw this in your live: "))}" target="_blank" rel="noopener">Order it on WhatsApp</a>` : ""} or search it on the site.</p></section>` : ""}
 <section class="wrap section foryou" data-foryou hidden><div class="section-head"><div><p class="eyebrow">Based on what you viewed</p><h2>Picked for you</h2></div></div><div class="grid scroller" data-foryou-grid></div></section>
 <section class="follow-cta"><div class="wrap follow-row"><div><p class="eyebrow">Be part of the Bahe family</p><h2>Follow ${esc(brand)}</h2><p class="muted">New prints, live shows and festive drops – first to you. One tap, no spam.</p></div><button class="btn" type="button" data-follow><span data-follow-label>＋ Follow</span></button></div></section>
 <section class="finder-cta"><div class="wrap finder-row"><div><p class="eyebrow">Sakhi · your style helper</p><h2>Find your style in 3 taps</h2><p class="muted">Tell us the occasion, fabric and budget. We show the styles that fit.</p></div><button class="btn" type="button" data-open-finder>Start Style Finder</button></div></section>
@@ -685,7 +690,7 @@ for (const p of products) {
   if (p.video) gal.splice(Math.min(1, gal.length), 0, { video: p.video });
   const body = `
 <nav class="wrap crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u(cat.url)}">${esc(cat.plural)}</a> / <span>${esc(p.title)}</span></nav>
-<section class="wrap product" data-product="${esc(p.slug)}" data-price="${p.price ?? ""}" data-usd="${p.price_usd ?? ""}" data-intl="${p.intl ? 1 : 0}">
+<section class="wrap product" data-fit="${esc(p.fit || "")}" data-chart="${esc(JSON.stringify(sizeRows.filter((r) => r.bust).map((r) => [r.size, r.bust])))}" data-product="${esc(p.slug)}" data-price="${p.price ?? ""}" data-usd="${p.price_usd ?? ""}" data-intl="${p.intl ? 1 : 0}">
   <div class="gallery">
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
@@ -702,7 +707,7 @@ for (const p of products) {
     ${p.model_height || p.model_size || p.fit ? `<p class="fit-line">${[p.model_height ? `Model is ${esc(p.model_height)}` : "", p.model_size ? `wearing ${esc(p.model_size)}` : "", p.fit ? `${esc(p.fit)} fit` : ""].filter(Boolean).join(" · ")}</p>` : ""}
     ${p.price !== null ? `<p class="tax cur-inr">Inclusive of all taxes${disc ? ` · <strong>Extra ${disc}% off</strong> on online payment` : ""}</p>` : ""}
     ${intlOn && p.intl ? `<p class="tax cur-usd">${esc(S.intl_duty_note || "Prices exclude import duties and taxes of your country.")}</p>` : ""}
-    ${p.sizes.length ? `<div class="sizes"><div class="label">Select size <span data-size-error role="alert" hidden>Please select a size</span><button class="size-guide" type="button" data-open-size>${I.ruler} Size chart</button></div><div class="size-row" role="group" aria-label="Select size">${p.sizes.map((s) => `<button class="size${p.sold_out.includes(s) ? " out" : ""}" type="button" data-size="${esc(s)}" aria-pressed="false"${p.sold_out.includes(s) ? ' data-out="1" aria-label="' + esc(s) + ' – sold out, notify me"' : ""}>${esc(s)}</button>`).join("")}</div></div>` : ""}
+    ${p.sizes.length ? `<div class="sizes"><div class="label">Select size <span data-size-error role="alert" hidden>Please select a size</span><button class="size-guide" type="button" data-fit-open>✨ Mera size</button><button class="size-guide" type="button" data-open-size>${I.ruler} Size chart</button></div><div class="size-row" role="group" aria-label="Select size">${p.sizes.map((s) => `<button class="size${p.sold_out.includes(s) ? " out" : ""}" type="button" data-size="${esc(s)}" aria-pressed="false"${p.sold_out.includes(s) ? ' data-out="1" aria-label="' + esc(s) + ' – sold out, notify me"' : ""}>${esc(s)}</button>`).join("")}</div><p class="fit-note" data-fit-note hidden></p></div>` : ""}
     ${p.price !== null ? `<div class="buy-row"><button class="btn btn-block" data-add>Add to Bag</button><button class="btn btn-dark btn-block" data-buy>Buy Now</button></div>`
       : `<a class="btn btn-wa btn-block" href="${esc(waAsk)}" target="_blank" rel="noopener">${I.wa} Ask price on WhatsApp</a>`}
     ${intlOn && !p.intl && waNumber ? `<div class="intl-ask cur-usd"><p>${p.ships_abroad ? "International price for this style is shared on request." : "This style currently ships within India only."} Message us for availability and similar styles that ship to your country.</p><a class="btn btn-wa btn-block" href="${esc(waLink(`Hi ${brand}! I am outside India. Can you ship this to my country?\n${p.title}\n${SITE_URL}/${p.url}`))}" target="_blank" rel="noopener">${I.wa} Ask on WhatsApp</a></div>` : ""}
@@ -715,6 +720,7 @@ for (const p of products) {
       ${p.color ? `<dt>Colour</dt><dd>${esc(p.color)}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${craftLink("fabric", p.fabric)}</dd>` : ""}${p.print_work.length ? `<dt>Print / work</dt><dd>${p.print_work.map((n) => craftLink("print", n)).join(", ")}</dd>` : ""}
       ${p.sizes.length ? `<dt>Sizes</dt><dd>${esc(p.sizes.join(", "))}</dd>` : ""}<dt>Made in</dt><dd>Jaipur, India</dd><dt>Status</dt><dd>${p.in_stock ? "In stock" : "Made to order"}</dd>
     </dl></details>
+    ${(() => { const mine = reels.map((r, i) => [r, i]).filter(([r]) => r.product === p.slug); return mine.length ? `<div class="seen-on"><p class="label">📹 Isko pehne dekho${mine.some(([r]) => r.creator) ? " – influencers" : ""}</p><div class="reel-row seen-row">${mine.map(([r, i]) => `<div class="reel-item">${reelItem(r, i, true)}</div>`).join("")}</div></div>` : ""; })()}
     ${(() => { const rows = [...p.print_work.map((n) => ["print", n]), ...(p.fabric ? [["fabric", p.fabric]] : [])].map(([t, n]) => [n, craftInfo(t, n)]).filter(([, c]) => c); return rows.length ? `<details><summary>About the fabric & print</summary><div class="craft-about">${rows.map(([n, c]) => `<p><b>${esc(n)}</b>${c[0] ? ` <small class="muted">· ${esc(c[0])}</small>` : ""}<br>${esc(c[1])}<br><small>🧺 Care: ${esc(c[2])}</small></p>`).join("")}<p><a class="link" href="${u("craft/")}">Fabric & print guide →</a></p></div></details>` : ""; })()}
     <details class="passport" data-passport><summary>Craft passport</summary><div class="passport-body"><dl class="specs"><dt>Made in</dt><dd>Sanganer, Jaipur, India</dd><dt>Maker</dt><dd>${esc(brand)}</dd>${p.print_work.length ? `<dt>Craft</dt><dd>${esc(p.print_work.join(", "))}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${esc(p.fabric)}</dd>` : ""}<dt>Product ID</dt><dd>${esc(p.slug)}</dd></dl><div class="passport-qr"><div data-qr-box data-qr="${esc(SITE_URL + "/" + p.url + "?src=qr")}"></div><small>Scan to see this piece online. Printed on our tags.</small></div></div></details>
     <details><summary>Shipping & returns</summary><div>${paras(String(S.shipping_policy || "").split(/\n\s*\n/)[1] || S.dispatch_note)}<p><a href="${u("shipping/")}">Shipping (India)</a> · <a href="${u("returns/")}">Returns (India)</a>${S.intl_shipping_policy ? ` · <a href="${u("international-shipping/")}">International shipping</a>` : ""}${S.intl_return_policy ? ` · <a href="${u("international-returns/")}">International returns</a>` : ""}</p></div></details>
@@ -731,7 +737,7 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
     ...(p.price !== null ? { offers: { "@type": "Offer", url: SITE_URL + "/" + p.url, priceCurrency: "INR", price: String(p.price), availability: p.in_stock ? "https://schema.org/InStock" : "https://schema.org/PreOrder", itemCondition: "https://schema.org/NewCondition", seller: { "@id": SITE_URL + "/#store" }, priceValidUntil: `${year + 1}-12-31`,
       shippingDetails: { "@type": "OfferShippingDetails", shippingRate: { "@type": "MonetaryAmount", value: String(p.price >= (num(S.free_shipping_above) || Infinity) ? 0 : num(S.shipping_charge) || 0), currency: "INR" }, shippingDestination: { "@type": "DefinedRegion", addressCountry: "IN" },
         deliveryTime: { "@type": "ShippingDeliveryTime", handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: num(S.dispatch_days) || 3, unitCode: "DAY" }, transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: num(S.transit_days_max) || 7, unitCode: "DAY" } } },
-      hasMerchantReturnPolicy: { "@type": "MerchantReturnPolicy", applicableCountry: "IN", returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow", merchantReturnDays: num(S.return_days) || 7, returnMethod: "https://schema.org/ReturnByMail" } } } : {}),
+      hasMerchantReturnPolicy: !num(S.return_days) ? undefined : { "@type": "MerchantReturnPolicy", applicableCountry: "IN", returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow", merchantReturnDays: num(S.return_days), returnMethod: "https://schema.org/ReturnByMail" } } } : {}),
   };
   const crumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL + "/" },
@@ -761,7 +767,7 @@ add("checkout/index.html", page({
       <datalist id="countries">${allCountries.map((c) => `<option value="${c}">`).join("")}</datalist>` : ""}
       <label>House no., building, street, area<textarea name="address" autocomplete="street-address" required rows="2" maxlength="200"></textarea></label>
       <div class="f3">
-        <label><span class="cur-inr">Pincode</span><span class="cur-usd">ZIP / Postal code</span><input name="pincode" autocomplete="postal-code" required maxlength="12" data-pin></label>
+        <label><span class="cur-inr">Pincode</span><span class="cur-usd">ZIP / Postal code</span><input name="pincode" autocomplete="postal-code" required maxlength="12" inputmode="numeric" data-pin></label>
         <label>City<input name="city" autocomplete="address-level2" required maxlength="60"></label>
         <label><span class="cur-inr">State</span><span class="cur-usd">State / Province</span><input name="state" autocomplete="address-level1" maxlength="40" list="states" data-state></label>
       </div>
@@ -898,6 +904,7 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
   <div class="section-head center"><p class="eyebrow">Get a quotation</p><h2>Send your requirement</h2><p class="muted">Fill this and tap send. It opens WhatsApp with your details ready${S.email ? `, or email us at <a class="link" href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}.</p></div>
   <form class="b2b-form" data-b2b-form>
     <div class="f2"><label>Your name<input name="name" required maxlength="80" autocomplete="name"></label><label>Business / brand name<input name="business" maxlength="100" autocomplete="organization"></label></div>
+    <div class="f2"><label>Email<input name="email" type="email" required maxlength="120" autocomplete="email"></label><label>WhatsApp (with country code)<input name="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="+44 7..."></label></div>
     <div class="f2"><label>Country<input name="country" required maxlength="60" list="countries-b2b" autocomplete="country-name"></label><label>I am a<select name="type"><option>Boutique / retailer</option><option>Online seller</option><option>Fashion brand (private label)</option><option>Importer / distributor</option><option>Other</option></select></label></div>
     <datalist id="countries-b2b"><option value="India">${allCountries.map((c) => `<option value="${c}">`).join("")}</datalist>
     <div class="f2"><label>Products<input name="products" maxlength="140" placeholder="e.g. cotton kurta sets, block print dresses"></label><label>Quantity (approx.)<input name="qty" maxlength="40" placeholder="e.g. 100 pcs per design"></label></div>
@@ -1027,7 +1034,7 @@ function dashMain() {
     if (!month) { const cur = new Date().toISOString().slice(0, 7); month = D.months.some((m) => m.month === cur) ? cur : ""; }
     render();
   }
-  const sumM = (ms) => ms.reduce((a, b) => { for (const k of ["sales", "orders", "pending", "refunds", "shipLost", "ship", "expenses", "returns", "rto", "exchanges", "cancels", "net"]) a[k] = (a[k] || 0) + (b[k] || 0); for (const c in b.exp) a.exp[c] = (a.exp[c] || 0) + b.exp[c]; return a; }, { exp: {} });
+  const sumM = (ms) => ms.reduce((a, b) => { for (const k of ["sales", "orders", "pending", "refunds", "shipLost", "ship", "expenses", "returns", "rto", "exchanges", "cancels", "net", "capital"]) a[k] = (a[k] || 0) + (b[k] || 0); for (const c in b.exp) a.exp[c] = (a.exp[c] || 0) + b.exp[c]; return a; }, { exp: {} });
   const mName = (k) => { const [y, m] = k.split("-"); return new Date(+y, +m - 1, 1).toLocaleString("en-IN", { month: "short", year: "2-digit" }); };
   function chart(ms) {
     const L = ms.slice(-12); if (!L.length) return `<p class="muted">Abhi koi data nahi. Pehla order aate hi chart banega.</p>`;
@@ -1057,7 +1064,7 @@ function dashMain() {
     const tile = (l, v, cls = "", sub = "") => `<div class="dash-tile ${cls}"><span>${l}</span><b>${v}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
     const retRate = t.orders ? Math.round((t.returns + t.rto) / t.orders * 100) : 0;
     box(`<div class="dash-filter"><label>Mahina <select data-month><option value="">Sab (all time)</option>${ms.slice().reverse().map((m) => `<option value="${m.month}"${m.month === month ? " selected" : ""}>${mName(m.month)}</option>`).join("")}</select></label><button class="btn btn-ghost btn-sm" type="button" data-csv>⬇ CSV report</button><button class="btn btn-ghost btn-sm" type="button" data-logout>Logout</button></div>
-      <div class="dash-tiles">${tile("Sales", inr(t.sales), "", `${t.orders || 0} paid orders`)}${tile("Net profit", inr(t.net), t.net < 0 ? "neg" : "pos", "sales − sab kharche")}${tile("Avg order", inr(t.orders ? t.sales / t.orders : 0))}${tile("Pending payment", t.pending || 0)}${tile("Return + RTO", `${(t.returns || 0) + (t.rto || 0)}`, retRate > 15 ? "warn" : "", `${retRate}% · RTO ${t.rto || 0}`)}${tile("Refunds", inr(t.refunds))}${tile("Shipping", inr(t.ship + (t.exp.Shipping || 0)), "", `+ RTO loss ${inr(t.shipLost)}`)}${tile("Expenses", inr(t.expenses), "", t.exp.Investment ? `Investment ${inr(t.exp.Investment)}` : "")}</div>
+      <div class="dash-tiles">${tile("Sales", inr(t.sales), "", `${t.orders || 0} paid orders`)}${tile("Net profit", inr(t.net), t.net < 0 ? "neg" : "pos", "sales − sab kharche")}${tile("Avg order", inr(t.orders ? t.sales / t.orders : 0))}${tile("Pending payment", t.pending || 0)}${tile("Return + RTO", `${(t.returns || 0) + (t.rto || 0)}`, retRate > 15 ? "warn" : "", `${retRate}% · RTO ${t.rto || 0}`)}${tile("Refunds", inr(t.refunds))}${tile("Shipping", inr(t.ship + (t.exp.Shipping || 0)), "", `+ RTO loss ${inr(t.shipLost)}`)}${tile("Expenses", inr(t.expenses), "", t.capital ? `Investment alag: ${inr(t.capital)}` : "")}</div>
       <details class="dash-card dash-studio" data-studio><summary><h2>📣 Marketing Studio – ad 1 minute mein banao</h2></summary><div data-studio-body><p class="muted">Loading products…</p></div></details>
       <section class="dash-card"><h2>Sujhaav</h2>${insights(t, ms)}</section>
       <section class="dash-card"><h2>Mahine ka hisaab</h2>${chart(ms)}</section>
@@ -1104,17 +1111,17 @@ function dashMain() {
     const brand = window.BK?.brand || "Bahe Kurtiz", ym = new Date().toISOString().slice(2, 7).replace("-", "");
     const camp = `${cc[0].toLowerCase()}-${hk}-${ym}`;
     const b2b = g("ch") === "b2b", path = b2b ? "wholesale/" : String(p.url).replace(/^\//, "");
-    const link = `${location.origin}/${path}?country=${cc[0]}&utm_source=${ch[1]}&utm_medium=${ch[2]}&utm_campaign=${camp}`;
-    const price = money(p.price_usd, p.price, cc[2]); const noUsd = cc[0] !== "IN" && !p.price_usd;
-    const craft = String(p.print || "").split(",")[0].trim() || "Hand block print", fab = p.fabric || "cotton";
+    const link = `${location.origin}/${path}?country=${cc[0]}&utm_source=${ch[1]}&utm_medium=${ch[2]}&utm_campaign=${camp}&utm_content=${k}`;
+    const price = money(p.price_usd, p.price, cc[2]); const noUsd = cc[0] !== "IN" && !p.price_usd; const noFx = !["USD", "INR"].includes(cc[2]) && !FX?.[cc[2]];
+    const craft = String(p.print || "").split(",")[0].trim() || "Handcrafted", fab = p.fabric || "cotton";
     const H = [`${p.title} – handmade in Jaipur`, `${hook} ready: ${craft} from Jaipur`, price ? `${craft} kurtis from ${price}` : `Authentic ${craft} from Jaipur`];
     const T = b2b ? `Hello,\n\nI am from ${brand}, a hand block print studio in Sanganer, Jaipur (India). We make kurtis, kurta sets and dresses in ${craft} on ${fab} and supply boutiques and brands in ${cc[1]}.\n\n• Small minimum orders, mixed designs\n• Private label available\n• Samples and catalogue on request\n• Worldwide shipping from Jaipur\n\nCatalogue & trade enquiry: ${link}\n\nWarm regards,\n${brand}`
-      : `${hook === "Everyday comfort" ? "Comfort that looks handmade – because it is." : hook + " is better in something made by hand."} ${p.title}: ${craft} on breathable ${fab}, printed with wooden blocks in Sanganer, Jaipur.${price ? " Now " + price + "." : ""} Ships to ${cc[1]}. Secure prepaid checkout.`;
-    const D2 = `Hand block printed in Jaipur · Ships to ${cc[1]}`;
+      : `${hook === "Everyday comfort" ? "Comfort that looks handmade – because it is." : hook + " is better in something made by hand."} ${p.title}: ${craft} on breathable ${fab}${/block|sanganer|bagru|dabu|ajrakh|indigo|kalamkari|bagh/i.test(p.print || "") ? ", printed with wooden blocks in Sanganer, Jaipur" : ", made in Jaipur"}.${price ? " Now " + price + "." : ""} Ships to ${cc[1]}. Secure prepaid checkout.`;
+    const D2 = `${/block|sanganer|bagru|dabu|ajrakh|indigo|kalamkari|bagh/i.test(p.print || "") ? "Hand block printed" : "Made"} in Jaipur · Ships to ${cc[1]}`;
     const tags = `#handblockprint #jaipurkurti #${craft.replace(/[^a-z]/gi, "").toLowerCase()} #indianwear #kurti #${cc[1].replace(/\s/g, "").toLowerCase()}indians #ethnicwear #madeinindia`;
     const steps = { meta: [`Meta Ads Manager kholo (business.facebook.com) → Create → Sales.`, `Location: ${cc[1]} · Women · Age 25–55 · Interests: Indian fashion, Kurta, Saree, Bollywood, Diwali + "Expats (India)".`, `Budget ₹500–800/din se shuru karo, 3–5 din chalao, phir jo ad achha chale usi par budget badhao.`, `Neeche wali square aur story photo upload karo, headline aur text copy-paste karo.`, `Website URL mein upar wala link daalo.`], google: [`Google Merchant Center mein products feed: bahekurtiz.com/feeds/google-merchant-usd.xml (bahar ke liye, pehle se bana hai).`, `Google Ads → New campaign → Sales → Performance Max / Shopping.`, `Country: ${cc[1]} · Budget ₹500/din se shuru.`, `Headlines aur description neeche se copy karo; final URL upar wala link.`], pinterest: [`Pinterest Business → Ads → Create campaign → Consideration.`, `Country: ${cc[1]} · Interests: Women's fashion, Indian wedding, Boho.`, `Story (tall) photo upload karo, link upar wala.`], insta: [`Story/tall photo download karo, Instagram par post karo.`, `Caption mein text + hashtags paste karo.`, `Bio link ya story link sticker mein upar wala link lagao.`], wa: [`Sirf un customers ko bhejo jinhone offers ke liye haan bola hai.`, `Square photo + text + link bhejo.`], b2b: [`Boutique / brand ka email ya Instagram dhundo (Google Maps, Instagram "indian boutique ${cc[1]}").`, `Neeche wala email copy karke bhejo, saath mein square photo.`, `Reply aaye to Sheet mein "wholesale" row dekho; rate aur MOQ aap final karo.`] }[g("ch")];
     const blk = (t, v) => `<div class="studio-b"><div class="studio-bh"><b>${t}</b><button type="button" class="link small" data-copy>Copy</button></div><pre>${esc(v)}</pre></div>`;
-    $("[data-s-out]").innerHTML = `${noUsd ? `<p class="dash-err">Is product ka $ price admin mein nahi bhara. Bahar ke ads se pehle $ price daalo.</p>` : ""}
+    $("[data-s-out]").innerHTML = `${noUsd ? `<p class="dash-err">Is product ka $ price admin mein nahi bhara. Bahar ke ads se pehle $ price daalo.</p>` : ""}${noFx ? `<p class="dash-err">${cc[2]} ka rate nahi mila, isliye price $ mein dikh raha hai. Internet check karke dobara banao.</p>` : ""}
       ${blk("🔗 Tracked link (isi se pata chalega kitni sale aayi)", link)}${b2b ? blk("✉️ Email / DM", T) : blk("Headlines", H.join("\n")) + blk("Text", T) + blk("Description", D2) + blk("Hashtags", tags)}
       <div class="studio-imgs"><figure><canvas data-cv="sq" width="1080" height="1080"></canvas><button class="btn btn-ghost btn-sm" type="button" data-dl="sq">⬇ Square photo</button></figure><figure><canvas data-cv="st" width="1080" height="1920"></canvas><button class="btn btn-ghost btn-sm" type="button" data-dl="st">⬇ Story photo</button></figure></div>
       <div class="studio-b"><b>Ab ye karo</b><ol>${steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>`;
@@ -1145,11 +1152,11 @@ for (const [file, html] of pages) {
 const catalog = {
   settings: {
     shipping_charge: num(S.shipping_charge) || 0, free_shipping_above: num(S.free_shipping_above) || 0,
-    cod_enabled: !!S.cod_enabled, cod_charge: num(S.cod_charge) || 0, prepaid_discount_percent: num(S.prepaid_discount_percent) || 0,
+    cod_enabled: false, cod_charge: 0, prepaid_discount_percent: num(S.prepaid_discount_percent) || 0,
     upi_id: (S.upi_id || "").trim(), brand, whatsapp: waNumber, email: S.email || "",
     intl_shipping_charge_usd: num(S.intl_shipping_charge_usd) || 0, intl_free_shipping_above_usd: num(S.intl_free_shipping_above_usd) || 0,
   },
-  products: Object.fromEntries(products.map((p) => [p.slug, { title: p.title, price: p.price, sizes: p.sizes, image: p.images[0] || "", image2: p.images[1] || "", color: p.color || "", url: p.url, in_stock: p.in_stock, cutout: p.tryon_png || "", occ: p.occasion, cat: p.category, fabric: p.fabric, print: p.print_work.join(", "), price_usd: p.intl ? p.price_usd : null, mrp: p.mrp, mrp_usd: p.intl ? p.mrp_usd : null }])),
+  products: Object.fromEntries(products.map((p) => [p.slug, { title: p.title, price: p.price, sizes: p.sizes, image: p.images[0] || "", image2: p.images[1] || "", color: p.color || "", url: p.url, in_stock: p.in_stock, out: p.sold_out, cutout: p.tryon_png || "", occ: p.occasion, cat: p.category, fabric: p.fabric, print: p.print_work.join(", "), price_usd: p.intl ? p.price_usd : null, mrp: p.mrp, mrp_usd: p.intl ? p.mrp_usd : null }])),
 };
 fs.mkdirSync(path.join(OUT, "data"), { recursive: true });
 fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
@@ -1157,7 +1164,7 @@ fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
 // ---------- product feeds: Meta (Facebook/Instagram Shop) catalog + Google Merchant Center ----------
 {
   const csv = (v) => `"${String(v ?? "").replace(/"/g, '""').replace(/\s+/g, " ").trim()}"`;
-  const gcat = (c) => (/dress|gown|kaftan/i.test(c) ? "Apparel & Accessories > Clothing > Dresses" : /palazzo|pant/i.test(c) ? "Apparel & Accessories > Clothing > Pants" : /dupatta|stole/i.test(c) ? "Apparel & Accessories > Clothing Accessories > Scarves & Shawls" : /top|tunic/i.test(c) ? "Apparel & Accessories > Clothing > Shirts & Tops" : /set|co-ord/i.test(c) ? "Apparel & Accessories > Clothing > Outfit Sets" : "Apparel & Accessories > Clothing > Traditional & Ceremonial Clothing");
+  const gcat = (c) => (/set|co-ord/i.test(c) ? "Apparel & Accessories > Clothing > Outfit Sets" : /dress|gown|kaftan/i.test(c) ? "Apparel & Accessories > Clothing > Dresses" : /palazzo|pant/i.test(c) ? "Apparel & Accessories > Clothing > Pants" : /dupatta|stole/i.test(c) ? "Apparel & Accessories > Clothing Accessories > Scarves & Shawls" : /top|tunic/i.test(c) ? "Apparel & Accessories > Clothing > Shirts & Tops" : "Apparel & Accessories > Clothing > Traditional & Ceremonial Clothing");
   const plain = (p) => String(p.description || p.title).replace(/\s+/g, " ").trim().slice(0, 4900) || p.title;
   const feedItems = products.filter((p) => p.price !== null && p.images[0]);
   const head = ["id", "title", "description", "availability", "condition", "price", "sale_price", "link", "image_link", "additional_image_link", "brand", "google_product_category", "product_type", "color", "material", "gender", "age_group"];
@@ -1231,5 +1238,5 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
   "/cart /checkout/ 302",
   extraRedirects.trim(),
 ].filter(Boolean).join("\n") + "\n");
-fs.writeFileSync(path.join(OUT, "_headers"), `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/images/*\n  Cache-Control: public, max-age=2592000\n/assets/*\n  Cache-Control: public, max-age=86400\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n`);
+fs.writeFileSync(path.join(OUT, "_headers"), `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/images/*\n  Cache-Control: public, max-age=2592000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n`);
 console.log(`Built ${pages.length} pages, ${products.length} products, ${categories.length} categories → _site (url ${SITE_URL})`);
