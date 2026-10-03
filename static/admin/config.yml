@@ -129,6 +129,20 @@ collections:
           - Organza
           - Net
           - Velvet
+          - Voile
+          - Poplin
+          - Modal Silk
+          - Banarasi
+          - Jacquard
+          - Dola Silk
+          - Russian Silk
+          - Roman Silk
+          - Tissue
+          - Hakoba / Schiffli
+          - Denim
+          - Wool
+          - Bamboo
+          - Tencel
           - Polyester
           - Lycra
           - Other
@@ -158,6 +172,23 @@ collections:
           - Chikankari
           - Mirror Work
           - Sequin Work
+          - Bagh Print
+          - Jaipuri Print
+          - Mughal Print
+          - Indigo Dabu
+          - Shibori / Tie-Dye
+          - Batik
+          - Ikat
+          - Madhubani Print
+          - Pichwai Print
+          - Hand Painted
+          - Thread Work
+          - Zari Work
+          - Kantha
+          - Phulkari
+          - Kutch Work
+          - Pintuck
+          - Lace Work
           - Solid / Plain
       - { name: description, label: "जानकारी (Description)", widget: text, required: false, hint: "2-3 लाइन। खाली लाइन = नया पैराग्राफ़" }
       - name: images
