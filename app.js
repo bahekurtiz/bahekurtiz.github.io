@@ -12,7 +12,8 @@
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
 
   // ---------- Meta Pixel events (only if pixel is on) ----------
-  const track = (ev, data) => { try { window.fbq && window.fbq("track", ev, data); } catch {} };
+  const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
+  const track = (ev, data = {}, id) => { try { window.fbq && window.fbq("track", ev, data, id ? { eventID: id } : undefined); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
 
   // ---------- storage (safe) ----------
   const KEY = "bk_bag_v1";
@@ -33,10 +34,10 @@
   const setUser = (x) => { try { x ? localStorage.setItem(UK, JSON.stringify(x)) : localStorage.removeItem(UK); } catch {} paintUser(); };
   const sendSheet = (data) => { if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
   function saveCustomer(f, type, extra = {}) {
-    const consent = !!document.querySelector("[data-co-consent]")?.checked || !!getUser()?.consent;
+    const coc = document.querySelector("[data-co-consent]"); const consent = coc ? coc.checked : !!getUser()?.consent;
     const u0 = getUser() || {};
     setUser({ ...u0, name: f.name || u0.name, phone: f.phone || u0.phone, email: f.email || u0.email, city: f.city || u0.city, state: f.state || u0.state, pincode: f.pincode || u0.pincode, address: f.address || u0.address, country: f.country || u0.country || "", consent });
-    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: aiText().replace(/\n?Found us via: /, ""), gift: f.gift_to ? "yes" : "", ...extra });
+    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: [aiText().replace(/\n?Found us via: /, ""), srcText()].filter(Boolean).join(" | "), gift: f.gift_to ? "yes" : "", ...extra });
   }
   function paintUser() { const u0 = getUser(); document.querySelectorAll("[data-acct-dot]").forEach((d) => (d.hidden = !u0)); }
 
@@ -44,8 +45,10 @@
   const gcText = () => { try { const g = localStorage.getItem("bk_gc"); return g ? `\nGift card: ${g}` : ""; } catch { return ""; } };
   const refText = () => { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); return r && Date.now() - r.t < 30 * 864e5 ? `\nReferred by: ${r.code}` : ""; } catch { return ""; } };
   try { const src = (new URLSearchParams(location.search).get("utm_source") || "") + " " + (document.referrer || ""); const m = src.match(/chatgpt|openai|perplexity|gemini|copilot|claude|bard/i); if (m) localStorage.setItem("bk_ai", JSON.stringify({ src: m[0].toLowerCase(), t: Date.now() })); } catch {}
+  try { const q = new URLSearchParams(location.search), s = q.get("utm_source"); if (s && !/whatsapp/i.test(q.get("utm_medium") || "") ) localStorage.setItem("bk_src", JSON.stringify({ s: [s, q.get("utm_medium"), q.get("utm_campaign")].filter(Boolean).join(" / ").slice(0, 80), t: Date.now() })); } catch {}
+  const srcText = () => { try { const a = JSON.parse(localStorage.getItem("bk_src") || "null"); return a && Date.now() - a.t < 30 * 864e5 ? a.s : ""; } catch { return ""; } };
   const aiText = () => { try { const a = JSON.parse(localStorage.getItem("bk_ai") || "null"); return a && Date.now() - a.t < 30 * 864e5 ? `\nFound us via: ${a.src}` : ""; } catch { return ""; } };
-  try { const rc = new URLSearchParams(location.search).get("ref"); if (rc && /^[A-Za-z0-9-]{3,20}$/.test(rc)) localStorage.setItem("bk_ref", JSON.stringify({ code: rc, t: Date.now() })); } catch {}
+  try { const rc = new URLSearchParams(location.search).get("ref"); if (rc && /^[A-Za-z0-9-]{3,20}$/.test(rc)) { const old = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (!(old && Date.now() - old.t < 30 * 864e5)) localStorage.setItem("bk_ref", JSON.stringify({ code: rc, t: Date.now() })); } } catch {}
 
   // ---------- overlay helpers ----------
   const scrim = $("[data-scrim]");
@@ -99,6 +102,34 @@
     const slug = prod.dataset.product; let size = "";
     const sizes = $$(".size", prod);
     sizes.forEach((b) => b.addEventListener("click", () => { if (b.dataset.out) { openNotify(slug, b.dataset.size); return; } size = b.dataset.size; sizes.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const e = $("[data-size-error]"); if (e) e.hidden = true; }));
+    // ---------- Mera Size: remembered fit -> suggested size (on this phone only) ----------
+    const ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"], INTL = { XS: "US 2 · UK 6 · EU 34", S: "US 4 · UK 8 · EU 36", M: "US 6–8 · UK 10–12 · EU 38–40", L: "US 10 · UK 14 · EU 42", XL: "US 12 · UK 16 · EU 44", XXL: "US 14 · UK 18 · EU 46", "3XL": "US 16 · UK 20 · EU 48", "4XL": "US 18 · UK 22 · EU 50", "5XL": "US 20 · UK 24 · EU 52" };
+    const fitNote = $("[data-fit-note]"), chart = (() => { try { return JSON.parse(prod.dataset.chart || "[]"); } catch { return []; } })(), pfit = prod.dataset.fit || "";
+    const getFit = () => { try { return JSON.parse(localStorage.getItem("bk_fit") || "null"); } catch { return null; } };
+    const recSize = (f) => { if (!f) return ""; const avail = sizes.map((b) => b.dataset.size.toUpperCase()); let r = "";
+      if (f.bust) { const target = +f.bust + (f.pref === "Snug" ? -1 : f.pref === "Loose" ? 2 : 0) + (/fitted/i.test(pfit) && f.pref !== "Snug" ? 1 : 0); r = (chart.find((c) => c[1] >= target) || chart[chart.length - 1] || [""])[0]; }
+      else if (f.usual) { const i = ORDER.indexOf(f.usual) + (f.pref === "Loose" ? 1 : 0) + (/fitted/i.test(pfit) && f.pref !== "Snug" ? 1 : 0); r = ORDER[Math.min(ORDER.length - 1, Math.max(0, i))]; }
+      r = String(r).toUpperCase(); if (avail.includes(r)) return r; const up = ORDER.slice(ORDER.indexOf(r)).find((s) => avail.includes(s)); return up || ""; };
+    const intlLine = (s) => (document.documentElement.classList.contains("usd") && INTL[s] ? ` <small class="muted">(${s} ≈ ${INTL[s]})</small>` : "");
+    const paintFit = (auto) => { if (!fitNote) return; const f = getFit(), r = recSize(f); if (!f || !r) { fitNote.hidden = !size; fitNote.innerHTML = size ? intlLine(size.toUpperCase()) : ""; return; }
+      const btn = sizes.find((b) => b.dataset.size.toUpperCase() === r); fitNote.hidden = false;
+      if (btn?.dataset.out) fitNote.innerHTML = `✨ Aapka size <b>${r}</b> abhi sold out hai. <button type="button" class="link" data-fit-notify>Wapas aane par batao</button>`;
+      else { fitNote.innerHTML = `✨ Aapke liye: <b>${r}</b>${/relaxed/i.test(pfit) ? " (relaxed fit)" : ""}${intlLine(r)} · <button type="button" class="link" data-fit-open>Badlo</button>`; if (auto && btn && !size) btn.click(); }
+      $("[data-fit-notify]", fitNote)?.addEventListener("click", () => openNotify(slug, btn.dataset.size)); $("[data-fit-open]", fitNote)?.addEventListener("click", openFit); };
+    function openFit() {
+      let d = $("[data-fit-dlg]"); const f = getFit() || {};
+      if (!d) { d = document.createElement("dialog"); d.className = "fit-dlg"; d.dataset.fitDlg = ""; document.body.appendChild(d); }
+      d.innerHTML = `<form method="dialog" class="fit-form"><h2>✨ Mera size</h2><p class="muted small">Sirf is phone mein save hoga. Agli baar har dress par aapka size apne aap chuna milega.</p>
+        <p class="label">Aap usually kaunsa size pehenti ho?</p><div class="fit-chips">${ORDER.slice(1, 8).map((s) => `<label><input type="radio" name="usual" value="${s}"${f.usual === s ? " checked" : ""}><span>${s}</span></label>`).join("")}</div>
+        <label class="fit-or">Ya bust (inches) <input name="bust" type="number" min="26" max="60" step="0.5" inputmode="decimal" value="${f.bust || ""}" placeholder="jaise 36"></label>
+        <p class="label">Fitting kaisi pasand hai?</p><div class="fit-chips">${["Snug", "Regular", "Loose"].map((s) => `<label><input type="radio" name="pref" value="${s}"${(f.pref || "Regular") === s ? " checked" : ""}><span>${s === "Snug" ? "Fitted" : s === "Loose" ? "Dheela" : "Regular"}</span></label>`).join("")}</div>
+        <div class="fit-b"><button class="btn" value="save">Mera size dikhao</button><button class="btn btn-ghost" value="cancel" formnovalidate>Cancel</button></div></form>`;
+      d.onclose = () => { if (d.returnValue !== "save") return; const fd = new FormData($("form", d)); const nf = { usual: fd.get("usual") || "", bust: +fd.get("bust") || 0, pref: fd.get("pref") || "Regular" }; if (!nf.usual && !nf.bust) { toast("Size ya bust chuno"); return; } try { localStorage.setItem("bk_fit", JSON.stringify(nf)); } catch {} size = ""; sizes.forEach((x) => x.classList.remove("on")); paintFit(true); const r = recSize(nf); if (r) toast(`Aapka size: ${r}`); };
+      d.showModal();
+    }
+    $$("[data-fit-open]", prod).forEach((b) => b.addEventListener("click", openFit));
+    sizes.forEach((b) => b.addEventListener("click", () => { if (!getFit() && fitNote) { fitNote.hidden = !intlLine(b.dataset.size.toUpperCase()); fitNote.innerHTML = intlLine(b.dataset.size.toUpperCase()); } }));
+    paintFit(true);
     const need = () => { if (sizes.length && !size) { const e = $("[data-size-error]"); if (e) e.hidden = false; $(".sizes")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast("Please select a size"); return false; } return true; };
     $$("[data-add]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); openCart(); }));
     $$("[data-buy]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); location.href = url("checkout/"); }));
@@ -241,7 +272,8 @@
               let ok = false; try { const v = await fetch(url("api/verify-payment"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(resp) }); ok = v.ok && (await v.json()).ok === true; } catch {}
               const txt = orderText(cat, f, ref, o.amount / 100, `PAID online (Payment ID ${resp.razorpay_payment_id})`);
               if (ok) {
-                track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" });
+                sendSheet({ type: "paid", name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", pincode: f.pincode || "", ref_order: ref, total: o.amount / 100, currency: "INR", payment: "Razorpay " + resp.razorpay_payment_id, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+                track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" }, ref);
                 setBag([]);
                 showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">Payment ID: ${esc(resp.razorpay_payment_id)}</p>${BK.wa ? `<a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener">Get updates on WhatsApp</a>` : ""}<p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
               } else {
@@ -292,6 +324,7 @@
   const CL = BK.countries || [];
   const getCC = () => { try { return JSON.parse(localStorage.getItem("bk_country") || "null"); } catch { return null; } };
   let cc = getCC();
+  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } } catch {}
   if (!cc && CL.length) { // first visit: guess from browser
     let code = ""; try { const z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; if (/Calcutta|Kolkata/.test(z)) code = "IN"; } catch {}
     if (!code) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i); code = m ? m[1].toUpperCase() : (isUSD() ? "US" : "IN"); }
@@ -442,7 +475,7 @@
     const f = Object.fromEntries(new FormData(bf)); for (const k in f) f[k] = String(f[k]).trim();
     const txt = `Wholesale / private label enquiry\n\nName: ${f.name}\nBusiness: ${f.business || "-"}\nCountry: ${f.country}\nType: ${f.type}\nProducts: ${f.products || "-"}\nQuantity: ${f.qty || "-"}\nDetails: ${f.msg || "-"}`;
     track("Lead", { content_name: "wholesale" });
-    sendSheet({ type: "wholesale", name: f.name, phone: "", email: "", country: f.country, items: `${f.type} | ${f.business || "-"} | ${f.products || "-"} | qty ${f.qty || "-"} | ${f.msg || ""}`, consent: "no" });
+    sendSheet({ type: "wholesale", name: f.name, phone: f.phone || "", email: f.email || "", country: f.country, items: `${f.type} | ${f.business || "-"} | ${f.products || "-"} | qty ${f.qty || "-"} | ${f.msg || ""}`, consent: "no" });
     if (BK.wa) window.open(`https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}`, "_blank", "noopener");
     else if (BK.email) location.href = `mailto:${BK.email}?subject=${encodeURIComponent("Wholesale enquiry")}&body=${encodeURIComponent(txt)}`;
   });
@@ -450,13 +483,57 @@
   // ---------- search (instant, from catalog) ----------
   const srm = $("[data-search-modal]"), sin = $("[data-search-input]"), sres = $("[data-search-results]");
   const norm = (t) => String(t || "").toLowerCase();
-  async function runSearch() {
-    const q = norm(sin.value).trim(); if (!q) { sres.innerHTML = ""; return; }
-    const cat = await catalog(); const words = q.split(/\s+/);
-    const hits = Object.entries(cat.products).filter(([, p]) => { const hay = norm([p.title, p.cat, p.fabric, p.print, p.color].join(" ")); return words.every((w) => hay.includes(w.replace(/s$/, ""))); }).slice(0, 12);
-    sres.innerHTML = hits.length ? `<div class="grid">${hits.map(([k, p]) => miniCard(k, p)).join("")}</div>` : `<p class="muted">No styles found for “${esc(sin.value)}”. ${BK.wa ? `<a class="link" href="https://wa.me/${BK.wa}?text=${encodeURIComponent("Hi! I am looking for: " + sin.value)}" target="_blank" rel="noopener">Ask us on WhatsApp →</a>` : ""}</p>`;
-    paintWish(); track("Search", { search_string: sin.value });
+  // Ask Bahe: Hinglish search – "laal kurti shaadi ke liye 1500 tak XL"
+  const SQ = {
+    col: { red: "laal lal red", pink: "gulabi rani pink", yellow: "peela pila haldi yellow mustard", blue: "neela nila blue indigo navy", green: "hara green olive bottle", white: "safed white off-white cream", black: "kala kaala black", orange: "narangi orange rust", purple: "baingani jamuni purple wine maroon", peach: "peach", beige: "beige", grey: "grey gray" },
+    occ: { wedding: "shaadi shadi wedding sangeet reception", haldi: "haldi mehendi mehndi", office: "office work", daily: "daily roz casual everyday", party: "party", festive: "festive festival tyohar diwali teej eid navratri karwa", gift: "gift gifting" },
+    cat: { kurti: "kurti kurta kurtis kurtas", set: "suit set sets dupatta", dress: "dress frock gown dresses", "co-ord": "coord co-ord cord", top: "top tunic", palazzo: "palazzo pant pants" },
+    stop: new Set("for ke ki ka liye chahiye wala wali show me dikhao in a the and with under below upto up to tak se kam rs inr size mujhe koi hai please".split(" ")),
+  };
+  const findKey = (map, w) => Object.keys(map).find((k) => map[k].split(" ").includes(w));
+  function parseQ(raw) {
+    const q = norm(raw).replace(/₹|rs\.?/g, " ").replace(/\s+/g, " ").trim(), it = { words: [], chips: [] };
+    let m = q.match(/(\d{3,6})\s*(?:-|to|se)\s*(\d{3,6})/); if (m) { it.min = +m[1]; it.max = +m[2]; it.chips.push([`${m[1]}–${m[2]}`, m[0]]); }
+    else if ((m = q.match(/(?:under|below|upto|up to|less than|max|within)\s*\$?\s*(\d{2,6})/) || q.match(/\$?(\d{2,6})\s*(?:tak|se kam|ke andar|ke neeche|or less)/))) { it.max = +m[1]; it.chips.push([`Under ${m[1]}`, m[0]]); }
+    it.usd = /\$/.test(raw) || (isUSD() && !/₹|rs/i.test(raw));
+    m = q.match(/\b(free size|xxs|xs|xxl|2xl|3xl|4xl|5xl|xl)\b/) || q.match(/\bsize\s*(s|m|l)\b/); if (m) { it.size = m[1] === "2xl" ? "XXL" : m[1].replace("free size", "Free Size").toUpperCase(); it.chips.push([`Size ${it.size}`, m[0]]); }
+    const rest = q.replace(it.chips.map((c) => c[1]).join("|") ? new RegExp(it.chips.map((c) => c[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g") : /^$/, " ");
+    for (const w of rest.split(/\s+/).filter(Boolean)) {
+      let k;
+      if ((k = findKey(SQ.col, w))) { it.col = k; it.chips.push([k[0].toUpperCase() + k.slice(1), w]); }
+      else if ((k = findKey(SQ.occ, w))) { it.occ = k; it.chips.push([k[0].toUpperCase() + k.slice(1), w]); }
+      else if ((k = findKey(SQ.cat, w))) { it.cat = k; it.chips.push([k[0].toUpperCase() + k.slice(1), w]); }
+      else if (!SQ.stop.has(w) && !/^\d+$/.test(w)) it.words.push(w.replace(/s$/, ""));
+    }
+    return it;
   }
+  function rankQ(cat, it, relax = {}) {
+    return Object.entries(cat.products).map(([k, p]) => {
+      const pr = it.usd ? p.price_usd : p.price;
+      if (!relax.price && (it.max || it.min)) { if (pr == null || (it.max && pr > it.max) || (it.min && pr < it.min)) return null; }
+      if (!relax.size && it.size && !((p.sizes || []).map((s) => String(s).toUpperCase()).includes(it.size) && !(p.out || []).map((s) => String(s).toUpperCase()).includes(it.size))) return null;
+      const hay = norm([p.title, p.cat, p.fabric, p.print, p.color, (p.occ || []).join(" ")].join(" "));
+      let sc = 0, need = 0;
+      if (it.col) { need++; if (SQ.col[it.col].split(" ").some((c) => hay.includes(c))) sc += 3; }
+      if (it.occ) { need++; if (SQ.occ[it.occ].split(" ").some((c) => hay.includes(c)) || norm((p.occ || []).join(" ")).includes(it.occ)) sc += 3; }
+      if (it.cat) { need++; if (SQ.cat[it.cat].split(" ").some((c) => hay.includes(c.replace(/s$/, "")))) sc += 2; }
+      for (const w of it.words) { need++; if (hay.includes(w)) sc += 1; }
+      if (need && !sc) return null;
+      return [k, p, sc + (p.in_stock === false ? 0 : 0.5)];
+    }).filter(Boolean).sort((a, b) => b[2] - a[2]);
+  }
+  async function runSearch() {
+    const raw = sin.value, q = norm(raw).trim(); if (!q) { sres.innerHTML = ""; return; }
+    const cat = await catalog(), it = parseQ(raw);
+    let hits = rankQ(cat, it), note = "";
+    if (!hits.length && (it.max || it.min)) { hits = rankQ(cat, it, { price: true }); if (hits.length) note = "Is budget mein nahi mila – baaki options dikha rahe hain."; }
+    if (!hits.length && it.size) { hits = rankQ(cat, it, { price: true, size: true }); if (hits.length) note = `Size ${it.size} abhi nahi – baaki sizes mein ye hain.`; }
+    const chips = it.chips.length ? `<div class="sq-chips">${it.chips.map((c) => `<button type="button" class="pill" data-sq-x="${esc(c[1])}">${esc(c[0])} ✕</button>`).join("")}</div>` : "";
+    sres.innerHTML = chips + (note ? `<p class="muted small">${esc(note)}</p>` : "") + (hits.length ? `<div class="grid">${hits.slice(0, 12).map(([k, p]) => miniCard(k, p)).join("")}</div>` : `<p class="muted">No styles found for “${esc(raw)}”. ${BK.wa ? `<a class="link" href="https://wa.me/${BK.wa}?text=${encodeURIComponent("Hi! I am looking for: " + raw)}" target="_blank" rel="noopener">Ask us on WhatsApp →</a>` : ""}</p>`);
+    $$("[data-sq-x]", sres).forEach((b) => b.addEventListener("click", () => { sin.value = norm(sin.value).replace(b.dataset.sqX, " ").replace(/\s+/g, " ").trim(); runSearch(); }));
+    paintWish(); track("Search", { search_string: raw });
+  }
+  try { const dq = new URLSearchParams(location.search).get("q"); if (dq && srm?.showModal) setTimeout(() => { srm.showModal(); document.documentElement.classList.add("locked"); sin.value = dq; runSearch(); }, 300); } catch {}
   let st;
   sin?.addEventListener("input", () => { clearTimeout(st); st = setTimeout(runSearch, 180); });
   $$("[data-sugg]").forEach((b) => b.addEventListener("click", () => { sin.value = b.dataset.sugg; runSearch(); }));
@@ -524,7 +601,7 @@
   }
   // gentle invite once in 14 days (never on checkout)
   (() => {
-    if (!BK.popup || getUser() || co || !lm) return;
+    if (!BK.popup || getUser() || co || !lm || document.body.classList.contains("mirror-page") || document.body.classList.contains("feed-page") || document.body.classList.contains("dash-page")) return;
     let last = 0; try { last = +localStorage.getItem("bk_invite") || 0; } catch {}
     if (Date.now() - last < 14 * 864e5) return;
     const tryInvite = () => { if (document.querySelector("dialog[open]") || document.documentElement.classList.contains("locked")) return setTimeout(tryInvite, 15000); try { localStorage.setItem("bk_invite", Date.now()); } catch {} openLogin(); };
@@ -533,7 +610,7 @@
   // checkout: fill saved details + note an unfinished checkout once
   if (co) {
     const u0 = getUser(), form = $("[data-co-form]");
-    if (u0 && form) { for (const k of ["name", "phone", "email", "address", "city", "state", "pincode", "country"]) if (u0[k] && form[k] && !form[k].value) form[k].value = u0[k]; const cc = $("[data-co-consent]"); if (cc && u0.consent) cc.checked = true; }
+    if (u0 && form) { for (const k of ["name", "phone", "email", "address", "city", "state", "pincode", "country"]) if (u0[k] && form[k] && !form[k].value) form[k].value = u0[k]; }
     let sent = false;
     form?.phone?.addEventListener("blur", async () => {
       if (sent) return; const ph = form.phone.value.replace(/\D/g, ""); if (ph.length < 7 || !form.name.value.trim()) return; sent = true;
@@ -567,7 +644,7 @@
     let box = $("[data-notify]");
     if (!box) { box = document.createElement("div"); box.className = "notify"; box.setAttribute("data-notify", ""); $(".sizes")?.after(box); }
     const u0 = getUser() || {};
-    box.innerHTML = `<p><b>Size ${esc(sz)} is sold out.</b> Get a WhatsApp message when it is back.</p><div class="pin-row"><input type="tel" placeholder="WhatsApp number" value="${esc(u0.phone || "")}" maxlength="18" data-n-phone><button class="btn" type="button" data-n-go>Notify me</button></div><label class="check"><input type="checkbox" data-n-ok checked> Yes, message me on WhatsApp about this size</label>`;
+    box.innerHTML = `<p><b>Size ${esc(sz)} is sold out.</b> Get a WhatsApp message when it is back.</p><div class="pin-row"><input type="tel" placeholder="WhatsApp number" value="${esc(u0.phone || "")}" maxlength="18" data-n-phone><button class="btn" type="button" data-n-go>Notify me</button></div><label class="check"><input type="checkbox" data-n-ok> Yes, message me on WhatsApp about this size</label>`;
     $("[data-n-go]", box).onclick = () => { const ph = $("[data-n-phone]", box).value.trim(); if (ph.replace(/\D/g, "").length < 7 || !$("[data-n-ok]", box).checked) { toast("Enter your WhatsApp number and tick the box"); return; } sendSheet({ type: "restock", name: u0.name || "", phone: ph, items: `${slug} | size ${sz}`, consent: "yes" }); box.innerHTML = `<p>✓ Done! We will message you when size ${esc(sz)} is back.</p>`; };
   }
 
@@ -667,7 +744,7 @@
     ro.innerHTML = `<p class="eyebrow">Your personal link</p><div class="ref-link"><input readonly value="${esc(link)}" aria-label="Your referral link"><button class="btn" type="button" data-ref-copy>Copy</button></div><p>Your code: <b>${code}</b></p><div class="hero-cta"><a class="btn btn-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Maine Bahe Kurtiz se hand block print kurtis li hain – bahut sundar hain! 🌸 Mere link se dekho – tumhe welcome offer milega (aur mujhe bhi ek thank-you reward): ${link}`)}">Share on WhatsApp</a><button class="btn btn-ghost" type="button" data-status-home>✨ Make WhatsApp Status</button></div>`;
     $("[data-ref-copy]", ro).onclick = async () => { try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch { toast(link); } };
     $("[data-status-home]", ro).onclick = () => makeStatus(null);
-    try { if (!localStorage.getItem("bk_ref_sent")) { sendSheet({ type: "referrer", name: getUser()?.name || "", phone: getUser()?.phone || "", ref: code }); localStorage.setItem("bk_ref_sent", "1"); } } catch {}
+    try { if (localStorage.getItem("bk_ref_sent") !== code) { sendSheet({ type: "referrer", name: getUser()?.name || "", phone: getUser()?.phone || "", ref: code }); localStorage.setItem("bk_ref_sent", code); } } catch {}
   };
   paintRefer();
   const _setUser = setUser; // repaint after sign-in
@@ -798,32 +875,116 @@
   }));
   lf?.addEventListener("submit", () => setTimeout(() => { try { if (localStorage.getItem("bk_follow_pending") === "1" && getUser()?.phone && lf.consent?.checked) { localStorage.removeItem("bk_follow_pending"); localStorage.setItem("bk_follow", "1"); sendSheet({ type: "follow", name: getUser().name, phone: getUser().phone, consent: "yes" }); paintFollow(); } } catch {} }, 80));
 
-  // ---------- Mirror (beta) ----------
+  $$("[data-yt]").forEach((b) => b.addEventListener("click", () => { b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&playsinline=1" title="Live video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`; }));
+  try { if (window.BKeu && !localStorage.getItem("bk_consent") && (window.BKtags?.length || window.fbq)) { const cb = document.createElement("div"); cb.className = "consent-bar"; cb.innerHTML = `<p>We use cookies for ads and analytics to improve your shopping. <a href="${url("privacy/")}">Privacy</a></p><div><button type="button" class="btn btn-sm" data-cs="yes">Accept</button><button type="button" class="btn btn-ghost btn-sm" data-cs="no">Only necessary</button></div>`; document.body.appendChild(cb);
+    cb.addEventListener("click", (e) => { const b = e.target.closest("[data-cs]"); if (!b) return; const ok = b.dataset.cs === "yes"; try { localStorage.setItem("bk_consent", ok ? "yes" : "no"); } catch {} if (ok) { const g = "granted"; try { window.gtag?.("consent", "update", { ad_storage: g, ad_user_data: g, ad_personalization: g, analytics_storage: g }); window.fbq?.("consent", "grant"); } catch {} } cb.remove(); }); } } catch {}
+  // ---------- speed: Instagram reels load only on tap; hover photo only on mouse devices ----------
+  $$("[data-ig]").forEach((b) => b.addEventListener("click", () => { const d = document.createElement("div"); d.className = "reel reel-ig"; d.innerHTML = `<iframe src="${b.dataset.ig}" title="Instagram reel" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`; b.replaceWith(d); }));
+  if (matchMedia("(hover: hover)").matches) document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".card"); const im = c && c.querySelector("img.alt[data-src]"); if (im) { im.src = im.dataset.src; im.removeAttribute("data-src"); } }, { passive: true });
+
+  // ---------- Mirror 2.0 ----------
   const mir = $("[data-mirror]");
   if (mir) {
-    const me = $("[data-mirror-me]"), dr = $("[data-mirror-dress]"), stage = $("[data-mirror-stage]"), board = $("[data-mirror-board]"), looks = [];
-    let cur = null, pos = { x: 50, y: 30 }, sc = 60;
-    $("[data-mirror-file]").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; me.src = URL.createObjectURL(f); me.hidden = false; $("[data-mirror-empty]").hidden = true; });
-    const place = () => { dr.style.width = sc + "%"; dr.style.left = pos.x + "%"; dr.style.top = pos.y + "%"; };
-    catalog().then((cat) => {
-      const box = $("[data-mirror-picks]"); const list = Object.entries(cat.products).filter(([, p]) => p.image);
-      box.innerHTML = list.map(([k, p]) => `<button type="button" data-mp="${esc(k)}"><img src="${esc(url(p.cutout || p.image))}" alt="${esc(p.title)}" loading="lazy"><span>${esc(p.title)}</span></button>`).join("");
-      box.addEventListener("click", (e) => { const b = e.target.closest("[data-mp]"); if (!b) return; const p = cat.products[b.dataset.mp]; cur = { k: b.dataset.mp, p }; dr.src = url(p.cutout || p.image); dr.hidden = false; dr.classList.toggle("is-cutout", !!p.cutout); $$("[data-mp]", box).forEach((x) => x.classList.toggle("on", x === b)); place(); if (me.hidden) toast("Add your photo to see it together"); });
-    }).catch(() => {});
-    $("[data-mirror-scale]").addEventListener("input", (e) => { sc = +e.target.value; place(); });
-    $("[data-mirror-op]").addEventListener("input", (e) => { dr.style.opacity = e.target.value / 100; });
-    let drag = null; dr.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY, px: pos.x, py: pos.y }; dr.setPointerCapture(e.pointerId); e.preventDefault(); });
-    dr.addEventListener("pointermove", (e) => { if (!drag) return; const r = stage.getBoundingClientRect(); pos.x = drag.px + (e.clientX - drag.x) / r.width * 100; pos.y = drag.py + (e.clientY - drag.y) / r.height * 100; place(); });
-    dr.addEventListener("pointerup", () => (drag = null));
+    const me = $("[data-mirror-me]"), dr = $("[data-mirror-dress]"), stage = $("[data-mirror-stage]"), board = $("[data-mirror-board]"), statusEl = $("[data-mirror-status]"), playB = $("[data-mirror-play]"), scaleI = $("[data-mirror-scale]");
+    const MP = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14", MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task";
+    let cat = null, all = [], list = [], idx = 0, seen = 0, timer = null, fit = { x: 50, y: 22, w: 52 }, liked = [], poseOk = false, ready = false;
+    const cache = {};
+    const say = (t, ms) => { statusEl.textContent = t; statusEl.hidden = !t; clearTimeout(say._h); if (ms) say._h = setTimeout(() => (statusEl.hidden = true), ms); };
+    const place = () => { dr.style.width = fit.w + "%"; dr.style.left = fit.x + "%"; dr.style.top = fit.y + "%"; scaleI.value = Math.round(fit.w); };
+    const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+    // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides, feather the edges
+    const prep = (k) => cache[k] ||= (async () => {
+      const p = cat.products[k]; if (p.cutout) return url(p.cutout);
+      try { const im = await loadImg(url(p.image)); const nw = im.naturalWidth, nh = im.naturalHeight; let box = null;
+        // find the model's shoulders in the product photo -> cut out just the outfit, matched to her shoulders
+        if (lmP) { try { const lm = await lmP; const L = lm.detect(im).landmarks?.[0]; if (L) { const ls = { x: L[11].x * nw, y: L[11].y * nh }, rs = { x: L[12].x * nw, y: L[12].y * nh }, sw = Math.abs(ls.x - rs.x); if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) - sw * 0.3; box = { sx: (ls.x + rs.x) / 2 - w / 2, sy: top, sw: w, sh: nh - top }; } } } catch {} }
+        if (!box) box = { sx: nw * 0.08, sy: nh * 0.16, sw: nw * 0.84, sh: nh * 0.82 };
+        const sc = Math.min(1, 700 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(im, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H);
+        const m = document.createElement("canvas"); m.width = W; m.height = H; const mg = m.getContext("2d"); const f = Math.round(W * 0.045); mg.filter = `blur(${f}px)`; mg.fillStyle = "#000"; mg.beginPath(); if (mg.roundRect) mg.roundRect(f, f, W - 2 * f, H - 2 * f, W * 0.22); else mg.rect(f, f, W - 2 * f, H - 2 * f); mg.fill(); mg.filter = "none";
+        g.globalCompositeOperation = "destination-in"; g.drawImage(m, 0, 0);
+        return await new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : url(p.image)), "image/png")); } catch { return url(p.image); }
+    })();
+    const show = async (i) => {
+      if (!list.length) return; idx = (i + list.length) % list.length; const k = list[idx], p = cat.products[k];
+      $("[data-mirror-count]").textContent = `${idx + 1} / ${list.length}`; $("[data-mirror-name]").textContent = p.title; $("[data-mirror-hud]").hidden = false;
+      $$("[data-mp]").forEach((x) => x.classList.toggle("on", x.dataset.mp === k));
+      dr.classList.add("swap"); const src = await prep(k); if (list[idx] !== k) return;
+      dr.src = src; dr.classList.toggle("is-cutout", !!p.cutout); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
+      prep(list[(idx + 1) % list.length]);
+    };
+    const stop = () => { clearInterval(timer); timer = null; playB.textContent = "▶"; playB.setAttribute("aria-label", "Play"); };
+    const next = () => { seen++; if (seen >= list.length && timer) { stop(); say(`Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
+    const play = () => { stop(); if (!list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
+    const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
     const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
-      const draw = (im) => { const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity; g.drawImage(im, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, ir.width / r.width * W, ir.height / r.height * H); g.globalAlpha = 1; };
-      if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); g.fillStyle = "rgba(14,91,89,.85)"; g.fillRect(0, H - 56, W, 56); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(`${cur ? cur.p.title : ""}`.slice(0, 44), 16, H - 20); cv.toBlob(res, "image/jpeg", 0.88); });
-    $("[data-mirror-save]").addEventListener("click", async () => { if (!cur) { toast("Pick a dress first"); return; } const b = await snap(); looks.push({ b, t: cur.p.title, u: cur.p.url }); board.innerHTML = looks.map((l, i) => `<figure><img src="${URL.createObjectURL(l.b)}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption></figure>`).join(""); toast(`Look ${looks.length} saved`); });
-    $("[data-mirror-share]").addEventListener("click", async () => {
-      if (!looks.length) { toast("Save at least one look first"); return; }
-      const text = `Kaunsi pehnu? 🤔\n${looks.map((l, i) => `${i + 1}. ${l.t} – ${location.origin}/${String(l.u).replace(/^\//, "")}`).join("\n")}`;
-      try { const files = looks.map((l, i) => new File([l.b], `look-${i + 1}.jpg`, { type: "image/jpeg" })); if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, text }); return; } } catch (e) { if (e?.name === "AbortError") return; }
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+      const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; g.drawImage(im, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, ir.width / r.width * W, ir.height / r.height * H); g.globalAlpha = 1; };
+      if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
+    const paintBoard = () => { $("[data-mirror-liked-n]").textContent = liked.length ? `(${liked.length})` : ""; board.innerHTML = liked.length ? liked.map((l, i) => `<figure><img src="${l.src}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption><button type="button" data-unlike="${i}" aria-label="Remove">✕</button></figure>`).join("") : `<p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p>`; };
+    board.addEventListener("click", (e) => { const b = e.target.closest("[data-unlike]"); if (!b) return; liked.splice(+b.dataset.unlike, 1); paintBoard(); });
+    const yes = async () => { if (!ready || dr.hidden) return; const k = list[idx]; if (!liked.some((l) => l.k === k)) { const b = await snap(); liked.push({ k, b, src: URL.createObjectURL(b), t: cat.products[k].title, u: cat.products[k].url }); paintBoard(); } flash("💚"); track("AddToWishlist", { content_ids: [k] }); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
+    const no = () => { if (!ready) return; flash("✕"); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
+    $("[data-mirror-yes]").addEventListener("click", yes); $("[data-mirror-no]").addEventListener("click", no);
+    playB.addEventListener("click", () => (timer ? stop() : play()));
+    // find shoulders on the photo (on-device), so every dress lands on her automatically
+    let lmP = null;
+    const fitBody = async () => {
+      try {
+        const V = await import(MP + "/vision_bundle.mjs");
+        lmP ||= V.FilesetResolver.forVisionTasks(MP + "/wasm").then((fs) => V.PoseLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: MODEL }, runningMode: "IMAGE", numPoses: 1 }));
+        const lm = await lmP; const L = lm.detect(me).landmarks?.[0]; if (!L) return false;
+        const r = stage.getBoundingClientRect(), W = r.width, H = r.height, s = Math.min(W / me.naturalWidth, H / me.naturalHeight), dw = me.naturalWidth * s, dh = me.naturalHeight * s, ox = (W - dw) / 2, oy = (H - dh) / 2;
+        const P = (n) => ({ x: ox + L[n].x * dw, y: oy + L[n].y * dh });
+        const ls = P(11), rs = P(12), sw = Math.abs(ls.x - rs.x); if (sw < W * 0.06) return false;
+        fit = { x: (ls.x + rs.x) / 2 / W * 100, y: (Math.min(ls.y, rs.y) - sw * 0.3) / H * 100, w: Math.min(120, sw * 2.3 / W * 100) }; return true;
+      } catch { return false; }
+    };
+    const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
+    $("[data-mirror-file]").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return; stop(); me.src = URL.createObjectURL(f);
+      me.onload = async () => { me.hidden = false; $("[data-mirror-empty]").hidden = true; $("[data-mirror-vote]").hidden = false; $("[data-mirror-tip]").hidden = false;
+        say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 15000);
+        if (!poseOk) { const s = Math.min(1, (stage.clientWidth / stage.clientHeight) / (me.naturalWidth / me.naturalHeight)); fit = { x: 50, y: 22, w: 52 * s }; }
+        say(poseOk ? "✓ Fit ho gaya! Ab dresses aap par aayengi…" : "Gardan par tap karo, dress wahan aa jayegi", 3500);
+        ready = true; await show(idx); play(); };
     });
+    catalog().then((c) => {
+      cat = c; all = Object.entries(c.products).filter(([, p]) => p.image && p.in_stock !== false).map(([k]) => k); list = all.slice();
+      const box = $("[data-mirror-picks]");
+      box.innerHTML = all.map((k) => { const p = c.products[k]; return `<button type="button" data-mp="${esc(k)}"><img src="${esc(url(p.cutout || p.image))}" alt="${esc(p.title)}" loading="lazy"><span>${esc(p.title)}</span></button>`; }).join("");
+      box.addEventListener("click", (e) => { const b = e.target.closest("[data-mp]"); if (!b) return; if (me.hidden) { toast("Pehle apni photo daalo 📷"); stage.scrollIntoView({ behavior: "smooth", block: "center" }); return; } stop(); if (!list.includes(b.dataset.mp)) list = all.slice(); show(list.indexOf(b.dataset.mp)); });
+      const occ = [...new Set(all.flatMap((k) => [].concat(c.products[k].occ || [])))].filter(Boolean);
+      const ob = $("[data-mirror-occ]");
+      if (occ.length) { ob.innerHTML = [`<button type="button" class="on" data-mo="">All</button>`, ...occ.map((o) => `<button type="button" data-mo="${esc(o)}">${esc(o)}</button>`)].join("");
+        ob.addEventListener("click", (e) => { const b = e.target.closest("[data-mo]"); if (!b) return; $$("[data-mo]", ob).forEach((x) => x.classList.toggle("on", x === b)); const o = b.dataset.mo; list = o ? all.filter((k) => [].concat(cat.products[k].occ || []).includes(o)) : all.slice(); if (!list.length) list = all.slice(); idx = 0; show(0); if (!me.hidden) play(); }); }
+      else ob.previousElementSibling.hidden = ob.hidden = true;
+    }).catch(() => {});
+    scaleI.addEventListener("input", (e) => { stop(); fit.w = +e.target.value; place(); });
+    $("[data-mirror-op]").addEventListener("input", (e) => { dr.style.opacity = e.target.value / 100; });
+    // drag dress; swipe / tap on photo
+    let drag = null, sw0 = null;
+    dr.addEventListener("pointerdown", (e) => { stop(); drag = { x: e.clientX, y: e.clientY, px: fit.x, py: fit.y }; dr.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation(); });
+    dr.addEventListener("pointermove", (e) => { if (!drag) return; const r = stage.getBoundingClientRect(); fit.x = drag.px + (e.clientX - drag.x) / r.width * 100; fit.y = drag.py + (e.clientY - drag.y) / r.height * 100; place(); });
+    dr.addEventListener("pointerup", () => (drag = null));
+    stage.addEventListener("pointerdown", (e) => { if (e.target === dr || me.hidden) return; sw0 = { x: e.clientX, y: e.clientY }; });
+    stage.addEventListener("pointerup", (e) => { if (!sw0) return; const dx = e.clientX - sw0.x, dy = e.clientY - sw0.y; sw0 = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) { dx > 0 ? yes() : no(); return; }
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && !dr.hidden) { const r = stage.getBoundingClientRect(); fit.x = (e.clientX - r.left) / r.width * 100; fit.y = (e.clientY - r.top) / r.height * 100 - 2; place(); } });
+    // share: all liked looks / top-3 vote card / wishlist
+    const shareText = () => { const code = myCode(); return `Kaunsi pehnu? 🤔 Number bata do!\n${liked.slice(0, 6).map((l, i) => `${i + 1}. ${l.t} – ${location.origin}/${String(l.u).replace(/^\//, "")}${code ? "?ref=" + code : ""}`).join("\n")}\n\nApni photo par try karo: ${location.origin}/mirror/${code ? "?ref=" + code : ""}`; };
+    const shareFiles = async (files, text) => { try { if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, text }); return; } } catch (e) { if (e?.name === "AbortError") return; } window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener"); };
+    $("[data-mirror-share]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } shareFiles(liked.slice(0, 6).map((l, i) => new File([l.b], `look-${i + 1}.jpg`, { type: "image/jpeg" })), shareText()); });
+    $("[data-mirror-card]").addEventListener("click", async () => {
+      if (liked.length < 2) { toast("Kam se kam 2 dress par 💚 Haan karo"); return; }
+      const top = liked.slice(0, 3), W = 1080, H = 1350, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d");
+      const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#0e5b59"); gr.addColorStop(1, "#083b3a"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      g.fillStyle = "#e8c776"; g.textAlign = "center"; g.font = "600 34px system-ui"; g.fillText("BAHE KURTIZ · MIRROR", W / 2, 90); g.fillStyle = "#fff"; g.font = "700 76px Georgia, serif"; g.fillText("Kaunsi pehnu?", W / 2, 190); g.font = "500 36px system-ui"; g.fillText("Number reply karo 👇", W / 2, 245);
+      const gap = 24, cw = (W - gap * (top.length + 1)) / top.length, ch = Math.min(cw * 1.45, 880), y = 300;
+      for (let i = 0; i < top.length; i++) { const im = await loadImg(top[i].src); const x = gap + i * (cw + gap); const s = Math.max(cw / im.width, ch / im.height), w = im.width * s, h = im.height * s; g.save(); g.beginPath(); g.roundRect ? g.roundRect(x, y, cw, ch, 22) : g.rect(x, y, cw, ch); g.clip(); g.drawImage(im, x + (cw - w) / 2, y + (ch - h) / 2, w, h); g.restore();
+        g.fillStyle = "#e8c776"; g.beginPath(); g.arc(x + cw / 2, y + ch, 46, 0, Math.PI * 2); g.fill(); g.fillStyle = "#083b3a"; g.font = "800 50px system-ui"; g.fillText(String(i + 1), x + cw / 2, y + ch + 18); }
+      const code = myCode(); g.fillStyle = "#fff"; g.font = "600 38px system-ui"; g.fillText(`${location.host}/mirror`, W / 2, H - 120); g.font = "500 30px system-ui"; g.fillStyle = "#cfe3e1"; g.fillText(code ? `Apni photo par try karo · code ${code}` : "Apni photo par try karo", W / 2, H - 70);
+      cv.toBlob((bl) => shareFiles([new File([bl], "kaunsi-pehnu.jpg", { type: "image/jpeg" })], shareText()), "image/jpeg", 0.9);
+    });
+    $("[data-mirror-wish]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } const w = getW(); liked.forEach((l) => { if (!w.includes(l.k)) w.push(l.k); }); setW(w); toast(`${liked.length} dress wishlist mein ♡`); });
   }
 })();
