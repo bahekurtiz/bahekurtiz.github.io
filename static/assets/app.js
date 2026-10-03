@@ -36,7 +36,7 @@
     const consent = !!document.querySelector("[data-co-consent]")?.checked || !!getUser()?.consent;
     const u0 = getUser() || {};
     setUser({ ...u0, name: f.name || u0.name, phone: f.phone || u0.phone, email: f.email || u0.email, city: f.city || u0.city, state: f.state || u0.state, pincode: f.pincode || u0.pincode, address: f.address || u0.address, country: f.country || u0.country || "", consent });
-    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: aiText().replace(/\n?Found us via: /, ""), gift: f.gift_to ? "yes" : "", ...extra });
+    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: [aiText().replace(/\n?Found us via: /, ""), srcText()].filter(Boolean).join(" | "), gift: f.gift_to ? "yes" : "", ...extra });
   }
   function paintUser() { const u0 = getUser(); document.querySelectorAll("[data-acct-dot]").forEach((d) => (d.hidden = !u0)); }
 
@@ -44,6 +44,8 @@
   const gcText = () => { try { const g = localStorage.getItem("bk_gc"); return g ? `\nGift card: ${g}` : ""; } catch { return ""; } };
   const refText = () => { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); return r && Date.now() - r.t < 30 * 864e5 ? `\nReferred by: ${r.code}` : ""; } catch { return ""; } };
   try { const src = (new URLSearchParams(location.search).get("utm_source") || "") + " " + (document.referrer || ""); const m = src.match(/chatgpt|openai|perplexity|gemini|copilot|claude|bard/i); if (m) localStorage.setItem("bk_ai", JSON.stringify({ src: m[0].toLowerCase(), t: Date.now() })); } catch {}
+  try { const q = new URLSearchParams(location.search), s = q.get("utm_source"); if (s && !/whatsapp/i.test(q.get("utm_medium") || "") ) localStorage.setItem("bk_src", JSON.stringify({ s: [s, q.get("utm_medium"), q.get("utm_campaign")].filter(Boolean).join(" / ").slice(0, 80), t: Date.now() })); } catch {}
+  const srcText = () => { try { const a = JSON.parse(localStorage.getItem("bk_src") || "null"); return a && Date.now() - a.t < 30 * 864e5 ? a.s : ""; } catch { return ""; } };
   const aiText = () => { try { const a = JSON.parse(localStorage.getItem("bk_ai") || "null"); return a && Date.now() - a.t < 30 * 864e5 ? `\nFound us via: ${a.src}` : ""; } catch { return ""; } };
   try { const rc = new URLSearchParams(location.search).get("ref"); if (rc && /^[A-Za-z0-9-]{3,20}$/.test(rc)) localStorage.setItem("bk_ref", JSON.stringify({ code: rc, t: Date.now() })); } catch {}
 
@@ -241,6 +243,7 @@
               let ok = false; try { const v = await fetch(url("api/verify-payment"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(resp) }); ok = v.ok && (await v.json()).ok === true; } catch {}
               const txt = orderText(cat, f, ref, o.amount / 100, `PAID online (Payment ID ${resp.razorpay_payment_id})`);
               if (ok) {
+                sendSheet({ type: "paid", name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", pincode: f.pincode || "", ref_order: ref, total: o.amount / 100, currency: "INR", payment: "Razorpay " + resp.razorpay_payment_id, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
                 track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" });
                 setBag([]);
                 showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">Payment ID: ${esc(resp.razorpay_payment_id)}</p>${BK.wa ? `<a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener">Get updates on WhatsApp</a>` : ""}<p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
@@ -292,6 +295,7 @@
   const CL = BK.countries || [];
   const getCC = () => { try { return JSON.parse(localStorage.getItem("bk_country") || "null"); } catch { return null; } };
   let cc = getCC();
+  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } } catch {}
   if (!cc && CL.length) { // first visit: guess from browser
     let code = ""; try { const z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; if (/Calcutta|Kolkata/.test(z)) code = "IN"; } catch {}
     if (!code) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i); code = m ? m[1].toUpperCase() : (isUSD() ? "US" : "IN"); }
@@ -524,7 +528,7 @@
   }
   // gentle invite once in 14 days (never on checkout)
   (() => {
-    if (!BK.popup || getUser() || co || !lm) return;
+    if (!BK.popup || getUser() || co || !lm || document.body.classList.contains("mirror-page") || document.body.classList.contains("feed-page") || document.body.classList.contains("dash-page")) return;
     let last = 0; try { last = +localStorage.getItem("bk_invite") || 0; } catch {}
     if (Date.now() - last < 14 * 864e5) return;
     const tryInvite = () => { if (document.querySelector("dialog[open]") || document.documentElement.classList.contains("locked")) return setTimeout(tryInvite, 15000); try { localStorage.setItem("bk_invite", Date.now()); } catch {} openLogin(); };
@@ -798,32 +802,113 @@
   }));
   lf?.addEventListener("submit", () => setTimeout(() => { try { if (localStorage.getItem("bk_follow_pending") === "1" && getUser()?.phone && lf.consent?.checked) { localStorage.removeItem("bk_follow_pending"); localStorage.setItem("bk_follow", "1"); sendSheet({ type: "follow", name: getUser().name, phone: getUser().phone, consent: "yes" }); paintFollow(); } } catch {} }, 80));
 
-  // ---------- Mirror (beta) ----------
+  // ---------- speed: Instagram reels load only on tap; hover photo only on mouse devices ----------
+  $$("[data-ig]").forEach((b) => b.addEventListener("click", () => { const d = document.createElement("div"); d.className = "reel reel-ig"; d.innerHTML = `<iframe src="${b.dataset.ig}" title="Instagram reel" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`; b.replaceWith(d); }));
+  if (matchMedia("(hover: hover)").matches) document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".card"); const im = c && c.querySelector("img.alt[data-src]"); if (im) { im.src = im.dataset.src; im.removeAttribute("data-src"); } }, { passive: true });
+
+  // ---------- Mirror 2.0 ----------
   const mir = $("[data-mirror]");
   if (mir) {
-    const me = $("[data-mirror-me]"), dr = $("[data-mirror-dress]"), stage = $("[data-mirror-stage]"), board = $("[data-mirror-board]"), looks = [];
-    let cur = null, pos = { x: 50, y: 30 }, sc = 60;
-    $("[data-mirror-file]").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; me.src = URL.createObjectURL(f); me.hidden = false; $("[data-mirror-empty]").hidden = true; });
-    const place = () => { dr.style.width = sc + "%"; dr.style.left = pos.x + "%"; dr.style.top = pos.y + "%"; };
-    catalog().then((cat) => {
-      const box = $("[data-mirror-picks]"); const list = Object.entries(cat.products).filter(([, p]) => p.image);
-      box.innerHTML = list.map(([k, p]) => `<button type="button" data-mp="${esc(k)}"><img src="${esc(url(p.cutout || p.image))}" alt="${esc(p.title)}" loading="lazy"><span>${esc(p.title)}</span></button>`).join("");
-      box.addEventListener("click", (e) => { const b = e.target.closest("[data-mp]"); if (!b) return; const p = cat.products[b.dataset.mp]; cur = { k: b.dataset.mp, p }; dr.src = url(p.cutout || p.image); dr.hidden = false; dr.classList.toggle("is-cutout", !!p.cutout); $$("[data-mp]", box).forEach((x) => x.classList.toggle("on", x === b)); place(); if (me.hidden) toast("Add your photo to see it together"); });
-    }).catch(() => {});
-    $("[data-mirror-scale]").addEventListener("input", (e) => { sc = +e.target.value; place(); });
-    $("[data-mirror-op]").addEventListener("input", (e) => { dr.style.opacity = e.target.value / 100; });
-    let drag = null; dr.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY, px: pos.x, py: pos.y }; dr.setPointerCapture(e.pointerId); e.preventDefault(); });
-    dr.addEventListener("pointermove", (e) => { if (!drag) return; const r = stage.getBoundingClientRect(); pos.x = drag.px + (e.clientX - drag.x) / r.width * 100; pos.y = drag.py + (e.clientY - drag.y) / r.height * 100; place(); });
-    dr.addEventListener("pointerup", () => (drag = null));
+    const me = $("[data-mirror-me]"), dr = $("[data-mirror-dress]"), stage = $("[data-mirror-stage]"), board = $("[data-mirror-board]"), statusEl = $("[data-mirror-status]"), playB = $("[data-mirror-play]"), scaleI = $("[data-mirror-scale]");
+    const MP = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14", MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task";
+    let cat = null, all = [], list = [], idx = 0, seen = 0, timer = null, fit = { x: 50, y: 22, w: 52 }, liked = [], poseOk = false, ready = false;
+    const cache = {};
+    const say = (t, ms) => { statusEl.textContent = t; statusEl.hidden = !t; clearTimeout(say._h); if (ms) say._h = setTimeout(() => (statusEl.hidden = true), ms); };
+    const place = () => { dr.style.width = fit.w + "%"; dr.style.left = fit.x + "%"; dr.style.top = fit.y + "%"; scaleI.value = Math.round(fit.w); };
+    const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+    // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides, feather the edges
+    const prep = (k) => cache[k] ||= (async () => {
+      const p = cat.products[k]; if (p.cutout) return url(p.cutout);
+      try { const im = await loadImg(url(p.image)); const nw = im.naturalWidth, nh = im.naturalHeight; let box = null;
+        // find the model's shoulders in the product photo -> cut out just the outfit, matched to her shoulders
+        if (lmP) { try { const lm = await lmP; const L = lm.detect(im).landmarks?.[0]; if (L) { const ls = { x: L[11].x * nw, y: L[11].y * nh }, rs = { x: L[12].x * nw, y: L[12].y * nh }, sw = Math.abs(ls.x - rs.x); if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) - sw * 0.3; box = { sx: (ls.x + rs.x) / 2 - w / 2, sy: top, sw: w, sh: nh - top }; } } } catch {} }
+        if (!box) box = { sx: nw * 0.08, sy: nh * 0.16, sw: nw * 0.84, sh: nh * 0.82 };
+        const sc = Math.min(1, 700 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(im, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H);
+        const m = document.createElement("canvas"); m.width = W; m.height = H; const mg = m.getContext("2d"); const f = Math.round(W * 0.045); mg.filter = `blur(${f}px)`; mg.fillStyle = "#000"; mg.beginPath(); if (mg.roundRect) mg.roundRect(f, f, W - 2 * f, H - 2 * f, W * 0.22); else mg.rect(f, f, W - 2 * f, H - 2 * f); mg.fill(); mg.filter = "none";
+        g.globalCompositeOperation = "destination-in"; g.drawImage(m, 0, 0);
+        return await new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : url(p.image)), "image/png")); } catch { return url(p.image); }
+    })();
+    const show = async (i) => {
+      if (!list.length) return; idx = (i + list.length) % list.length; const k = list[idx], p = cat.products[k];
+      $("[data-mirror-count]").textContent = `${idx + 1} / ${list.length}`; $("[data-mirror-name]").textContent = p.title; $("[data-mirror-hud]").hidden = false;
+      $$("[data-mp]").forEach((x) => x.classList.toggle("on", x.dataset.mp === k));
+      dr.classList.add("swap"); const src = await prep(k); if (list[idx] !== k) return;
+      dr.src = src; dr.classList.toggle("is-cutout", !!p.cutout); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
+      prep(list[(idx + 1) % list.length]);
+    };
+    const stop = () => { clearInterval(timer); timer = null; playB.textContent = "▶"; playB.setAttribute("aria-label", "Play"); };
+    const next = () => { seen++; if (seen >= list.length && timer) { stop(); say(`Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
+    const play = () => { stop(); if (!list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
+    const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
     const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
-      const draw = (im) => { const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity; g.drawImage(im, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, ir.width / r.width * W, ir.height / r.height * H); g.globalAlpha = 1; };
-      if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); g.fillStyle = "rgba(14,91,89,.85)"; g.fillRect(0, H - 56, W, 56); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(`${cur ? cur.p.title : ""}`.slice(0, 44), 16, H - 20); cv.toBlob(res, "image/jpeg", 0.88); });
-    $("[data-mirror-save]").addEventListener("click", async () => { if (!cur) { toast("Pick a dress first"); return; } const b = await snap(); looks.push({ b, t: cur.p.title, u: cur.p.url }); board.innerHTML = looks.map((l, i) => `<figure><img src="${URL.createObjectURL(l.b)}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption></figure>`).join(""); toast(`Look ${looks.length} saved`); });
-    $("[data-mirror-share]").addEventListener("click", async () => {
-      if (!looks.length) { toast("Save at least one look first"); return; }
-      const text = `Kaunsi pehnu? 🤔\n${looks.map((l, i) => `${i + 1}. ${l.t} – ${location.origin}/${String(l.u).replace(/^\//, "")}`).join("\n")}`;
-      try { const files = looks.map((l, i) => new File([l.b], `look-${i + 1}.jpg`, { type: "image/jpeg" })); if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, text }); return; } } catch (e) { if (e?.name === "AbortError") return; }
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+      const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; g.drawImage(im, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, ir.width / r.width * W, ir.height / r.height * H); g.globalAlpha = 1; };
+      if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
+    const paintBoard = () => { $("[data-mirror-liked-n]").textContent = liked.length ? `(${liked.length})` : ""; board.innerHTML = liked.length ? liked.map((l, i) => `<figure><img src="${l.src}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption><button type="button" data-unlike="${i}" aria-label="Remove">✕</button></figure>`).join("") : `<p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p>`; };
+    board.addEventListener("click", (e) => { const b = e.target.closest("[data-unlike]"); if (!b) return; liked.splice(+b.dataset.unlike, 1); paintBoard(); });
+    const yes = async () => { if (!ready || dr.hidden) return; const k = list[idx]; if (!liked.some((l) => l.k === k)) { const b = await snap(); liked.push({ k, b, src: URL.createObjectURL(b), t: cat.products[k].title, u: cat.products[k].url }); paintBoard(); } flash("💚"); track("AddToWishlist", { content_ids: [k] }); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
+    const no = () => { if (!ready) return; flash("✕"); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
+    $("[data-mirror-yes]").addEventListener("click", yes); $("[data-mirror-no]").addEventListener("click", no);
+    playB.addEventListener("click", () => (timer ? stop() : play()));
+    // find shoulders on the photo (on-device), so every dress lands on her automatically
+    let lmP = null;
+    const fitBody = async () => {
+      try {
+        const V = await import(MP + "/vision_bundle.mjs");
+        lmP ||= V.FilesetResolver.forVisionTasks(MP + "/wasm").then((fs) => V.PoseLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: MODEL }, runningMode: "IMAGE", numPoses: 1 }));
+        const lm = await lmP; const L = lm.detect(me).landmarks?.[0]; if (!L) return false;
+        const r = stage.getBoundingClientRect(), W = r.width, H = r.height, s = Math.min(W / me.naturalWidth, H / me.naturalHeight), dw = me.naturalWidth * s, dh = me.naturalHeight * s, ox = (W - dw) / 2, oy = (H - dh) / 2;
+        const P = (n) => ({ x: ox + L[n].x * dw, y: oy + L[n].y * dh });
+        const ls = P(11), rs = P(12), sw = Math.abs(ls.x - rs.x); if (sw < W * 0.06) return false;
+        fit = { x: (ls.x + rs.x) / 2 / W * 100, y: (Math.min(ls.y, rs.y) - sw * 0.3) / H * 100, w: Math.min(120, sw * 2.3 / W * 100) }; return true;
+      } catch { return false; }
+    };
+    const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
+    $("[data-mirror-file]").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return; stop(); me.src = URL.createObjectURL(f);
+      me.onload = async () => { me.hidden = false; $("[data-mirror-empty]").hidden = true; $("[data-mirror-vote]").hidden = false; $("[data-mirror-tip]").hidden = false;
+        say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 15000);
+        if (!poseOk) { const s = Math.min(1, (stage.clientWidth / stage.clientHeight) / (me.naturalWidth / me.naturalHeight)); fit = { x: 50, y: 22, w: 52 * s }; }
+        say(poseOk ? "✓ Fit ho gaya! Ab dresses aap par aayengi…" : "Gardan par tap karo, dress wahan aa jayegi", 3500);
+        ready = true; await show(idx); play(); };
     });
+    catalog().then((c) => {
+      cat = c; all = Object.entries(c.products).filter(([, p]) => p.image && p.in_stock !== false).map(([k]) => k); list = all.slice();
+      const box = $("[data-mirror-picks]");
+      box.innerHTML = all.map((k) => { const p = c.products[k]; return `<button type="button" data-mp="${esc(k)}"><img src="${esc(url(p.cutout || p.image))}" alt="${esc(p.title)}" loading="lazy"><span>${esc(p.title)}</span></button>`; }).join("");
+      box.addEventListener("click", (e) => { const b = e.target.closest("[data-mp]"); if (!b) return; if (me.hidden) { toast("Pehle apni photo daalo 📷"); stage.scrollIntoView({ behavior: "smooth", block: "center" }); return; } stop(); if (!list.includes(b.dataset.mp)) list = all.slice(); show(list.indexOf(b.dataset.mp)); });
+      const occ = [...new Set(all.flatMap((k) => [].concat(c.products[k].occ || [])))].filter(Boolean);
+      const ob = $("[data-mirror-occ]");
+      if (occ.length) { ob.innerHTML = [`<button type="button" class="on" data-mo="">All</button>`, ...occ.map((o) => `<button type="button" data-mo="${esc(o)}">${esc(o)}</button>`)].join("");
+        ob.addEventListener("click", (e) => { const b = e.target.closest("[data-mo]"); if (!b) return; $$("[data-mo]", ob).forEach((x) => x.classList.toggle("on", x === b)); const o = b.dataset.mo; list = o ? all.filter((k) => [].concat(cat.products[k].occ || []).includes(o)) : all.slice(); if (!list.length) list = all.slice(); idx = 0; show(0); if (!me.hidden) play(); }); }
+      else ob.previousElementSibling.hidden = ob.hidden = true;
+    }).catch(() => {});
+    scaleI.addEventListener("input", (e) => { stop(); fit.w = +e.target.value; place(); });
+    $("[data-mirror-op]").addEventListener("input", (e) => { dr.style.opacity = e.target.value / 100; });
+    // drag dress; swipe / tap on photo
+    let drag = null, sw0 = null;
+    dr.addEventListener("pointerdown", (e) => { stop(); drag = { x: e.clientX, y: e.clientY, px: fit.x, py: fit.y }; dr.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation(); });
+    dr.addEventListener("pointermove", (e) => { if (!drag) return; const r = stage.getBoundingClientRect(); fit.x = drag.px + (e.clientX - drag.x) / r.width * 100; fit.y = drag.py + (e.clientY - drag.y) / r.height * 100; place(); });
+    dr.addEventListener("pointerup", () => (drag = null));
+    stage.addEventListener("pointerdown", (e) => { if (e.target === dr || me.hidden) return; sw0 = { x: e.clientX, y: e.clientY }; });
+    stage.addEventListener("pointerup", (e) => { if (!sw0) return; const dx = e.clientX - sw0.x, dy = e.clientY - sw0.y; sw0 = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) { dx > 0 ? yes() : no(); return; }
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && !dr.hidden) { const r = stage.getBoundingClientRect(); fit.x = (e.clientX - r.left) / r.width * 100; fit.y = (e.clientY - r.top) / r.height * 100 - 2; place(); } });
+    // share: all liked looks / top-3 vote card / wishlist
+    const shareText = () => { const code = myCode(); return `Kaunsi pehnu? 🤔 Number bata do!\n${liked.slice(0, 6).map((l, i) => `${i + 1}. ${l.t} – ${location.origin}/${String(l.u).replace(/^\//, "")}${code ? "?ref=" + code : ""}`).join("\n")}\n\nApni photo par try karo: ${location.origin}/mirror/${code ? "?ref=" + code : ""}`; };
+    const shareFiles = async (files, text) => { try { if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, text }); return; } } catch (e) { if (e?.name === "AbortError") return; } window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener"); };
+    $("[data-mirror-share]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } shareFiles(liked.slice(0, 6).map((l, i) => new File([l.b], `look-${i + 1}.jpg`, { type: "image/jpeg" })), shareText()); });
+    $("[data-mirror-card]").addEventListener("click", async () => {
+      if (liked.length < 2) { toast("Kam se kam 2 dress par 💚 Haan karo"); return; }
+      const top = liked.slice(0, 3), W = 1080, H = 1350, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d");
+      const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#0e5b59"); gr.addColorStop(1, "#083b3a"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      g.fillStyle = "#e8c776"; g.textAlign = "center"; g.font = "600 34px system-ui"; g.fillText("BAHE KURTIZ · MIRROR", W / 2, 90); g.fillStyle = "#fff"; g.font = "700 76px Georgia, serif"; g.fillText("Kaunsi pehnu?", W / 2, 190); g.font = "500 36px system-ui"; g.fillText("Number reply karo 👇", W / 2, 245);
+      const gap = 24, cw = (W - gap * (top.length + 1)) / top.length, ch = Math.min(cw * 1.45, 880), y = 300;
+      for (let i = 0; i < top.length; i++) { const im = await loadImg(top[i].src); const x = gap + i * (cw + gap); const s = Math.max(cw / im.width, ch / im.height), w = im.width * s, h = im.height * s; g.save(); g.beginPath(); g.roundRect ? g.roundRect(x, y, cw, ch, 22) : g.rect(x, y, cw, ch); g.clip(); g.drawImage(im, x + (cw - w) / 2, y + (ch - h) / 2, w, h); g.restore();
+        g.fillStyle = "#e8c776"; g.beginPath(); g.arc(x + cw / 2, y + ch, 46, 0, Math.PI * 2); g.fill(); g.fillStyle = "#083b3a"; g.font = "800 50px system-ui"; g.fillText(String(i + 1), x + cw / 2, y + ch + 18); }
+      const code = myCode(); g.fillStyle = "#fff"; g.font = "600 38px system-ui"; g.fillText(`${location.host}/mirror`, W / 2, H - 120); g.font = "500 30px system-ui"; g.fillStyle = "#cfe3e1"; g.fillText(code ? `Apni photo par try karo · code ${code}` : "Apni photo par try karo", W / 2, H - 70);
+      cv.toBlob((bl) => shareFiles([new File([bl], "kaunsi-pehnu.jpg", { type: "image/jpeg" })], shareText()), "image/jpeg", 0.9);
+    });
+    $("[data-mirror-wish]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } const w = getW(); liked.forEach((l) => { if (!w.includes(l.k)) w.push(l.k); }); setW(w); toast(`${liked.length} dress wishlist mein ♡`); });
   }
 })();
