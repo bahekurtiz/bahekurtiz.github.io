@@ -42,7 +42,7 @@ collections:
     delete: true
     slug: "{{title}}"
     identifier_field: title
-    summary: "{{title}} · {{category}} · ₹{{price}}"
+    summary: "{{title}} · {{category}} · ₹{{price}} · ${{price_usd}}"
     sortable_fields: [sort_order, title, price]
     preview_path: "products/{{slug}}/"
     fields:
@@ -50,11 +50,32 @@ collections:
       - name: category
         label: "कैटेगरी (Category)"
         widget: select
-        options: [Kurti, Kurti Set, Dress, Co-ord Set, Top, Dupatta, Accessories]
+        options:
+          - Kurti
+          - Kurti Set
+          - Kurta Pant Dupatta Set
+          - Anarkali Kurti
+          - Dress
+          - Maxi Dress
+          - Midi Dress
+          - Short Dress
+          - Anarkali Dress
+          - Gown
+          - Kaftan
+          - Co-ord Set
+          - Top
+          - Tunic
+          - Palazzo / Pants
+          - Dupatta
+          - Stole
+          - Accessories
         default: Kurti
       - { name: color, label: "रंग (Colour)", widget: string, required: false }
       - { name: price, label: "दाम ₹ (Selling price)", widget: number, value_type: int, required: false, hint: "खाली छोड़ोगे तो 'Price on WhatsApp' दिखेगा" }
       - { name: mrp, label: "MRP ₹ (कटा हुआ दाम, optional)", widget: number, value_type: int, required: false }
+      - { name: price_usd, label: "विदेश का दाम $ (USD)", widget: number, value_type: float, required: false, hint: "विदेशी ग्राहक को यही दाम दिखेगा। खाली छोड़ोगे तो सेटिंग्स वाले 'डॉलर रेट' से अपने-आप बनेगा (रेट न हो तो 'Price on request')" }
+      - { name: mrp_usd, label: "विदेश MRP $ (कटा हुआ दाम, optional)", widget: number, value_type: float, required: false }
+      - { name: ships_abroad, label: "विदेश भेज सकते हैं? (Ships internationally)", widget: boolean, default: true }
       - name: sizes
         label: "साइज़ (Sizes)"
         widget: select
@@ -62,12 +83,79 @@ collections:
         options: [XS, S, M, L, XL, XXL, 3XL, 4XL, 5XL, Free Size]
         default: [S, M, L, XL, XXL]
         required: false
-      - { name: fabric, label: "कपड़ा (Fabric)", widget: string, required: false, hint: "जैसे: Georgette, Cotton, Rayon" }
+      - name: fabric
+        label: "कपड़ा (Fabric)"
+        widget: select
+        required: false
+        options:
+          - Cotton
+          - Pure Cotton
+          - Cambric Cotton
+          - Mul Cotton (Mulmul)
+          - Cotton Slub
+          - Cotton Flex
+          - Cotton Blend
+          - Cotton Silk
+          - Cotton Linen
+          - Linen
+          - Khadi
+          - Rayon
+          - Rayon Slub
+          - Viscose
+          - Modal
+          - Muslin
+          - Chanderi
+          - Chanderi Silk
+          - Maheshwari
+          - Art Silk
+          - Silk Blend
+          - Tussar Silk
+          - Kota Doria
+          - Georgette
+          - Faux Georgette
+          - Chiffon
+          - Crepe
+          - Satin
+          - Organza
+          - Net
+          - Velvet
+          - Polyester
+          - Lycra
+          - Other
+        hint: "लिस्ट में न मिले तो 'Other' चुनो और कपड़े का नाम जानकारी (Description) में लिखो"
+      - name: print_work
+        label: "प्रिंट / काम (Print or work)"
+        widget: select
+        multiple: true
+        required: false
+        options:
+          - All Over Print
+          - Hand Block Print
+          - Sanganeri Print
+          - Bagru Print
+          - Dabu Print
+          - Ajrakh Print
+          - Indigo Print
+          - Screen Print
+          - Digital Print
+          - Floral Print
+          - Bandhani
+          - Leheriya
+          - Kalamkari
+          - Foil Print
+          - Gota Patti
+          - Embroidered
+          - Chikankari
+          - Mirror Work
+          - Sequin Work
+          - Solid / Plain
       - { name: description, label: "जानकारी (Description)", widget: text, required: false, hint: "2-3 लाइन। खाली लाइन = नया पैराग्राफ़" }
       - name: images
         label: "फ़ोटो (Photos) – पहली फ़ोटो मुख्य होगी"
         widget: list
         field: { name: image, label: "फ़ोटो", widget: image }
+      - { name: video, label: "छोटी रील / वीडियो (optional, mp4)", widget: file, required: false, media_folder: /static/media/products, public_folder: /media/products, hint: "10-15 सेकंड, 8 MB से कम। फ़ोटो के साथ अपने-आप चलती रहेगी (बिना आवाज़)।" }
+      - { name: match_products, label: "Shop the Look – साथ में मैच होने वाले प्रोडक्ट (optional)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], multiple: true, required: false, hint: "जैसे कुर्ती के साथ पलाज़ो / दुपट्टा। प्रोडक्ट पेज पर 'Complete the look' में दिखेंगे" }
       - { name: in_stock, label: "स्टॉक में है? (In stock)", widget: boolean, default: true, hint: "बंद करोगे तो 'Made to order' दिखेगा" }
       - { name: featured, label: "होमपेज पर दिखाओ (Show on homepage)", widget: boolean, default: true }
       - { name: sort_order, label: "क्रम (Order – छोटा नंबर पहले)", widget: number, value_type: int, default: 50 }
@@ -107,6 +195,37 @@ collections:
       - { name: seo_title, label: "SEO टाइटल (optional)", widget: string, required: false }
       - { name: seo_description, label: "SEO डिस्क्रिप्शन (optional, 150 अक्षर)", widget: string, required: false }
 
+  - name: landing
+    label: "SEO पेज (Google पर आने के लिए)"
+    label_singular: "SEO पेज"
+    folder: content/landing
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    identifier_field: h1
+    summary: "/{{slug}}/ – {{h1}}"
+    fields:
+      - { name: slug, label: "लिंक (अंग्रेज़ी, - से जोड़ो)", widget: string, hint: "जैसे: block-print-kurti-manufacturer-jaipur" }
+      - { name: h1, label: "बड़ी हेडिंग (जो लोग Google पर लिखते हैं)", widget: string }
+      - { name: eyebrow, label: "ऊपर की छोटी लाइन", widget: string, required: false }
+      - { name: lead, label: "पहली 1-2 लाइन", widget: text, required: false }
+      - { name: match, label: "कौन से प्रोडक्ट दिखें (शब्द, comma से)", widget: string, required: false, hint: "जैसे: block print, cotton, kurti" }
+      - { name: products_title, label: "प्रोडक्ट सेक्शन की हेडिंग", widget: string, required: false }
+      - { name: body, label: "पूरा लेख", widget: markdown }
+      - name: faq
+        label: "सवाल-जवाब (FAQ – Google में दिखते हैं)"
+        widget: list
+        required: false
+        summary: "{{fields.q}}"
+        fields:
+          - { name: q, label: "सवाल", widget: string }
+          - { name: a, label: "जवाब", widget: text }
+      - { name: seo_title, label: "SEO टाइटल (60 अक्षर)", widget: string, required: false }
+      - { name: seo_description, label: "SEO डिस्क्रिप्शन (155 अक्षर)", widget: string, required: false }
+      - { name: draft, label: "ड्राफ़्ट (अभी छुपाओ)", widget: boolean, default: false }
+
   - name: settings
     label: "सेटिंग्स (Settings)"
     files:
@@ -116,8 +235,23 @@ collections:
         format: json
         fields:
           - { name: brand_name, label: "ब्रांड का नाम", widget: string }
+          - { name: logo, label: "लोगो (Logo – PNG, पारदर्शी)", widget: image, required: false }
+          - { name: favicon, label: "छोटा आइकन (Favicon – 512×512 PNG)", widget: image, required: false }
           - { name: tagline, label: "टैगलाइन", widget: string }
           - { name: announcement, label: "ऊपर चलने वाली पट्टी (हर मैसेज के बीच | लगाओ)", widget: string, required: false }
+          - name: hero_slides
+            label: "होमपेज बैनर स्लाइड (2-4 बैनर, अपने-आप बदलेंगे)"
+            widget: list
+            required: false
+            summary: "{{fields.title}}"
+            hint: "खाली छोड़ोगे तो नीचे वाली एक बड़ी फ़ोटो + हेडिंग दिखेगी। फ़ोटो खड़ी (portrait) हो, जैसे 1200×1800"
+            fields:
+              - { name: image, label: "बैनर फ़ोटो (खड़ी)", widget: image, media_folder: /static/images/site, public_folder: /images/site }
+              - { name: eyebrow, label: "ऊपर की छोटी लाइन (जैसे: Diwali Edit 2026)", widget: string, required: false }
+              - { name: title, label: "बड़ी हेडिंग", widget: string }
+              - { name: subtitle, label: "छोटी लाइन", widget: string, required: false }
+              - { name: button, label: "बटन का नाम (जैसे: Shop Diwali Edit)", widget: string, required: false }
+              - { name: link, label: "बटन का लिंक (जैसे: collections/kurtis/)", widget: string, required: false }
           - { name: hero_title, label: "होमपेज बड़ी हेडिंग", widget: string }
           - { name: hero_subtitle, label: "होमपेज छोटी लाइन", widget: string, required: false }
           - { name: hero_image, label: "होमपेज बड़ी फ़ोटो", widget: image, required: false }
@@ -141,23 +275,34 @@ collections:
             fields:
               - { name: name, label: "नाम", widget: string }
               - { name: url, label: "पूरा लिंक (https://…)", widget: string }
-          - { name: shipping_charge, label: "डिलीवरी चार्ज ₹ (0 = फ़्री)", widget: number, value_type: int, required: false }
-          - { name: free_shipping_above, label: "इतने ₹ से ऊपर फ़्री डिलीवरी (0 = लागू नहीं)", widget: number, value_type: int, required: false }
+          - { name: shipping_charge, label: "भारत: डिलीवरी चार्ज ₹ (0 = फ़्री)", widget: number, value_type: int, required: false }
+          - { name: free_shipping_above, label: "भारत: इतने ₹ से ऊपर फ़्री डिलीवरी (0 = लागू नहीं)", widget: number, value_type: int, required: false }
+          - { name: intl_shipping_charge_usd, label: "विदेश: शिपिंग चार्ज $ (हर ऑर्डर)", widget: number, value_type: float, required: false }
+          - { name: intl_free_shipping_above_usd, label: "विदेश: इतने $ से ऊपर फ़्री शिपिंग (0 = लागू नहीं)", widget: number, value_type: float, required: false }
+          - { name: intl_duty_note, label: "विदेश: ड्यूटी/टैक्स की लाइन (चेकआउट और प्रोडक्ट पेज पर)", widget: string, required: false, default: "Prices exclude import duties and taxes of your country, which are paid by the buyer on delivery." }
+          - { name: usd_rate, label: "डॉलर रेट (1 $ = कितने ₹) – विदेश दाम अपने-आप बनाने के लिए", widget: number, value_type: float, required: false, hint: "जैसे 70 लिखोगे तो ₹1400 वाला प्रोडक्ट $20 दिखेगा (ऊपर की ओर गोल)। जिस प्रोडक्ट में $ दाम खुद भरा है, वहाँ वही दिखेगा। खाली = अपने-आप नहीं बनेगा" }
           - { name: cod_enabled, label: "COD", widget: hidden, default: false }
           - { name: cod_charge, label: "COD charge", widget: hidden, default: 0 }
           - { name: prepaid_discount_percent, label: "ऑनलाइन पेमेंट पर छूट %", widget: number, value_type: int, required: false }
           - { name: upi_id, label: "UPI ID (Razorpay चालू न हो तब काम आएगी)", widget: string, required: false }
           - { name: dispatch_note, label: "डिस्पैच लाइन (प्रोडक्ट पेज पर)", widget: string, required: false }
-          - { name: shipping_policy, label: "Shipping Policy", widget: text }
-          - { name: return_policy, label: "Return / Refund Policy", widget: text }
+          - { name: shipping_policy, label: "Shipping Policy – भारत (India)", widget: text }
+          - { name: return_policy, label: "Return / Refund Policy – भारत (India)", widget: text }
+          - { name: intl_shipping_policy, label: "Shipping Policy – विदेश (International)", widget: text, required: false }
+          - { name: intl_return_policy, label: "Return / Refund Policy – विदेश (International)", widget: text, required: false }
           - { name: privacy_policy, label: "Privacy Policy", widget: text }
           - { name: terms, label: "Terms & Conditions", widget: text }
           - { name: site_url, label: "वेबसाइट का पता", widget: string }
           - { name: google_site_verification, label: "Google Search Console कोड", widget: string, required: false }
+          - { name: ga4_id, label: "Google Analytics 4 – Measurement ID (G-XXXX)", widget: string, required: false, hint: "analytics.google.com → Admin → Data streams → Web → Measurement ID" }
+          - { name: clarity_id, label: "Microsoft Clarity – Project ID (फ़्री heatmap + recording)", widget: string, required: false, hint: "clarity.microsoft.com → Settings → Overview → Project ID" }
+          - { name: pinterest_tag_id, label: "Pinterest Tag ID – सिर्फ़ नंबर", widget: string, required: false }
+          - { name: pinterest_verification, label: "Pinterest website verify कोड (p:domain_verify)", widget: string, required: false, hint: "Pinterest → Settings → Claimed accounts → Website → HTML tag में content=\"...\" वाला कोड" }
+          - { name: facebook_domain_verification, label: "Facebook domain verify कोड", widget: string, required: false, hint: "Meta Business → Brand safety → Domains → Meta-tag में content=\"...\" वाला कोड" }
           - { name: meta_pixel_id, label: "Meta (Facebook) Pixel ID – सिर्फ़ नंबर", widget: string, required: false, hint: "Events Manager → Data sources → Pixel ID (15-16 अंक)। खाली छोड़ो तो Pixel बंद रहेगा।" }
           - { name: reels_title, label: "रील सेक्शन की हेडिंग", widget: string, required: false, default: "Watch & Shop" }
           - name: reels
-            label: "Instagram / Facebook रील (हर पेज के नीचे छोटे बॉक्स में)"
+            label: "Shoppable रील (होमपेज पर + हर पेज के नीचे)"
             widget: list
             required: false
             summary: "{{fields.caption}} – {{fields.link}}"
@@ -167,5 +312,42 @@ collections:
               - { name: cover, label: "कवर फ़ोटो (वीडियो न हो तो ज़रूरी)", widget: image, required: false, media_folder: /static/media/reels, public_folder: /media/reels }
               - { name: link, label: "Instagram / Facebook रील का लिंक", widget: string, required: false }
               - { name: caption, label: "छोटी लाइन (जैसे: Rani Pink Kurti ₹599)", widget: string, required: false }
+              - { name: product, label: "इस रील में कौन सा प्रोडक्ट है? (Shop बटन)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], required: false, hint: "चुनोगे तो रील के नीचे प्रोडक्ट + 'Shop' बटन आएगा" }
+          - name: reviews
+            label: "ग्राहकों के रिव्यू (सिर्फ़ असली रिव्यू डालो)"
+            widget: list
+            required: false
+            summary: "{{fields.name}} – {{fields.rating}}★"
+            hint: "WhatsApp / Etsy / Google पर मिले असली रिव्यू ही डालो। खाली रहेगा तो होमपेज पर सेक्शन नहीं दिखेगा"
+            fields:
+              - { name: name, label: "ग्राहक का नाम (जैसे: Priya S.)", widget: string }
+              - { name: city, label: "शहर / देश", widget: string, required: false }
+              - { name: rating, label: "स्टार (1-5)", widget: number, value_type: int, min: 1, max: 5, default: 5 }
+              - { name: text, label: "रिव्यू", widget: text }
+              - { name: photo, label: "ग्राहक की फ़ोटो (optional, उनकी इजाज़त से)", widget: image, required: false, media_folder: /static/images/reviews, public_folder: /images/reviews }
+          - name: size_chart
+            label: "साइज़ चार्ट (इंच में, body measurement)"
+            widget: list
+            required: false
+            summary: "{{fields.size}} – Bust {{fields.bust}}"
+            hint: "खाली छोड़ोगे तो XS से 5XL वाला आम चार्ट दिखेगा"
+            fields:
+              - { name: size, label: "साइज़", widget: string }
+              - { name: bust, label: "Bust (इंच)", widget: number, value_type: float, required: false }
+              - { name: waist, label: "Waist (इंच)", widget: number, value_type: float, required: false }
+              - { name: hip, label: "Hip (इंच)", widget: number, value_type: float, required: false }
+          - { name: size_note, label: "साइज़ चार्ट के नीचे की लाइन", widget: string, required: false }
+          - { name: wholesale_intro, label: "Wholesale पेज – ऊपर की लाइन", widget: text, required: false }
+          - { name: wholesale_moq, label: "Wholesale – Minimum order (MOQ)", widget: string, required: false, hint: "जैसे: 30 pieces per design, mixed sizes. खाली = 'design पर निर्भर, WhatsApp पर पूछें'" }
+          - { name: wholesale_payment, label: "Wholesale – पेमेंट शर्तें", widget: string, required: false }
+          - name: category_seo
+            label: "कैटेगरी पेज का SEO टेक्स्ट (optional)"
+            widget: list
+            required: false
+            summary: "{{fields.category}}"
+            hint: "खाली रहे तो अपने-आप अच्छा टेक्स्ट बनता है"
+            fields:
+              - { name: category, label: "कैटेगरी (जैसे Kurti, Dress)", widget: string }
+              - { name: text, label: "2-4 लाइन (keywords के साथ)", widget: text }
           - { name: currency, label: "Currency", widget: hidden, default: INR }
           - { name: github_repo, label: "GitHub repo", widget: hidden }
