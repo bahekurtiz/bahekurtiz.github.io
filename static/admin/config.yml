@@ -405,8 +405,6 @@ collections:
               - { name: code, label: "करेंसी कोड (GBP, EUR, AED, CAD…)", widget: string }
               - { name: per_usd, label: "1 USD = कितने", widget: number, value_type: float }
           - { name: usd_rate, label: "डॉलर रेट (1 $ = कितने ₹) – विदेश दाम अपने-आप बनाने के लिए", widget: number, value_type: float, required: false, hint: "जैसे 70 लिखोगे तो ₹1400 वाला प्रोडक्ट $20 दिखेगा (ऊपर की ओर गोल)। जिस प्रोडक्ट में $ दाम खुद भरा है, वहाँ वही दिखेगा। खाली = अपने-आप नहीं बनेगा" }
-          - { name: cod_enabled, label: "COD", widget: hidden, default: false }
-          - { name: cod_charge, label: "COD charge", widget: hidden, default: 0 }
           - { name: prepaid_discount_percent, label: "ऑनलाइन पेमेंट पर छूट %", widget: number, value_type: int, required: false }
           - { name: upi_id, label: "UPI ID (Razorpay चालू न हो तब काम आएगी)", widget: string, required: false }
           - { name: dispatch_note, label: "डिस्पैच लाइन (प्रोडक्ट पेज पर)", widget: string, required: false }
@@ -451,6 +449,8 @@ collections:
               - { name: cover, label: "कवर फ़ोटो (वीडियो न हो तो ज़रूरी)", widget: image, required: false, media_folder: /static/media/reels, public_folder: /media/reels }
               - { name: link, label: "Instagram / Facebook रील का लिंक", widget: string, required: false, hint: "सिर्फ़ Instagram रील का लिंक डालोगे (वीडियो/कवर खाली) तो रील सीधे Instagram से वेबसाइट पर चलेगी" }
               - { name: caption, label: "छोटी लाइन (जैसे: Rani Pink Kurti ₹599)", widget: string, required: false }
+              - { name: creator, label: "Influencer / model का Instagram (जैसे @priya.styles) – optional", widget: string, required: false, hint: "रील पर 'Styled by @naam' दिखेगा। सिर्फ़ उनकी इजाज़त से डालो।" }
+              - { name: creator_link, label: "Influencer की प्रोफ़ाइल लिंक – optional", widget: string, required: false }
               - { name: product, label: "इस रील में कौन सा प्रोडक्ट है? (Shop बटन)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], required: false, hint: "चुनोगे तो रील के नीचे प्रोडक्ट + 'Shop' बटन आएगा" }
           - name: reviews
             label: "ग्राहकों के रिव्यू (सिर्फ़ असली रिव्यू डालो)"
