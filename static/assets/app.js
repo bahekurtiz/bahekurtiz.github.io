@@ -1853,14 +1853,7 @@ window.addEventListener("load",translate);
   document.addEventListener("bk:language", bkScheduleTranslation);
   window.addEventListener("load", bkScheduleTranslation);
 
-  const bkLanguageObserver = new MutationObserver(() => {
-    bkScheduleTranslation();
-  });
-
-  if (document.body) {
-    bkLanguageObserver.observe(document.body, {
-      childList: true,
-      subtree: true
+ 
     });
   }
 
