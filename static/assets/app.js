@@ -1327,3 +1327,53 @@ document.addEventListener("click", async function (e) {
     startLanguageUI();
   }
 })();
+
+/* ===== BAHE LANGUAGE BUTTON HEADER FIX ===== */
+(() => {
+  function fixLanguageButtonPosition() {
+    const btn = document.querySelector("[data-bk-language-btn]");
+    if (!btn) return;
+
+    const targets = [
+      ".header-icons",
+      ".nav-icons",
+      ".header-actions",
+      ".head-actions",
+      ".header-tools",
+      ".nav-actions"
+    ];
+
+    let target = null;
+
+    for (const selector of targets) {
+      const el = document.querySelector(selector);
+      if (el) {
+        target = el;
+        break;
+      }
+    }
+
+    if (target) {
+      target.insertBefore(btn, target.firstChild);
+      btn.style.position = "";
+      btn.style.top = "";
+      btn.style.right = "";
+      btn.style.zIndex = "";
+      return;
+    }
+
+    btn.style.position = "fixed";
+    btn.style.top = "82px";
+    btn.style.right = "72px";
+    btn.style.left = "auto";
+    btn.style.zIndex = "999";
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(fixLanguageButtonPosition, 100);
+    });
+  } else {
+    setTimeout(fixLanguageButtonPosition, 100);
+  }
+})();
