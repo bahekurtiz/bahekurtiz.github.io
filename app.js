@@ -117,15 +117,58 @@
       else { fitNote.innerHTML = `✨ Aapke liye: <b>${r}</b>${/relaxed/i.test(pfit) ? " (relaxed fit)" : ""}${intlLine(r)} · <button type="button" class="link" data-fit-open>Badlo</button>`; if (auto && btn && !size) btn.click(); }
       $("[data-fit-notify]", fitNote)?.addEventListener("click", () => openNotify(slug, btn.dataset.size)); $("[data-fit-open]", fitNote)?.addEventListener("click", openFit); };
     function openFit() {
-      let d = $("[data-fit-dlg]"); const f = getFit() || {};
-      if (!d) { d = document.createElement("dialog"); d.className = "fit-dlg"; d.dataset.fitDlg = ""; document.body.appendChild(d); }
-      d.innerHTML = `<form method="dialog" class="fit-form"><h2>✨ Mera size</h2><p class="muted small">Sirf is phone mein save hoga. Agli baar har dress par aapka size apne aap chuna milega.</p>
-        <p class="label">Aap usually kaunsa size pehenti ho?</p><div class="fit-chips">${ORDER.slice(1, 8).map((s) => `<label><input type="radio" name="usual" value="${s}"${f.usual === s ? " checked" : ""}><span>${s}</span></label>`).join("")}</div>
-        <label class="fit-or">Ya bust (inches) <input name="bust" type="number" min="26" max="60" step="0.5" inputmode="decimal" value="${f.bust || ""}" placeholder="jaise 36"></label>
-        <p class="label">Fitting kaisi pasand hai?</p><div class="fit-chips">${["Snug", "Regular", "Loose"].map((s) => `<label><input type="radio" name="pref" value="${s}"${(f.pref || "Regular") === s ? " checked" : ""}><span>${s === "Snug" ? "Fitted" : s === "Loose" ? "Dheela" : "Regular"}</span></label>`).join("")}</div>
-        <div class="fit-b"><button class="btn" value="save">Mera size dikhao</button><button class="btn btn-ghost" value="cancel" formnovalidate>Cancel</button></div></form>`;
-      d.onclose = () => { if (d.returnValue !== "save") return; const fd = new FormData($("form", d)); const nf = { usual: fd.get("usual") || "", bust: +fd.get("bust") || 0, pref: fd.get("pref") || "Regular" }; if (!nf.usual && !nf.bust) { toast("Size ya bust chuno"); return; } try { localStorage.setItem("bk_fit", JSON.stringify(nf)); } catch {} size = ""; sizes.forEach((x) => x.classList.remove("on")); paintFit(true); const r = recSize(nf); if (r) toast(`Aapka size: ${r}`); };
-      d.showModal();
+  let d = $("[data-fit-dlg]");
+  const f = getFit() || {};
+
+  if (!d) {
+    d = document.createElement("dialog");
+    d.className = "fit-dlg";
+    d.dataset.fitDlg = "";
+    document.body.appendChild(d);
+  }
+
+  d.innerHTML = `
+    <form method="dialog" class="fit-form">
+      <h2>✨ Mera size</h2>
+      <p class="muted small">Apni fit batayein — hum aapke liye best size suggest karenge.</p>
+
+      <p class="label">Aap usually kaunsa size pehenti hain?</p>
+      <select name="usual">
+        <option value="">Select size</option>
+        ${ORDER.map(s => `<option value="${s}" ${f.usual === s ? "selected" : ""}>${s}</option>`).join("")}
+      </select>
+
+      <p class="label">Ya bust measurement (inches)</p>
+      <input name="bust" type="number" min="26" max="60" step="0.5"
+        placeholder="e.g. 36" value="${f.bust || ""}">
+
+      <p class="label">Fitting kaisi pasand hai?</p>
+      <select name="pref">
+        <option value="Regular" ${f.pref === "Regular" ? "selected" : ""}>Regular</option>
+        <option value="Snug" ${f.pref === "Snug" ? "selected" : ""}>Snug</option>
+        <option value="Loose" ${f.pref === "Loose" ? "selected" : ""}>Loose</option>
+      </select>
+
+      <div class="fit-b">
+        <button class="btn" value="save">Mera size dikhao</button>
+        <button class="btn btn-ghost" value="cancel">Cancel</button>
+      </div>
+    </form>`;
+
+  d.onclose = () => {
+    if (d.returnValue !== "save") return;
+    const fd = new FormData(d.querySelector("form"));
+    const nf = {
+      usual: String(fd.get("usual") || ""),
+      bust: Number(fd.get("bust")) || 0,
+      pref: String(fd.get("pref") || "Regular")
+    };
+    localStorage.setItem("bk_fit", JSON.stringify(nf));
+    paintFit(true);
+  };
+
+  if (typeof d.showModal === "function") d.showModal();
+  else d.setAttribute("open", "");
     }
     $$("[data-fit-open]", prod).forEach((b) => b.addEventListener("click", openFit));
     sizes.forEach((b) => b.addEventListener("click", () => { if (!getFit() && fitNote) { fitNote.hidden = !intlLine(b.dataset.size.toUpperCase()); fitNote.innerHTML = intlLine(b.dataset.size.toUpperCase()); } }));
