@@ -1005,3 +1005,88 @@ document.addEventListener("click", function (e) {
   if (typeof d.showModal === "function") d.showModal();
   else d.setAttribute("open", "");
 });
+// BAHE KURTIZ — Share & Earn Viral Loop 2.0
+(() => {
+  const REF_KEY = "bk_ref_code";
+  const VISITOR_REF_KEY = "bk_ref";
+
+  function makeRef() {
+    let code = localStorage.getItem(REF_KEY);
+    if (!code) {
+      code = "BK" + Math.random().toString(36).slice(2, 8).toUpperCase();
+      localStorage.setItem(REF_KEY, code);
+    }
+    return code;
+  }
+
+  function captureReferral() {
+    const p = new URLSearchParams(location.search);
+    const ref = p.get("ref");
+    if (ref) {
+      localStorage.setItem(
+        VISITOR_REF_KEY,
+        JSON.stringify({
+          code: ref,
+          arrived: Date.now(),
+          page: location.pathname
+        })
+      );
+    }
+  }
+
+  function referralURL() {
+    const u = new URL(location.href);
+    u.searchParams.set("ref", makeRef());
+    return u.toString();
+  }
+
+  async function shareAndEarn() {
+    const link = referralURL();
+
+    const title =
+      document.querySelector("h1")?.textContent?.trim() ||
+      "Bahe Kurtiz";
+
+    const text =
+      `✨ ${title}\n` +
+      `BAHE KURTIZ Jaipur se dekhiye 💛\n` +
+      `Mera personal Share & Earn link:`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: text,
+          url: link
+        });
+        return;
+      } catch (e) {
+        if (e.name === "AbortError") return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(link);
+      alert("✓ Share & Earn link copied!\nAb WhatsApp/Instagram par share karein.");
+    } catch {
+      prompt("Is Share & Earn link ko copy karein:", link);
+    }
+  }
+
+  captureReferral();
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-share], [data-refer-share]");
+    if (!b) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    shareAndEarn();
+  }, true);
+
+  window.BKShareEarn = {
+    share: shareAndEarn,
+    link: referralURL,
+    code: makeRef
+  };
+})();
