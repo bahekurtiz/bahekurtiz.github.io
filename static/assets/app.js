@@ -1267,3 +1267,107 @@ document.addEventListener("click", async function (e) {
 
   document.body.append(btn, box);
 })();
+/* ===== BAHE CORE TRANSLATION ENGINE ===== */
+(() => {
+const T={
+fr:{
+"SHOP":"BOUTIQUE","NEW ARRIVALS":"NOUVEAUTÉS","WHOLESALE":"VENTE EN GROS",
+"JOURNAL":"JOURNAL","OUR STORY":"NOTRE HISTOIRE","CONTACT":"CONTACT",
+"New":"Nouveau","Feed":"Fil","Shop All":"Tout acheter","Kurtis":"Kurtis",
+"Dresses":"Robes","Wholesale":"Vente en gros",
+"Made in Jaipur":"Fabriqué à Jaipur",
+"Secure online payment":"Paiement en ligne sécurisé",
+"Add to Cart":"Ajouter au panier","Buy Now":"Acheter maintenant",
+"Wishlist":"Favoris","Search":"Rechercher","Size":"Taille","Quantity":"Quantité"
+},
+hi:{
+"SHOP":"खरीदारी","NEW ARRIVALS":"नए कलेक्शन","WHOLESALE":"थोक",
+"JOURNAL":"जर्नल","OUR STORY":"हमारी कहानी","CONTACT":"संपर्क",
+"New":"नया","Feed":"फीड","Shop All":"सभी खरीदें","Kurtis":"कुर्तियां",
+"Dresses":"ड्रेसेस","Wholesale":"थोक",
+"Made in Jaipur":"जयपुर में निर्मित",
+"Secure online payment":"सुरक्षित ऑनलाइन भुगतान",
+"Add to Cart":"कार्ट में जोड़ें","Buy Now":"अभी खरीदें",
+"Wishlist":"पसंदीदा","Search":"खोजें","Size":"साइज़","Quantity":"मात्रा"
+},
+de:{
+"SHOP":"SHOP","NEW ARRIVALS":"NEUHEITEN","WHOLESALE":"GROSSHANDEL",
+"JOURNAL":"JOURNAL","OUR STORY":"UNSERE GESCHICHTE","CONTACT":"KONTAKT",
+"New":"Neu","Feed":"Feed","Shop All":"Alle Produkte","Kurtis":"Kurtis",
+"Dresses":"Kleider","Wholesale":"Großhandel",
+"Made in Jaipur":"Hergestellt in Jaipur",
+"Secure online payment":"Sichere Online-Zahlung",
+"Add to Cart":"In den Warenkorb","Buy Now":"Jetzt kaufen",
+"Wishlist":"Wunschliste","Search":"Suchen","Size":"Größe","Quantity":"Menge"
+},
+es:{
+"SHOP":"TIENDA","NEW ARRIVALS":"NOVEDADES","WHOLESALE":"MAYORISTA",
+"JOURNAL":"REVISTA","OUR STORY":"NUESTRA HISTORIA","CONTACT":"CONTACTO",
+"New":"Nuevo","Feed":"Novedades","Shop All":"Ver todo","Kurtis":"Kurtis",
+"Dresses":"Vestidos","Wholesale":"Mayorista",
+"Made in Jaipur":"Hecho en Jaipur",
+"Secure online payment":"Pago seguro en línea",
+"Add to Cart":"Añadir al carrito","Buy Now":"Comprar ahora",
+"Wishlist":"Favoritos","Search":"Buscar","Size":"Talla","Quantity":"Cantidad"
+},
+it:{
+"SHOP":"NEGOZIO","NEW ARRIVALS":"NOVITÀ","WHOLESALE":"INGROSSO",
+"JOURNAL":"JOURNAL","OUR STORY":"LA NOSTRA STORIA","CONTACT":"CONTATTI",
+"New":"Novità","Feed":"Feed","Shop All":"Acquista tutto","Kurtis":"Kurti",
+"Dresses":"Abiti","Wholesale":"Ingrosso",
+"Made in Jaipur":"Realizzato a Jaipur",
+"Secure online payment":"Pagamento online sicuro",
+"Add to Cart":"Aggiungi al carrello","Buy Now":"Acquista ora",
+"Wishlist":"Preferiti","Search":"Cerca","Size":"Taglia","Quantity":"Quantità"
+},
+ja:{
+"SHOP":"ショップ","NEW ARRIVALS":"新着商品","WHOLESALE":"卸売",
+"JOURNAL":"ジャーナル","OUR STORY":"私たちの物語","CONTACT":"お問い合わせ",
+"New":"新着","Feed":"フィード","Shop All":"すべて見る","Kurtis":"クルティ",
+"Dresses":"ドレス","Wholesale":"卸売",
+"Made in Jaipur":"ジャイプール製",
+"Secure online payment":"安全なオンライン決済",
+"Add to Cart":"カートに追加","Buy Now":"今すぐ購入",
+"Wishlist":"お気に入り","Search":"検索","Size":"サイズ","Quantity":"数量"
+},
+ar:{
+"SHOP":"المتجر","NEW ARRIVALS":"وصل حديثاً","WHOLESALE":"الجملة",
+"JOURNAL":"المجلة","OUR STORY":"قصتنا","CONTACT":"اتصل بنا",
+"New":"جديد","Feed":"الموجز","Shop All":"تسوق الكل","Kurtis":"كورتي",
+"Dresses":"فساتين","Wholesale":"الجملة",
+"Made in Jaipur":"صنع في جايبور",
+"Secure online payment":"دفع آمن عبر الإنترنت",
+"Add to Cart":"أضف إلى السلة","Buy Now":"اشتر الآن",
+"Wishlist":"المفضلة","Search":"بحث","Size":"المقاس","Quantity":"الكمية"
+}
+};
+
+const original=new WeakMap();
+
+function translate(){
+ const lang=window.BKLanguage?.get?.()||"en";
+ document.documentElement.lang=lang;
+ document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+
+ document.querySelectorAll("body *").forEach(el=>{
+   if(el.children.length || ["SCRIPT","STYLE","NOSCRIPT"].includes(el.tagName)) return;
+
+   if(!original.has(el)) original.set(el,el.textContent);
+
+   const base=original.get(el);
+   const key=base.trim();
+
+   if(lang==="en"){
+     el.textContent=base;
+   }else if(T[lang]?.[key]){
+     el.textContent=base.replace(key,T[lang][key]);
+   }
+ });
+}
+
+document.addEventListener("bk:language",translate);
+window.addEventListener("load",translate);
+
+const ob=new MutationObserver(()=>translate());
+ob.observe(document.body,{childList:true,subtree:true});
+})();
