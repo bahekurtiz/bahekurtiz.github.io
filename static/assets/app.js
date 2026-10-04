@@ -1416,3 +1416,453 @@ window.addEventListener("load",translate);
   document.addEventListener("bk:language", baheFrenchComplete);
   window.addEventListener("load", baheFrenchComplete);
 })();
+/* ===== BAHE 2050 COMPLETE SHOPPING LANGUAGE ===== */
+(() => {
+  "use strict";
+
+  const BK_FULL_TRANSLATIONS = {
+    hi: {
+      "Shop": "खरीदें",
+      "New Arrivals": "नए उत्पाद",
+      "Wholesale": "थोक",
+      "Our Story": "हमारी कहानी",
+      "Contact": "संपर्क",
+      "All": "सभी",
+      "New": "नया",
+      "Feed": "फीड",
+      "Kurtis": "कुर्तियाँ",
+      "Dresses": "ड्रेसेस",
+      "Add to Bag": "बैग में जोड़ें",
+      "Buy Now": "अभी खरीदें",
+      "Select Size": "साइज़ चुनें",
+      "Choose Size": "साइज़ चुनें",
+      "Size Guide": "साइज़ गाइड",
+      "Quantity": "मात्रा",
+      "In Stock": "स्टॉक में",
+      "Out of Stock": "स्टॉक खत्म",
+      "Product Details": "उत्पाद की जानकारी",
+      "Description": "विवरण",
+      "Shipping": "डिलीवरी",
+      "Delivery": "डिलीवरी",
+      "Wishlist": "पसंदीदा",
+      "Search": "खोजें",
+      "Cart": "बैग",
+      "Checkout": "चेकआउट",
+      "Continue Shopping": "खरीदारी जारी रखें",
+      "Order Summary": "ऑर्डर का विवरण",
+      "Total": "कुल",
+      "Subtotal": "उप-कुल",
+      "WhatsApp": "व्हाट्सऐप",
+      "WhatsApp Inquiry": "व्हाट्सऐप पर पूछें",
+      "Enquire on WhatsApp": "व्हाट्सऐप पर पूछें",
+      "Order help on WhatsApp": "ऑर्डर सहायता व्हाट्सऐप पर",
+      "Wholesale Inquiry": "थोक पूछताछ",
+      "Wholesale Enquiry": "थोक पूछताछ",
+      "Private Label": "आपके ब्रांड के नाम से",
+      "Export": "निर्यात",
+      "Made in Jaipur": "जयपुर में निर्मित",
+      "Made in India": "भारत में निर्मित",
+      "Shop Now": "अभी खरीदें",
+      "View Product": "उत्पाद देखें",
+      "View Details": "जानकारी देखें",
+      "Share": "शेयर करें",
+      "Share & Earn": "शेयर करें और कमाएँ",
+      "Ask Family": "परिवार से पूछें",
+      "Follow Bahe Kurtiz": "Bahe Kurtiz को फॉलो करें",
+      "Find your style in 3 taps": "3 टैप में अपनी पसंद खोजें",
+      "Fast India delivery": "भारत में तेज़ डिलीवरी",
+      "Secure online payment": "सुरक्षित ऑनलाइन भुगतान"
+    },
+
+    fr: {
+      "Shop": "Acheter",
+      "New Arrivals": "Nouveautés",
+      "Wholesale": "Vente en gros",
+      "Our Story": "Notre histoire",
+      "Contact": "Contact",
+      "All": "Tout",
+      "New": "Nouveau",
+      "Feed": "Fil",
+      "Kurtis": "Kurtis",
+      "Dresses": "Robes",
+      "Add to Bag": "Ajouter au panier",
+      "Buy Now": "Acheter maintenant",
+      "Select Size": "Choisir la taille",
+      "Choose Size": "Choisir la taille",
+      "Size Guide": "Guide des tailles",
+      "Quantity": "Quantité",
+      "In Stock": "En stock",
+      "Out of Stock": "Rupture de stock",
+      "Product Details": "Détails du produit",
+      "Description": "Description",
+      "Shipping": "Livraison",
+      "Delivery": "Livraison",
+      "Wishlist": "Favoris",
+      "Search": "Rechercher",
+      "Cart": "Panier",
+      "Checkout": "Commander",
+      "Continue Shopping": "Continuer mes achats",
+      "Order Summary": "Récapitulatif de commande",
+      "Total": "Total",
+      "Subtotal": "Sous-total",
+      "WhatsApp Inquiry": "Demander sur WhatsApp",
+      "Enquire on WhatsApp": "Demander sur WhatsApp",
+      "Order help on WhatsApp": "Aide commande sur WhatsApp",
+      "Wholesale Inquiry": "Demande de vente en gros",
+      "Wholesale Enquiry": "Demande de vente en gros",
+      "Private Label": "Marque privée",
+      "Export": "Exportation",
+      "Made in Jaipur": "Fabriqué à Jaipur",
+      "Made in India": "Fabriqué en Inde",
+      "Shop Now": "Acheter maintenant",
+      "View Product": "Voir le produit",
+      "View Details": "Voir les détails",
+      "Share": "Partager",
+      "Share & Earn": "Partagez et gagnez",
+      "Ask Family": "Demander à la famille",
+      "Follow Bahe Kurtiz": "Suivez Bahe Kurtiz",
+      "Find your style in 3 taps": "Trouvez votre style en 3 étapes",
+      "Fast India delivery": "Livraison rapide en Inde",
+      "Secure online payment": "Paiement en ligne sécurisé"
+    }
+  };
+  /* ===== Remaining BAHE languages ===== */
+
+  BK_FULL_TRANSLATIONS.de = {
+    "Shop":"Einkaufen",
+    "New Arrivals":"Neuheiten",
+    "Wholesale":"Großhandel",
+    "Our Story":"Unsere Geschichte",
+    "Contact":"Kontakt",
+    "All":"Alle",
+    "New":"Neu",
+    "Feed":"Feed",
+    "Kurtis":"Kurtis",
+    "Dresses":"Kleider",
+    "Add to Bag":"In den Warenkorb",
+    "Buy Now":"Jetzt kaufen",
+    "Select Size":"Größe wählen",
+    "Choose Size":"Größe wählen",
+    "Size Guide":"Größentabelle",
+    "Quantity":"Menge",
+    "In Stock":"Auf Lager",
+    "Out of Stock":"Ausverkauft",
+    "Product Details":"Produktdetails",
+    "Description":"Beschreibung",
+    "Shipping":"Versand",
+    "Delivery":"Lieferung",
+    "Wishlist":"Wunschliste",
+    "Search":"Suchen",
+    "Cart":"Warenkorb",
+    "Checkout":"Zur Kasse",
+    "Continue Shopping":"Weiter einkaufen",
+    "Order Summary":"Bestellübersicht",
+    "Total":"Gesamt",
+    "Subtotal":"Zwischensumme",
+    "WhatsApp Inquiry":"Auf WhatsApp anfragen",
+    "Enquire on WhatsApp":"Auf WhatsApp anfragen",
+    "Order help on WhatsApp":"Bestellhilfe über WhatsApp",
+    "Wholesale Inquiry":"Großhandelsanfrage",
+    "Wholesale Enquiry":"Großhandelsanfrage",
+    "Private Label":"Eigenmarke",
+    "Export":"Export",
+    "Made in Jaipur":"Hergestellt in Jaipur",
+    "Made in India":"Hergestellt in Indien",
+    "Shop Now":"Jetzt einkaufen",
+    "View Product":"Produkt ansehen",
+    "View Details":"Details ansehen",
+    "Share":"Teilen",
+    "Share & Earn":"Teilen & verdienen",
+    "Ask Family":"Familie fragen",
+    "Follow Bahe Kurtiz":"Bahe Kurtiz folgen",
+    "Find your style in 3 taps":"Finde deinen Stil in 3 Schritten",
+    "Fast India delivery":"Schnelle Lieferung in Indien",
+    "Secure online payment":"Sichere Online-Zahlung"
+  };
+
+  BK_FULL_TRANSLATIONS.es = {
+    "Shop":"Comprar",
+    "New Arrivals":"Novedades",
+    "Wholesale":"Venta al por mayor",
+    "Our Story":"Nuestra historia",
+    "Contact":"Contacto",
+    "All":"Todo",
+    "New":"Nuevo",
+    "Feed":"Novedades",
+    "Kurtis":"Kurtis",
+    "Dresses":"Vestidos",
+    "Add to Bag":"Añadir al carrito",
+    "Buy Now":"Comprar ahora",
+    "Select Size":"Elegir talla",
+    "Choose Size":"Elegir talla",
+    "Size Guide":"Guía de tallas",
+    "Quantity":"Cantidad",
+    "In Stock":"Disponible",
+    "Out of Stock":"Agotado",
+    "Product Details":"Detalles del producto",
+    "Description":"Descripción",
+    "Shipping":"Envío",
+    "Delivery":"Entrega",
+    "Wishlist":"Favoritos",
+    "Search":"Buscar",
+    "Cart":"Carrito",
+    "Checkout":"Finalizar compra",
+    "Continue Shopping":"Seguir comprando",
+    "Order Summary":"Resumen del pedido",
+    "Total":"Total",
+    "Subtotal":"Subtotal",
+    "WhatsApp Inquiry":"Consultar por WhatsApp",
+    "Enquire on WhatsApp":"Consultar por WhatsApp",
+    "Order help on WhatsApp":"Ayuda con pedidos por WhatsApp",
+    "Wholesale Inquiry":"Consulta mayorista",
+    "Wholesale Enquiry":"Consulta mayorista",
+    "Private Label":"Marca privada",
+    "Export":"Exportación",
+    "Made in Jaipur":"Hecho en Jaipur",
+    "Made in India":"Hecho en India",
+    "Shop Now":"Comprar ahora",
+    "View Product":"Ver producto",
+    "View Details":"Ver detalles",
+    "Share":"Compartir",
+    "Share & Earn":"Comparte y gana",
+    "Ask Family":"Preguntar a la familia",
+    "Follow Bahe Kurtiz":"Sigue a Bahe Kurtiz",
+    "Find your style in 3 taps":"Encuentra tu estilo en 3 pasos",
+    "Fast India delivery":"Entrega rápida en India",
+    "Secure online payment":"Pago seguro en línea"
+  };
+
+  BK_FULL_TRANSLATIONS.it = {
+    "Shop":"Acquista",
+    "New Arrivals":"Novità",
+    "Wholesale":"Ingrosso",
+    "Our Story":"La nostra storia",
+    "Contact":"Contatti",
+    "All":"Tutto",
+    "New":"Nuovo",
+    "Feed":"Feed",
+    "Kurtis":"Kurti",
+    "Dresses":"Abiti",
+    "Add to Bag":"Aggiungi al carrello",
+    "Buy Now":"Acquista ora",
+    "Select Size":"Scegli la taglia",
+    "Choose Size":"Scegli la taglia",
+    "Size Guide":"Guida alle taglie",
+    "Quantity":"Quantità",
+    "In Stock":"Disponibile",
+    "Out of Stock":"Esaurito",
+    "Product Details":"Dettagli prodotto",
+    "Description":"Descrizione",
+    "Shipping":"Spedizione",
+    "Delivery":"Consegna",
+    "Wishlist":"Preferiti",
+    "Search":"Cerca",
+    "Cart":"Carrello",
+    "Checkout":"Checkout",
+    "Continue Shopping":"Continua gli acquisti",
+    "Order Summary":"Riepilogo ordine",
+    "Total":"Totale",
+    "Subtotal":"Subtotale",
+    "WhatsApp Inquiry":"Richiedi su WhatsApp",
+    "Enquire on WhatsApp":"Richiedi su WhatsApp",
+    "Order help on WhatsApp":"Assistenza ordini su WhatsApp",
+    "Wholesale Inquiry":"Richiesta ingrosso",
+    "Wholesale Enquiry":"Richiesta ingrosso",
+    "Private Label":"Marchio privato",
+    "Export":"Esportazione",
+    "Made in Jaipur":"Realizzato a Jaipur",
+    "Made in India":"Realizzato in India",
+    "Shop Now":"Acquista ora",
+    "View Product":"Vedi prodotto",
+    "View Details":"Vedi dettagli",
+    "Share":"Condividi",
+    "Share & Earn":"Condividi e guadagna",
+    "Ask Family":"Chiedi alla famiglia",
+    "Follow Bahe Kurtiz":"Segui Bahe Kurtiz",
+    "Find your style in 3 taps":"Trova il tuo stile in 3 passaggi",
+    "Fast India delivery":"Consegna rapida in India",
+    "Secure online payment":"Pagamento online sicuro"
+  };
+
+  BK_FULL_TRANSLATIONS.ja = {
+    "Shop":"ショップ",
+    "New Arrivals":"新着商品",
+    "Wholesale":"卸売",
+    "Our Story":"私たちについて",
+    "Contact":"お問い合わせ",
+    "All":"すべて",
+    "New":"新着",
+    "Feed":"フィード",
+    "Kurtis":"クルティ",
+    "Dresses":"ドレス",
+    "Add to Bag":"カートに追加",
+    "Buy Now":"今すぐ購入",
+    "Select Size":"サイズを選択",
+    "Choose Size":"サイズを選択",
+    "Size Guide":"サイズガイド",
+    "Quantity":"数量",
+    "In Stock":"在庫あり",
+    "Out of Stock":"在庫切れ",
+    "Product Details":"商品詳細",
+    "Description":"説明",
+    "Shipping":"配送",
+    "Delivery":"お届け",
+    "Wishlist":"お気に入り",
+    "Search":"検索",
+    "Cart":"カート",
+    "Checkout":"購入手続き",
+    "Continue Shopping":"買い物を続ける",
+    "Order Summary":"注文内容",
+    "Total":"合計",
+    "Subtotal":"小計",
+    "WhatsApp Inquiry":"WhatsAppで問い合わせ",
+    "Enquire on WhatsApp":"WhatsAppで問い合わせ",
+    "Order help on WhatsApp":"WhatsAppで注文サポート",
+    "Wholesale Inquiry":"卸売のお問い合わせ",
+    "Wholesale Enquiry":"卸売のお問い合わせ",
+    "Private Label":"プライベートブランド",
+    "Export":"輸出",
+    "Made in Jaipur":"ジャイプール製",
+    "Made in India":"インド製",
+    "Shop Now":"今すぐ購入",
+    "View Product":"商品を見る",
+    "View Details":"詳細を見る",
+    "Share":"シェア",
+    "Share & Earn":"シェアして特典を獲得",
+    "Ask Family":"家族に相談",
+    "Follow Bahe Kurtiz":"Bahe Kurtizをフォロー",
+    "Find your style in 3 taps":"3ステップでスタイルを見つける",
+    "Fast India delivery":"インド国内迅速配送",
+    "Secure online payment":"安全なオンライン決済"
+  };
+
+  BK_FULL_TRANSLATIONS.ar = {
+    "Shop":"تسوق",
+    "New Arrivals":"وصل حديثاً",
+    "Wholesale":"الجملة",
+    "Our Story":"قصتنا",
+    "Contact":"اتصل بنا",
+    "All":"الكل",
+    "New":"جديد",
+    "Feed":"الموجز",
+    "Kurtis":"كورتي",
+    "Dresses":"فساتين",
+    "Add to Bag":"أضف إلى السلة",
+    "Buy Now":"اشتر الآن",
+    "Select Size":"اختر المقاس",
+    "Choose Size":"اختر المقاس",
+    "Size Guide":"دليل المقاسات",
+    "Quantity":"الكمية",
+    "In Stock":"متوفر",
+    "Out of Stock":"غير متوفر",
+    "Product Details":"تفاصيل المنتج",
+    "Description":"الوصف",
+    "Shipping":"الشحن",
+    "Delivery":"التوصيل",
+    "Wishlist":"المفضلة",
+    "Search":"بحث",
+    "Cart":"السلة",
+    "Checkout":"إتمام الشراء",
+    "Continue Shopping":"متابعة التسوق",
+    "Order Summary":"ملخص الطلب",
+    "Total":"الإجمالي",
+    "Subtotal":"المجموع الفرعي",
+    "WhatsApp Inquiry":"استفسر عبر واتساب",
+    "Enquire on WhatsApp":"استفسر عبر واتساب",
+    "Order help on WhatsApp":"مساعدة الطلب عبر واتساب",
+    "Wholesale Inquiry":"استفسار الجملة",
+    "Wholesale Enquiry":"استفسار الجملة",
+    "Private Label":"علامة تجارية خاصة",
+    "Export":"تصدير",
+    "Made in Jaipur":"صنع في جايبور",
+    "Made in India":"صنع في الهند",
+    "Shop Now":"تسوق الآن",
+    "View Product":"عرض المنتج",
+    "View Details":"عرض التفاصيل",
+    "Share":"مشاركة",
+    "Share & Earn":"شارك واكسب",
+    "Ask Family":"اسأل العائلة",
+    "Follow Bahe Kurtiz":"تابع Bahe Kurtiz",
+    "Find your style in 3 taps":"اعثر على أسلوبك في 3 خطوات",
+    "Fast India delivery":"توصيل سريع داخل الهند",
+    "Secure online payment":"دفع آمن عبر الإنترنت"
+  };
+
+  const bkOriginalText = new WeakMap();
+
+  function bkCompleteTranslate() {
+    const lang =
+      (window.BKLanguage && window.BKLanguage.get
+        ? window.BKLanguage.get()
+        : localStorage.getItem("bk_lang")) || "en";
+
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+
+    document.querySelectorAll("body *").forEach((el) => {
+      if (
+        el.children.length ||
+        ["SCRIPT","STYLE","NOSCRIPT","TEXTAREA"].includes(el.tagName)
+      ) return;
+
+      const current = (el.textContent || "").trim();
+      if (!current) return;
+
+      if (!bkOriginalText.has(el)) {
+        bkOriginalText.set(el, current);
+      }
+
+      const original = bkOriginalText.get(el);
+
+      if (lang === "en") {
+        el.textContent = original;
+        return;
+      }
+
+      const dict = BK_FULL_TRANSLATIONS[lang];
+      if (!dict) return;
+
+      if (dict[original]) {
+        el.textContent = dict[original];
+        return;
+      }
+
+      let translated = original;
+
+      Object.keys(dict)
+        .sort((a, b) => b.length - a.length)
+        .forEach((key) => {
+          if (translated.includes(key)) {
+            translated = translated.split(key).join(dict[key]);
+          }
+        });
+
+      if (translated !== original) {
+        el.textContent = translated;
+      }
+    });
+  }
+
+  let bkTranslateTimer = null;
+
+  function bkScheduleTranslation() {
+    clearTimeout(bkTranslateTimer);
+    bkTranslateTimer = setTimeout(bkCompleteTranslate, 120);
+  }
+
+  document.addEventListener("bk:language", bkScheduleTranslation);
+  window.addEventListener("load", bkScheduleTranslation);
+
+  const bkLanguageObserver = new MutationObserver(() => {
+    bkScheduleTranslation();
+  });
+
+  if (document.body) {
+    bkLanguageObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  window.BKCompleteTranslate = bkCompleteTranslate;
+})();
