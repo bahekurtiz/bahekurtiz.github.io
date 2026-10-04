@@ -1370,3 +1370,12 @@ window.addEventListener("load",translate);
 
 
 })();
+
+/* BAHE language stability fix */
+(() => {
+  document.documentElement.setAttribute("translate", "no");
+
+  document.addEventListener("bk:language", () => {
+    document.documentElement.lang = "en";
+  });
+})();
