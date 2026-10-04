@@ -912,3 +912,96 @@
     $("[data-mirror-wish]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } const w = getW(); liked.forEach((l) => { if (!w.includes(l.k)) w.push(l.k); }); setW(w); toast(`${liked.length} dress wishlist mein ♡`); });
   }
 })();
+// BAHE KURTIZ - Mera Size standalone fix
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("[data-fit-open]");
+  if (!btn) return;
+
+  e.preventDefault();
+
+  let old = document.getElementById("bk-mera-size");
+  if (old) old.remove();
+
+  const d = document.createElement("dialog");
+  d.id = "bk-mera-size";
+
+  d.innerHTML = `
+    <form method="dialog" style="padding:20px;min-width:min(360px,85vw)">
+      <h2 style="margin-top:0">✨ Mera Size</h2>
+      <p>Apni details bhariye, hum aapko best size suggest karenge.</p>
+
+      <label>Usually kaunsa size pehenti hain?</label><br>
+      <select id="bk-usual" style="width:100%;padding:10px;margin:6px 0 15px">
+        <option value="">Select size</option>
+        <option>XS</option>
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+        <option>XL</option>
+        <option>XXL</option>
+        <option>3XL</option>
+        <option>4XL</option>
+      </select>
+
+      <label>Bust measurement (inches)</label><br>
+      <input id="bk-bust" type="number" min="26" max="70"
+        placeholder="Example: 36"
+        style="width:100%;padding:10px;margin:6px 0 15px;box-sizing:border-box">
+
+      <label>Fitting preference</label><br>
+      <select id="bk-pref" style="width:100%;padding:10px;margin:6px 0 18px">
+        <option value="Regular">Regular Fit</option>
+        <option value="Loose">Loose Fit</option>
+        <option value="Snug">Snug Fit</option>
+      </select>
+
+      <button id="bk-save-fit" type="button" class="btn">
+        Mera Size Dikhao
+      </button>
+
+      <button value="cancel" class="btn btn-ghost">
+        Cancel
+      </button>
+
+      <div id="bk-fit-result" style="margin-top:15px;font-weight:700"></div>
+    </form>
+  `;
+
+  document.body.appendChild(d);
+
+  d.querySelector("#bk-save-fit").onclick = function () {
+    const usual = d.querySelector("#bk-usual").value;
+    const bust = Number(d.querySelector("#bk-bust").value);
+    const pref = d.querySelector("#bk-pref").value;
+
+    let size = usual;
+
+    if (bust) {
+      if (bust <= 34) size = "XS";
+      else if (bust <= 36) size = "S";
+      else if (bust <= 38) size = "M";
+      else if (bust <= 40) size = "L";
+      else if (bust <= 42) size = "XL";
+      else if (bust <= 44) size = "XXL";
+      else if (bust <= 46) size = "3XL";
+      else size = "4XL";
+    }
+
+    if (!size) {
+      d.querySelector("#bk-fit-result").textContent =
+        "Please size ya bust measurement select karein.";
+      return;
+    }
+
+    localStorage.setItem(
+      "bk_fit",
+      JSON.stringify({ usual: size, bust: bust || 0, pref })
+    );
+
+    d.querySelector("#bk-fit-result").textContent =
+      "✓ Recommended size: " + size;
+  };
+
+  if (typeof d.showModal === "function") d.showModal();
+  else d.setAttribute("open", "");
+});
