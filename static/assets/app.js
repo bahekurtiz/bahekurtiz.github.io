@@ -1368,6 +1368,5 @@ function translate(){
 document.addEventListener("bk:language",translate);
 window.addEventListener("load",translate);
 
-const ob=new MutationObserver(()=>translate());
-ob.observe(document.body,{childList:true,subtree:true});
+
 })();
