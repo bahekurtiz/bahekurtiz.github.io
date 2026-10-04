@@ -382,6 +382,7 @@ ${pixelBody}
       <a href="${u("contact/")}">Contact</a>
     </nav>
     <div class="nav-icons">
+      <button class="lang-btn" type="button" data-language aria-label="Choose language"><span data-lang-label>EN</span></button>
       ${intlOn ? `<button class="cur-btn" type="button" data-country aria-label="Change country and currency"><span data-cc-label><span class="cur-inr">🇮🇳 ₹</span><span class="cur-usd">🌍 $</span></span></button>` : ""}
       <button class="icon-btn" type="button" data-open-search aria-label="Search">${I.search}</button>
       <button class="icon-btn" type="button" data-open-login aria-label="My account">${I.user}<span class="acct-dot" data-acct-dot hidden></span></button>
@@ -398,6 +399,11 @@ ${pixelBody}
   ${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}
   <a href="${u("wholesale/")}">Wholesale & Private Label</a>
   <a href="${u("wishlist/")}">Wishlist</a>
+  <a href="${u("my-bahe/")}">✨ My BAHE</a>
+  <a href="${u("bahe-looks/")}">📸 BAHE Looks</a>
+  <a href="${u("design-with-bahe/")}">🗳 Design With BAHE</a>
+  <a href="${u("catalogue/")}">📖 Catalogue / PDF</a>
+  <button class="mnav-cur" type="button" data-language>🌐 Language: <b data-lang-name>English</b></button>
   <a href="${u("feed/")}">▶ Feed – watch & shop</a>
   <a href="${u("mirror/")}">🪞 Mirror – try your look</a>
   <a href="${u("craft/")}">🧵 Fabric & print guide</a>
@@ -473,6 +479,7 @@ ${waHi ? `<a class="wa-float" href="${esc(waHi)}" target="_blank" rel="noopener"
 </form>
 <div class="login-box login-done" data-login-done hidden><h2>Welcome, <span data-login-name></span>!</h2><p class="muted">You are signed in on this device. Your details will be filled at checkout.</p><a class="btn btn-wa btn-block" href="${u("refer/")}">🎁 Refer & Earn – get your link</a><button class="btn btn-ghost btn-block" type="button" data-logout>Sign out</button><button class="btn btn-block" type="button" data-close-login>Continue shopping</button></div>
 </dialog>
+<dialog class="country-modal lang-modal" data-lang-modal aria-label="Choose language"><div class="country-box"><button class="icon-btn login-x" type="button" data-close-language aria-label="Close">${I.close}</button><h2>Choose language</h2><p class="muted small">Your language is separate from your country and price. You can change it any time.</p><div class="lang-list" data-lang-list></div></div></dialog>
 ${intlOn ? `<dialog class="country-modal" data-country-modal aria-label="Choose your country"><div class="country-box"><button class="icon-btn login-x" type="button" data-close-country aria-label="Close">${I.close}</button><h2>Where should we ship?</h2><p class="muted small">Prices change to your country. International orders are charged in US $; local prices are approximate.</p><input type="search" placeholder="Search country – India, UK, UAE, USA…" data-country-q aria-label="Search country" autocomplete="off"><div class="country-list" data-country-list></div></div></dialog>` : ""}
 <dialog class="story-modal" data-story-modal aria-label="Story"><div class="story-stage" data-story-stage></div></dialog>
 <dialog class="finder-modal" data-finder aria-label="Style finder"><div class="finder-box"><button class="icon-btn login-x" type="button" data-close-finder aria-label="Close">${I.close}</button><div data-finder-body></div></div></dialog>
@@ -601,6 +608,7 @@ ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class=
   ${prints.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by print</p><div class="pills">${prints.map((x) => `<a class="pill" href="${u(qs("print", x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
   ${fabrics.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by fabric</p><div class="pills">${fabrics.map((x) => `<a class="pill" href="${u(craftUrl(x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
 </div></section>` : ""}
+<section class="wrap section growth-hub"><div class="section-head center"><p class="eyebrow">BAHE 2050 · more than shopping</p><h2>Play, create, share & come back</h2></div><div class="growth-grid"><a href="${u("my-bahe/")}"><b>✨ My BAHE</b><span>Your picks, size, wishlist & recent styles</span></a><a href="${u("bahe-looks/")}"><b>📸 BAHE Looks</b><span>Try a look, make a card and share it</span></a><a href="${u("design-with-bahe/")}"><b>🗳 Design With BAHE</b><span>Vote for the next colour and drop</span></a><a href="${u("catalogue/")}"><b>📖 Catalogue / PDF</b><span>Share or save the collection as PDF</span></a><a href="${u("refer/")}"><b>🎁 Share & Earn</b><span>Bring a friend with your personal link</span></a><a href="${u("mirror/")}"><b>🪞 Mirror</b><span>Try looks on your own photo</span></a></div></section>
 <section class="b2b">
   <div class="wrap b2b-grid">
     <div>
@@ -986,6 +994,23 @@ ${more.length ? `<section class="wrap section"><div class="section-head"><h2>Mor
   }));
 }
 
+
+// ---------- BAHE 2050 growth experiences ----------
+{
+  const myBody = `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Your personal BAHE space</p><h1>✨ My BAHE</h1><p class="lead">Your size, wishlist, recently viewed styles and personal recommendations — on this device.</p></div></section><section class="wrap section" data-my-bahe><div class="growth-grid"><a href="${u("wishlist/")}"><b>♡ My Wishlist</b><span>Your saved styles</span></a><a href="${u("mirror/")}"><b>🪞 Mirror</b><span>Try your favourites on your photo</span></a><a href="${u("feed/")}"><b>▶ Watch & Shop</b><span>Discover styles like a reel feed</span></a><a href="${u("refer/")}"><b>🎁 My Share & Earn</b><span>Get your personal referral link</span></a></div><div class="section-head"><div><p class="eyebrow">Because you looked</p><h2>Your personal picks</h2></div></div><div class="grid" data-my-picks></div><div class="terms-box" data-my-size-note></div></section>`;
+  add("my-bahe/index.html", page({title:`My BAHE | ${brand}`,description:`Your personal ${brand} shopping space: wishlist, recent styles, size and recommendations.`,pathname:"my-bahe/",bodyClass:"my-bahe-page",body:myBody}));
+
+  const looksBody = `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Community · your style</p><h1>📸 BAHE Looks</h1><p class="lead">Make your own look card. Your photo stays on your phone unless you choose to share it.</p></div></section><section class="wrap section looks-maker" data-looks-maker><label class="upload-card"><b>1 · Choose your photo</b><input type="file" accept="image/*" data-look-photo><span>Nothing uploads automatically.</span></label><label><b>2 · Add a short caption</b><input type="text" maxlength="80" data-look-caption placeholder="Festive look ✨"></label><div class="look-preview" data-look-preview hidden><img alt="Your BAHE look" data-look-img><p data-look-text></p></div><div class="hero-cta"><button class="btn" type="button" data-look-share disabled>Share my BAHE Look</button><a class="btn btn-ghost" href="${u("mirror/")}">Try Mirror first</a></div><p class="muted small">When you tap Share, your phone's share sheet opens. You decide where the image goes.</p></section>`;
+  add("bahe-looks/index.html", page({title:`BAHE Looks – Customer Style Community | ${brand}`,description:`Create and share your ${brand} look while keeping photo sharing under your control.`,pathname:"bahe-looks/",bodyClass:"looks-page",body:looksBody}));
+
+  const designBody = `<section class="refer-hero"><div class="wrap"><p class="eyebrow">You help create what comes next</p><h1>🗳 Design With BAHE</h1><p class="lead">Vote for the next colour, fabric mood and drop. We use real customer interest to plan new designs.</p></div></section><section class="wrap section"><form class="b2b-form" data-design-vote><label>Next colour<select name="colour"><option>Bottle Green</option><option>Rani Pink</option><option>Indigo Blue</option><option>Ivory</option><option>Black</option></select></label><label>Next mood<select name="mood"><option>Everyday Cotton</option><option>Festive Embroidery</option><option>Hand Block Print</option><option>Elegant Co-ord</option><option>Anarkali</option></select></label><label>What should we make?<textarea name="idea" rows="3" maxlength="180" placeholder="Tell us your idea…"></textarea></label><button class="btn btn-block" type="submit">Vote for the next BAHE drop</button><p class="muted small" data-vote-msg>Your vote helps us decide what to sample next.</p></form><div class="follow-cta drop-card"><div><p class="eyebrow">Coming soon</p><h2>First access to the winning drop</h2><p>Follow BAHE and we can tell you when the selected design goes live.</p></div><button class="btn" type="button" data-follow><span data-follow-label>＋ Follow</span></button></div></section>`;
+  add("design-with-bahe/index.html", page({title:`Design With BAHE – Vote for New Drops | ${brand}`,description:`Vote for future ${brand} colours, moods and fashion drops.`,pathname:"design-with-bahe/",bodyClass:"design-page",body:designBody}));
+
+  const catCards = products.slice(0,80).map((p)=>`<article class="cat-print"><img src="${esc(u(p.images[0]))}" alt="${esc(p.title)}" loading="lazy"><h3>${esc(p.title)}</h3><p>${priceHtml(p)}</p><small>${esc([p.fabric,p.print_work?.[0]].filter(Boolean).join(" · "))}</small></article>`).join("");
+  const catalogueBody = `<section class="refer-hero no-print"><div class="wrap"><p class="eyebrow">Shareable collection</p><h1>📖 BAHE Catalogue</h1><p class="lead">Open this page, then Print / Save as PDF. Prices remain India and international business prices from the same product source.</p><div class="hero-cta"><button class="btn" type="button" data-print-catalogue>Save / Print PDF</button>${waNumber?`<a class="btn btn-wa" target="_blank" rel="noopener" href="${esc(waLink(`Hi ${brand}! Please send me your latest catalogue.`))}">${I.wa} Ask for catalogue</a>`:""}</div></div></section><section class="wrap section catalogue-print"><header class="catalogue-head"><h1>${esc(brand)}</h1><p>Made in Sanganer, Jaipur · Retail · Worldwide · Wholesale & Private Label</p></header><div class="catalogue-grid">${catCards}</div><footer><p>${esc(S.phone||"")} ${S.email?`· ${esc(S.email)}`:""} · ${SITE_URL}</p></footer></section>`;
+  add("catalogue/index.html", page({title:`Latest Catalogue | ${brand}`,description:`Browse and save the latest ${brand} Jaipur ethnic wear catalogue as PDF.`,pathname:"catalogue/",bodyClass:"catalogue-page",body:catalogueBody}));
+}
+
 // ---------- SEO landing pages (content/landing/*.json) – rank for "manufacturer / wholesale" searches ----------
 for (const l of landings) {
   const words = String(l.match || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
@@ -1201,7 +1226,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...categories.map((c) => c.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "refer/", "gift-card/", "feed/", "mirror/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...categories.map((c) => c.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "refer/", "gift-card/", "feed/", "mirror/", "craft/", "my-bahe/", "bahe-looks/", "design-with-bahe/", "catalogue/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x); return `<url><loc>${SITE_URL}/${x}</loc>${bp ? `<lastmod>${bp.date}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
