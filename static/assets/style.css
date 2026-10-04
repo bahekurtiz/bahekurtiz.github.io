@@ -965,3 +965,31 @@ html:not(.usd) .gc-amts .cur-usd{display:none!important}html.usd .gc-amts .cur-i
     transform:scale(.985);
   }
 }
+
+/* BAHE Language Button Position Fix */
+header .lang-btn,
+.site-header .lang-btn,
+.header .lang-btn{
+  position:absolute;
+  right:14px;
+  top:58px;
+  z-index:30;
+}
+
+@media (min-width:901px){
+  header .lang-btn,
+  .site-header .lang-btn,
+  .header .lang-btn{
+    right:18px;
+    top:62px;
+  }
+}
+
+@media (max-width:900px){
+  header .lang-btn,
+  .site-header .lang-btn,
+  .header .lang-btn{
+    right:56px;
+    top:54px;
+  }
+}
