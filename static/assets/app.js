@@ -1226,3 +1226,44 @@ document.addEventListener("click", async function (e) {
 
 })();
 
+/* ===== BAHE LANGUAGE SELECTOR FINAL ===== */
+(() => {
+  if (!window.BKLanguage || document.querySelector("#baheLangBtn")) return;
+
+  const langs = window.BKLanguage.languages;
+
+  const btn = document.createElement("button");
+  btn.id = "baheLangBtn";
+  btn.type = "button";
+  btn.textContent = langs[window.BKLanguage.get()]?.short || "EN";
+  btn.style.cssText =
+    "position:fixed;right:18px;top:105px;z-index:9999;padding:9px 13px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-weight:600";
+
+  const box = document.createElement("div");
+  box.style.cssText =
+    "display:none;position:fixed;right:18px;top:150px;z-index:10000;background:white;border:1px solid #ddd;border-radius:14px;padding:12px;box-shadow:0 8px 30px #0002;min-width:180px";
+
+  box.innerHTML = Object.entries(langs).map(([code,l]) =>
+    `<button type="button" data-bahe-lang="${code}" style="display:block;width:100%;padding:10px;border:0;background:white;text-align:left;cursor:pointer">${l.name}</button>`
+  ).join("");
+
+  btn.onclick = () => {
+    box.style.display = box.style.display === "none" ? "block" : "none";
+  };
+
+  box.onclick = e => {
+    const x = e.target.closest("[data-bahe-lang]");
+    if (!x) return;
+
+    const code = x.dataset.baheLang;
+
+    localStorage.setItem("bk_lang", code);
+    localStorage.setItem("bk_lang_manual", "1");
+
+    window.BKLanguage.set(code, true);
+
+    location.reload();
+  };
+
+  document.body.append(btn, box);
+})();
