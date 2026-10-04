@@ -1136,3 +1136,92 @@ document.addEventListener("click", async function (e) {
     "_blank"
   );
 }, true);
+/* ===== BAHE 2050 LANGUAGE ENGINE — PART 1 ===== */
+(() => {
+  "use strict";
+
+  const BK_LANGS = {
+    en: { name: "English", short: "EN", dir: "ltr" },
+    hi: { name: "हिन्दी", short: "हि", dir: "ltr" },
+    fr: { name: "Français", short: "FR", dir: "ltr" },
+    de: { name: "Deutsch", short: "DE", dir: "ltr" },
+    es: { name: "Español", short: "ES", dir: "ltr" },
+    it: { name: "Italiano", short: "IT", dir: "ltr" },
+    ja: { name: "日本語", short: "日", dir: "ltr" },
+    ar: { name: "العربية", short: "AR", dir: "rtl" }
+  };
+
+  const BK_COUNTRY_LANG = {
+    IN:"en",
+    FR:"fr",
+    DE:"de", AT:"de", CH:"de",
+    ES:"es", MX:"es", AR:"es", CO:"es", CL:"es", PE:"es",
+    IT:"it",
+    JP:"ja",
+    AE:"ar", SA:"ar", QA:"ar", KW:"ar", BH:"ar", OM:"ar"
+  };
+
+  function bkGetLanguage() {
+    try {
+      const saved = localStorage.getItem("bk_lang");
+      if (saved && BK_LANGS[saved]) return saved;
+    } catch (e) {}
+
+    const browser = (navigator.language || "en")
+      .toLowerCase()
+      .split("-")[0];
+
+    return BK_LANGS[browser] ? browser : "en";
+  }
+
+  let bkLanguage = bkGetLanguage();
+
+  function bkSaveLanguage(code) {
+    if (!BK_LANGS[code]) code = "en";
+
+    bkLanguage = code;
+
+    try {
+      localStorage.setItem("bk_lang", code);
+      localStorage.setItem("bk_lang_manual", "1");
+    } catch (e) {}
+
+    document.documentElement.lang = code;
+    document.documentElement.dir = BK_LANGS[code].dir;
+
+    document.dispatchEvent(
+      new CustomEvent("bk:language", {
+        detail: { language: code }
+      })
+    );
+  }
+
+  document.documentElement.lang = bkLanguage;
+  document.documentElement.dir = BK_LANGS[bkLanguage].dir;
+
+  window.BKLanguage = {
+    languages: BK_LANGS,
+    countryLanguage: BK_COUNTRY_LANG,
+    get: () => bkLanguage,
+    set: bkSaveLanguage
+  };function bkApplyLanguage() {
+    const L = BK_LANGS[bkLanguage] || BK_LANGS.en;
+
+    document.documentElement.lang = bkLanguage;
+    document.documentElement.dir = L.dir;
+
+    document.querySelectorAll("[data-lang-label]").forEach((el) => {
+      el.textContent = L.short;
+    });
+
+    document.querySelectorAll("[data-lang-name]").forEach((el) => {
+      el.textContent = L.name;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", bkApplyLanguage);
+  document.addEventListener("bk:language", bkApplyLanguage);
+
+  window.BKLanguage.apply = bkApplyLanguage;
+
+})();
