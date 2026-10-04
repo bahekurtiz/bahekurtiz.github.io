@@ -888,3 +888,80 @@ html:not(.usd) .gc-amts .cur-usd{display:none!important}html.usd .gc-amts .cur-i
 .studio-b{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;font-size:.85rem}.studio-bh{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px}.studio-b pre{white-space:pre-wrap;word-break:break-word;margin:0;font:inherit}.studio-b ol{margin:6px 0 0;padding-left:18px}
 .studio-imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.studio-imgs figure{margin:0;display:grid;gap:6px}.studio-imgs canvas{width:100%;height:auto;border-radius:10px;background:var(--sand)}
 .studio-imgs figure{align-content:start}
+
+
+/* ===== BAHE 2050 PREMIUM UI ===== */
+
+.lang-btn{
+  min-width:42px;
+  height:40px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:transparent;
+  color:var(--ink);
+  font:600 .78rem/1 Jost,sans-serif;
+  letter-spacing:.05em;
+  cursor:pointer;
+}
+
+.lang-btn:hover,
+.lang-btn:focus-visible{
+  background:var(--sand);
+}
+
+.lang-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:18px;
+}
+
+.lang-list button{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--ink);
+  cursor:pointer;
+}
+
+.lang-list button:hover,
+.lang-list button.on{
+  border-color:var(--accent);
+}
+
+@media(max-width:700px){
+  .lang-btn{
+    min-width:38px;
+    height:38px;
+  }
+
+  .lang-list{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(prefers-reduced-motion:no-preference){
+  .card,
+  .reel,
+  .btn,
+  .pill,
+  .lang-btn{
+    transition:
+      transform .16s ease,
+      box-shadow .16s ease,
+      border-color .16s ease,
+      background-color .16s ease;
+  }
+
+  .card:active,
+  .reel:active,
+  .btn:active{
+    transform:scale(.985);
+  }
+}
