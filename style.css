@@ -819,4 +819,250 @@ html:not(.usd) .gc-amts .cur-usd{display:none!important}html.usd .gc-amts .cur-i
 .mirror-picks span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mirror-tools{display:grid;gap:8px;margin:14px 0;font-size:.85rem}.mirror-tools input{width:100%;accent-color:var(--accent)}
 .mirror-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:12px}
-.mirror-board figure{margin:0;font-size:.72rem}.mirror-board img{width:100%;border-radius:8px}
+.mirror-board figure{margin:0;font-size:.72rem}.mirror-board img{width:100%;border-radius:8px} 
+/* =========================================================
+   BAHE KURTIZ — LUXURY UI 3.0
+   Safe visual enhancement layer
+   Existing functionality remains untouched
+   ========================================================= */
+
+/* Premium design tokens */
+:root{
+  --bk-lux-bg:#fffdfb;
+  --bk-lux-surface:#ffffff;
+  --bk-lux-soft:#f7f3ee;
+  --bk-lux-ink:#211b18;
+  --bk-lux-muted:#746d68;
+  --bk-lux-line:#ebe4dc;
+  --bk-lux-accent:#8f4f45;
+  --bk-lux-radius:18px;
+  --bk-lux-radius-lg:26px;
+  --bk-lux-shadow:0 12px 38px rgba(35,24,21,.07);
+}
+
+/* Overall storefront — airy & premium */
+body{
+  background:var(--bk-lux-bg);
+  color:var(--bk-lux-ink);
+}
+
+.wrap{
+  max-width:1320px;
+  padding-inline:clamp(16px,4vw,52px);
+}
+
+main{
+  overflow:hidden;
+}
+
+.section{
+  padding-block:clamp(48px,7vw,96px);
+}
+
+/* Elegant headings */
+main h1,
+main h2,
+main h3{
+  text-wrap:balance;
+}
+
+main h1{
+  letter-spacing:-.025em;
+}
+
+main h2{
+  letter-spacing:-.018em;
+}
+
+.section-heading,
+.section-head{
+  margin-bottom:clamp(20px,3vw,34px);
+}
+
+/* Premium header */
+.site-header{
+  background:rgba(255,253,251,.94);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+
+.nav{
+  min-height:72px;
+}
+
+.logo{
+  letter-spacing:.06em;
+}
+
+/* Cleaner navigation */
+.main-nav a{
+  position:relative;
+}
+
+.main-nav a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:100%;
+  bottom:-5px;
+  height:1px;
+  background:currentColor;
+  transition:right .25s ease;
+}
+
+.main-nav a:hover::after{
+  right:0;
+}
+
+/* Luxury buttons */
+.btn{
+  min-height:46px;
+  border-radius:999px;
+  padding-inline:22px;
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 24px rgba(35,24,21,.12);
+}
+
+.btn:active{
+  transform:translateY(0);
+}
+
+/* Product cards — cleaner boutique appearance */
+.card{
+  background:transparent;
+}
+
+.card img{
+  transition:transform .45s cubic-bezier(.2,.7,.2,1);
+}
+
+@media (hover:hover){
+  .card:hover img{
+    transform:scale(1.025);
+  }
+}
+
+.card .price,
+.price{
+  letter-spacing:-.01em;
+}
+
+/* Images feel softer and more editorial */
+main img{
+  image-rendering:auto;
+}
+
+/* Form controls */
+input,
+select,
+textarea{
+  border-color:var(--bk-lux-line);
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none;
+  border-color:var(--bk-lux-accent);
+  box-shadow:0 0 0 3px rgba(143,79,69,.09);
+}
+
+/* Drawer/modal polish without changing behaviour */
+.drawer,
+dialog{
+  --bk-panel-bg:#fffdfb;
+}
+
+.drawer-body{
+  scrollbar-width:thin;
+}
+
+/* Stories remain horizontal but feel less cramped */
+.stories-row{
+  gap:clamp(12px,2vw,20px);
+}
+
+.story-ring{
+  box-shadow:0 3px 14px rgba(35,24,21,.08);
+}
+
+/* Watch & Shop/feed remains functionally unchanged */
+.feed{
+  box-shadow:0 18px 55px rgba(0,0,0,.14);
+}
+
+/* Mirror — preserve mechanics, improve surrounding feel */
+.mirror{
+  gap:clamp(20px,4vw,44px);
+}
+
+.mirror-stage{
+  box-shadow:var(--bk-lux-shadow);
+}
+
+/* Footer breathing room */
+.site-footer{
+  margin-top:clamp(50px,8vw,110px);
+}
+
+/* Mobile-first luxury spacing */
+@media (max-width:700px){
+  .wrap{
+    padding-inline:16px;
+  }
+
+  .section{
+    padding-block:44px;
+  }
+
+  .nav{
+    min-height:64px;
+  }
+
+  main h1{
+    line-height:1.05;
+  }
+
+  main h2{
+    line-height:1.12;
+  }
+
+  .btn{
+    min-height:46px;
+  }
+
+  .stories{
+    padding-block:14px;
+  }
+
+  .stories-row{
+    padding-inline:16px;
+  }
+}
+
+/* Desktop — spacious boutique layout */
+@media (min-width:1100px){
+  .section{
+    padding-block:88px;
+  }
+
+  .nav{
+    min-height:76px;
+  }
+}
+
+/* Accessibility: respect reduced-motion preference */
+@media (prefers-reduced-motion:reduce){
+  .btn,
+  .card img,
+  .main-nav a::after{
+    transition:none!important;
+  }
+}
