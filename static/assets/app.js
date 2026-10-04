@@ -1090,3 +1090,49 @@ document.addEventListener("click", function (e) {
     code: makeRef
   };
 })();
+// BAHE KURTIZ — Referral Share Patch
+document.addEventListener("click", async function (e) {
+  const b = e.target.closest("button, a");
+  if (!b) return;
+
+  const name = (b.textContent || "").trim().toLowerCase();
+
+  if (
+    !name.includes("copy link") &&
+    !name.includes("ask family") &&
+    !name.includes("whatsapp status")
+  ) return;
+
+  const code =
+    localStorage.getItem("bk_ref_code") ||
+    ("BK" + Math.random().toString(36).slice(2, 8).toUpperCase());
+
+  localStorage.setItem("bk_ref_code", code);
+
+  const u = new URL(location.href);
+  u.searchParams.set("ref", code);
+  const link = u.toString();
+
+  // Copy Link
+  if (name.includes("copy link")) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    await navigator.clipboard.writeText(link);
+    alert("✓ Referral link copied!");
+    return;
+  }
+
+  // Ask Family / WhatsApp Status
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  const msg =
+    "✨ BAHE KURTIZ Jaipur\n" +
+    "Ye look dekhiye 💛\n" +
+    link;
+
+  window.open(
+    "https://wa.me/?text=" + encodeURIComponent(msg),
+    "_blank"
+  );
+}, true);
