@@ -11,8 +11,94 @@
   const unit = (p) => (isUSD() ? p.price_usd : p.price);
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
 
+  // ---------- 2050 language layer: country, language and pricing stay independent ----------
+  // A language pack is applied as one unit. If a pack is unavailable we use English,
+  // rather than mixing partially translated controls with another language.
+  const LANGS = {
+    en: { name:"English", short:"EN", dir:"ltr" },
+    hi: { name:"हिन्दी", short:"हि", dir:"ltr" },
+    fr: { name:"Français", short:"FR", dir:"ltr" },
+    de: { name:"Deutsch", short:"DE", dir:"ltr" },
+    es: { name:"Español", short:"ES", dir:"ltr" },
+    it: { name:"Italiano", short:"IT", dir:"ltr" },
+    ja: { name:"日本語", short:"日", dir:"ltr" },
+    ar: { name:"العربية", short:"AR", dir:"rtl" }
+  };
+  const COUNTRY_LANG = { IN:"en", FR:"fr", DE:"de", AT:"de", CH:"de", ES:"es", MX:"es", AR:"es", CO:"es", CL:"es", PE:"es", IT:"it", JP:"ja", AE:"ar", SA:"ar", QA:"ar", KW:"ar", BH:"ar", OM:"ar", EG:"ar", MA:"ar" };
+  const UI = {
+    hi: {
+      "Home":"होम","Shop":"खरीदें","Search":"खोजें","Wishlist":"पसंद","Bag":"बैग","Shop All":"सभी खरीदें","Our Story":"हमारी कहानी","Contact":"संपर्क",
+      "Your Bag":"आपका बैग","Your bag is empty.":"आपका बैग खाली है।","Subtotal":"कुल सामान","Checkout":"चेकआउट","Delivery details":"डिलीवरी विवरण",
+      "Full name":"पूरा नाम","Mobile number":"मोबाइल नंबर","Email (optional)":"ईमेल (वैकल्पिक)","City":"शहर","State":"राज्य","Continue":"आगे बढ़ें",
+      "Choose language":"भाषा चुनें","Language":"भाषा","Change":"बदलें","Close":"बंद करें","Made in Jaipur":"जयपुर में निर्मित","Secure prepaid payments":"सुरक्षित प्रीपेड भुगतान",
+      "Ships worldwide":"दुनिया भर में डिलीवरी","Pan-India delivery":"पूरे भारत में डिलीवरी","Refer & Earn":"रेफर करें और कमाएँ","My account / Sign in":"मेरा अकाउंट / साइन इन"
+    },
+    fr: {
+      "Home":"Accueil","Shop":"Boutique","Search":"Rechercher","Wishlist":"Favoris","Bag":"Panier","Shop All":"Tout acheter","Our Story":"Notre histoire","Contact":"Contact",
+      "Your Bag":"Votre panier","Your bag is empty.":"Votre panier est vide.","Subtotal":"Sous-total","Checkout":"Paiement","Delivery details":"Adresse de livraison",
+      "Full name":"Nom complet","Mobile number":"Téléphone","City":"Ville","State":"Région","Continue":"Continuer","Choose language":"Choisir la langue","Language":"Langue","Change":"Modifier","Close":"Fermer",
+      "Made in Jaipur":"Fabriqué à Jaipur","Secure prepaid payments":"Paiement sécurisé","Ships worldwide":"Livraison mondiale","Pan-India delivery":"Livraison dans toute l’Inde","Refer & Earn":"Parrainer et gagner","My account / Sign in":"Mon compte / Connexion"
+    },
+    de: {
+      "Home":"Start","Shop":"Shop","Search":"Suchen","Wishlist":"Wunschliste","Bag":"Warenkorb","Shop All":"Alles shoppen","Our Story":"Unsere Geschichte","Contact":"Kontakt",
+      "Your Bag":"Ihr Warenkorb","Your bag is empty.":"Ihr Warenkorb ist leer.","Subtotal":"Zwischensumme","Checkout":"Kasse","Delivery details":"Lieferdetails",
+      "Full name":"Vollständiger Name","Mobile number":"Telefon","City":"Stadt","State":"Bundesland/Region","Continue":"Weiter","Choose language":"Sprache wählen","Language":"Sprache","Change":"Ändern","Close":"Schließen",
+      "Made in Jaipur":"Hergestellt in Jaipur","Secure prepaid payments":"Sichere Vorauszahlung","Ships worldwide":"Weltweiter Versand","Pan-India delivery":"Lieferung in ganz Indien","Refer & Earn":"Empfehlen & verdienen","My account / Sign in":"Mein Konto / Anmelden"
+    },
+    es: {
+      "Home":"Inicio","Shop":"Tienda","Search":"Buscar","Wishlist":"Favoritos","Bag":"Bolsa","Shop All":"Ver todo","Our Story":"Nuestra historia","Contact":"Contacto",
+      "Your Bag":"Tu bolsa","Your bag is empty.":"Tu bolsa está vacía.","Subtotal":"Subtotal","Checkout":"Pagar","Delivery details":"Datos de entrega",
+      "Full name":"Nombre completo","Mobile number":"Teléfono","City":"Ciudad","State":"Estado/Región","Continue":"Continuar","Choose language":"Elegir idioma","Language":"Idioma","Change":"Cambiar","Close":"Cerrar",
+      "Made in Jaipur":"Hecho en Jaipur","Secure prepaid payments":"Pago seguro","Ships worldwide":"Envíos a todo el mundo","Pan-India delivery":"Envíos en toda India","Refer & Earn":"Recomienda y gana","My account / Sign in":"Mi cuenta / Iniciar sesión"
+    },
+    it: {
+      "Home":"Home","Shop":"Negozio","Search":"Cerca","Wishlist":"Preferiti","Bag":"Borsa","Shop All":"Acquista tutto","Our Story":"La nostra storia","Contact":"Contatti",
+      "Your Bag":"La tua borsa","Your bag is empty.":"La tua borsa è vuota.","Subtotal":"Subtotale","Checkout":"Pagamento","Delivery details":"Dati di consegna",
+      "Full name":"Nome completo","Mobile number":"Telefono","City":"Città","State":"Regione","Continue":"Continua","Choose language":"Scegli la lingua","Language":"Lingua","Change":"Cambia","Close":"Chiudi",
+      "Made in Jaipur":"Realizzato a Jaipur","Secure prepaid payments":"Pagamento sicuro","Ships worldwide":"Spedizione mondiale","Pan-India delivery":"Consegna in tutta l’India","Refer & Earn":"Invita e guadagna","My account / Sign in":"Il mio account / Accedi"
+    },
+    ja: {
+      "Home":"ホーム","Shop":"ショップ","Search":"検索","Wishlist":"お気に入り","Bag":"バッグ","Shop All":"すべて見る","Our Story":"私たちについて","Contact":"お問い合わせ",
+      "Your Bag":"ショッピングバッグ","Your bag is empty.":"バッグは空です。","Subtotal":"小計","Checkout":"購入手続き","Delivery details":"配送先情報",
+      "Full name":"お名前","Mobile number":"電話番号","City":"市区町村","State":"都道府県","Continue":"続ける","Choose language":"言語を選択","Language":"言語","Change":"変更","Close":"閉じる",
+      "Made in Jaipur":"ジャイプール製","Secure prepaid payments":"安全な事前決済","Ships worldwide":"世界各国へ配送","Pan-India delivery":"インド全土へ配送","Refer & Earn":"紹介して特典を獲得","My account / Sign in":"アカウント / ログイン"
+    },
+    ar: {
+      "Home":"الرئيسية","Shop":"تسوق","Search":"بحث","Wishlist":"المفضلة","Bag":"الحقيبة","Shop All":"تسوق الكل","Our Story":"قصتنا","Contact":"اتصل بنا",
+      "Your Bag":"حقيبتك","Your bag is empty.":"حقيبتك فارغة.","Subtotal":"المجموع الفرعي","Checkout":"إتمام الشراء","Delivery details":"بيانات التوصيل",
+      "Full name":"الاسم الكامل","Mobile number":"رقم الهاتف","City":"المدينة","State":"المنطقة","Continue":"متابعة","Choose language":"اختر اللغة","Language":"اللغة","Change":"تغيير","Close":"إغلاق",
+      "Made in Jaipur":"صُنع في جايبور","Secure prepaid payments":"دفع مسبق آمن","Ships worldwide":"شحن إلى جميع أنحاء العالم","Pan-India delivery":"توصيل في جميع أنحاء الهند","Refer & Earn":"شارك واربح","My account / Sign in":"حسابي / تسجيل الدخول"
+    }
+  };
+  const getLang = () => { try { const x = localStorage.getItem("bk_lang"); return LANGS[x] ? x : ""; } catch { return ""; } };
+  let lang = getLang() || "en";
+  const ORIGINAL = new WeakMap();
+  const translateUI = (root=document) => {
+    const pack = UI[lang] || {};
+    document.documentElement.lang = lang;
+    document.documentElement.dir = LANGS[lang].dir;
+    $$("[data-lang-label]").forEach(x => x.textContent = LANGS[lang].short);
+    $$("[data-lang-name]").forEach(x => x.textContent = LANGS[lang].name);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let n; while ((n = w.nextNode())) {
+      if (n.parentElement?.closest("script,style,textarea,[data-no-translate]") || n.parentElement?.matches("[data-lang-label],[data-lang-name]")) continue;
+      const raw = ORIGINAL.get(n) ?? n.nodeValue;
+      if (!ORIGINAL.has(n)) ORIGINAL.set(n, raw);
+      const lead = raw.match(/^\\s*/)?.[0] || "", trail = raw.match(/\\s*$/)?.[0] || "", key = raw.trim();
+      if (!key) continue;
+      n.nodeValue = lead + (lang === "en" ? key : (pack[key] || key)) + trail;
+    }
+  };
+  const setLang = (code, manual=true) => {
+    lang = LANGS[code] ? code : "en";
+    try { localStorage.setItem("bk_lang", lang); if (manual) localStorage.setItem("bk_lang_manual","1"); } catch {}
+    translateUI();
+    document.dispatchEvent(new CustomEvent("bk:language", { detail:{ lang } }));
+  };
+
   // ---------- Meta Pixel events (only if pixel is on) ----------
-  const track = (ev, data) => { try { window.fbq && window.fbq("track", ev, data); } catch {} };
+  const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
+  const track = (ev, data = {}, id) => { try { window.fbq && window.fbq("track", ev, data, id ? { eventID: id } : undefined); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
 
   // ---------- storage (safe) ----------
   const KEY = "bk_bag_v1";
@@ -33,7 +119,7 @@
   const setUser = (x) => { try { x ? localStorage.setItem(UK, JSON.stringify(x)) : localStorage.removeItem(UK); } catch {} paintUser(); };
   const sendSheet = (data) => { if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
   function saveCustomer(f, type, extra = {}) {
-    const consent = !!document.querySelector("[data-co-consent]")?.checked || !!getUser()?.consent;
+    const coc = document.querySelector("[data-co-consent]"); const consent = coc ? coc.checked : !!getUser()?.consent;
     const u0 = getUser() || {};
     setUser({ ...u0, name: f.name || u0.name, phone: f.phone || u0.phone, email: f.email || u0.email, city: f.city || u0.city, state: f.state || u0.state, pincode: f.pincode || u0.pincode, address: f.address || u0.address, country: f.country || u0.country || "", consent });
     sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: [aiText().replace(/\n?Found us via: /, ""), srcText()].filter(Boolean).join(" | "), gift: f.gift_to ? "yes" : "", ...extra });
@@ -47,7 +133,7 @@
   try { const q = new URLSearchParams(location.search), s = q.get("utm_source"); if (s && !/whatsapp/i.test(q.get("utm_medium") || "") ) localStorage.setItem("bk_src", JSON.stringify({ s: [s, q.get("utm_medium"), q.get("utm_campaign")].filter(Boolean).join(" / ").slice(0, 80), t: Date.now() })); } catch {}
   const srcText = () => { try { const a = JSON.parse(localStorage.getItem("bk_src") || "null"); return a && Date.now() - a.t < 30 * 864e5 ? a.s : ""; } catch { return ""; } };
   const aiText = () => { try { const a = JSON.parse(localStorage.getItem("bk_ai") || "null"); return a && Date.now() - a.t < 30 * 864e5 ? `\nFound us via: ${a.src}` : ""; } catch { return ""; } };
-  try { const rc = new URLSearchParams(location.search).get("ref"); if (rc && /^[A-Za-z0-9-]{3,20}$/.test(rc)) localStorage.setItem("bk_ref", JSON.stringify({ code: rc, t: Date.now() })); } catch {}
+  try { const rc = new URLSearchParams(location.search).get("ref"); if (rc && /^[A-Za-z0-9-]{3,20}$/.test(rc)) { const old = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (!(old && Date.now() - old.t < 30 * 864e5)) localStorage.setItem("bk_ref", JSON.stringify({ code: rc, t: Date.now() })); } } catch {}
 
   // ---------- overlay helpers ----------
   const scrim = $("[data-scrim]");
@@ -101,6 +187,34 @@
     const slug = prod.dataset.product; let size = "";
     const sizes = $$(".size", prod);
     sizes.forEach((b) => b.addEventListener("click", () => { if (b.dataset.out) { openNotify(slug, b.dataset.size); return; } size = b.dataset.size; sizes.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const e = $("[data-size-error]"); if (e) e.hidden = true; }));
+    // ---------- Mera Size: remembered fit -> suggested size (on this phone only) ----------
+    const ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"], INTL = { XS: "US 2 · UK 6 · EU 34", S: "US 4 · UK 8 · EU 36", M: "US 6–8 · UK 10–12 · EU 38–40", L: "US 10 · UK 14 · EU 42", XL: "US 12 · UK 16 · EU 44", XXL: "US 14 · UK 18 · EU 46", "3XL": "US 16 · UK 20 · EU 48", "4XL": "US 18 · UK 22 · EU 50", "5XL": "US 20 · UK 24 · EU 52" };
+    const fitNote = $("[data-fit-note]"), chart = (() => { try { return JSON.parse(prod.dataset.chart || "[]"); } catch { return []; } })(), pfit = prod.dataset.fit || "";
+    const getFit = () => { try { return JSON.parse(localStorage.getItem("bk_fit") || "null"); } catch { return null; } };
+    const recSize = (f) => { if (!f) return ""; const avail = sizes.map((b) => b.dataset.size.toUpperCase()); let r = "";
+      if (f.bust) { const target = +f.bust + (f.pref === "Snug" ? -1 : f.pref === "Loose" ? 2 : 0) + (/fitted/i.test(pfit) && f.pref !== "Snug" ? 1 : 0); r = (chart.find((c) => c[1] >= target) || chart[chart.length - 1] || [""])[0]; }
+      else if (f.usual) { const i = ORDER.indexOf(f.usual) + (f.pref === "Loose" ? 1 : 0) + (/fitted/i.test(pfit) && f.pref !== "Snug" ? 1 : 0); r = ORDER[Math.min(ORDER.length - 1, Math.max(0, i))]; }
+      r = String(r).toUpperCase(); if (avail.includes(r)) return r; const up = ORDER.slice(ORDER.indexOf(r)).find((s) => avail.includes(s)); return up || ""; };
+    const intlLine = (s) => (document.documentElement.classList.contains("usd") && INTL[s] ? ` <small class="muted">(${s} ≈ ${INTL[s]})</small>` : "");
+    const paintFit = (auto) => { if (!fitNote) return; const f = getFit(), r = recSize(f); if (!f || !r) { fitNote.hidden = !size; fitNote.innerHTML = size ? intlLine(size.toUpperCase()) : ""; return; }
+      const btn = sizes.find((b) => b.dataset.size.toUpperCase() === r); fitNote.hidden = false;
+      if (btn?.dataset.out) fitNote.innerHTML = `✨ Aapka size <b>${r}</b> abhi sold out hai. <button type="button" class="link" data-fit-notify>Wapas aane par batao</button>`;
+      else { fitNote.innerHTML = `✨ Aapke liye: <b>${r}</b>${/relaxed/i.test(pfit) ? " (relaxed fit)" : ""}${intlLine(r)} · <button type="button" class="link" data-fit-open>Badlo</button>`; if (auto && btn && !size) btn.click(); }
+      $("[data-fit-notify]", fitNote)?.addEventListener("click", () => openNotify(slug, btn.dataset.size)); $("[data-fit-open]", fitNote)?.addEventListener("click", openFit); };
+    function openFit() {
+      let d = $("[data-fit-dlg]"); const f = getFit() || {};
+      if (!d) { d = document.createElement("dialog"); d.className = "fit-dlg"; d.dataset.fitDlg = ""; document.body.appendChild(d); }
+      d.innerHTML = `<form method="dialog" class="fit-form"><h2>✨ Mera size</h2><p class="muted small">Sirf is phone mein save hoga. Agli baar har dress par aapka size apne aap chuna milega.</p>
+        <p class="label">Aap usually kaunsa size pehenti ho?</p><div class="fit-chips">${ORDER.slice(1, 8).map((s) => `<label><input type="radio" name="usual" value="${s}"${f.usual === s ? " checked" : ""}><span>${s}</span></label>`).join("")}</div>
+        <label class="fit-or">Ya bust (inches) <input name="bust" type="number" min="26" max="60" step="0.5" inputmode="decimal" value="${f.bust || ""}" placeholder="jaise 36"></label>
+        <p class="label">Fitting kaisi pasand hai?</p><div class="fit-chips">${["Snug", "Regular", "Loose"].map((s) => `<label><input type="radio" name="pref" value="${s}"${(f.pref || "Regular") === s ? " checked" : ""}><span>${s === "Snug" ? "Fitted" : s === "Loose" ? "Dheela" : "Regular"}</span></label>`).join("")}</div>
+        <div class="fit-b"><button class="btn" value="save">Mera size dikhao</button><button class="btn btn-ghost" value="cancel" formnovalidate>Cancel</button></div></form>`;
+      d.onclose = () => { if (d.returnValue !== "save") return; const fd = new FormData($("form", d)); const nf = { usual: fd.get("usual") || "", bust: +fd.get("bust") || 0, pref: fd.get("pref") || "Regular" }; if (!nf.usual && !nf.bust) { toast("Size ya bust chuno"); return; } try { localStorage.setItem("bk_fit", JSON.stringify(nf)); } catch {} size = ""; sizes.forEach((x) => x.classList.remove("on")); paintFit(true); const r = recSize(nf); if (r) toast(`Aapka size: ${r}`); };
+      d.showModal();
+    }
+    $$("[data-fit-open]", prod).forEach((b) => b.addEventListener("click", openFit));
+    sizes.forEach((b) => b.addEventListener("click", () => { if (!getFit() && fitNote) { fitNote.hidden = !intlLine(b.dataset.size.toUpperCase()); fitNote.innerHTML = intlLine(b.dataset.size.toUpperCase()); } }));
+    paintFit(true);
     const need = () => { if (sizes.length && !size) { const e = $("[data-size-error]"); if (e) e.hidden = false; $(".sizes")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast("Please select a size"); return false; } return true; };
     $$("[data-add]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); openCart(); }));
     $$("[data-buy]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); location.href = url("checkout/"); }));
@@ -244,7 +358,7 @@
               const txt = orderText(cat, f, ref, o.amount / 100, `PAID online (Payment ID ${resp.razorpay_payment_id})`);
               if (ok) {
                 sendSheet({ type: "paid", name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", pincode: f.pincode || "", ref_order: ref, total: o.amount / 100, currency: "INR", payment: "Razorpay " + resp.razorpay_payment_id, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
-                track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" });
+                track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" }, ref);
                 setBag([]);
                 showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">Payment ID: ${esc(resp.razorpay_payment_id)}</p>${BK.wa ? `<a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener">Get updates on WhatsApp</a>` : ""}<p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
               } else {
@@ -290,16 +404,51 @@
     vids.forEach((v) => io.observe(v));
   }
 
+
+  // Language picker is intentionally separate from country/currency.
+  const langModal = $("[data-lang-modal]"), langList = $("[data-lang-list]");
+  const renderLangs = () => { if (!langList) return; langList.innerHTML = Object.entries(LANGS).map(([k,v]) => `<button type="button" data-lang-pick="${k}"${k===lang?' class="on"':''}><b>${v.name}</b><span>${v.short}</span></button>`).join(""); };
+  $$("[data-language]").forEach(btn => btn.addEventListener("click", () => { closeAll(); renderLangs(); langModal?.showModal(); document.documentElement.classList.add("locked"); }));
+  $("[data-close-language]")?.addEventListener("click", () => { langModal?.close(); unlockIfFree(); });
+  langModal?.addEventListener("close", unlockIfFree);
+  langList?.addEventListener("click", e => { const b=e.target.closest("[data-lang-pick]"); if(!b) return; setLang(b.dataset.langPick,true); langModal.close(); unlockIfFree(); });
+  translateUI();
+
+  // Keep the language control in the header action area; never cover product/cart actions.
+  const placeLanguageControl = () => {
+    const btn = document.querySelector("[data-language]");
+    if (!btn) return;
+    const host =
+      document.querySelector(".head-actions") ||
+      document.querySelector(".header-actions") ||
+      document.querySelector("header");
+    if (host && btn.parentElement !== host) host.appendChild(btn);
+    btn.style.position = "";
+    btn.style.top = "";
+    btn.style.right = "";
+    btn.style.left = "";
+    btn.style.zIndex = "";
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", placeLanguageControl, { once: true });
+  } else {
+    placeLanguageControl();
+  }
+
+  const langObserver = new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) translateUI(n); });
+  langObserver.observe(document.body, { childList:true, subtree:true });
+
   // ---------- country & currency (all countries; local prices shown approx., charged in USD) ----------
   const flag = (c) => (c && c.length === 2 ? String.fromCodePoint(...[...c.toUpperCase()].map((ch) => 127397 + ch.charCodeAt(0))) : "🌍");
   const CL = BK.countries || [];
   const getCC = () => { try { return JSON.parse(localStorage.getItem("bk_country") || "null"); } catch { return null; } };
   let cc = getCC();
-  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } } catch {}
+  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); try { if (!localStorage.getItem("bk_lang_manual")) setLang(COUNTRY_LANG[cc.c] || "en", false); } catch {} } } catch {}
   if (!cc && CL.length) { // first visit: guess from browser
     let code = ""; try { const z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; if (/Calcutta|Kolkata/.test(z)) code = "IN"; } catch {}
     if (!code) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i); code = m ? m[1].toUpperCase() : (isUSD() ? "US" : "IN"); }
     const row = CL.find((r) => r[0] === code); cc = row ? { c: row[0], n: row[1], cur: row[2] } : null;
+    try { if (cc && !localStorage.getItem("bk_lang_manual")) setLang(COUNTRY_LANG[cc.c] || "en", false); } catch {}
   }
   let rates = { USD: 1, ...(BK.rates || {}) };
   const fmtLocal = (v, cur) => { try { return new Intl.NumberFormat("en", { style: "currency", currency: cur, minimumFractionDigits: 0, maximumFractionDigits: v * rates[cur] >= 10 ? 0 : 2 }).format(v * rates[cur]); } catch { return null; } };
@@ -312,7 +461,7 @@
     $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? "≈ " + t : el.dataset.usdText; el.title = t ? `${el.dataset.usdText} USD – charged in US $` : ""; });
   }
   function setCountry(row, silent) {
-    cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
+    cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); try { if (!localStorage.getItem("bk_lang_manual")) setLang(COUNTRY_LANG[cc.c] || "en", false); } catch {} } catch {}
     const wasUSD = isUSD(), toUSD = cc.c !== "IN"; document.documentElement.classList.toggle("usd", toUSD);
     if (!silent) { toast(cc.c === "IN" ? "Showing prices in ₹ for India" : `Prices for ${cc.n}${cc.cur !== "USD" ? " (approx. " + cc.cur + ", charged in US $)" : " in US $"}`); if (co && wasUSD !== toUSD) return location.reload(); }
     ensureRates().then(applyLocal); renderCart().catch(() => {});
@@ -446,7 +595,7 @@
     const f = Object.fromEntries(new FormData(bf)); for (const k in f) f[k] = String(f[k]).trim();
     const txt = `Wholesale / private label enquiry\n\nName: ${f.name}\nBusiness: ${f.business || "-"}\nCountry: ${f.country}\nType: ${f.type}\nProducts: ${f.products || "-"}\nQuantity: ${f.qty || "-"}\nDetails: ${f.msg || "-"}`;
     track("Lead", { content_name: "wholesale" });
-    sendSheet({ type: "wholesale", name: f.name, phone: "", email: "", country: f.country, items: `${f.type} | ${f.business || "-"} | ${f.products || "-"} | qty ${f.qty || "-"} | ${f.msg || ""}`, consent: "no" });
+    sendSheet({ type: "wholesale", name: f.name, phone: f.phone || "", email: f.email || "", country: f.country, items: `${f.type} | ${f.business || "-"} | ${f.products || "-"} | qty ${f.qty || "-"} | ${f.msg || ""}`, consent: "no" });
     if (BK.wa) window.open(`https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}`, "_blank", "noopener");
     else if (BK.email) location.href = `mailto:${BK.email}?subject=${encodeURIComponent("Wholesale enquiry")}&body=${encodeURIComponent(txt)}`;
   });
@@ -454,13 +603,57 @@
   // ---------- search (instant, from catalog) ----------
   const srm = $("[data-search-modal]"), sin = $("[data-search-input]"), sres = $("[data-search-results]");
   const norm = (t) => String(t || "").toLowerCase();
-  async function runSearch() {
-    const q = norm(sin.value).trim(); if (!q) { sres.innerHTML = ""; return; }
-    const cat = await catalog(); const words = q.split(/\s+/);
-    const hits = Object.entries(cat.products).filter(([, p]) => { const hay = norm([p.title, p.cat, p.fabric, p.print, p.color].join(" ")); return words.every((w) => hay.includes(w.replace(/s$/, ""))); }).slice(0, 12);
-    sres.innerHTML = hits.length ? `<div class="grid">${hits.map(([k, p]) => miniCard(k, p)).join("")}</div>` : `<p class="muted">No styles found for “${esc(sin.value)}”. ${BK.wa ? `<a class="link" href="https://wa.me/${BK.wa}?text=${encodeURIComponent("Hi! I am looking for: " + sin.value)}" target="_blank" rel="noopener">Ask us on WhatsApp →</a>` : ""}</p>`;
-    paintWish(); track("Search", { search_string: sin.value });
+  // Ask Bahe: Hinglish search – "laal kurti shaadi ke liye 1500 tak XL"
+  const SQ = {
+    col: { red: "laal lal red", pink: "gulabi rani pink", yellow: "peela pila haldi yellow mustard", blue: "neela nila blue indigo navy", green: "hara green olive bottle", white: "safed white off-white cream", black: "kala kaala black", orange: "narangi orange rust", purple: "baingani jamuni purple wine maroon", peach: "peach", beige: "beige", grey: "grey gray" },
+    occ: { wedding: "shaadi shadi wedding sangeet reception", haldi: "haldi mehendi mehndi", office: "office work", daily: "daily roz casual everyday", party: "party", festive: "festive festival tyohar diwali teej eid navratri karwa", gift: "gift gifting" },
+    cat: { kurti: "kurti kurta kurtis kurtas", set: "suit set sets dupatta", dress: "dress frock gown dresses", "co-ord": "coord co-ord cord", top: "top tunic", palazzo: "palazzo pant pants" },
+    stop: new Set("for ke ki ka liye chahiye wala wali show me dikhao in a the and with under below upto up to tak se kam rs inr size mujhe koi hai please".split(" ")),
+  };
+  const findKey = (map, w) => Object.keys(map).find((k) => map[k].split(" ").includes(w));
+  function parseQ(raw) {
+    const q = norm(raw).replace(/₹|rs\.?/g, " ").replace(/\s+/g, " ").trim(), it = { words: [], chips: [] };
+    let m = q.match(/(\d{3,6})\s*(?:-|to|se)\s*(\d{3,6})/); if (m) { it.min = +m[1]; it.max = +m[2]; it.chips.push([`${m[1]}–${m[2]}`, m[0]]); }
+    else if ((m = q.match(/(?:under|below|upto|up to|less than|max|within)\s*\$?\s*(\d{2,6})/) || q.match(/\$?(\d{2,6})\s*(?:tak|se kam|ke andar|ke neeche|or less)/))) { it.max = +m[1]; it.chips.push([`Under ${m[1]}`, m[0]]); }
+    it.usd = /\$/.test(raw) || (isUSD() && !/₹|rs/i.test(raw));
+    m = q.match(/\b(free size|xxs|xs|xxl|2xl|3xl|4xl|5xl|xl)\b/) || q.match(/\bsize\s*(s|m|l)\b/); if (m) { it.size = m[1] === "2xl" ? "XXL" : m[1].replace("free size", "Free Size").toUpperCase(); it.chips.push([`Size ${it.size}`, m[0]]); }
+    const rest = q.replace(it.chips.map((c) => c[1]).join("|") ? new RegExp(it.chips.map((c) => c[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g") : /^$/, " ");
+    for (const w of rest.split(/\s+/).filter(Boolean)) {
+      let k;
+      if ((k = findKey(SQ.col, w))) { it.col = k; it.chips.push([k[0].toUpperCase() + k.slice(1), w]); }
+      else if ((k = findKey(SQ.occ, w))) { it.occ = k; it.chips.push([k[0].toUpperCase() + k.slice(1), w]); }
+      else if ((k = findKey(SQ.cat, w))) { it.cat = k; it.chips.push([k[0].toUpperCase() + k.slice(1), w]); }
+      else if (!SQ.stop.has(w) && !/^\d+$/.test(w)) it.words.push(w.replace(/s$/, ""));
+    }
+    return it;
   }
+  function rankQ(cat, it, relax = {}) {
+    return Object.entries(cat.products).map(([k, p]) => {
+      const pr = it.usd ? p.price_usd : p.price;
+      if (!relax.price && (it.max || it.min)) { if (pr == null || (it.max && pr > it.max) || (it.min && pr < it.min)) return null; }
+      if (!relax.size && it.size && !((p.sizes || []).map((s) => String(s).toUpperCase()).includes(it.size) && !(p.out || []).map((s) => String(s).toUpperCase()).includes(it.size))) return null;
+      const hay = norm([p.title, p.cat, p.fabric, p.print, p.color, (p.occ || []).join(" ")].join(" "));
+      let sc = 0, need = 0;
+      if (it.col) { need++; if (SQ.col[it.col].split(" ").some((c) => hay.includes(c))) sc += 3; }
+      if (it.occ) { need++; if (SQ.occ[it.occ].split(" ").some((c) => hay.includes(c)) || norm((p.occ || []).join(" ")).includes(it.occ)) sc += 3; }
+      if (it.cat) { need++; if (SQ.cat[it.cat].split(" ").some((c) => hay.includes(c.replace(/s$/, "")))) sc += 2; }
+      for (const w of it.words) { need++; if (hay.includes(w)) sc += 1; }
+      if (need && !sc) return null;
+      return [k, p, sc + (p.in_stock === false ? 0 : 0.5)];
+    }).filter(Boolean).sort((a, b) => b[2] - a[2]);
+  }
+  async function runSearch() {
+    const raw = sin.value, q = norm(raw).trim(); if (!q) { sres.innerHTML = ""; return; }
+    const cat = await catalog(), it = parseQ(raw);
+    let hits = rankQ(cat, it), note = "";
+    if (!hits.length && (it.max || it.min)) { hits = rankQ(cat, it, { price: true }); if (hits.length) note = "Is budget mein nahi mila – baaki options dikha rahe hain."; }
+    if (!hits.length && it.size) { hits = rankQ(cat, it, { price: true, size: true }); if (hits.length) note = `Size ${it.size} abhi nahi – baaki sizes mein ye hain.`; }
+    const chips = it.chips.length ? `<div class="sq-chips">${it.chips.map((c) => `<button type="button" class="pill" data-sq-x="${esc(c[1])}">${esc(c[0])} ✕</button>`).join("")}</div>` : "";
+    sres.innerHTML = chips + (note ? `<p class="muted small">${esc(note)}</p>` : "") + (hits.length ? `<div class="grid">${hits.slice(0, 12).map(([k, p]) => miniCard(k, p)).join("")}</div>` : `<p class="muted">No styles found for “${esc(raw)}”. ${BK.wa ? `<a class="link" href="https://wa.me/${BK.wa}?text=${encodeURIComponent("Hi! I am looking for: " + raw)}" target="_blank" rel="noopener">Ask us on WhatsApp →</a>` : ""}</p>`);
+    $$("[data-sq-x]", sres).forEach((b) => b.addEventListener("click", () => { sin.value = norm(sin.value).replace(b.dataset.sqX, " ").replace(/\s+/g, " ").trim(); runSearch(); }));
+    paintWish(); track("Search", { search_string: raw });
+  }
+  try { const dq = new URLSearchParams(location.search).get("q"); if (dq && srm?.showModal) setTimeout(() => { srm.showModal(); document.documentElement.classList.add("locked"); sin.value = dq; runSearch(); }, 300); } catch {}
   let st;
   sin?.addEventListener("input", () => { clearTimeout(st); st = setTimeout(runSearch, 180); });
   $$("[data-sugg]").forEach((b) => b.addEventListener("click", () => { sin.value = b.dataset.sugg; runSearch(); }));
@@ -499,7 +692,7 @@
   };
   $$("[data-open-login]").forEach((b) => b.addEventListener("click", () => { closeAll(); openLogin(); }));
   $$("[data-close-login]").forEach((b) => b.addEventListener("click", () => lm.close()));
-  lm?.addEventListener("close", unlockIfFree);
+  langModal?.addEventListener("close", unlockIfFree);
   lm?.addEventListener("click", (e) => { if (e.target === lm) lm.close(); });
   $("[data-logout]")?.addEventListener("click", () => { setUser(null); lm.close(); toast("Signed out"); });
   lf?.addEventListener("submit", (e) => {
@@ -537,7 +730,7 @@
   // checkout: fill saved details + note an unfinished checkout once
   if (co) {
     const u0 = getUser(), form = $("[data-co-form]");
-    if (u0 && form) { for (const k of ["name", "phone", "email", "address", "city", "state", "pincode", "country"]) if (u0[k] && form[k] && !form[k].value) form[k].value = u0[k]; const cc = $("[data-co-consent]"); if (cc && u0.consent) cc.checked = true; }
+    if (u0 && form) { for (const k of ["name", "phone", "email", "address", "city", "state", "pincode", "country"]) if (u0[k] && form[k] && !form[k].value) form[k].value = u0[k]; }
     let sent = false;
     form?.phone?.addEventListener("blur", async () => {
       if (sent) return; const ph = form.phone.value.replace(/\D/g, ""); if (ph.length < 7 || !form.name.value.trim()) return; sent = true;
@@ -571,7 +764,7 @@
     let box = $("[data-notify]");
     if (!box) { box = document.createElement("div"); box.className = "notify"; box.setAttribute("data-notify", ""); $(".sizes")?.after(box); }
     const u0 = getUser() || {};
-    box.innerHTML = `<p><b>Size ${esc(sz)} is sold out.</b> Get a WhatsApp message when it is back.</p><div class="pin-row"><input type="tel" placeholder="WhatsApp number" value="${esc(u0.phone || "")}" maxlength="18" data-n-phone><button class="btn" type="button" data-n-go>Notify me</button></div><label class="check"><input type="checkbox" data-n-ok checked> Yes, message me on WhatsApp about this size</label>`;
+    box.innerHTML = `<p><b>Size ${esc(sz)} is sold out.</b> Get a WhatsApp message when it is back.</p><div class="pin-row"><input type="tel" placeholder="WhatsApp number" value="${esc(u0.phone || "")}" maxlength="18" data-n-phone><button class="btn" type="button" data-n-go>Notify me</button></div><label class="check"><input type="checkbox" data-n-ok> Yes, message me on WhatsApp about this size</label>`;
     $("[data-n-go]", box).onclick = () => { const ph = $("[data-n-phone]", box).value.trim(); if (ph.replace(/\D/g, "").length < 7 || !$("[data-n-ok]", box).checked) { toast("Enter your WhatsApp number and tick the box"); return; } sendSheet({ type: "restock", name: u0.name || "", phone: ph, items: `${slug} | size ${sz}`, consent: "yes" }); box.innerHTML = `<p>✓ Done! We will message you when size ${esc(sz)} is back.</p>`; };
   }
 
@@ -662,7 +855,25 @@
   }
 
   // ---------- refer & earn ----------
-  const myCode = () => { const u0 = getUser(); if (!u0?.phone) return ""; const d = u0.phone.replace(/\D/g, "").slice(-10); let h = 7; for (const ch of d + "bk") h = (h * 31 + ch.charCodeAt(0)) >>> 0; return "BK" + h.toString(36).toUpperCase().slice(-5); };
+  const myCode = () => {
+    const u0 = getUser();
+    if (u0?.phone) {
+      const d = u0.phone.replace(/\D/g, "").slice(-10);
+      let h = 7;
+      for (const ch of d + "bk") h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+      return "BK" + h.toString(36).toUpperCase().slice(-5);
+    }
+    try {
+      let c = localStorage.getItem("bk_ref_code");
+      if (!c) {
+        c = "BK" + Math.random().toString(36).slice(2, 8).toUpperCase();
+        localStorage.setItem("bk_ref_code", c);
+      }
+      return c;
+    } catch {
+      return "";
+    }
+  };
   const myLink = (path = "") => `${location.origin}/${path}?ref=${myCode()}`;
   const ro = $("[data-refer-out]");
   const paintRefer = () => {
@@ -671,7 +882,7 @@
     ro.innerHTML = `<p class="eyebrow">Your personal link</p><div class="ref-link"><input readonly value="${esc(link)}" aria-label="Your referral link"><button class="btn" type="button" data-ref-copy>Copy</button></div><p>Your code: <b>${code}</b></p><div class="hero-cta"><a class="btn btn-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Maine Bahe Kurtiz se hand block print kurtis li hain – bahut sundar hain! 🌸 Mere link se dekho – tumhe welcome offer milega (aur mujhe bhi ek thank-you reward): ${link}`)}">Share on WhatsApp</a><button class="btn btn-ghost" type="button" data-status-home>✨ Make WhatsApp Status</button></div>`;
     $("[data-ref-copy]", ro).onclick = async () => { try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch { toast(link); } };
     $("[data-status-home]", ro).onclick = () => makeStatus(null);
-    try { if (!localStorage.getItem("bk_ref_sent")) { sendSheet({ type: "referrer", name: getUser()?.name || "", phone: getUser()?.phone || "", ref: code }); localStorage.setItem("bk_ref_sent", "1"); } } catch {}
+    try { if (localStorage.getItem("bk_ref_sent") !== code) { sendSheet({ type: "referrer", name: getUser()?.name || "", phone: getUser()?.phone || "", ref: code }); localStorage.setItem("bk_ref_sent", code); } } catch {}
   };
   paintRefer();
   const _setUser = setUser; // repaint after sign-in
@@ -802,6 +1013,9 @@
   }));
   lf?.addEventListener("submit", () => setTimeout(() => { try { if (localStorage.getItem("bk_follow_pending") === "1" && getUser()?.phone && lf.consent?.checked) { localStorage.removeItem("bk_follow_pending"); localStorage.setItem("bk_follow", "1"); sendSheet({ type: "follow", name: getUser().name, phone: getUser().phone, consent: "yes" }); paintFollow(); } } catch {} }, 80));
 
+  $$("[data-yt]").forEach((b) => b.addEventListener("click", () => { b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&playsinline=1" title="Live video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`; }));
+  try { if (window.BKeu && !localStorage.getItem("bk_consent") && (window.BKtags?.length || window.fbq)) { const cb = document.createElement("div"); cb.className = "consent-bar"; cb.innerHTML = `<p>We use cookies for ads and analytics to improve your shopping. <a href="${url("privacy/")}">Privacy</a></p><div><button type="button" class="btn btn-sm" data-cs="yes">Accept</button><button type="button" class="btn btn-ghost btn-sm" data-cs="no">Only necessary</button></div>`; document.body.appendChild(cb);
+    cb.addEventListener("click", (e) => { const b = e.target.closest("[data-cs]"); if (!b) return; const ok = b.dataset.cs === "yes"; try { localStorage.setItem("bk_consent", ok ? "yes" : "no"); } catch {} if (ok) { const g = "granted"; try { window.gtag?.("consent", "update", { ad_storage: g, ad_user_data: g, ad_personalization: g, analytics_storage: g }); window.fbq?.("consent", "grant"); } catch {} } cb.remove(); }); } } catch {}
   // ---------- speed: Instagram reels load only on tap; hover photo only on mouse devices ----------
   $$("[data-ig]").forEach((b) => b.addEventListener("click", () => { const d = document.createElement("div"); d.className = "reel reel-ig"; d.innerHTML = `<iframe src="${b.dataset.ig}" title="Instagram reel" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`; b.replaceWith(d); }));
   if (matchMedia("(hover: hover)").matches) document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".card"); const im = c && c.querySelector("img.alt[data-src]"); if (im) { im.src = im.dataset.src; im.removeAttribute("data-src"); } }, { passive: true });
@@ -911,951 +1125,26 @@
     });
     $("[data-mirror-wish]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } const w = getW(); liked.forEach((l) => { if (!w.includes(l.k)) w.push(l.k); }); setW(w); toast(`${liked.length} dress wishlist mein ♡`); });
   }
-})();
-// BAHE KURTIZ - Mera Size standalone fix
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest("[data-fit-open]");
-  if (!btn) return;
 
-  e.preventDefault();
 
-  let old = document.getElementById("bk-mera-size");
-  if (old) old.remove();
-
-  const d = document.createElement("dialog");
-  d.id = "bk-mera-size";
-
-  d.innerHTML = `
-    <form method="dialog" style="padding:20px;min-width:min(360px,85vw)">
-      <h2 style="margin-top:0">✨ Mera Size</h2>
-      <p>Apni details bhariye, hum aapko best size suggest karenge.</p>
-
-      <label>Usually kaunsa size pehenti hain?</label><br>
-      <select id="bk-usual" style="width:100%;padding:10px;margin:6px 0 15px">
-        <option value="">Select size</option>
-        <option>XS</option>
-        <option>S</option>
-        <option>M</option>
-        <option>L</option>
-        <option>XL</option>
-        <option>XXL</option>
-        <option>3XL</option>
-        <option>4XL</option>
-      </select>
-
-      <label>Bust measurement (inches)</label><br>
-      <input id="bk-bust" type="number" min="26" max="70"
-        placeholder="Example: 36"
-        style="width:100%;padding:10px;margin:6px 0 15px;box-sizing:border-box">
-
-      <label>Fitting preference</label><br>
-      <select id="bk-pref" style="width:100%;padding:10px;margin:6px 0 18px">
-        <option value="Regular">Regular Fit</option>
-        <option value="Loose">Loose Fit</option>
-        <option value="Snug">Snug Fit</option>
-      </select>
-
-      <button id="bk-save-fit" type="button" class="btn">
-        Mera Size Dikhao
-      </button>
-
-      <button value="cancel" class="btn btn-ghost">
-        Cancel
-      </button>
-
-      <div id="bk-fit-result" style="margin-top:15px;font-weight:700"></div>
-    </form>
-  `;
-
-  document.body.appendChild(d);
-
-  d.querySelector("#bk-save-fit").onclick = function () {
-    const usual = d.querySelector("#bk-usual").value;
-    const bust = Number(d.querySelector("#bk-bust").value);
-    const pref = d.querySelector("#bk-pref").value;
-
-    let size = usual;
-
-    if (bust) {
-      if (bust <= 34) size = "XS";
-      else if (bust <= 36) size = "S";
-      else if (bust <= 38) size = "M";
-      else if (bust <= 40) size = "L";
-      else if (bust <= 42) size = "XL";
-      else if (bust <= 44) size = "XXL";
-      else if (bust <= 46) size = "3XL";
-      else size = "4XL";
-    }
-
-    if (!size) {
-      d.querySelector("#bk-fit-result").textContent =
-        "Please size ya bust measurement select karein.";
-      return;
-    }
-
-    localStorage.setItem(
-      "bk_fit",
-      JSON.stringify({ usual: size, bust: bust || 0, pref })
-    );
-
-    d.querySelector("#bk-fit-result").textContent =
-      "✓ Recommended size: " + size;
-  };
-
-  if (typeof d.showModal === "function") d.showModal();
-  else d.setAttribute("open", "");
-});
-// BAHE KURTIZ — Share & Earn Viral Loop 2.0
-(() => {
-  const REF_KEY = "bk_ref_code";
-  const VISITOR_REF_KEY = "bk_ref";
-
-  function makeRef() {
-    let code = localStorage.getItem(REF_KEY);
-    if (!code) {
-      code = "BK" + Math.random().toString(36).slice(2, 8).toUpperCase();
-      localStorage.setItem(REF_KEY, code);
-    }
-    return code;
-  }
-
-  function captureReferral() {
-    const p = new URLSearchParams(location.search);
-    const ref = p.get("ref");
-    if (ref) {
-      localStorage.setItem(
-        VISITOR_REF_KEY,
-        JSON.stringify({
-          code: ref,
-          arrived: Date.now(),
-          page: location.pathname
-        })
-      );
-    }
-  }
-
-  function referralURL() {
-    const u = new URL(location.href);
-    u.searchParams.set("ref", makeRef());
-    return u.toString();
-  }
-
-  async function shareAndEarn() {
-    const link = referralURL();
-
-    const title =
-      document.querySelector("h1")?.textContent?.trim() ||
-      "Bahe Kurtiz";
-
-    const text =
-      `✨ ${title}\n` +
-      `BAHE KURTIZ Jaipur se dekhiye 💛\n` +
-      `Mera personal Share & Earn link:`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: text,
-          url: link
-        });
-        return;
-      } catch (e) {
-        if (e.name === "AbortError") return;
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(link);
-      alert("✓ Share & Earn link copied!\nAb WhatsApp/Instagram par share karein.");
-    } catch {
-      prompt("Is Share & Earn link ko copy karein:", link);
-    }
-  }
-
-  captureReferral();
-
-  document.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-share], [data-refer-share]");
-    if (!b) return;
-
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    shareAndEarn();
-  }, true);
-
-  window.BKShareEarn = {
-    share: shareAndEarn,
-    link: referralURL,
-    code: makeRef
-  };
-})();
-// BAHE KURTIZ — Referral Share Patch
-document.addEventListener("click", async function (e) {
-  const b = e.target.closest("button, a");
-  if (!b) return;
-
-  const name = (b.textContent || "").trim().toLowerCase();
-
-  if (
-    !name.includes("copy link") &&
-    !name.includes("ask family") &&
-    !name.includes("whatsapp status")
-  ) return;
-
-  const code =
-    localStorage.getItem("bk_ref_code") ||
-    ("BK" + Math.random().toString(36).slice(2, 8).toUpperCase());
-
-  localStorage.setItem("bk_ref_code", code);
-
-  const u = new URL(location.href);
-  u.searchParams.set("ref", code);
-  const link = u.toString();
-
-  // Copy Link
-  if (name.includes("copy link")) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    await navigator.clipboard.writeText(link);
-    alert("✓ Referral link copied!");
-    return;
-  }
-
-  // Ask Family / WhatsApp Status
-  e.preventDefault();
-  e.stopImmediatePropagation();
-
-  const msg =
-    "✨ BAHE KURTIZ Jaipur\n" +
-    "Ye look dekhiye 💛\n" +
-    link;
-
-  window.open(
-    "https://wa.me/?text=" + encodeURIComponent(msg),
-    "_blank"
-  );
-}, true);
-/* ===== BAHE 2050 LANGUAGE ENGINE — PART 1 ===== */
-(() => {
-  "use strict";
-
-  const BK_LANGS = {
-    en: { name: "English", short: "EN", dir: "ltr" },
-    hi: { name: "हिन्दी", short: "हि", dir: "ltr" },
-    fr: { name: "Français", short: "FR", dir: "ltr" },
-    de: { name: "Deutsch", short: "DE", dir: "ltr" },
-    es: { name: "Español", short: "ES", dir: "ltr" },
-    it: { name: "Italiano", short: "IT", dir: "ltr" },
-    ja: { name: "日本語", short: "日", dir: "ltr" },
-    ar: { name: "العربية", short: "AR", dir: "rtl" }
-  };
-
-  const BK_COUNTRY_LANG = {
-    IN:"en",
-    FR:"fr",
-    DE:"de", AT:"de", CH:"de",
-    ES:"es", MX:"es", AR:"es", CO:"es", CL:"es", PE:"es",
-    IT:"it",
-    JP:"ja",
-    AE:"ar", SA:"ar", QA:"ar", KW:"ar", BH:"ar", OM:"ar"
-  };
-
-  function bkGetLanguage() {
-    try {
-      const saved = localStorage.getItem("bk_lang");
-      if (saved && BK_LANGS[saved]) return saved;
-    } catch (e) {}
-
-    const browser = (navigator.language || "en")
-      .toLowerCase()
-      .split("-")[0];
-
-    return BK_LANGS[browser] ? browser : "en";
-  }
-
-  let bkLanguage = bkGetLanguage();
-
-  function bkSaveLanguage(code) {
-    if (!BK_LANGS[code]) code = "en";
-
-    bkLanguage = code;
-
-    try {
-      localStorage.setItem("bk_lang", code);
-      localStorage.setItem("bk_lang_manual", "1");
-    } catch (e) {}
-
-    document.documentElement.lang = code;
-    document.documentElement.dir = BK_LANGS[code].dir;
-
-    document.dispatchEvent(
-      new CustomEvent("bk:language", {
-        detail: { language: code }
-      })
-    );
-  }
-
-  document.documentElement.lang = bkLanguage;
-  document.documentElement.dir = BK_LANGS[bkLanguage].dir;
-
-  window.BKLanguage = {
-    languages: BK_LANGS,
-    countryLanguage: BK_COUNTRY_LANG,
-    get: () => bkLanguage,
-    set: bkSaveLanguage
-  };function bkApplyLanguage() {
-    const L = BK_LANGS[bkLanguage] || BK_LANGS.en;
-
-    document.documentElement.lang = bkLanguage;
-    document.documentElement.dir = L.dir;
-
-    document.querySelectorAll("[data-lang-label]").forEach((el) => {
-      el.textContent = L.short;
-    });
-
-    document.querySelectorAll("[data-lang-name]").forEach((el) => {
-      el.textContent = L.name;
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", bkApplyLanguage);
-  document.addEventListener("bk:language", bkApplyLanguage);
-
-  window.BKLanguage.apply = bkApplyLanguage;
-
-})();
-
-/* ===== BAHE LANGUAGE SELECTOR FINAL ===== */
-(() => {
-  if (!window.BKLanguage || document.querySelector("#baheLangBtn")) return;
-
-  const langs = window.BKLanguage.languages;
-
-  const btn = document.createElement("button");
-  btn.id = "baheLangBtn";
-  btn.type = "button";
-  btn.textContent = langs[window.BKLanguage.get()]?.short || "EN";
-  btn.style.cssText =
-    "position:fixed;right:18px;top:105px;z-index:9999;padding:9px 13px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-weight:600";
-
-  const box = document.createElement("div");
-  box.style.cssText =
-    "display:none;position:fixed;right:18px;top:150px;z-index:10000;background:white;border:1px solid #ddd;border-radius:14px;padding:12px;box-shadow:0 8px 30px #0002;min-width:180px";
-
-  box.innerHTML = Object.entries(langs).map(([code,l]) =>
-    `<button type="button" data-bahe-lang="${code}" style="display:block;width:100%;padding:10px;border:0;background:white;text-align:left;cursor:pointer">${l.name}</button>`
-  ).join("");
-
-  btn.onclick = () => {
-    box.style.display = box.style.display === "none" ? "block" : "none";
-  };
-
-  box.onclick = e => {
-    const x = e.target.closest("[data-bahe-lang]");
-    if (!x) return;
-
-    const code = x.dataset.baheLang;
-
-    localStorage.setItem("bk_lang", code);
-    localStorage.setItem("bk_lang_manual", "1");
-
-    window.BKLanguage.set(code, true);
-
-    location.reload();
-  };
-
-  document.body.append(btn, box);
-})();
-/* ===== BAHE CORE TRANSLATION ENGINE ===== */
-(() => {
-const T={
-fr:{
-"SHOP":"BOUTIQUE","NEW ARRIVALS":"NOUVEAUTÉS","WHOLESALE":"VENTE EN GROS",
-"JOURNAL":"JOURNAL","OUR STORY":"NOTRE HISTOIRE","CONTACT":"CONTACT",
-"New":"Nouveau","Feed":"Fil","Shop All":"Tout acheter","Kurtis":"Kurtis",
-"Dresses":"Robes","Wholesale":"Vente en gros",
-"Made in Jaipur":"Fabriqué à Jaipur",
-"Secure online payment":"Paiement en ligne sécurisé",
-"Add to Cart":"Ajouter au panier","Buy Now":"Acheter maintenant",
-"Wishlist":"Favoris","Search":"Rechercher","Size":"Taille","Quantity":"Quantité"
-},
-hi:{
-"SHOP":"खरीदारी","NEW ARRIVALS":"नए कलेक्शन","WHOLESALE":"थोक",
-"JOURNAL":"जर्नल","OUR STORY":"हमारी कहानी","CONTACT":"संपर्क",
-"New":"नया","Feed":"फीड","Shop All":"सभी खरीदें","Kurtis":"कुर्तियां",
-"Dresses":"ड्रेसेस","Wholesale":"थोक",
-"Made in Jaipur":"जयपुर में निर्मित",
-"Secure online payment":"सुरक्षित ऑनलाइन भुगतान",
-"Add to Cart":"कार्ट में जोड़ें","Buy Now":"अभी खरीदें",
-"Wishlist":"पसंदीदा","Search":"खोजें","Size":"साइज़","Quantity":"मात्रा"
-},
-de:{
-"SHOP":"SHOP","NEW ARRIVALS":"NEUHEITEN","WHOLESALE":"GROSSHANDEL",
-"JOURNAL":"JOURNAL","OUR STORY":"UNSERE GESCHICHTE","CONTACT":"KONTAKT",
-"New":"Neu","Feed":"Feed","Shop All":"Alle Produkte","Kurtis":"Kurtis",
-"Dresses":"Kleider","Wholesale":"Großhandel",
-"Made in Jaipur":"Hergestellt in Jaipur",
-"Secure online payment":"Sichere Online-Zahlung",
-"Add to Cart":"In den Warenkorb","Buy Now":"Jetzt kaufen",
-"Wishlist":"Wunschliste","Search":"Suchen","Size":"Größe","Quantity":"Menge"
-},
-es:{
-"SHOP":"TIENDA","NEW ARRIVALS":"NOVEDADES","WHOLESALE":"MAYORISTA",
-"JOURNAL":"REVISTA","OUR STORY":"NUESTRA HISTORIA","CONTACT":"CONTACTO",
-"New":"Nuevo","Feed":"Novedades","Shop All":"Ver todo","Kurtis":"Kurtis",
-"Dresses":"Vestidos","Wholesale":"Mayorista",
-"Made in Jaipur":"Hecho en Jaipur",
-"Secure online payment":"Pago seguro en línea",
-"Add to Cart":"Añadir al carrito","Buy Now":"Comprar ahora",
-"Wishlist":"Favoritos","Search":"Buscar","Size":"Talla","Quantity":"Cantidad"
-},
-it:{
-"SHOP":"NEGOZIO","NEW ARRIVALS":"NOVITÀ","WHOLESALE":"INGROSSO",
-"JOURNAL":"JOURNAL","OUR STORY":"LA NOSTRA STORIA","CONTACT":"CONTATTI",
-"New":"Novità","Feed":"Feed","Shop All":"Acquista tutto","Kurtis":"Kurti",
-"Dresses":"Abiti","Wholesale":"Ingrosso",
-"Made in Jaipur":"Realizzato a Jaipur",
-"Secure online payment":"Pagamento online sicuro",
-"Add to Cart":"Aggiungi al carrello","Buy Now":"Acquista ora",
-"Wishlist":"Preferiti","Search":"Cerca","Size":"Taglia","Quantity":"Quantità"
-},
-ja:{
-"SHOP":"ショップ","NEW ARRIVALS":"新着商品","WHOLESALE":"卸売",
-"JOURNAL":"ジャーナル","OUR STORY":"私たちの物語","CONTACT":"お問い合わせ",
-"New":"新着","Feed":"フィード","Shop All":"すべて見る","Kurtis":"クルティ",
-"Dresses":"ドレス","Wholesale":"卸売",
-"Made in Jaipur":"ジャイプール製",
-"Secure online payment":"安全なオンライン決済",
-"Add to Cart":"カートに追加","Buy Now":"今すぐ購入",
-"Wishlist":"お気に入り","Search":"検索","Size":"サイズ","Quantity":"数量"
-},
-ar:{
-"SHOP":"المتجر","NEW ARRIVALS":"وصل حديثاً","WHOLESALE":"الجملة",
-"JOURNAL":"المجلة","OUR STORY":"قصتنا","CONTACT":"اتصل بنا",
-"New":"جديد","Feed":"الموجز","Shop All":"تسوق الكل","Kurtis":"كورتي",
-"Dresses":"فساتين","Wholesale":"الجملة",
-"Made in Jaipur":"صنع في جايبور",
-"Secure online payment":"دفع آمن عبر الإنترنت",
-"Add to Cart":"أضف إلى السلة","Buy Now":"اشتر الآن",
-"Wishlist":"المفضلة","Search":"بحث","Size":"المقاس","Quantity":"الكمية"
-}
-};
-
-const original=new WeakMap();
-
-function translate(){
- const lang=window.BKLanguage?.get?.()||"en";
- document.documentElement.lang=lang;
- document.documentElement.dir=lang==="ar"?"rtl":"ltr";
-
- document.querySelectorAll("body *").forEach(el=>{
-   if(el.children.length || ["SCRIPT","STYLE","NOSCRIPT"].includes(el.tagName)) return;
-
-   if(!original.has(el)) original.set(el,el.textContent);
-
-   const base=original.get(el);
-   const key=base.trim();
-
-   if(lang==="en"){
-     el.textContent=base;
-   }else if(T[lang]?.[key]){
-     el.textContent=base.replace(key,T[lang][key]);
-   }
- });
-}
-
-document.addEventListener("bk:language",translate);
-window.addEventListener("load",translate);
-
-
-})();
-
-/* BAHE language stability fix */
-(() => {
-  document.documentElement.setAttribute("translate", "no");
-
-  document.addEventListener("bk:language", () => {
-    document.documentElement.lang = "en";
-  });
-})();
-/* BAHE French core completion */
-(() => {
-  const FR = {
-    "NEW ARRIVALS": "NOUVEAUTÉS",
-    "New Arrivals": "Nouveautés",
-    "JOURNAL": "JOURNAL",
-    "OUR STORY": "NOTRE HISTOIRE",
-    "Our Story": "Notre histoire",
-    "CONTACT": "CONTACT",
-    "SHOP": "BOUTIQUE",
-    "Shop": "Boutique",
-    "Shop All": "Tout acheter",
-    "New": "Nouveau",
-    "Feed": "Fil",
-    "Dresses": "Robes",
-    "Wholesale": "Vente en gros",
-    "Fast India delivery": "Livraison rapide en Inde",
-    "Find your style in 3 taps": "Trouvez votre style en 3 étapes",
-    "Follow Bahe Kurtiz": "Suivez Bahe Kurtiz",
-    "Secure online payment": "Paiement en ligne sécurisé",
-    "Made in Jaipur": "Fabriqué à Jaipur"
-  };
-
-  function baheFrenchComplete() {
-    if ((window.BKLanguage?.get?.() || localStorage.getItem("bk_lang")) !== "fr") return;
-
-    document.querySelectorAll("body *").forEach(el => {
-      if (el.children.length || ["SCRIPT","STYLE","NOSCRIPT"].includes(el.tagName)) return;
-
-      const text = el.textContent.trim();
-      if (FR[text]) el.textContent = el.textContent.replace(text, FR[text]);
-    });
-  }
-
-  document.addEventListener("bk:language", baheFrenchComplete);
-  window.addEventListener("load", baheFrenchComplete);
-})();
-/* ===== BAHE 2050 COMPLETE SHOPPING LANGUAGE ===== */
-(() => {
-  "use strict";
-
-  const BK_FULL_TRANSLATIONS = {
-    hi: {
-      "Shop": "खरीदें",
-      "New Arrivals": "नए उत्पाद",
-      "Wholesale": "थोक",
-      "Our Story": "हमारी कहानी",
-      "Contact": "संपर्क",
-      "All": "सभी",
-      "New": "नया",
-      "Feed": "फीड",
-      "Kurtis": "कुर्तियाँ",
-      "Dresses": "ड्रेसेस",
-      "Add to Bag": "बैग में जोड़ें",
-      "Buy Now": "अभी खरीदें",
-      "Select Size": "साइज़ चुनें",
-      "Choose Size": "साइज़ चुनें",
-      "Size Guide": "साइज़ गाइड",
-      "Quantity": "मात्रा",
-      "In Stock": "स्टॉक में",
-      "Out of Stock": "स्टॉक खत्म",
-      "Product Details": "उत्पाद की जानकारी",
-      "Description": "विवरण",
-      "Shipping": "डिलीवरी",
-      "Delivery": "डिलीवरी",
-      "Wishlist": "पसंदीदा",
-      "Search": "खोजें",
-      "Cart": "बैग",
-      "Checkout": "चेकआउट",
-      "Continue Shopping": "खरीदारी जारी रखें",
-      "Order Summary": "ऑर्डर का विवरण",
-      "Total": "कुल",
-      "Subtotal": "उप-कुल",
-      "WhatsApp": "व्हाट्सऐप",
-      "WhatsApp Inquiry": "व्हाट्सऐप पर पूछें",
-      "Enquire on WhatsApp": "व्हाट्सऐप पर पूछें",
-      "Order help on WhatsApp": "ऑर्डर सहायता व्हाट्सऐप पर",
-      "Wholesale Inquiry": "थोक पूछताछ",
-      "Wholesale Enquiry": "थोक पूछताछ",
-      "Private Label": "आपके ब्रांड के नाम से",
-      "Export": "निर्यात",
-      "Made in Jaipur": "जयपुर में निर्मित",
-      "Made in India": "भारत में निर्मित",
-      "Shop Now": "अभी खरीदें",
-      "View Product": "उत्पाद देखें",
-      "View Details": "जानकारी देखें",
-      "Share": "शेयर करें",
-      "Share & Earn": "शेयर करें और कमाएँ",
-      "Ask Family": "परिवार से पूछें",
-      "Follow Bahe Kurtiz": "Bahe Kurtiz को फॉलो करें",
-      "Find your style in 3 taps": "3 टैप में अपनी पसंद खोजें",
-      "Fast India delivery": "भारत में तेज़ डिलीवरी",
-      "Secure online payment": "सुरक्षित ऑनलाइन भुगतान"
-    },
-
-    fr: {
-      "Shop": "Acheter",
-      "New Arrivals": "Nouveautés",
-      "Wholesale": "Vente en gros",
-      "Our Story": "Notre histoire",
-      "Contact": "Contact",
-      "All": "Tout",
-      "New": "Nouveau",
-      "Feed": "Fil",
-      "Kurtis": "Kurtis",
-      "Dresses": "Robes",
-      "Add to Bag": "Ajouter au panier",
-      "Buy Now": "Acheter maintenant",
-      "Select Size": "Choisir la taille",
-      "Choose Size": "Choisir la taille",
-      "Size Guide": "Guide des tailles",
-      "Quantity": "Quantité",
-      "In Stock": "En stock",
-      "Out of Stock": "Rupture de stock",
-      "Product Details": "Détails du produit",
-      "Description": "Description",
-      "Shipping": "Livraison",
-      "Delivery": "Livraison",
-      "Wishlist": "Favoris",
-      "Search": "Rechercher",
-      "Cart": "Panier",
-      "Checkout": "Commander",
-      "Continue Shopping": "Continuer mes achats",
-      "Order Summary": "Récapitulatif de commande",
-      "Total": "Total",
-      "Subtotal": "Sous-total",
-      "WhatsApp Inquiry": "Demander sur WhatsApp",
-      "Enquire on WhatsApp": "Demander sur WhatsApp",
-      "Order help on WhatsApp": "Aide commande sur WhatsApp",
-      "Wholesale Inquiry": "Demande de vente en gros",
-      "Wholesale Enquiry": "Demande de vente en gros",
-      "Private Label": "Marque privée",
-      "Export": "Exportation",
-      "Made in Jaipur": "Fabriqué à Jaipur",
-      "Made in India": "Fabriqué en Inde",
-      "Shop Now": "Acheter maintenant",
-      "View Product": "Voir le produit",
-      "View Details": "Voir les détails",
-      "Share": "Partager",
-      "Share & Earn": "Partagez et gagnez",
-      "Ask Family": "Demander à la famille",
-      "Follow Bahe Kurtiz": "Suivez Bahe Kurtiz",
-      "Find your style in 3 taps": "Trouvez votre style en 3 étapes",
-      "Fast India delivery": "Livraison rapide en Inde",
-      "Secure online payment": "Paiement en ligne sécurisé"
-    }
-  };
-  /* ===== Remaining BAHE languages ===== */
-
-  BK_FULL_TRANSLATIONS.de = {
-    "Shop":"Einkaufen",
-    "New Arrivals":"Neuheiten",
-    "Wholesale":"Großhandel",
-    "Our Story":"Unsere Geschichte",
-    "Contact":"Kontakt",
-    "All":"Alle",
-    "New":"Neu",
-    "Feed":"Feed",
-    "Kurtis":"Kurtis",
-    "Dresses":"Kleider",
-    "Add to Bag":"In den Warenkorb",
-    "Buy Now":"Jetzt kaufen",
-    "Select Size":"Größe wählen",
-    "Choose Size":"Größe wählen",
-    "Size Guide":"Größentabelle",
-    "Quantity":"Menge",
-    "In Stock":"Auf Lager",
-    "Out of Stock":"Ausverkauft",
-    "Product Details":"Produktdetails",
-    "Description":"Beschreibung",
-    "Shipping":"Versand",
-    "Delivery":"Lieferung",
-    "Wishlist":"Wunschliste",
-    "Search":"Suchen",
-    "Cart":"Warenkorb",
-    "Checkout":"Zur Kasse",
-    "Continue Shopping":"Weiter einkaufen",
-    "Order Summary":"Bestellübersicht",
-    "Total":"Gesamt",
-    "Subtotal":"Zwischensumme",
-    "WhatsApp Inquiry":"Auf WhatsApp anfragen",
-    "Enquire on WhatsApp":"Auf WhatsApp anfragen",
-    "Order help on WhatsApp":"Bestellhilfe über WhatsApp",
-    "Wholesale Inquiry":"Großhandelsanfrage",
-    "Wholesale Enquiry":"Großhandelsanfrage",
-    "Private Label":"Eigenmarke",
-    "Export":"Export",
-    "Made in Jaipur":"Hergestellt in Jaipur",
-    "Made in India":"Hergestellt in Indien",
-    "Shop Now":"Jetzt einkaufen",
-    "View Product":"Produkt ansehen",
-    "View Details":"Details ansehen",
-    "Share":"Teilen",
-    "Share & Earn":"Teilen & verdienen",
-    "Ask Family":"Familie fragen",
-    "Follow Bahe Kurtiz":"Bahe Kurtiz folgen",
-    "Find your style in 3 taps":"Finde deinen Stil in 3 Schritten",
-    "Fast India delivery":"Schnelle Lieferung in Indien",
-    "Secure online payment":"Sichere Online-Zahlung"
-  };
-
-  BK_FULL_TRANSLATIONS.es = {
-    "Shop":"Comprar",
-    "New Arrivals":"Novedades",
-    "Wholesale":"Venta al por mayor",
-    "Our Story":"Nuestra historia",
-    "Contact":"Contacto",
-    "All":"Todo",
-    "New":"Nuevo",
-    "Feed":"Novedades",
-    "Kurtis":"Kurtis",
-    "Dresses":"Vestidos",
-    "Add to Bag":"Añadir al carrito",
-    "Buy Now":"Comprar ahora",
-    "Select Size":"Elegir talla",
-    "Choose Size":"Elegir talla",
-    "Size Guide":"Guía de tallas",
-    "Quantity":"Cantidad",
-    "In Stock":"Disponible",
-    "Out of Stock":"Agotado",
-    "Product Details":"Detalles del producto",
-    "Description":"Descripción",
-    "Shipping":"Envío",
-    "Delivery":"Entrega",
-    "Wishlist":"Favoritos",
-    "Search":"Buscar",
-    "Cart":"Carrito",
-    "Checkout":"Finalizar compra",
-    "Continue Shopping":"Seguir comprando",
-    "Order Summary":"Resumen del pedido",
-    "Total":"Total",
-    "Subtotal":"Subtotal",
-    "WhatsApp Inquiry":"Consultar por WhatsApp",
-    "Enquire on WhatsApp":"Consultar por WhatsApp",
-    "Order help on WhatsApp":"Ayuda con pedidos por WhatsApp",
-    "Wholesale Inquiry":"Consulta mayorista",
-    "Wholesale Enquiry":"Consulta mayorista",
-    "Private Label":"Marca privada",
-    "Export":"Exportación",
-    "Made in Jaipur":"Hecho en Jaipur",
-    "Made in India":"Hecho en India",
-    "Shop Now":"Comprar ahora",
-    "View Product":"Ver producto",
-    "View Details":"Ver detalles",
-    "Share":"Compartir",
-    "Share & Earn":"Comparte y gana",
-    "Ask Family":"Preguntar a la familia",
-    "Follow Bahe Kurtiz":"Sigue a Bahe Kurtiz",
-    "Find your style in 3 taps":"Encuentra tu estilo en 3 pasos",
-    "Fast India delivery":"Entrega rápida en India",
-    "Secure online payment":"Pago seguro en línea"
-  };
-
-  BK_FULL_TRANSLATIONS.it = {
-    "Shop":"Acquista",
-    "New Arrivals":"Novità",
-    "Wholesale":"Ingrosso",
-    "Our Story":"La nostra storia",
-    "Contact":"Contatti",
-    "All":"Tutto",
-    "New":"Nuovo",
-    "Feed":"Feed",
-    "Kurtis":"Kurti",
-    "Dresses":"Abiti",
-    "Add to Bag":"Aggiungi al carrello",
-    "Buy Now":"Acquista ora",
-    "Select Size":"Scegli la taglia",
-    "Choose Size":"Scegli la taglia",
-    "Size Guide":"Guida alle taglie",
-    "Quantity":"Quantità",
-    "In Stock":"Disponibile",
-    "Out of Stock":"Esaurito",
-    "Product Details":"Dettagli prodotto",
-    "Description":"Descrizione",
-    "Shipping":"Spedizione",
-    "Delivery":"Consegna",
-    "Wishlist":"Preferiti",
-    "Search":"Cerca",
-    "Cart":"Carrello",
-    "Checkout":"Checkout",
-    "Continue Shopping":"Continua gli acquisti",
-    "Order Summary":"Riepilogo ordine",
-    "Total":"Totale",
-    "Subtotal":"Subtotale",
-    "WhatsApp Inquiry":"Richiedi su WhatsApp",
-    "Enquire on WhatsApp":"Richiedi su WhatsApp",
-    "Order help on WhatsApp":"Assistenza ordini su WhatsApp",
-    "Wholesale Inquiry":"Richiesta ingrosso",
-    "Wholesale Enquiry":"Richiesta ingrosso",
-    "Private Label":"Marchio privato",
-    "Export":"Esportazione",
-    "Made in Jaipur":"Realizzato a Jaipur",
-    "Made in India":"Realizzato in India",
-    "Shop Now":"Acquista ora",
-    "View Product":"Vedi prodotto",
-    "View Details":"Vedi dettagli",
-    "Share":"Condividi",
-    "Share & Earn":"Condividi e guadagna",
-    "Ask Family":"Chiedi alla famiglia",
-    "Follow Bahe Kurtiz":"Segui Bahe Kurtiz",
-    "Find your style in 3 taps":"Trova il tuo stile in 3 passaggi",
-    "Fast India delivery":"Consegna rapida in India",
-    "Secure online payment":"Pagamento online sicuro"
-  };
-
-  BK_FULL_TRANSLATIONS.ja = {
-    "Shop":"ショップ",
-    "New Arrivals":"新着商品",
-    "Wholesale":"卸売",
-    "Our Story":"私たちについて",
-    "Contact":"お問い合わせ",
-    "All":"すべて",
-    "New":"新着",
-    "Feed":"フィード",
-    "Kurtis":"クルティ",
-    "Dresses":"ドレス",
-    "Add to Bag":"カートに追加",
-    "Buy Now":"今すぐ購入",
-    "Select Size":"サイズを選択",
-    "Choose Size":"サイズを選択",
-    "Size Guide":"サイズガイド",
-    "Quantity":"数量",
-    "In Stock":"在庫あり",
-    "Out of Stock":"在庫切れ",
-    "Product Details":"商品詳細",
-    "Description":"説明",
-    "Shipping":"配送",
-    "Delivery":"お届け",
-    "Wishlist":"お気に入り",
-    "Search":"検索",
-    "Cart":"カート",
-    "Checkout":"購入手続き",
-    "Continue Shopping":"買い物を続ける",
-    "Order Summary":"注文内容",
-    "Total":"合計",
-    "Subtotal":"小計",
-    "WhatsApp Inquiry":"WhatsAppで問い合わせ",
-    "Enquire on WhatsApp":"WhatsAppで問い合わせ",
-    "Order help on WhatsApp":"WhatsAppで注文サポート",
-    "Wholesale Inquiry":"卸売のお問い合わせ",
-    "Wholesale Enquiry":"卸売のお問い合わせ",
-    "Private Label":"プライベートブランド",
-    "Export":"輸出",
-    "Made in Jaipur":"ジャイプール製",
-    "Made in India":"インド製",
-    "Shop Now":"今すぐ購入",
-    "View Product":"商品を見る",
-    "View Details":"詳細を見る",
-    "Share":"シェア",
-    "Share & Earn":"シェアして特典を獲得",
-    "Ask Family":"家族に相談",
-    "Follow Bahe Kurtiz":"Bahe Kurtizをフォロー",
-    "Find your style in 3 taps":"3ステップでスタイルを見つける",
-    "Fast India delivery":"インド国内迅速配送",
-    "Secure online payment":"安全なオンライン決済"
-  };
-
-  BK_FULL_TRANSLATIONS.ar = {
-    "Shop":"تسوق",
-    "New Arrivals":"وصل حديثاً",
-    "Wholesale":"الجملة",
-    "Our Story":"قصتنا",
-    "Contact":"اتصل بنا",
-    "All":"الكل",
-    "New":"جديد",
-    "Feed":"الموجز",
-    "Kurtis":"كورتي",
-    "Dresses":"فساتين",
-    "Add to Bag":"أضف إلى السلة",
-    "Buy Now":"اشتر الآن",
-    "Select Size":"اختر المقاس",
-    "Choose Size":"اختر المقاس",
-    "Size Guide":"دليل المقاسات",
-    "Quantity":"الكمية",
-    "In Stock":"متوفر",
-    "Out of Stock":"غير متوفر",
-    "Product Details":"تفاصيل المنتج",
-    "Description":"الوصف",
-    "Shipping":"الشحن",
-    "Delivery":"التوصيل",
-    "Wishlist":"المفضلة",
-    "Search":"بحث",
-    "Cart":"السلة",
-    "Checkout":"إتمام الشراء",
-    "Continue Shopping":"متابعة التسوق",
-    "Order Summary":"ملخص الطلب",
-    "Total":"الإجمالي",
-    "Subtotal":"المجموع الفرعي",
-    "WhatsApp Inquiry":"استفسر عبر واتساب",
-    "Enquire on WhatsApp":"استفسر عبر واتساب",
-    "Order help on WhatsApp":"مساعدة الطلب عبر واتساب",
-    "Wholesale Inquiry":"استفسار الجملة",
-    "Wholesale Enquiry":"استفسار الجملة",
-    "Private Label":"علامة تجارية خاصة",
-    "Export":"تصدير",
-    "Made in Jaipur":"صنع في جايبور",
-    "Made in India":"صنع في الهند",
-    "Shop Now":"تسوق الآن",
-    "View Product":"عرض المنتج",
-    "View Details":"عرض التفاصيل",
-    "Share":"مشاركة",
-    "Share & Earn":"شارك واكسب",
-    "Ask Family":"اسأل العائلة",
-    "Follow Bahe Kurtiz":"تابع Bahe Kurtiz",
-    "Find your style in 3 taps":"اعثر على أسلوبك في 3 خطوات",
-    "Fast India delivery":"توصيل سريع داخل الهند",
-    "Secure online payment":"دفع آمن عبر الإنترنت"
-  };
-
-  const bkOriginalText = new WeakMap();
-
-  function bkCompleteTranslate() {
-    const lang =
-      (window.BKLanguage && window.BKLanguage.get
-        ? window.BKLanguage.get()
-        : localStorage.getItem("bk_lang")) || "en";
-
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-
-    document.querySelectorAll("body *").forEach((el) => {
-      if (
-        el.children.length ||
-        ["SCRIPT","STYLE","NOSCRIPT","TEXTAREA"].includes(el.tagName)
-      ) return;
-
-      const current = (el.textContent || "").trim();
-      if (!current) return;
-
-      if (!bkOriginalText.has(el)) {
-        bkOriginalText.set(el, current);
-      }
-
-      const original = bkOriginalText.get(el);
-
-      if (lang === "en") {
-        el.textContent = original;
-        return;
-      }
-
-      const dict = BK_FULL_TRANSLATIONS[lang];
-      if (!dict) return;
-
-      if (dict[original]) {
-        el.textContent = dict[original];
-        return;
-      }
-
-      let translated = original;
-
-      Object.keys(dict)
-        .sort((a, b) => b.length - a.length)
-        .forEach((key) => {
-          if (translated.includes(key)) {
-            translated = translated.split(key).join(dict[key]);
-          }
-        });
-
-      if (translated !== original) {
-        el.textContent = translated;
-      }
-    });
-  }
-
-  let bkTranslateTimer = null;
-
-  function bkScheduleTranslation() {
-    clearTimeout(bkTranslateTimer);
-    bkTranslateTimer = setTimeout(bkCompleteTranslate, 120);
-  }
-
-  document.addEventListener("bk:language", bkScheduleTranslation);
-  window.addEventListener("load", bkScheduleTranslation);
-
- 
-    });
-  }
-
-  window.BKCompleteTranslate = bkCompleteTranslate;
+  // ---------- BAHE 2050: My BAHE, community looks, design voting, catalogue PDF ----------
+  const myPicks = $("[data-my-picks]");
+  if (myPicks) (async () => {
+    const cat = await catalog().catch(() => null); if (!cat) return;
+    const seen = getRecent(); const wish = getW(); const seed = [...new Set([...wish, ...seen])].filter((k) => cat.products[k]);
+    const likes = { cat:{}, fab:{} }; seed.forEach((k)=>{ const p=cat.products[k]; likes.cat[p.cat]=(likes.cat[p.cat]||0)+2; if(p.fabric) likes.fab[p.fabric]=(likes.fab[p.fabric]||0)+1; });
+    let ranked = Object.entries(cat.products).filter(([k,p])=>p.price && !seed.includes(k)).map(([k,p])=>[k,(likes.cat[p.cat]||0)+(likes.fab[p.fabric]||0)]).sort((x,y)=>y[1]-x[1]).slice(0,12);
+    if (!ranked.length) ranked = Object.entries(cat.products).filter(([,p])=>p.price).slice(0,12).map(([k])=>[k,0]);
+    myPicks.innerHTML = ranked.map(([k])=>miniCard(k,cat.products[k])).join(""); paintWish();
+    const n=$("[data-my-size-note]"); if(n){ let fit=null; try{fit=JSON.parse(localStorage.getItem("bk_fit")||"null")}catch{} n.innerHTML=fit?.size?`<b>My remembered size:</b> ${esc(fit.size)} <span class="muted">You can re-check size on any product page.</span>`:`<b>My size:</b> Use “Mera Size” on a product once and BAHE will remember it on this device.`; }
+  })();
+
+  const lp=$("[data-look-photo]"), li=$("[data-look-img]"), lprev=$("[data-look-preview]"), lshare=$("[data-look-share]"), lcap=$("[data-look-caption]");
+  let lookFile=null;
+  lp?.addEventListener("change",()=>{ const f=lp.files?.[0]; if(!f)return; if(!/^image\//.test(f.type))return toast("Please choose a photo"); lookFile=f; li.src=URL.createObjectURL(f); lprev.hidden=false; lshare.disabled=false; });
+  lcap?.addEventListener("input",()=>{ const t=$("[data-look-text]"); if(t)t.textContent=lcap.value; });
+  lshare?.addEventListener("click",async()=>{ if(!lookFile)return; const text=(lcap?.value||"My BAHE Look ✨")+`\n${location.origin}/?utm_source=customer_share&utm_medium=ugc&utm_campaign=bahe_looks`; try{ if(navigator.canShare?.({files:[lookFile]})){ await navigator.share({files:[lookFile],text}); sendSheet({type:"ugc_share",items:lcap?.value||"BAHE Look"}); return; } }catch(e){if(e?.name==="AbortError")return;} try{await navigator.clipboard.writeText(text);toast("Caption + link copied. Share your photo from gallery.");}catch{toast("Share your photo with BAHE Looks");} });
+
+  $("[data-design-vote]")?.addEventListener("submit",(e)=>{ e.preventDefault(); const f=Object.fromEntries(new FormData(e.currentTarget)); sendSheet({type:"design_vote",items:`${f.colour} | ${f.mood} | ${f.idea||""}`,consent:"no"}); try{localStorage.setItem("bk_design_vote",JSON.stringify({...f,t:Date.now()}));}catch{} const m=$("[data-vote-msg]"); if(m)m.innerHTML=`✓ Vote saved: <b>${esc(f.colour)} · ${esc(f.mood)}</b>. Thank you for designing with BAHE.`; track("Lead",{content_name:"design_vote"}); });
+  $("[data-print-catalogue]")?.addEventListener("click",()=>window.print());
 })();
