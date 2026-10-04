@@ -1379,3 +1379,40 @@ window.addEventListener("load",translate);
     document.documentElement.lang = "en";
   });
 })();
+/* BAHE French core completion */
+(() => {
+  const FR = {
+    "NEW ARRIVALS": "NOUVEAUTÉS",
+    "New Arrivals": "Nouveautés",
+    "JOURNAL": "JOURNAL",
+    "OUR STORY": "NOTRE HISTOIRE",
+    "Our Story": "Notre histoire",
+    "CONTACT": "CONTACT",
+    "SHOP": "BOUTIQUE",
+    "Shop": "Boutique",
+    "Shop All": "Tout acheter",
+    "New": "Nouveau",
+    "Feed": "Fil",
+    "Dresses": "Robes",
+    "Wholesale": "Vente en gros",
+    "Fast India delivery": "Livraison rapide en Inde",
+    "Find your style in 3 taps": "Trouvez votre style en 3 étapes",
+    "Follow Bahe Kurtiz": "Suivez Bahe Kurtiz",
+    "Secure online payment": "Paiement en ligne sécurisé",
+    "Made in Jaipur": "Fabriqué à Jaipur"
+  };
+
+  function baheFrenchComplete() {
+    if ((window.BKLanguage?.get?.() || localStorage.getItem("bk_lang")) !== "fr") return;
+
+    document.querySelectorAll("body *").forEach(el => {
+      if (el.children.length || ["SCRIPT","STYLE","NOSCRIPT"].includes(el.tagName)) return;
+
+      const text = el.textContent.trim();
+      if (FR[text]) el.textContent = el.textContent.replace(text, FR[text]);
+    });
+  }
+
+  document.addEventListener("bk:language", baheFrenchComplete);
+  window.addEventListener("load", baheFrenchComplete);
+})();
