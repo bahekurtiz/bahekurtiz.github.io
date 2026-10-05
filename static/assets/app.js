@@ -435,8 +435,7 @@
     placeLanguageControl();
   }
 
-  const langObserver = new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) translateUI(n); });
-  langObserver.observe(document.body, { childList:true, subtree:true });
+  // Dynamic sections translate themselves when rendered; avoid a full-body observer for performance.
 
   // ---------- country & currency (all countries; local prices shown approx., charged in USD) ----------
   const flag = (c) => (c && c.length === 2 ? String.fromCodePoint(...[...c.toUpperCase()].map((ch) => 127397 + ch.charCodeAt(0))) : "🌍");
@@ -448,7 +447,6 @@
     let code = ""; try { const z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; if (/Calcutta|Kolkata/.test(z)) code = "IN"; } catch {}
     if (!code) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i); code = m ? m[1].toUpperCase() : (isUSD() ? "US" : "IN"); }
     const row = CL.find((r) => r[0] === code); cc = row ? { c: row[0], n: row[1], cur: row[2] } : null;
-    try { if (cc && !localStorage.getItem("bk_lang_manual")) setLang(COUNTRY_LANG[cc.c] || "en", false); } catch {}
   }
   let rates = { USD: 1, ...(BK.rates || {}) };
   const fmtLocal = (v, cur) => { try { return new Intl.NumberFormat("en", { style: "currency", currency: cur, minimumFractionDigits: 0, maximumFractionDigits: v * rates[cur] >= 10 ? 0 : 2 }).format(v * rates[cur]); } catch { return null; } };
@@ -1125,26 +1123,4 @@
     });
     $("[data-mirror-wish]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } const w = getW(); liked.forEach((l) => { if (!w.includes(l.k)) w.push(l.k); }); setW(w); toast(`${liked.length} dress wishlist mein ♡`); });
   }
-
-
-  // ---------- BAHE 2050: My BAHE, community looks, design voting, catalogue PDF ----------
-  const myPicks = $("[data-my-picks]");
-  if (myPicks) (async () => {
-    const cat = await catalog().catch(() => null); if (!cat) return;
-    const seen = getRecent(); const wish = getW(); const seed = [...new Set([...wish, ...seen])].filter((k) => cat.products[k]);
-    const likes = { cat:{}, fab:{} }; seed.forEach((k)=>{ const p=cat.products[k]; likes.cat[p.cat]=(likes.cat[p.cat]||0)+2; if(p.fabric) likes.fab[p.fabric]=(likes.fab[p.fabric]||0)+1; });
-    let ranked = Object.entries(cat.products).filter(([k,p])=>p.price && !seed.includes(k)).map(([k,p])=>[k,(likes.cat[p.cat]||0)+(likes.fab[p.fabric]||0)]).sort((x,y)=>y[1]-x[1]).slice(0,12);
-    if (!ranked.length) ranked = Object.entries(cat.products).filter(([,p])=>p.price).slice(0,12).map(([k])=>[k,0]);
-    myPicks.innerHTML = ranked.map(([k])=>miniCard(k,cat.products[k])).join(""); paintWish();
-    const n=$("[data-my-size-note]"); if(n){ let fit=null; try{fit=JSON.parse(localStorage.getItem("bk_fit")||"null")}catch{} n.innerHTML=fit?.size?`<b>My remembered size:</b> ${esc(fit.size)} <span class="muted">You can re-check size on any product page.</span>`:`<b>My size:</b> Use “Mera Size” on a product once and BAHE will remember it on this device.`; }
-  })();
-
-  const lp=$("[data-look-photo]"), li=$("[data-look-img]"), lprev=$("[data-look-preview]"), lshare=$("[data-look-share]"), lcap=$("[data-look-caption]");
-  let lookFile=null;
-  lp?.addEventListener("change",()=>{ const f=lp.files?.[0]; if(!f)return; if(!/^image\//.test(f.type))return toast("Please choose a photo"); lookFile=f; li.src=URL.createObjectURL(f); lprev.hidden=false; lshare.disabled=false; });
-  lcap?.addEventListener("input",()=>{ const t=$("[data-look-text]"); if(t)t.textContent=lcap.value; });
-  lshare?.addEventListener("click",async()=>{ if(!lookFile)return; const text=(lcap?.value||"My BAHE Look ✨")+`\n${location.origin}/?utm_source=customer_share&utm_medium=ugc&utm_campaign=bahe_looks`; try{ if(navigator.canShare?.({files:[lookFile]})){ await navigator.share({files:[lookFile],text}); sendSheet({type:"ugc_share",items:lcap?.value||"BAHE Look"}); return; } }catch(e){if(e?.name==="AbortError")return;} try{await navigator.clipboard.writeText(text);toast("Caption + link copied. Share your photo from gallery.");}catch{toast("Share your photo with BAHE Looks");} });
-
-  $("[data-design-vote]")?.addEventListener("submit",(e)=>{ e.preventDefault(); const f=Object.fromEntries(new FormData(e.currentTarget)); sendSheet({type:"design_vote",items:`${f.colour} | ${f.mood} | ${f.idea||""}`,consent:"no"}); try{localStorage.setItem("bk_design_vote",JSON.stringify({...f,t:Date.now()}));}catch{} const m=$("[data-vote-msg]"); if(m)m.innerHTML=`✓ Vote saved: <b>${esc(f.colour)} · ${esc(f.mood)}</b>. Thank you for designing with BAHE.`; track("Lead",{content_name:"design_vote"}); });
-  $("[data-print-catalogue]")?.addEventListener("click",()=>window.print());
 })();
