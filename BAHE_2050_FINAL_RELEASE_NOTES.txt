@@ -1,0 +1,61 @@
+BAHE KURTIZ — 2050 CONSOLIDATED RELEASE CANDIDATE
+Date: 2026-10-05
+
+SOURCE / SAFETY
+- Built from the latest-main 2050 code-ready source, with the existing backup-before-core-v2 retained as rollback safety.
+- Cloudflare Pages build remains: node build.mjs ; output: _site
+- Existing Mera Size logic was not rebuilt or changed.
+
+FIXED IN THIS RELEASE
+1. Language control is NOT in/under the logo/header.
+2. Language control is beside Search in the header on desktop and mobile; it is never under the logo or duplicated on product pages.
+3. Mobile menu keeps a manual language switch as a fallback.
+4. Cloudflare edge country detection endpoint (/api/geo) feeds automatic country selection.
+5. Automatic language follows country + browser preference where a country is multilingual (e.g. Canada English/French).
+6. Manual language choice persists and overrides automatic language.
+7. Product title + description translations are wired for EN/HI/FR/DE/ES/IT/JA/AR for the current four products.
+8. Arabic RTL remains supported.
+9. No full-body language MutationObserver was added.
+10. Desktop has direct Discover access to Watch & Shop, Mirror, Wishlist, Share & Earn, My Designs and Gift Card, matching mobile feature reachability.
+11. Mirror performance: MediaPipe pose AI is bounded and runs on the shopper photo; product dress layers use a lightweight crop path instead of pose analysis on every product.
+12. INR -> USD automatic selling-price fallback remains removed.
+13. International storefront is enabled even when a product has no international price; missing prices show as request/availability rather than inventing a selling price.
+14. Per-country explicit price architecture is included through product.market_prices.
+15. Existing India Razorpay server-side create/verify/status foundation is preserved.
+
+MARKET PRICE FORMAT (inside each content/products/<product>.json)
+"price_usd": 79,
+"mrp_usd": 99,
+"market_prices": {
+  "US": {"price": 79, "mrp": 99, "currency": "USD"},
+  "CA": {"price": 109, "mrp": 129, "currency": "CAD"},
+  "FR": {"price": 75, "mrp": 95, "currency": "EUR"},
+  "GB": {"price": 69, "mrp": 89, "currency": "GBP"},
+  "JP": {"price": 11900, "mrp": 14900, "currency": "JPY"}
+}
+These numbers are EXAMPLES ONLY. Do not copy them as real BAHE prices. Enter BAHE's chosen selling prices.
+
+IMPORTANT BUSINESS TRUTH
+- Photos remain the same across countries.
+- Country/language/currency are separate concerns.
+- BAHE's India price is never used to invent an international selling price.
+- Where an explicit country price exists, it can be displayed as that market's BAHE price.
+- Merchant KYC, live gateway credentials and provider approval cannot be embedded in a ZIP.
+
+VALIDATION COMPLETED
+- node --check build.mjs: PASS
+- node --check static/assets/app.js: PASS
+- node --check functions/api/geo.js: PASS
+- node build.mjs: PASS (39 pages, 4 products, 2 categories)
+- Generated HTML structural scan: PASS (40 HTML files, no duplicate IDs)
+- Language control absent from desktop header/logo: PASS
+- Search-adjacent header language control: PASS
+- Desktop/mobile feature routes present: PASS
+- No INR->USD selling-price fallback: PASS
+- No language re-parenting code: PASS
+- No broad translation observer: PASS
+- Mirror fast-path + bounded AI timeout: PASS
+
+DEPLOYMENT
+Upload/replace the ZIP CONTENTS at the repository root on main (not the parent folder), then let Cloudflare Pages build from main.
+After deployment, live acceptance must still be checked on real desktop + phone before calling the production site fully accepted.

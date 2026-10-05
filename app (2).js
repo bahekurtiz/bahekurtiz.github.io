@@ -8,7 +8,27 @@
   const usd = (n) => "$" + (Math.round(n * 100) % 100 ? (Math.round(n * 100) / 100).toFixed(2) : String(Math.round(n)));
   const isUSD = () => document.documentElement.classList.contains("usd");
   const money = (n) => (isUSD() ? usd(n) : inr(n));
-  const unit = (p) => (isUSD() ? p.price_usd : p.price);
+  // One pricing source of truth. India uses INR. International uses an explicit
+  // country override only when the merchant configured it; otherwise the
+  // merchant-defined USD price is used. Never derive a selling price from INR.
+  const marketOffer = (p) => {
+    if (!isUSD()) return { amount: p?.price, mrp: p?.mrp, currency: "INR", exact: true };
+    const mp = p && cc?.c ? (p.market_prices?.[cc.c] || BK.marketPrices?.[p.slug]?.[cc.c]) : null;
+    const amount = Number(mp?.price);
+    const mrp = Number(mp?.mrp);
+    if (Number.isFinite(amount) && amount > 0) return { amount, mrp: Number.isFinite(mrp) && mrp > 0 ? mrp : null, currency: String(mp?.currency || cc?.cur || "USD").toUpperCase(), exact: true };
+    return { amount: p?.price_usd, mrp: p?.mrp_usd, currency: "USD", exact: false };
+  };
+  const unit = (p) => marketOffer(p).amount;
+  const moneyAs = (n, currency) => { try { return new Intl.NumberFormat(undefined,{style:"currency",currency,maximumFractionDigits:n>=100?0:2}).format(n); } catch { return `${currency} ${n}`; } };
+  const bagPricing = (cat) => {
+    if (!isUSD()) return { currency:"INR", exact:true };
+    const ps = bag.map(i=>cat.products[i.slug]).filter(Boolean), offers = ps.map(marketOffer);
+    const exact = offers.length && offers.every(o=>o.exact) && new Set(offers.map(o=>o.currency)).size===1;
+    return { currency: exact ? offers[0].currency : "USD", exact };
+  };
+  const bagUnit = (p, ctx) => ctx?.exact ? marketOffer(p).amount : (isUSD() ? p.price_usd : p.price);
+  const bagMoney = (n, ctx) => ctx?.currency === "INR" ? inr(n) : moneyAs(n, ctx?.currency || "USD");
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
 
   // ---------- 2050 language layer: country, language and pricing stay independent ----------
@@ -107,7 +127,7 @@
 
   // ---------- Meta Pixel events (only if pixel is on) ----------
   const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
-  const track = (ev, data = {}, id) => { try { window.fbq && window.fbq("track", ev, data, id ? { eventID: id } : undefined); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
+  const track = (ev, data = {}, id) => { const eid=id||(`${ev}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`); try { window.fbq && window.fbq("track", ev, data, { eventID: eid }); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} if(["ViewContent","AddToCart","AddToWishlist","InitiateCheckout","Purchase","Lead","Search"].includes(ev)){try{fetch(url("api/meta-event"),{method:"POST",headers:{"content-type":"application/json"},keepalive:true,body:JSON.stringify({event:ev,event_id:eid,url:location.href,custom_data:data})}).catch(()=>{})}catch{}} };
 
   // ---------- storage (safe) ----------
   const KEY = "bk_bag_v1";
@@ -178,11 +198,11 @@
     if (!bag.length) { const sb = $("[data-ship-bar]"); if (sb) sb.hidden = true; box.innerHTML = `<p class="empty">Your bag is empty.<br><a class="link" href="${url("shop/")}">Start shopping →</a></p>`; $("[data-cart-foot]").hidden = true; return; }
     let cat; try { cat = await catalog(); } catch { box.innerHTML = `<p class="empty">Could not load your bag. Check your internet and try again.</p>`; return; }
     let sub = 0;
-    const items = bag.filter((i) => cat.products[i.slug]);
-    box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
+    const items = bag.filter((i) => cat.products[i.slug]); const priceCtx = bagPricing(cat);
+    box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = bagUnit(p, priceCtx); sub += (pr || 0) * i.qty;
       return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
-      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : money(pr * i.qty)}</strong></div>`; }).join("");
-    $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false;
+      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : bagMoney(pr * i.qty, priceCtx)}</strong></div>`; }).join("");
+    $("[data-cart-subtotal]").textContent = bagMoney(sub, priceCtx); $("[data-cart-foot]").hidden = false;
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
     if (bar) { bar.hidden = !lim; if (lim) { const left = lim - sub; $("[data-ship-text]").innerHTML = left > 0 ? `Add <strong>${money(left)}</strong> more for <strong>FREE shipping</strong>` : `🎉 You have unlocked <strong>FREE shipping</strong>`; $("[data-ship-fill]").style.width = Math.min(100, (sub / lim) * 100) + "%"; } }
     $$("[data-q]", box).forEach((b) => b.onclick = () => { const b2 = [...items]; b2[b.dataset.q].qty = Math.max(0, Math.min(10, b2[b.dataset.q].qty + +b.dataset.d)); setBag(b2); });
@@ -249,17 +269,18 @@
   const co = $("[data-checkout]");
   let method = "", online = false;
   function totals(cat, m) {
-    const s = cat.settings; let sub = 0;
+    const s = cat.settings; let sub = 0; const ctx = bagPricing(cat);
     if (isUSD()) {
-      for (const i of bag) { const p = cat.products[i.slug]; if (p && p.price_usd) sub += p.price_usd * i.qty; }
-      const shipping = s.intl_free_shipping_above_usd && sub >= s.intl_free_shipping_above_usd ? 0 : (s.intl_shipping_charge_usd || 0);
-      return { sub, discount: 0, shipping, total: Math.round((sub + shipping) * 100) / 100 };
+      for (const i of bag) { const p = cat.products[i.slug]; const v = p ? bagUnit(p, ctx) : null; if (v) sub += v * i.qty; }
+      let shipping = s.intl_free_shipping_above_usd && !ctx.exact && sub >= s.intl_free_shipping_above_usd ? 0 : (s.intl_shipping_charge_usd || 0);
+      // Shipping is an operational fee, not a product selling-price conversion.
+      if (ctx.exact && ctx.currency !== "USD" && rates[ctx.currency]) shipping = shipping * rates[ctx.currency];
+      return { sub, discount:0, shipping, total:Math.round((sub+shipping)*100)/100, currency:ctx.currency, exact:ctx.exact };
     }
-    for (const i of bag) { const p = cat.products[i.slug]; if (p && p.price) sub += p.price * i.qty; }
-    const prepaid = m === "online" || m === "upi";
-    const discount = prepaid && s.prepaid_discount_percent ? Math.round(sub * s.prepaid_discount_percent / 100) : 0;
-    const shipping = s.free_shipping_above && sub >= s.free_shipping_above ? 0 : (s.shipping_charge || 0);
-    return { sub, discount, shipping, total: sub - discount + shipping };
+    for (const i of bag) { const p=cat.products[i.slug]; if(p&&p.price) sub+=p.price*i.qty; }
+    const prepaid=m==="online"||m==="upi"; const discount=prepaid&&s.prepaid_discount_percent?Math.round(sub*s.prepaid_discount_percent/100):0;
+    const shipping=s.free_shipping_above&&sub>=s.free_shipping_above?0:(s.shipping_charge||0);
+    return { sub, discount, shipping, total:sub-discount+shipping, currency:"INR", exact:true };
   }
   async function renderCheckout() {
     const cat = await catalog();
@@ -267,13 +288,13 @@
     bag = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
     const itemsBox = $("[data-co-items]");
     if (!bag.length) { co.innerHTML = `<h1>Checkout</h1><p class="empty">${skipped.length ? "The styles in your bag ship within India only. " : ""}Your bag is empty. <a class="link" href="${url("shop/")}">Shop the collection →</a></p>`; return; }
-    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${bagMoney(bagUnit(p, bagPricing(cat)) * i.qty, bagPricing(cat))}</strong></div>`; }).join("");
     const t = totals(cat, method);
-    $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div>
-      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}
-      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>
-      <div class="row total"><span>Total</span><span>${money(t.total)}${isUSD() ? " USD" : ""}</span></div>`;
-    $("[data-place]").textContent = method === "paypal" ? `Place order · ${usd(t.total)} (PayPal invoice)` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
+    $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${bagMoney(t.sub,t)}</span></div>
+      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${bagMoney(t.discount,t)}</span></div>` : ""}
+      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? bagMoney(t.shipping,t) : "Free"}</span></div>
+      <div class="row total"><span>Total</span><span>${bagMoney(t.total,t)}</span></div>`;
+    $("[data-place]").textContent = method === "paypal" ? `Place order · ${bagMoney(t.total,t)} (PayPal invoice)` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
   }
   function loadRazorpay() {
     return new Promise((res, rej) => {
@@ -314,6 +335,7 @@
     btn.disabled = false;
   }
   const orderRef = () => { const d = new Date(); return "BK" + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(); };
+  const recordOrder = (f, ref, t, payment_method, currency, cat, payment_status="Pending") => { try { fetch(url("api/order-record"), { method:"POST", headers:{"content-type":"application/json"}, keepalive:true, body:JSON.stringify({ ref, payment_method, payment_status, currency, total:t.total, name:f.name, phone:f.phone, email:f.email||"", address:f.address, city:f.city, state:f.state||"", pincode:f.pincode, country:f.country||"India", items:bag.map(i=>`${cat.products[i.slug]?.title||i.slug} ${i.size||""} x${i.qty}`).join("; ") }) }).catch(()=>{}); } catch {} };
   function orderText(cat, f, ref, total, payLine) {
     const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${inr(p.price * i.qty)}`; }).join("\n");
     return `New order ${ref}\n\n${lines}\n\nTotal: ${inr(total)}\nPayment: ${payLine}\n\nName: ${f.name}\nPhone: ${f.phone}${f.email ? "\nEmail: " + f.email : ""}\nAddress: ${f.address}, ${f.city}, ${f.state} - ${f.pincode}${giftText(f)}${refText()}${aiText()}${gcText()}`;
@@ -337,12 +359,13 @@
         btn.disabled = true;
         let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
         const t = totals(cat, "paypal"); const ref = orderRef();
-        saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
-        const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${usd(p.price_usd * i.qty)}`; }).join("\n");
-        const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? usd(t.shipping) : "Free"}\nTotal: ${usd(t.total)} USD\nPayment: Please send PayPal invoice\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}${aiText()}${gcText()}`;
-        track("Lead", { value: t.total, currency: "USD" });
+        recordOrder(f, ref, t, "PayPal invoice", t.currency || "USD", cat);
+        saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: t.currency || "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+        const ctx=bagPricing(cat); const lines = bag.map((i) => { const p=cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${bagMoney(bagUnit(p,ctx)*i.qty,ctx)}`; }).join("\n");
+        const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? bagMoney(t.shipping,t) : "Free"}\nTotal: ${bagMoney(t.total,t)}\nPayment: Please send PayPal invoice\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}${aiText()}${gcText()}`;
+        track("Lead", { value: t.total, currency: t.currency || "USD" });
         const mail = cat.settings.email ? `mailto:${cat.settings.email}?subject=${encodeURIComponent("Order " + ref)}&body=${encodeURIComponent(txt)}` : "";
-        showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${usd(t.total)} USD</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
+        showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${bagMoney(t.total,t)}</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
         return;
       }
       f.phone = f.phone.replace(/\D/g, "").slice(-10);
@@ -350,6 +373,7 @@
       btn.disabled = true;
       let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
       const t = totals(cat, method); const ref = orderRef();
+      if (method !== "online") recordOrder(f, ref, t, method === "upi" ? "UPI" : "WhatsApp", "INR", cat);
       saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "INR", payment: method, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
       const items = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
       const waFallback = () => BK.wa ? ` <a class="link" href="${waUrl(orderText(cat, f, ref, totals(cat, "whatsapp").total, "Online payment failed – please help"))}" target="_blank" rel="noopener">Order on WhatsApp instead →</a>` : "";

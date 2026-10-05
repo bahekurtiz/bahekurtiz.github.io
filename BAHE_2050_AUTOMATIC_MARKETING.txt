@@ -1,0 +1,17 @@
+BAHE 2050 AUTOMATIC MARKETING LAYER
+
+Stable, lightweight marketing outputs generated from the same product source on every deploy:
+- Google Merchant Center feeds (India + international USD)
+- Meta/Facebook/Instagram catalog feeds (India + international USD)
+- Pinterest retail catalog feeds (India + international USD)
+- Product structured data, sitemap, robots and social sharing metadata
+- Meta Pixel + optional server-side CAPI hooks
+- Marketing Studio for tracked foreign-market campaign links/copy
+- Referral/share, wishlist and UGC/discovery loops already in the storefront
+
+Admin social links:
+- Add/edit Instagram, Facebook, LinkedIn, Pinterest, YouTube or any HTTPS social profile.
+- Empty/unconfigured links are not rendered.
+- Same configured links are used on mobile and desktop.
+
+Important: ad accounts still require their own approval, credentials, catalog connection, campaign budget and publishing approval. The website does not spend money or publish paid campaigns by itself.

@@ -1,0 +1,61 @@
+{
+  "title": "Blue Floral Halter Neck Maxi Dress",
+  "category": "Dress",
+  "color": "Blue & Grey",
+  "price": 1499,
+  "mrp": 2499,
+  "sizes": [
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "XS"
+  ],
+  "fabric": "cotton",
+  "description": "A flowy floral maxi dress in soft blue and grey tones. A halter neck with a lace-up open back, a fitted bodice and a full, gathered skirt with a ruffle hem that twirls beautifully.\n\nPerfect for brunches, holidays and summer evenings. Made in Jaipur.",
+  "images": [
+    "/images/products/blue-halter-1.jpg",
+    "/images/products/blue-halter-2.jpg",
+    "/images/products/blue-halter-3.jpg",
+    "/images/products/blue-halter-4.jpg"
+  ],
+  "in_stock": true,
+  "featured": true,
+  "sort_order": 4,
+  "seo_title": "",
+  "seo_description": "",
+  "price_usd": null,
+  "mrp_usd": null,
+  "market_prices": {},
+  "i18n": {
+    "fr": {
+      "title": "Robe maxi florale bleue à col halter",
+      "description": "Une robe maxi florale fluide dans des tons doux de bleu et de gris. Encolure dos-nu avec dos ouvert à lacets, corsage ajusté et jupe ample froncée terminée par un volant.\n\nParfaite pour les brunchs, les vacances et les soirées d’été. Fabriquée à Jaipur."
+    },
+    "de": {
+      "title": "Blaues florales Neckholder-Maxikleid",
+      "description": "Ein fließendes florales Maxikleid in sanften Blau- und Grautönen. Neckholder mit offenem Schnürrücken, figurbetontem Oberteil und weitem, gerafftem Rock mit Rüschensaum.\n\nIdeal für Brunch, Urlaub und Sommerabende. Hergestellt in Jaipur."
+    },
+    "es": {
+      "title": "Vestido maxi floral azul con cuello halter",
+      "description": "Un vestido maxi floral y fluido en suaves tonos azules y grises. Cuello halter con espalda abierta de cordones, cuerpo entallado y falda amplia fruncida con volante en el bajo.\n\nPerfecto para brunch, vacaciones y tardes de verano. Hecho en Jaipur."
+    },
+    "it": {
+      "title": "Maxi abito floreale blu con scollo halter",
+      "description": "Un maxi abito floreale fluido nei toni delicati del blu e del grigio. Scollo halter con schiena aperta e lacci, corpetto aderente e gonna ampia arricciata con balza sul fondo.\n\nPerfetto per brunch, vacanze e serate estive. Realizzato a Jaipur."
+    },
+    "ja": {
+      "title": "ブルー フローラル ホルターネック マキシドレス",
+      "description": "やわらかなブルーとグレーの色合いが美しい、軽やかなフローラルマキシドレス。ホルターネック、レースアップのオープンバック、フィットした身頃、裾フリル付きのたっぷりギャザースカートが特徴です。\n\nブランチ、旅行、夏の夕方にぴったり。ジャイプール製。"
+    },
+    "ar": {
+      "title": "فستان ماكسي أزرق مزهر برقبة هالتر",
+      "description": "فستان ماكسي انسيابي بنقشة زهور بدرجات ناعمة من الأزرق والرمادي. رقبة هالتر مع ظهر مفتوح برباط، وجزء علوي محدد، وتنورة واسعة مجمعة بحافة كشكش.\n\nمثالي للبرنش والعطلات وأمسيات الصيف. صُنع في جايبور."
+    },
+    "hi": {
+      "title": "ब्लू फ्लोरल हॉल्टर नेक मैक्सी ड्रेस",
+      "description": "सॉफ्ट ब्लू और ग्रे टोन में फ्लोई फ्लोरल मैक्सी ड्रेस। इसमें हॉल्टर नेक, लेस-अप ओपन बैक, फिटेड बॉडिस और रफल हेम वाली फुल गैदर्ड स्कर्ट है।\n\nब्रंच, छुट्टियों और गर्मियों की शामों के लिए बढ़िया। जयपुर में निर्मित।"
+    }
+  }
+}

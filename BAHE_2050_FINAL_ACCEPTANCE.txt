@@ -1,0 +1,11 @@
+BAHE KURTIZ 2050 FINAL ACCEPTANCE LOCK
+- Existing correct features preserved; Mera Size logic untouched.
+- Mobile and desktop expose the same core commerce/discovery features; responsive layout may differ.
+- Language control is beside Search in the header; never below the logo and not duplicated on PDP/mobile drawer.
+- Country auto-detection chooses an appropriate supported language; Canada respects browser English/French preference; manual override persists.
+- Product photos remain unchanged. Core UI and configured product title/description translations change by language.
+- India selling price is independent. International default USD is independent. Explicit country market_prices override both; no INR->USD selling-price fallback.
+- Mirror heavy pose work is deferred/on-demand and product-image pose analysis is avoided.
+- Meta Pixel events remain lazy/consent-aware. Meta catalog feed + optional server CAPI are included; live campaign publishing still requires Meta account permissions/token/budget.
+- Order operations foundation supports server-side order records/status when Cloudflare D1 ORDERS_DB is bound. Live payment success must be server verified.
+- Payment/provider secrets must be Cloudflare encrypted secrets, never frontend/GitHub.

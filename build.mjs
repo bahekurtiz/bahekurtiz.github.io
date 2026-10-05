@@ -55,9 +55,19 @@ const products = fs.readdirSync(prodDir).filter((f) => f.endsWith(".json")).map(
   p.url = `products/${p.slug}/`;
   p.price = num(p.price); p.mrp = num(p.mrp);
   p.in_stock = p.in_stock !== false;
-  // international price: own $ price, else auto from ₹ ÷ rate (if a rate is set in admin)
+  // International selling price is merchant-defined and never derived from the India price.
   p.price_usd = num(p.price_usd); // 2050: international selling price must be explicit, never derived from INR
   p.mrp_usd = num(p.mrp_usd); // 2050: explicit international MRP only
+  p.market_prices = (() => {
+    const raw = p.market_prices;
+    if (Array.isArray(raw)) return Object.fromEntries(raw.map((r) => {
+      const c = String(r?.country || "").trim().toUpperCase();
+      if (!/^[A-Z]{2}$/.test(c)) return null;
+      return [c, { currency: String(r?.currency || "USD").trim().toUpperCase(), price: num(r?.price), mrp: num(r?.mrp) }];
+    }).filter(Boolean));
+    return (raw && typeof raw === "object") ? raw : {};
+  })(); // explicit per-country selling prices; never derived from INR
+  p.i18n = (p.i18n && typeof p.i18n === "object") ? p.i18n : {};
   p.ships_abroad = p.ships_abroad !== false;
   p.bestseller = p.bestseller === true;
   p.sold_out = (Array.isArray(p.sold_out_sizes) ? p.sold_out_sizes : []).map((x) => String(x).trim()).filter(Boolean);
@@ -69,7 +79,7 @@ const products = fs.readdirSync(prodDir).filter((f) => f.endsWith(".json")).map(
   return p;
 }).filter((p) => p.title && p.draft !== true)
   .sort((a, b) => (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999) || a.title.localeCompare(b.title));
-const intlOn = products.some((p) => p.intl);
+const intlOn = S.international_enabled !== false; // 2050 worldwide storefront; product prices remain explicit
 const usd = (n) => (num(n) === null ? "" : "$" + (Number(n) % 1 ? Number(n).toFixed(2) : String(Number(n))));
 const offUsd = (p) => (p.price_usd && p.mrp_usd && p.mrp_usd > p.price_usd ? Math.round((1 - p.price_usd / p.mrp_usd) * 100) : 0);
 const uniq = (arr) => [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b));
@@ -377,14 +387,18 @@ ${pixelBody}
       ${products.some((p) => p.bestseller) ? `<a href="${u("bestsellers/")}">Bestsellers</a>` : ""}
       <a href="${u("shop/")}">New Arrivals</a>
       <a href="${u("wholesale/")}">Wholesale</a>
+      <div class="nav-shop"><button type="button" aria-haspopup="true">Discover ▾</button><div class="mega"><div class="wrap mega-grid discover-grid">
+        <div><h4>Try & discover</h4><a href="${u("feed/")}">▶ Watch & Shop</a><a href="${u("mirror/")}">🪞 Mirror · Try your look</a><a href="${u("designs/")}">✨ My Designs · Vote</a></div>
+        <div><h4>Save & share</h4><a href="${u("wishlist/")}">♡ Wishlist</a><a href="${u("refer/")}">🎁 Share & Earn</a><a href="${u("gift-card/")}">💌 E-Gift Card</a></div>
+      </div></div></div>
       <a href="${u("blog/")}">Journal</a>
       <a href="${u("about/")}">Our Story</a>
       <a href="${u("contact/")}">Contact</a>
     </nav>
     <div class="nav-icons">
-      <button class="lang-btn" type="button" data-language aria-label="Choose language"><span data-lang-label>EN</span></button>
       ${intlOn ? `<button class="cur-btn" type="button" data-country aria-label="Change country and currency"><span data-cc-label><span class="cur-inr">🇮🇳 ₹</span><span class="cur-usd">🌍 $</span></span></button>` : ""}
       <button class="icon-btn" type="button" data-open-search aria-label="Search">${I.search}</button>
+      <button class="lang-btn head-lang" type="button" data-language aria-label="Choose language">${I.globe}<span data-lang-label>EN</span></button>
       <button class="icon-btn" type="button" data-open-login aria-label="My account">${I.user}<span class="acct-dot" data-acct-dot hidden></span></button>
       <a class="icon-btn hide-sm" href="${u("wishlist/")}" aria-label="Wishlist">${I.heart}<span class="bag-count" data-wish-count hidden>0</span></a>
       ${waHi ? `<a class="icon-btn hide-sm" href="${esc(waHi)}" target="_blank" rel="noopener" aria-label="WhatsApp">${I.wa}</a>` : ""}
@@ -414,7 +428,6 @@ ${pixelBody}
   <a href="${u("blog/")}">Blog</a>
   <a href="${u("about/")}">Our Story</a>
   <a href="${u("contact/")}">Contact</a>
-  <button class="mnav-cur" type="button" data-language>Language: <b data-lang-name>English</b> · change</button>
   ${intlOn ? `<button class="mnav-cur" type="button" data-country>Country & currency: <b data-cc-name>India · ₹</b> · change</button>` : ""}
   ${waNumber ? `<a class="mnav-wa" href="${esc(waLink(`Hi ${brand}! I have a question.`))}" target="_blank" rel="noopener">${I.wa} WhatsApp ${esc(S.phone || "")}</a>` : ""}
   ${socials.length ? `<div class="mnav-social">${socials.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${socialIcon(x.name)}${esc(x.name)}</a>`).join("")}</div>` : ""}
@@ -489,7 +502,7 @@ ${intlOn ? `<dialog class="country-modal" data-country-modal aria-label="Choose 
 <nav class="bnav" aria-label="Quick links"><a href="${u()}">${I.home}<span>Home</span></a><a href="${u("shop/")}">${I.grid}<span>Shop</span></a><button type="button" data-open-search>${I.search}<span>Search</span></button><a href="${u("wishlist/")}">${I.heart}<span>Wishlist</span><i class="bag-count" data-wish-count hidden>0</i></a><button type="button" data-open-cart>${I.bag}<span>Bag</span><i class="bag-count" data-bag-count hidden>0</i></button></nav>
 ${mini && !noindex && (bodyClass === "home" || bodyClass === "pdp") ? `<div class="mini-reel" data-mini><button class="mini-x" type="button" data-mini-close aria-label="Close video">×</button><button class="mini-play" type="button" data-mini-open aria-label="Watch video${mini.caption ? ": " + esc(mini.caption) : ""}"><video data-src="${esc(mini.video)}"${mini.cover ? ` poster="${esc(mini.cover)}"` : ""} muted loop playsinline preload="none" aria-hidden="true"></video><span class="mini-badge">${I.play} Watch</span></button></div>` : ""}
 <dialog class="reel-modal" data-reel-modal aria-label="Reel"><button class="icon-btn reel-x" data-reel-close aria-label="Close">${I.close}</button><div class="reel-stage" data-reel-stage></div></dialog>
-<script>window.BK=${JSON.stringify({ base: BASE, wa: waNumber, brand, email: S.email || "", intl: intlOn, sheet: /^https:\/\/script\.google\.com\//.test(String(S.customer_sheet_url || "").trim()) ? String(S.customer_sheet_url).trim() : "", gid: String(S.google_client_id || "").trim(), popup: S.login_popup !== false, stories: bodyClass === "home" ? storiesData.map((st) => ({ t: st.t, s: st.s.map((x) => ({ img: x.img ? u(x.img) : "", vid: x.vid ? u(x.vid) : "", cap: x.cap, link: x.link ? u(x.link) : "", shop: x.shop })) })) : [], fests: festAll, countries: intlOn ? countryList : [], rates: Object.fromEntries((Array.isArray(S.currency_rates) ? S.currency_rates : []).map((r) => [String(r?.code || "").toUpperCase(), num(r?.per_usd)]).filter(([c, v]) => c && v)), occasions, fabrics, ship: { dispatch: num(S.dispatch_days) || 3, min: num(S.transit_days_min) || 3, max: num(S.transit_days_max) || 7, local: num(S.transit_days_local) || 2, intlMin: num(S.intl_eta_min) || 7, intlMax: num(S.intl_eta_max) || 12 }, reels: reels.length ? reelData() : [], mini: mini || null }).replace(/</g, "\\u003c")};</script>
+<script>window.BK=${JSON.stringify({ base: BASE, wa: waNumber, brand, email: S.email || "", intl: intlOn, sheet: /^https:\/\/script\.google\.com\//.test(String(S.customer_sheet_url || "").trim()) ? String(S.customer_sheet_url).trim() : "", gid: String(S.google_client_id || "").trim(), popup: S.login_popup !== false, stories: bodyClass === "home" ? storiesData.map((st) => ({ t: st.t, s: st.s.map((x) => ({ img: x.img ? u(x.img) : "", vid: x.vid ? u(x.vid) : "", cap: x.cap, link: x.link ? u(x.link) : "", shop: x.shop })) })) : [], fests: festAll, countries: intlOn ? countryList : [], rates: Object.fromEntries((Array.isArray(S.currency_rates) ? S.currency_rates : []).map((r) => [String(r?.code || "").toUpperCase(), num(r?.per_usd)]).filter(([c, v]) => c && v)), occasions, fabrics, productI18n: Object.fromEntries(products.map((p) => [p.slug, p.i18n || {}])), marketPrices: Object.fromEntries(products.map((p) => [p.slug, p.market_prices || {}])), ship: { dispatch: num(S.dispatch_days) || 3, min: num(S.transit_days_min) || 3, max: num(S.transit_days_max) || 7, local: num(S.transit_days_local) || 2, intlMin: num(S.intl_eta_min) || 7, intlMax: num(S.intl_eta_max) || 12 }, reels: reels.length ? reelData() : [], mini: mini || null }).replace(/</g, "\\u003c")};</script>
 <script src="${u("assets/app.js")}?v=${ASSET_V}" defer></script>
 </body>
 </html>`;
@@ -504,7 +517,7 @@ const usdPrice = (p, cls = "") => {
   if (!p.ships_abroad) return `<span class="price ask ${cls}">Ships within India only</span>`;
   if (p.price_usd === null) return `<span class="price ask ${cls}">Price on request</span>`;
   const off = offUsd(p);
-  return `<span class="price ${cls}" data-usdv="${p.price_usd}">${usd(p.price_usd)}</span>${off ? `<s class="mrp" data-usdv="${p.mrp_usd}">${usd(p.mrp_usd)}</s><span class="off">${off}% OFF</span>` : ""}`;
+  return `<span class="price ${cls}" data-usdv="${p.price_usd}" data-price-slug="${esc(p.slug)}" data-price-kind="price">${usd(p.price_usd)}</span>${off ? `<s class="mrp" data-usdv="${p.mrp_usd}" data-price-slug="${esc(p.slug)}" data-price-kind="mrp">${usd(p.mrp_usd)}</s><span class="off">${off}% OFF</span>` : ""}`;
 };
 // both prices are in the page; the ₹/$ switch shows one (no flicker, works without JS)
 const priceHtml = (p, cls = "") => (intlOn ? `<span class="cur-inr">${inrPrice(p, cls)}</span><span class="cur-usd">${usdPrice(p, cls)}</span>` : inrPrice(p, cls));
@@ -521,7 +534,7 @@ const card = (p, i = 9) => {
       <div class="tags">${p.bestseller ? `<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale">-${off}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
     <div class="card-body">
-      <h3>${esc(p.title)}</h3>
+      <h3 data-p-title="${esc(p.slug)}">${esc(p.title)}</h3>
       <div class="card-price">${priceHtml(p)}</div>
     </div>
   </a>
@@ -672,7 +685,7 @@ listing({ file: "shop/index.html", pathname: "shop/", h1: "Shop All", intro: `${
 // ---------- Fabric & print guide + one page per fabric / print that has products ----------
 { const sec = (type, title) => { const names = uniq([...Object.keys(CRAFT[type]), ...(type === "fabric" ? fabrics : prints)]);
     const rows = names.map((n) => ({ n, c: craftInfo(type, n), k: craftCount(type, n) })).sort((a, b) => b.k - a.k || a.n.localeCompare(b.n));
-    return `<section class="wrap section"><h2>${title}</h2><div class="craft-grid">${rows.map(({ n, c, k }) => `<article class="craft-card" id="${slugify(n)}"><h3>${esc(n)}</h3>${c?.[0] ? `<p class="eyebrow">${esc(c[0])}</p>` : ""}${c ? `<p>${esc(c[1])}</p><p class="muted small">🧺 ${esc(c[2])}</p>` : ""}${k ? `<a class="btn btn-sm" href="${u(craftUrl(n))}">Shop ${k} ${k === 1 ? "style" : "styles"} →</a>` : `<a class="link small" href="https://wa.me/${waNumber}?text=${encodeURIComponent("Hi " + brand + ", do you have " + n + " kurtis?")}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`}</article>`).join("")}</div></section>`; };
+    return `<section class="wrap section"><h2>${title}</h2><div class="craft-grid">${rows.map(({ n, c, k }, i) => `<article class="craft-card" id="${slugify(title)}-${slugify(n)}-${i}"><h3>${esc(n)}</h3>${c?.[0] ? `<p class="eyebrow">${esc(c[0])}</p>` : ""}${c ? `<p>${esc(c[1])}</p><p class="muted small">🧺 ${esc(c[2])}</p>` : ""}${k ? `<a class="btn btn-sm" href="${u(craftUrl(n))}">Shop ${k} ${k === 1 ? "style" : "styles"} →</a>` : `<a class="link small" href="https://wa.me/${waNumber}?text=${encodeURIComponent("Hi " + brand + ", do you have " + n + " kurtis?")}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`}</article>`).join("")}</div></section>`; };
   add("craft/index.html", page({ title: `Fabric & Print Guide – Bagru, Sanganeri, Ajrakh, Chanderi | ${brand}`, description: clip(`A simple guide to Indian hand block prints and fabrics – Sanganeri, Bagru, Dabu, Ajrakh, Kalamkari, Chanderi, Mul Cotton, Rayon and more – with care tips, from ${brand}, Jaipur.`), pathname: "craft/",
     body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Craft guide</p><h1>Fabric & Print Guide</h1><p class="lead">Every print has a place, a community and a story. Here is what each one means, where it comes from, and how to care for it.</p></div></section>${sec("print", "Prints & handwork")}${sec("fabric", "Fabrics")}` }));
   for (const [type, names] of [["print", prints], ["fabric", fabrics]]) for (const n of names) { const items = products.filter((p) => (type === "fabric" ? p.fabric === n : p.print_work.includes(n))); if (!items.length) continue; const c = craftInfo(type, n);
@@ -711,7 +724,7 @@ for (const p of products) {
   </div>
   <div class="buybox">
     <p class="eyebrow">${esc(p.category)}${p.color ? " · " + esc(p.color) : ""}</p>
-    <div class="title-row"><h1>${esc(p.title)}</h1><button class="wish wish-lg" type="button" data-wish="${esc(p.slug)}" aria-label="Save to wishlist" aria-pressed="false">${I.heart}</button></div>
+    <div class="title-row"><h1 data-p-title="${esc(p.slug)}">${esc(p.title)}</h1><div class="pdp-actions"><button class="wish wish-lg" type="button" data-wish="${esc(p.slug)}" aria-label="Save to wishlist" aria-pressed="false">${I.heart}</button></div></div>
     <div class="pdp-price">${priceHtml(p)}</div>
     ${p.model_height || p.model_size || p.fit ? `<p class="fit-line">${[p.model_height ? `Model is ${esc(p.model_height)}` : "", p.model_size ? `wearing ${esc(p.model_size)}` : "", p.fit ? `${esc(p.fit)} fit` : ""].filter(Boolean).join(" · ")}</p>` : ""}
     ${p.price !== null ? `<p class="tax cur-inr">Inclusive of all taxes${disc ? ` · <strong>Extra ${disc}% off</strong> on online payment` : ""}</p>` : ""}
@@ -724,7 +737,7 @@ for (const p of products) {
     <div class="deliv" data-deliv><form class="pin-check" data-pin-form><label class="cur-inr" for="pin-${esc(p.slug)}">Check delivery date</label>${intlOn ? `<label class="cur-usd" for="pin-${esc(p.slug)}">Delivery to your country</label>` : ""}<div class="pin-row"><input id="pin-${esc(p.slug)}" name="pin" inputmode="numeric" maxlength="6" autocomplete="postal-code" placeholder="Enter pincode" data-pin><button class="btn btn-ghost" type="submit">Check</button></div></form><p class="deliv-out" data-deliv-out aria-live="polite"></p></div>
     <div class="share-row"><button class="share-btn" type="button" data-share>${I.wa} Ask family</button><a class="share-btn" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(SITE_URL + "/" + p.url)}&media=${encodeURIComponent(abs(p.images[0] || ""))}&description=${encodeURIComponent(p.title + " – " + brand)}" target="_blank" rel="noopener">${socialIcon("pinterest")} Save</a><button class="share-btn" type="button" data-copy-link>${I.tag} Copy link</button><button class="share-btn status-btn" type="button" data-status>✨ Make WhatsApp Status</button></div>
     <ul class="perks"><li>${I.truck}${esc(S.dispatch_note || "Ships from Jaipur")}</li>${p.ships_abroad && intlOn ? `<li>${I.globe}Ships worldwide · <a href="${u(S.intl_shipping_policy ? "international-shipping/" : "shipping/")}">delivery times</a></li>` : ""}<li>${I.shield}Secure prepaid payment</li><li>${I.swap}<a href="${u("returns/")}">Easy exchange policy</a></li></ul>
-    <details open><summary>Description</summary><div>${paras(p.description) || "<p>Handcrafted in Jaipur.</p>"}</div></details>
+    <details open><summary>Description</summary><div data-p-desc="${esc(p.slug)}">${paras(p.description) || "<p>Handcrafted in Jaipur.</p>"}</div></details>
     <details><summary>Product details</summary><dl class="specs">
       ${p.color ? `<dt>Colour</dt><dd>${esc(p.color)}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${craftLink("fabric", p.fabric)}</dd>` : ""}${p.print_work.length ? `<dt>Print / work</dt><dd>${p.print_work.map((n) => craftLink("print", n)).join(", ")}</dd>` : ""}
       ${p.sizes.length ? `<dt>Sizes</dt><dd>${esc(p.sizes.join(", "))}</dd>` : ""}<dt>Made in</dt><dd>Jaipur, India</dd><dt>Status</dt><dd>${p.in_stock ? "In stock" : "Made to order"}</dd>
@@ -1171,7 +1184,7 @@ const catalog = {
     upi_id: (S.upi_id || "").trim(), brand, whatsapp: waNumber, email: S.email || "",
     intl_shipping_charge_usd: num(S.intl_shipping_charge_usd) || 0, intl_free_shipping_above_usd: num(S.intl_free_shipping_above_usd) || 0,
   },
-  products: Object.fromEntries(products.map((p) => [p.slug, { title: p.title, price: p.price, sizes: p.sizes, image: p.images[0] || "", image2: p.images[1] || "", color: p.color || "", url: p.url, in_stock: p.in_stock, out: p.sold_out, cutout: p.tryon_png || "", occ: p.occasion, cat: p.category, fabric: p.fabric, print: p.print_work.join(", "), price_usd: p.intl ? p.price_usd : null, mrp: p.mrp, mrp_usd: p.intl ? p.mrp_usd : null }])),
+  products: Object.fromEntries(products.map((p) => [p.slug, { title: p.title, price: p.price, sizes: p.sizes, image: p.images[0] || "", image2: p.images[1] || "", color: p.color || "", url: p.url, in_stock: p.in_stock, out: p.sold_out, cutout: p.tryon_png || "", occ: p.occasion, cat: p.category, fabric: p.fabric, print: p.print_work.join(", "), price_usd: p.intl ? p.price_usd : null, mrp: p.mrp, mrp_usd: p.intl ? p.mrp_usd : null, market_prices: p.market_prices || {}, i18n: p.i18n || {} }])),
 };
 fs.mkdirSync(path.join(OUT, "data"), { recursive: true });
 fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
@@ -1192,6 +1205,15 @@ fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
   fs.writeFileSync(path.join(OUT, "feeds/meta-catalog.csv"), [head.join(","), ...feedItems.map((p) => row(p, "INR"))].join("\n"));
   const intlItems = feedItems.filter((p) => p.intl);
   if (intlItems.length) fs.writeFileSync(path.join(OUT, "feeds/meta-catalog-usd.csv"), [head.join(","), ...intlItems.map((p) => row(p, "USD"))].join("\n"));
+  // Pinterest retail catalog: hosted CSV is rebuilt with every site deploy, so Pinterest can ingest fresh product data daily.
+  const pinHead = ["id", "title", "description", "link", "image_link", "price", "availability", "condition", "brand", "google_product_category", "product_type", "color", "material"];
+  const pinRow = (p, cur) => {
+    const usdMode = cur === "USD"; const pr = usdMode ? p.price_usd : p.price;
+    const fmt = (n) => `${Number(n).toFixed(2)} ${cur}`;
+    return [p.slug, p.title, plain(p), `${SITE_URL}/${p.url}`, abs(p.images[0]), fmt(pr), p.in_stock ? "in stock" : "preorder", "new", brand, gcat(p.category), p.category, p.color || "", p.fabric || ""].map(csv).join(",");
+  };
+  fs.writeFileSync(path.join(OUT, "feeds/pinterest-catalog.csv"), [pinHead.join(","), ...feedItems.map((p) => pinRow(p, "INR"))].join("\n"));
+  if (intlItems.length) fs.writeFileSync(path.join(OUT, "feeds/pinterest-catalog-usd.csv"), [pinHead.join(","), ...intlItems.map((p) => pinRow(p, "USD"))].join("\n"));
   const x = (v) => esc(String(v ?? ""));
   if (intlItems.length) fs.writeFileSync(path.join(OUT, "feeds/google-merchant-usd.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0"><channel><title>${x(brand)} – International</title><link>${SITE_URL}/</link><description>${x(S.tagline || "")}</description>

@@ -1,0 +1,18 @@
+BAHE KURTIZ 2050 MASTER FINAL — acceptance lock
+
+Preserved: existing product/content foundation, Mera Size logic, working Feed/Wishlist/Referral/Style Finder/WhatsApp/wholesale foundations.
+Fixed/locked:
+- Mobile + desktop same core features/business logic; responsive layout may differ.
+- Language control appears once in header action area immediately after Search; never under logo.
+- Cloudflare country detection + browser-language choice for multilingual markets; manual choice persists.
+- Core UI + configured product title/description translations; proper craft/brand names stay original where configured.
+- India price is explicit INR. International USD is explicit. Country market prices are explicit Admin entries. Never derive selling price from INR.
+- Product -> bag -> checkout uses explicit market price when the whole bag has same-country overrides; otherwise explicit international USD fallback.
+- Mirror AI is on-demand and bounded; no full-body translation MutationObserver.
+- Admin country market prices + multilingual fields + social links.
+- Order Desk: protected admin API, operational statuses, carrier/tracking/notes; Cloudflare D1/ADMIN_TOKEN required in production.
+- Meta Pixel + optional CAPI endpoint; Google/Meta/Pinterest feeds; SEO/schema/sitemap; Marketing Studio; share/referral/UGC/wishlist/discovery loops.
+- Social URLs render from Admin; blank links do not need hard-coded edits.
+- Payment secrets never ship in frontend. Merchant KYC/live credentials remain account-side activation, not source-code work.
+
+Deployment still requires Cloudflare bindings/secrets and payment/Meta credentials where applicable. These are account credentials, not code patches.

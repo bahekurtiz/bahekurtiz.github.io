@@ -1,0 +1,62 @@
+{
+  "title": "Peach Embroidered Kurti with Side Tie-Up",
+  "category": "Kurti",
+  "color": "Peach",
+  "price": 599,
+  "mrp": 1245,
+  "sizes": [
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "XS"
+  ],
+  "fabric": "georgette",
+  "description": "A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
+  "images": [
+    "/images/products/peach-1.jpg",
+    "/images/products/peach-2.jpg",
+    "/images/products/peach-3.jpg",
+    "/images/products/peach-4.jpg",
+    "/images/products/peach-5.jpg"
+  ],
+  "in_stock": true,
+  "featured": true,
+  "sort_order": 1,
+  "seo_title": "",
+  "seo_description": "",
+  "price_usd": null,
+  "mrp_usd": null,
+  "market_prices": {},
+  "i18n": {
+    "fr": {
+      "title": "Kurti pêche brodée avec liens latéraux",
+      "description": "Une kurti droite et légère ornée de délicates broderies de fil blanc. Le corsage doublé se prolonge par un panneau inférieur transparent, avec des liens latéraux à pompons pour ajuster la coupe et une ouverture goutte d’eau au dos fermée par un bouton.\n\nPortez-la avec un jean pour le quotidien ou avec un palazzo pour les occasions festives. Fabriquée à Jaipur."
+    },
+    "de": {
+      "title": "Pfirsichfarbene bestickte Kurti mit seitlicher Bindung",
+      "description": "Eine luftige, gerade Kurti mit feiner weißer Fadenstickerei. Das gefütterte Oberteil geht in einen transparenten unteren Einsatz über; seitliche Bindebänder mit Quasten ermöglichen eine flexible Passform. Am Rücken befindet sich ein Schlüssellochausschnitt mit Knopfverschluss.\n\nMit Jeans ideal für Alltag und Büro, mit Palazzo-Hosen auch für festliche Anlässe. Hergestellt in Jaipur."
+    },
+    "es": {
+      "title": "Kurti melocotón bordada con lazos laterales",
+      "description": "Una kurti recta y ligera con delicados bordados de hilo blanco. El cuerpo forrado continúa con un panel inferior translúcido; los lazos laterales con borlas permiten ajustar el calce y la espalda tiene una abertura tipo lágrima con botón.\n\nCombínala con vaqueros para el día a día o con pantalones palazzo para ocasiones festivas. Hecha en Jaipur."
+    },
+    "it": {
+      "title": "Kurti color pesca ricamata con lacci laterali",
+      "description": "Una kurti dritta e leggera con delicati ricami in filo bianco. Il corpetto foderato continua con un pannello inferiore trasparente; i laccetti laterali con nappine permettono di regolare la vestibilità e sul retro c’è un’apertura a goccia con bottone.\n\nAbbinala ai jeans per tutti i giorni o a pantaloni palazzo per le occasioni festive. Realizzata a Jaipur."
+    },
+    "ja": {
+      "title": "ピーチカラー刺繍クルティ・サイドリボン",
+      "description": "繊細な白糸刺繍を全体にあしらった、軽やかなストレートシルエットのクルティです。裏地付きの身頃にシアーな下部パネルを合わせ、サイドのタッセル付きリボンでフィット感を調整できます。背面はボタン留めのキーホール仕様です。\n\n普段使いにはジーンズ、華やかな日にはパラッツォパンツとのコーディネートがおすすめ。ジャイプール製。"
+    },
+    "ar": {
+      "title": "كورتي خوخي مطرزة برباط جانبي",
+      "description": "كورتي مستقيمة وخفيفة مزينة بتطريزات رقيقة بخيط أبيض. الجزء العلوي مبطن ويتبعه جزء سفلي شفاف، مع أربطة جانبية وشرّابات لضبط المقاس، وفتحة خلفية بشكل قطرة مع زر.\n\nنسّقيها مع الجينز للإطلالات اليومية أو مع بنطال بالازو للمناسبات الاحتفالية. صُنعت في جايبور."
+    },
+    "hi": {
+      "title": "पीच एम्ब्रॉयडर्ड कुर्ती विद साइड टाई-अप",
+      "description": "हल्की और आरामदायक स्ट्रेट कुर्ती, जिस पर नाज़ुक सफेद धागे की कढ़ाई है। ऊपर का हिस्सा लाइनिंग वाला है और नीचे हल्का शीयर पैनल है। साइड टाई-अप डोरी और टैसल से फिट एडजस्ट किया जा सकता है, पीछे बटन के साथ की-होल ओपनिंग है।\n\nरोज़ाना पहनने के लिए जींस के साथ या फेस्टिव लुक के लिए पलाज़ो के साथ स्टाइल करें। जयपुर में निर्मित।"
+    }
+  }
+}

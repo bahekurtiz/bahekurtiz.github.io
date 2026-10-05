@@ -1,0 +1,54 @@
+{
+  "brand_name": "Bahe Kurtiz",
+  "tagline": "Handcrafted kurtis & dresses from Jaipur",
+  "announcement": "Made in Jaipur | Secure online payment | Order help on WhatsApp: 70733 50886",
+  "hero_title": "Jaipur's charm, made for every day",
+  "hero_subtitle": "Embroidered kurtis and flowy dresses, designed and stitched in Jaipur.",
+  "hero_image": "/images/site/hero.jpg",
+  "about_title": "Made in Jaipur, with love",
+  "about_text": "Bahe Kurtiz is a Jaipur label making easy, elegant kurtis and dresses. Every piece is designed and stitched in our own unit, so you get better finishing at a fair price.\n\nWe make in small batches. If your size is not in stock, message us on WhatsApp and we will make it for you.",
+  "whatsapp": "7073350886",
+  "phone": "+91 70733 50886",
+  "email": "",
+  "address": "Jaipur, Rajasthan, India",
+  "social_links": [
+    {
+      "name": "Instagram",
+      "url": ""
+    },
+    {
+      "name": "Facebook",
+      "url": "https://www.facebook.com/bahekurtiz/"
+    },
+    {
+      "name": "LinkedIn",
+      "url": ""
+    },
+    {
+      "name": "Google Business Profile",
+      "url": ""
+    }
+  ],
+  "marketplace_links": [
+    {
+      "name": "Etsy (worldwide)",
+      "url": "https://www.etsy.com/shop/BaheKurtiz"
+    }
+  ],
+  "shipping_charge": 0,
+  "free_shipping_above": 0,
+  "cod_enabled": false,
+  "cod_charge": 0,
+  "prepaid_discount_percent": 5,
+  "upi_id": "",
+  "dispatch_note": "Dispatched from Jaipur in 2–4 working days",
+  "shipping_policy": "We ship all over India from Jaipur.\n\nOrders are dispatched within 2–4 working days. Delivery usually takes 4–8 working days after dispatch, depending on your location. We share the tracking details on WhatsApp/SMS once your order is shipped.\n\nMade-to-order pieces may take a few extra days. We will tell you the exact timeline on WhatsApp.",
+  "return_policy": "Exchange or return requests are accepted within 7 days of delivery, for unused products with original tags.\n\nTo raise a request, message us on WhatsApp with your order ID and photos of the product.\n\nFor prepaid orders, the refund goes to the original payment method within 5–7 working days after we receive the product back. Shipping charges are not refundable. Made-to-order pieces can be exchanged for size only.",
+  "privacy_policy": "We collect only the details needed to deliver your order: name, phone number, email and address. We use them to process your order, ship it and contact you about it.\n\nOnline payments are processed securely by Razorpay. We do not see or store your card or bank details.\n\nWe never sell your details to anyone. To get your data deleted, message us on WhatsApp or email.",
+  "terms": "By placing an order on this website you agree to these terms.\n\nProduct colours may look slightly different because of screen settings and lighting. Prices are in Indian Rupees and include applicable taxes unless mentioned otherwise.\n\nWe may cancel an order if a product is out of stock or if there is a pricing error. In that case any amount paid is refunded in full.\n\nFor any question, contact us on WhatsApp or by email. These terms are governed by the laws of India, and courts in Jaipur, Rajasthan have jurisdiction.",
+  "site_url": "https://bahekurtiz.com",
+  "google_site_verification": "",
+  "currency": "INR",
+  "github_repo": "",
+  "international_enabled": true
+}

@@ -1,0 +1,6 @@
+BAHE 2050 production bindings (credentials are NOT committed to GitHub)
+1) Existing Razorpay: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET as encrypted secrets.
+2) Orders: create Cloudflare D1 database and bind it as ORDERS_DB. Add encrypted ADMIN_TOKEN. Order desk: /order-admin/
+3) Meta CAPI (optional but recommended): encrypted META_PIXEL_ID and META_CAPI_TOKEN. Browser Pixel ID remains editable in Admin settings. Catalog feeds: /feeds/meta-catalog.csv and /feeds/meta-catalog-usd.csv
+4) Meta live campaign publishing still requires Business/Ad Account permissions, access token, budget and Meta review. The website cannot safely bypass those steps.
+5) Never commit .env/.dev.vars or production tokens to GitHub.
