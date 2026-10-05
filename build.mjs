@@ -56,8 +56,8 @@ const products = fs.readdirSync(prodDir).filter((f) => f.endsWith(".json")).map(
   p.price = num(p.price); p.mrp = num(p.mrp);
   p.in_stock = p.in_stock !== false;
   // international price: own $ price, else auto from ₹ ÷ rate (if a rate is set in admin)
-  p.price_usd = num(p.price_usd) ?? (usdRate && p.price ? Math.ceil(p.price / usdRate) : null);
-  p.mrp_usd = num(p.mrp_usd) ?? (usdRate && p.mrp ? Math.ceil(p.mrp / usdRate) : null);
+  p.price_usd = num(p.price_usd); // 2050: international selling price must be explicit, never derived from INR
+  p.mrp_usd = num(p.mrp_usd); // 2050: explicit international MRP only
   p.ships_abroad = p.ships_abroad !== false;
   p.bestseller = p.bestseller === true;
   p.sold_out = (Array.isArray(p.sold_out_sizes) ? p.sold_out_sizes : []).map((x) => String(x).trim()).filter(Boolean);
@@ -404,7 +404,12 @@ ${pixelBody}
   <a href="${u("craft/")}">🧵 Fabric & print guide</a>
   <button class="mnav-cur" type="button" data-follow><span data-follow-label>＋ Follow Bahe Kurtiz</span></button>
   <a href="${u("refer/")}">🎁 Saheli Credit · Refer & Earn</a>
+  <a href="${u("designs/")}">✨ My Designs · Vote & Share</a>
   <a href="${u("gift-card/")}">💌 E-Gift Card</a>
+  <a class="mnav-cur" href="${u("feed/")}">▶ Watch & Shop</a>
+  <a class="mnav-cur" href="${u("mirror/")}">🪞 Mirror · Try your look</a>
+  <a class="mnav-cur" href="${u("refer/")}">🎁 Refer & Earn</a>
+  <a class="mnav-cur" href="${u("designs/")}">✨ My Designs · Vote</a>
   <button class="mnav-cur" type="button" data-open-login>My account / Sign in</button>
   <a href="${u("blog/")}">Blog</a>
   <a href="${u("about/")}">Our Story</a>
@@ -592,6 +597,7 @@ ${live.on && live.url ? `<section class="wrap section live" id="live"><div class
 <section class="wrap section foryou" data-foryou hidden><div class="section-head"><div><p class="eyebrow">Based on what you viewed</p><h2>Picked for you</h2></div></div><div class="grid scroller" data-foryou-grid></div></section>
 <section class="follow-cta"><div class="wrap follow-row"><div><p class="eyebrow">Be part of the Bahe family</p><h2>Follow ${esc(brand)}</h2><p class="muted">New prints, live shows and festive drops – first to you. One tap, no spam.</p></div><button class="btn" type="button" data-follow><span data-follow-label>＋ Follow</span></button></div></section>
 <section class="finder-cta"><div class="wrap finder-row"><div><p class="eyebrow">Sakhi · your style helper</p><h2>Find your style in 3 taps</h2><p class="muted">Tell us the occasion, fabric and budget. We show the styles that fit.</p></div><button class="btn" type="button" data-open-finder>Start Style Finder</button></div></section>
+<section class="wrap section bk2050"><div class="section-head center"><p class="eyebrow">BAHE 2050 · discover together</p><h2>Try it · Watch it · Share it</h2><p class="muted">The same BAHE experience on phone and desktop.</p></div><div class="bk2050-grid"><a href="${u("feed/")}"><b>▶ Watch & Shop</b><span>Swipe new looks and shop directly.</span></a><a href="${u("mirror/")}"><b>🪞 Mirror</b><span>Try looks on your photo and ask family.</span></a><a href="${u("refer/")}"><b>🎁 Share & Earn</b><span>Your personal referral link and rewards.</span></a><a href="${u("designs/")}"><b>✨ My Designs</b><span>Vote for what BAHE should make next.</span></a></div></section>
 ${reelsHtml()}
 ${(() => { const best = products.filter((p) => p.bestseller).slice(0, 8); return best.length >= 4 ? `<section class="wrap section best"><div class="section-head"><div><p class="eyebrow">Most loved</p><h2>Bestsellers</h2></div><a class="link" href="${u("bestsellers/")}">View all →</a></div><div class="grid scroller">${best.map((p) => card(p)).join("")}</div></section>` : ""; })()}
 <section class="wrap section">
@@ -826,6 +832,12 @@ if (S.intl_return_policy) infoPage("international-returns/index.html", "internat
 </section>
 <section class="wrap section"><div class="section-head center"><p class="eyebrow">How it works</p><h2>3 simple steps</h2></div><ol class="steps"><li><strong>Get your link</strong><span>Sign in with your name and WhatsApp number.</span></li><li><strong>Share it</strong><span>On WhatsApp, Instagram or as your WhatsApp status – one tap.</span></li><li><strong>Both of you save</strong><span>We confirm your reward on WhatsApp after your friend's order is delivered.</span></li></ol>
 <div class="terms-box"><p><strong>Fair rules:</strong> Reward is given after the friend's first order is delivered and not returned. One reward per new customer. Self-referrals (same phone or address) do not count. ${esc(S.referral_terms || "")}</p></div></section>` })); }
+
+// ---------- BAHE 2050 My Designs: community voting + viral sharing ----------
+{ const voteItems = products.filter((p) => p.images && p.images[0]).slice(0, 12);
+  add("designs/index.html", page({ title: `My Designs · Vote & Share | ${brand}`, description: clip(`Vote for the ${brand} styles you want next and share your picks with family and friends.`), pathname: "designs/", bodyClass: "designs-page",
+  body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">BAHE 2050 · you help choose</p><h1>My Designs · Vote & Share</h1><p class="lead">Tap the looks you love. Save your picks on this device and share your vote with family or friends.</p></div></section>
+<section class="wrap section"><div class="design-vote-grid" data-design-grid>${voteItems.map((p) => `<button type="button" class="design-vote" data-design-vote="${esc(p.slug)}" aria-pressed="false"><img src="${esc(u(p.images[0]))}" alt="${esc(p.title)}" width="600" height="800" loading="lazy"><span><b>${esc(p.title)}</b><em>♡ Vote</em></span></button>`).join("")}</div><div class="design-share"><p><b data-design-count>0</b> looks selected</p><button class="btn btn-wa" type="button" data-design-share>${I.wa} Share my picks</button><a class="btn btn-ghost" href="${u("mirror/")}">🪞 Try in Mirror</a></div></section>` })); }
 
 // ---------- e-gift card (great for NRIs gifting family) ----------
 { const inrA = (Array.isArray(S.gift_amounts_inr) && S.gift_amounts_inr.length ? S.gift_amounts_inr : [1000, 1500, 2500]).map(num).filter(Boolean), usdA = (Array.isArray(S.gift_amounts_usd) && S.gift_amounts_usd.length ? S.gift_amounts_usd : [25, 40, 60]).map(num).filter(Boolean);

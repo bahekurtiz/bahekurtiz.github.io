@@ -852,6 +852,18 @@
     fm.addEventListener("close", unlockIfFree); fm.addEventListener("click", (e) => { if (e.target === fm) fm.close(); });
   }
 
+  // ---------- BAHE 2050 My Designs: lightweight local voting + viral share ----------
+  const dg = $("[data-design-grid]");
+  if (dg) {
+    const K = "bk_design_votes";
+    const getD = () => { try { return JSON.parse(localStorage.getItem(K) || "[]"); } catch { return []; } };
+    const setD = (v) => { try { localStorage.setItem(K, JSON.stringify(v.slice(0, 20))); } catch {} };
+    const paintD = () => { const v = getD(); $$('[data-design-vote]', dg).forEach((b) => { const on = v.includes(b.dataset.designVote); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); const e=b.querySelector("em"); if(e)e.textContent=on?"♥ Voted":"♡ Vote"; }); const n=$("[data-design-count]"); if(n)n.textContent=String(v.length); };
+    dg.addEventListener("click", (e) => { const b=e.target.closest("[data-design-vote]"); if(!b)return; let v=getD(), k=b.dataset.designVote; v=v.includes(k)?v.filter(x=>x!==k):[...v,k]; setD(v); paintD(); });
+    $("[data-design-share]")?.addEventListener("click", async () => { const v=getD(); if(!v.length)return toast("Pehle apne favourite designs select karo"); const link=location.origin+"/designs/?picks="+encodeURIComponent(v.join(","))+"&utm_source=share&utm_medium=design_vote"; const text=`Maine BAHE ke ${v.length} designs choose kiye hain ✨ Tum bhi batao kaunsa best hai: ${link}`; try { if(navigator.share){ await navigator.share({text,url:link}); return; } } catch(e){ if(e?.name==="AbortError")return; } window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank","noopener"); });
+    paintD();
+  }
+
   // ---------- refer & earn ----------
   const myCode = () => {
     const u0 = getUser();

@@ -1,0 +1,26 @@
+BAHE KURTIZ 2050 — FINAL RELEASE STATUS
+
+Built from the latest GitHub main supplied by the owner.
+
+CODE VALIDATION
+- build.mjs syntax: PASS
+- static/assets/app.js syntax: PASS
+- full static build must pass before ZIP is released
+- explicit international selling price only; no INR-to-USD price fallback
+- desktop + mobile discovery for Feed, Mirror, Refer & Earn, My Designs
+- My Designs / Vote & Share included
+- existing Mera Size, products, wishlist, Style Finder, WhatsApp, cart/checkout and wholesale/export preserved
+- existing India Razorpay server-side create/verify/status foundation preserved
+- no broad language translation observer added
+
+EXTERNAL ACTIVATION (NOT POSSIBLE TO EMBED IN ANY ZIP)
+- live Razorpay/PhonePe merchant approval + production credentials
+- international payment-provider approval + production credentials
+- bank settlement/KYC and production webhook secrets
+- financially enforceable multi-user referral/UGC reward ledger needs production storage/database
+
+PAYMENT RULE
+Never mark an order Paid from browser redirect alone. Production payments require server-side provider verification.
+
+DEPLOYMENT RULE
+Back up current main. Deploy this as one release only after build passes. Then smoke-test home, product, Mera Size, Feed, Mirror, Refer, My Designs, wishlist, cart and checkout on phone and desktop.
