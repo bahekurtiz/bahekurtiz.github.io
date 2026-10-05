@@ -1,0 +1,33 @@
+BAHE KURTIZ 2050 — DEEP RELEASE AUDIT
+Date: 2026-10-05
+
+This package is the single consolidated deployable source. Do not stack older patches.
+
+Verified before release:
+- Full Node syntax and production build: PASS (39 pages, 4 products, 2 categories; 41 HTML outputs)
+- Local generated links/assets: 0 broken references
+- JSON/XML parsing: PASS
+- No automatic FX-derived foreign selling price API/logic
+- Pricing rule: India INR; exact configured country market price; otherwise explicit merchant USD
+- Language packs: EN/HI/FR/DE/ES/IT/JA/AR; Stories/Discovery labels included; Arabic RTL foundation retained
+- Header hard lock: Search -> Language; no detached language control under logo
+- Discover trigger: clean borderless premium navigation
+- No broad MutationObserver
+- Payment gateway: online option is runtime status-gated; public static wording does not claim Razorpay/PayPal is live; prepaid discount defaults OFF until gateway activation
+- SEO: title/description, canonical/schema where appropriate, sitemap, robots, RSS/blog, SEO landing pages, internal links, Google Merchant, Meta catalog, Pinterest catalog, llms.txt/llms-full.txt/products.json
+- Social/admin architecture preserved
+- Mirror/Feed/Wishlist/My Designs/Share & Earn/Wholesale/Gift Card/Order Admin paths preserved
+
+External acceptance still required after deployment:
+- Cloudflare production deployment and cache propagation
+- Real desktop/mobile browser smoke test and performance/network conditions
+- Google Search Console indexing
+- Payment-provider KYC/live credentials and a real test transaction before public activation
+- Meta/Google/Pinterest account-side approvals/tokens/catalog ingestion
+
+Old patches/releases must not be stacked on top of this package.
+
+FINAL RE-AUDIT ADDENDUM
+- Terms now match worldwide market pricing: India INR; explicit country market price; otherwise merchant-defined international USD. No INR FX-derived selling price.
+- Default Social Admin rows include Instagram, Facebook, LinkedIn, Google Business Profile, Pinterest, YouTube and TikTok; arbitrary HTTPS social rows remain supported.
+- Payment/KYC boundary: KYC itself must be completed with the regulated payment provider. The site keeps provider credentials server-side in Cloudflare secrets and activates online checkout only after /api/payment-status confirms configured credentials. KYC documents/secrets are not stored in the public CMS.

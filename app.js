@@ -8,7 +8,27 @@
   const usd = (n) => "$" + (Math.round(n * 100) % 100 ? (Math.round(n * 100) / 100).toFixed(2) : String(Math.round(n)));
   const isUSD = () => document.documentElement.classList.contains("usd");
   const money = (n) => (isUSD() ? usd(n) : inr(n));
-  const unit = (p) => (isUSD() ? p.price_usd : p.price);
+  // One pricing source of truth. India uses INR. International uses an explicit
+  // country override only when the merchant configured it; otherwise the
+  // merchant-defined USD price is used. Never derive a selling price from INR.
+  const marketOffer = (p) => {
+    if (!isUSD()) return { amount: p?.price, mrp: p?.mrp, currency: "INR", exact: true };
+    const mp = p && cc?.c ? (p.market_prices?.[cc.c] || BK.marketPrices?.[p.slug]?.[cc.c]) : null;
+    const amount = Number(mp?.price);
+    const mrp = Number(mp?.mrp);
+    if (Number.isFinite(amount) && amount > 0) return { amount, mrp: Number.isFinite(mrp) && mrp > 0 ? mrp : null, currency: String(mp?.currency || cc?.cur || "USD").toUpperCase(), exact: true };
+    return { amount: p?.price_usd, mrp: p?.mrp_usd, currency: "USD", exact: false };
+  };
+  const unit = (p) => marketOffer(p).amount;
+  const moneyAs = (n, currency) => { try { return new Intl.NumberFormat(undefined,{style:"currency",currency,maximumFractionDigits:n>=100?0:2}).format(n); } catch { return `${currency} ${n}`; } };
+  const bagPricing = (cat) => {
+    if (!isUSD()) return { currency:"INR", exact:true };
+    const ps = bag.map(i=>cat.products[i.slug]).filter(Boolean), offers = ps.map(marketOffer);
+    const exact = offers.length && offers.every(o=>o.exact) && new Set(offers.map(o=>o.currency)).size===1;
+    return { currency: exact ? offers[0].currency : "USD", exact };
+  };
+  const bagUnit = (p, ctx) => ctx?.exact ? marketOffer(p).amount : (isUSD() ? p.price_usd : p.price);
+  const bagMoney = (n, ctx) => ctx?.currency === "INR" ? inr(n) : moneyAs(n, ctx?.currency || "USD");
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
 
   // ---------- 2050 language layer: country, language and pricing stay independent ----------
@@ -77,6 +97,18 @@
       "Made in Jaipur":"صُنع في جايبور","Secure prepaid payments":"دفع مسبق آمن","Ships worldwide":"شحن إلى جميع أنحاء العالم","Pan-India delivery":"توصيل في جميع أنحاء الهند","Refer & Earn":"شارك واربح","My account / Sign in":"حسابي / تسجيل الدخول"
     }
   };
+  const COMMON_UI = {
+    fr:{"New Arrivals":"Nouveautés","Wholesale":"Vente en gros","Journal":"Journal","Discover ▾":"Découvrir ▾","Follow Bahe Kurtiz":"Suivre Bahe Kurtiz","＋ Follow":"＋ Suivre","Find your style in 3 taps":"Trouvez votre style en 3 étapes","Tell us the occasion, fabric and budget. We show the styles that fit.":"Indiquez l’occasion, le tissu et le budget. Nous vous montrons les styles adaptés.","Start Style Finder":"Démarrer le guide de style","Wholesale & Private Label":"Vente en gros & marque privée","New Arrivals Every Week":"Nouveautés chaque semaine","View all →":"Voir tout →","Made in Jaipur, with love":"Fabriqué à Jaipur, avec amour","Read more":"En savoir plus","Watch & Shop":"Regarder & acheter","Mirror · Try your look":"Miroir · Essayez votre look","Share & Earn":"Partager & gagner","My Designs · Vote":"Mes créations · Voter"},
+    de:{"New Arrivals":"Neuheiten","Wholesale":"Großhandel","Journal":"Journal","Discover ▾":"Entdecken ▾","Follow Bahe Kurtiz":"Bahe Kurtiz folgen","＋ Follow":"＋ Folgen","Find your style in 3 taps":"Finde deinen Stil in 3 Schritten","Start Style Finder":"Stilfinder starten","Wholesale & Private Label":"Großhandel & Private Label","New Arrivals Every Week":"Jede Woche Neuheiten","View all →":"Alle ansehen →","Made in Jaipur, with love":"Mit Liebe in Jaipur gefertigt","Read more":"Mehr erfahren","Watch & Shop":"Ansehen & kaufen","Share & Earn":"Teilen & verdienen"},
+    es:{"New Arrivals":"Novedades","Wholesale":"Mayorista","Journal":"Revista","Discover ▾":"Descubrir ▾","Follow Bahe Kurtiz":"Seguir a Bahe Kurtiz","＋ Follow":"＋ Seguir","Find your style in 3 taps":"Encuentra tu estilo en 3 pasos","Start Style Finder":"Iniciar buscador de estilo","Wholesale & Private Label":"Mayorista y marca privada","New Arrivals Every Week":"Novedades cada semana","View all →":"Ver todo →","Made in Jaipur, with love":"Hecho en Jaipur, con amor","Read more":"Leer más","Watch & Shop":"Mira y compra","Share & Earn":"Comparte y gana"},
+    it:{"New Arrivals":"Nuovi arrivi","Wholesale":"Ingrosso","Journal":"Journal","Discover ▾":"Scopri ▾","Follow Bahe Kurtiz":"Segui Bahe Kurtiz","＋ Follow":"＋ Segui","Find your style in 3 taps":"Trova il tuo stile in 3 passaggi","Start Style Finder":"Avvia trova stile","Wholesale & Private Label":"Ingrosso e private label","New Arrivals Every Week":"Nuovi arrivi ogni settimana","View all →":"Vedi tutto →","Made in Jaipur, with love":"Realizzato a Jaipur, con amore","Read more":"Scopri di più","Watch & Shop":"Guarda e acquista","Share & Earn":"Condividi e guadagna"},
+    ja:{"New Arrivals":"新着商品","Wholesale":"卸売","Journal":"ジャーナル","Discover ▾":"見つける ▾","Follow Bahe Kurtiz":"Bahe Kurtizをフォロー","＋ Follow":"＋ フォロー","Find your style in 3 taps":"3ステップでスタイルを見つける","Start Style Finder":"スタイル診断を開始","Wholesale & Private Label":"卸売・プライベートラベル","New Arrivals Every Week":"毎週新着","View all →":"すべて見る →","Made in Jaipur, with love":"ジャイプールから愛を込めて","Read more":"詳しく見る","Watch & Shop":"見て購入","Share & Earn":"シェアして特典"},
+    ar:{"New Arrivals":"وصل حديثاً","Wholesale":"الجملة","Journal":"المجلة","Discover ▾":"اكتشف ▾","Follow Bahe Kurtiz":"تابع Bahe Kurtiz","＋ Follow":"＋ متابعة","Find your style in 3 taps":"اكتشفي أسلوبك في 3 خطوات","Start Style Finder":"ابدئي دليل الأسلوب","Wholesale & Private Label":"الجملة والعلامة الخاصة","New Arrivals Every Week":"تصاميم جديدة كل أسبوع","View all →":"عرض الكل →","Made in Jaipur, with love":"صُنع في جايبور بحب","Read more":"اقرأ المزيد","Watch & Shop":"شاهدي وتسوقي","Share & Earn":"شاركي واربحِي"},
+    hi:{"New Arrivals":"नए डिज़ाइन","Wholesale":"थोक","Journal":"जर्नल","Discover ▾":"खोजें ▾","Follow Bahe Kurtiz":"Bahe Kurtiz को फॉलो करें","＋ Follow":"＋ फॉलो करें","Find your style in 3 taps":"3 चरणों में अपना स्टाइल खोजें","Start Style Finder":"स्टाइल फाइंडर शुरू करें","Wholesale & Private Label":"थोक और प्राइवेट लेबल","New Arrivals Every Week":"हर हफ्ते नए डिज़ाइन","View all →":"सभी देखें →","Made in Jaipur, with love":"जयपुर में प्यार से बनाया गया","Read more":"और पढ़ें","Watch & Shop":"देखें और खरीदें","Share & Earn":"शेयर करें और कमाएँ"}
+  };
+  Object.entries(COMMON_UI).forEach(([k,v]) => Object.assign(UI[k] || (UI[k]={}), v));
+  const STORY_UI = {"fr":{"New":"Nouveau","Feed":"Fil","All":"Tout","Kurtis":"Kurtis","Dresses":"Robes","B2B":"B2B","Gift Card":"Carte cadeau","Mirror":"Miroir","My Designs":"Mes créations"},"de":{"New":"Neu","Feed":"Feed","All":"Alle","Kurtis":"Kurtis","Dresses":"Kleider","B2B":"B2B","Gift Card":"Geschenkkarte","Mirror":"Spiegel","My Designs":"Meine Designs"},"es":{"New":"Nuevo","Feed":"Feed","All":"Todo","Kurtis":"Kurtis","Dresses":"Vestidos","B2B":"B2B","Gift Card":"Tarjeta regalo","Mirror":"Espejo","My Designs":"Mis diseños"},"it":{"New":"Nuovo","Feed":"Feed","All":"Tutto","Kurtis":"Kurtis","Dresses":"Abiti","B2B":"B2B","Gift Card":"Carta regalo","Mirror":"Specchio","My Designs":"I miei design"},"ja":{"New":"新着","Feed":"フィード","All":"すべて","Kurtis":"クルティ","Dresses":"ドレス","B2B":"B2B","Gift Card":"ギフトカード","Mirror":"ミラー","My Designs":"マイデザイン"},"ar":{"New":"جديد","Feed":"الموجز","All":"الكل","Kurtis":"كورتيس","Dresses":"فساتين","B2B":"B2B","Gift Card":"بطاقة هدية","Mirror":"المرآة","My Designs":"تصاميمي"},"hi":{"New":"नया","Feed":"फीड","All":"सभी","Kurtis":"कुर्तियाँ","Dresses":"ड्रेसेस","B2B":"B2B","Gift Card":"गिफ्ट कार्ड","Mirror":"मिरर","My Designs":"मेरे डिज़ाइन"}};
+  Object.entries(STORY_UI).forEach(([k,v]) => Object.assign(UI[k] || (UI[k]={}), v));
   const getLang = () => { try { const x = localStorage.getItem("bk_lang"); return LANGS[x] ? x : ""; } catch { return ""; } };
   let lang = getLang() || "en";
   const ORIGINAL = new WeakMap();
@@ -98,16 +130,23 @@
     $$('[data-p-title]', root).forEach((el) => { const slug=el.dataset.pTitle, tr=BK.productI18n?.[slug]?.[lang]?.title; if (!el.dataset.enText) el.dataset.enText=el.textContent; el.textContent = lang === "en" ? el.dataset.enText : (tr || el.dataset.enText); });
     $$('[data-p-desc]', root).forEach((el) => { const slug=el.dataset.pDesc, tr=BK.productI18n?.[slug]?.[lang]?.description; if (!el.dataset.enHtml) el.dataset.enHtml=el.innerHTML; el.innerHTML = lang === "en" || !tr ? el.dataset.enHtml : String(tr).split(/\n\s*\n/).map(x=>`<p>${esc(x)}</p>`).join(""); });
   };
+  let i18nLoading = null;
+  const ensureProductI18n = () => {
+    if (lang === "en" || Object.keys(BK.productI18n || {}).length) return Promise.resolve();
+    if (!i18nLoading) i18nLoading = fetch(url("data/i18n.json"), { cache:"force-cache" }).then(r => r.ok ? r.json() : {}).then(d => { BK.productI18n = d || {}; translateUI(); }).catch(() => {});
+    return i18nLoading;
+  };
   const setLang = (code, manual=true) => {
     lang = LANGS[code] ? code : "en";
     try { localStorage.setItem("bk_lang", lang); if (manual) localStorage.setItem("bk_lang_manual","1"); } catch {}
     translateUI();
+    ensureProductI18n();
     document.dispatchEvent(new CustomEvent("bk:language", { detail:{ lang } }));
   };
 
   // ---------- Meta Pixel events (only if pixel is on) ----------
   const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
-  const track = (ev, data = {}, id) => { try { window.fbq && window.fbq("track", ev, data, id ? { eventID: id } : undefined); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
+  const track = (ev, data = {}, id) => { const eid=id||(`${ev}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`); try { window.fbq && window.fbq("track", ev, data, { eventID: eid }); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} if(["ViewContent","AddToCart","AddToWishlist","InitiateCheckout","Purchase","Lead","Search"].includes(ev)){try{fetch(url("api/meta-event"),{method:"POST",headers:{"content-type":"application/json"},keepalive:true,body:JSON.stringify({event:ev,event_id:eid,url:location.href,custom_data:data})}).catch(()=>{})}catch{}} };
 
   // ---------- storage (safe) ----------
   const KEY = "bk_bag_v1";
@@ -178,11 +217,11 @@
     if (!bag.length) { const sb = $("[data-ship-bar]"); if (sb) sb.hidden = true; box.innerHTML = `<p class="empty">Your bag is empty.<br><a class="link" href="${url("shop/")}">Start shopping →</a></p>`; $("[data-cart-foot]").hidden = true; return; }
     let cat; try { cat = await catalog(); } catch { box.innerHTML = `<p class="empty">Could not load your bag. Check your internet and try again.</p>`; return; }
     let sub = 0;
-    const items = bag.filter((i) => cat.products[i.slug]);
-    box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
+    const items = bag.filter((i) => cat.products[i.slug]); const priceCtx = bagPricing(cat);
+    box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = bagUnit(p, priceCtx); sub += (pr || 0) * i.qty;
       return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
-      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : money(pr * i.qty)}</strong></div>`; }).join("");
-    $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false;
+      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : bagMoney(pr * i.qty, priceCtx)}</strong></div>`; }).join("");
+    $("[data-cart-subtotal]").textContent = bagMoney(sub, priceCtx); $("[data-cart-foot]").hidden = false;
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
     if (bar) { bar.hidden = !lim; if (lim) { const left = lim - sub; $("[data-ship-text]").innerHTML = left > 0 ? `Add <strong>${money(left)}</strong> more for <strong>FREE shipping</strong>` : `🎉 You have unlocked <strong>FREE shipping</strong>`; $("[data-ship-fill]").style.width = Math.min(100, (sub / lim) * 100) + "%"; } }
     $$("[data-q]", box).forEach((b) => b.onclick = () => { const b2 = [...items]; b2[b.dataset.q].qty = Math.max(0, Math.min(10, b2[b.dataset.q].qty + +b.dataset.d)); setBag(b2); });
@@ -238,8 +277,10 @@
     if (sticky && main && "IntersectionObserver" in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting && e.boundingClientRect.top < 0; sticky.classList.toggle("show", on); document.body.classList.toggle("sticky-on", on); }).observe(main);
   }
 
+  const grid = $("[data-grid]");
+
   // ---------- listing sort ----------
-  const sort = $("[data-sort]"), grid = $("[data-grid]");
+  const sort = $("[data-sort]");
   sort?.addEventListener("change", () => {
     const cards = $$(".card", grid); const v = sort.value; const pr = (c) => { const v = isUSD() ? c.dataset.usd : c.dataset.price; return v === "" || v == null ? Infinity : +v; };
     cards.sort((a, b) => v === "low" ? pr(a) - pr(b) : v === "high" ? (pr(b) === Infinity ? -1 : pr(a) === Infinity ? 1 : pr(b) - pr(a)) : +a.dataset.i - +b.dataset.i).forEach((c) => grid.appendChild(c));
@@ -249,17 +290,18 @@
   const co = $("[data-checkout]");
   let method = "", online = false;
   function totals(cat, m) {
-    const s = cat.settings; let sub = 0;
+    const s = cat.settings; let sub = 0; const ctx = bagPricing(cat);
     if (isUSD()) {
-      for (const i of bag) { const p = cat.products[i.slug]; if (p && p.price_usd) sub += p.price_usd * i.qty; }
-      const shipping = s.intl_free_shipping_above_usd && sub >= s.intl_free_shipping_above_usd ? 0 : (s.intl_shipping_charge_usd || 0);
-      return { sub, discount: 0, shipping, total: Math.round((sub + shipping) * 100) / 100 };
+      for (const i of bag) { const p = cat.products[i.slug]; const v = p ? bagUnit(p, ctx) : null; if (v) sub += v * i.qty; }
+      let shipping = s.intl_free_shipping_above_usd && !ctx.exact && sub >= s.intl_free_shipping_above_usd ? 0 : (s.intl_shipping_charge_usd || 0);
+      // Shipping is an operational fee, not a product selling-price conversion.
+      if (ctx.exact && ctx.currency !== "USD" && rates[ctx.currency]) shipping = shipping * rates[ctx.currency];
+      return { sub, discount:0, shipping, total:Math.round((sub+shipping)*100)/100, currency:ctx.currency, exact:ctx.exact };
     }
-    for (const i of bag) { const p = cat.products[i.slug]; if (p && p.price) sub += p.price * i.qty; }
-    const prepaid = m === "online" || m === "upi";
-    const discount = prepaid && s.prepaid_discount_percent ? Math.round(sub * s.prepaid_discount_percent / 100) : 0;
-    const shipping = s.free_shipping_above && sub >= s.free_shipping_above ? 0 : (s.shipping_charge || 0);
-    return { sub, discount, shipping, total: sub - discount + shipping };
+    for (const i of bag) { const p=cat.products[i.slug]; if(p&&p.price) sub+=p.price*i.qty; }
+    const prepaid=m==="online"||m==="upi"; const discount=prepaid&&s.prepaid_discount_percent?Math.round(sub*s.prepaid_discount_percent/100):0;
+    const shipping=s.free_shipping_above&&sub>=s.free_shipping_above?0:(s.shipping_charge||0);
+    return { sub, discount, shipping, total:sub-discount+shipping, currency:"INR", exact:true };
   }
   async function renderCheckout() {
     const cat = await catalog();
@@ -267,13 +309,13 @@
     bag = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
     const itemsBox = $("[data-co-items]");
     if (!bag.length) { co.innerHTML = `<h1>Checkout</h1><p class="empty">${skipped.length ? "The styles in your bag ship within India only. " : ""}Your bag is empty. <a class="link" href="${url("shop/")}">Shop the collection →</a></p>`; return; }
-    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${bagMoney(bagUnit(p, bagPricing(cat)) * i.qty, bagPricing(cat))}</strong></div>`; }).join("");
     const t = totals(cat, method);
-    $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div>
-      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}
-      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>
-      <div class="row total"><span>Total</span><span>${money(t.total)}${isUSD() ? " USD" : ""}</span></div>`;
-    $("[data-place]").textContent = method === "paypal" ? `Place order · ${usd(t.total)} (PayPal invoice)` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
+    $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${bagMoney(t.sub,t)}</span></div>
+      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${bagMoney(t.discount,t)}</span></div>` : ""}
+      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? bagMoney(t.shipping,t) : "Free"}</span></div>
+      <div class="row total"><span>Total</span><span>${bagMoney(t.total,t)}</span></div>`;
+    $("[data-place]").textContent = method === "paypal" ? `Place international order · ${bagMoney(t.total,t)}` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
   }
   function loadRazorpay() {
     return new Promise((res, rej) => {
@@ -296,7 +338,7 @@
     if (q("pin")) q("pin").inputMode = intl ? "text" : "numeric";
     if (intl) {
       method = "paypal";
-      $("[data-pay-opts]").innerHTML = `<label class="pay"><input type="radio" name="pay" value="paypal" checked><span><strong>PayPal / international card</strong><small>We send a secure PayPal invoice in USD to your email. Your order ships after payment.</small></span></label>`;
+      $("[data-pay-opts]").innerHTML = `<label class="pay"><input type="radio" name="pay" value="paypal" checked><span><strong>International prepaid order</strong><small>We confirm the available secure payment method after reviewing your order. Your order ships after verified payment.</small></span></label>`;
       const sec = $("[data-secure]"); if (sec) sec.hidden = true;
       await renderCheckout(); btn.disabled = false; return;
     }
@@ -314,6 +356,7 @@
     btn.disabled = false;
   }
   const orderRef = () => { const d = new Date(); return "BK" + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(); };
+  const recordOrder = (f, ref, t, payment_method, currency, cat, payment_status="Pending") => { try { fetch(url("api/order-record"), { method:"POST", headers:{"content-type":"application/json"}, keepalive:true, body:JSON.stringify({ ref, payment_method, payment_status, currency, total:t.total, name:f.name, phone:f.phone, email:f.email||"", address:f.address, city:f.city, state:f.state||"", pincode:f.pincode, country:f.country||"India", items:bag.map(i=>`${cat.products[i.slug]?.title||i.slug} ${i.size||""} x${i.qty}`).join("; ") }) }).catch(()=>{}); } catch {} };
   function orderText(cat, f, ref, total, payLine) {
     const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${inr(p.price * i.qty)}`; }).join("\n");
     return `New order ${ref}\n\n${lines}\n\nTotal: ${inr(total)}\nPayment: ${payLine}\n\nName: ${f.name}\nPhone: ${f.phone}${f.email ? "\nEmail: " + f.email : ""}\nAddress: ${f.address}, ${f.city}, ${f.state} - ${f.pincode}${giftText(f)}${refText()}${aiText()}${gcText()}`;
@@ -333,16 +376,17 @@
       const f = Object.fromEntries(new FormData(form)); for (const k in f) f[k] = String(f[k]).trim();
       if (method === "paypal") {
         const ph = f.phone.replace(/[^\d+]/g, "");
-        if (!form.checkValidity() || ph.replace(/\D/g, "").length < 7 || !f.country || !/^\S+@\S+\.\S+$/.test(f.email || "")) { form.reportValidity(); return fail("Please fill all delivery details, your country, phone with country code and email (for the PayPal invoice)."); }
+        if (!form.checkValidity() || ph.replace(/\D/g, "").length < 7 || !f.country || !/^\S+@\S+\.\S+$/.test(f.email || "")) { form.reportValidity(); return fail("Please fill all delivery details, your country, phone with country code and email for payment and order updates."); }
         btn.disabled = true;
         let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
         const t = totals(cat, "paypal"); const ref = orderRef();
-        saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
-        const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${usd(p.price_usd * i.qty)}`; }).join("\n");
-        const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? usd(t.shipping) : "Free"}\nTotal: ${usd(t.total)} USD\nPayment: Please send PayPal invoice\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}${aiText()}${gcText()}`;
-        track("Lead", { value: t.total, currency: "USD" });
+        recordOrder(f, ref, t, "International prepaid", t.currency || "USD", cat);
+        saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: t.currency || "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+        const ctx=bagPricing(cat); const lines = bag.map((i) => { const p=cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${bagMoney(bagUnit(p,ctx)*i.qty,ctx)}`; }).join("\n");
+        const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? bagMoney(t.shipping,t) : "Free"}\nTotal: ${bagMoney(t.total,t)}\nPayment: Confirm secure prepaid method with customer\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}${aiText()}${gcText()}`;
+        track("Lead", { value: t.total, currency: t.currency || "USD" });
         const mail = cat.settings.email ? `mailto:${cat.settings.email}?subject=${encodeURIComponent("Order " + ref)}&body=${encodeURIComponent(txt)}` : "";
-        showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${usd(t.total)} USD</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
+        showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will confirm a secure prepaid payment option for <strong>${bagMoney(t.total,t)}</strong> at ${esc(f.email)}. Your order ships after verified payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
         return;
       }
       f.phone = f.phone.replace(/\D/g, "").slice(-10);
@@ -350,6 +394,7 @@
       btn.disabled = true;
       let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
       const t = totals(cat, method); const ref = orderRef();
+      if (method !== "online") recordOrder(f, ref, t, method === "upi" ? "UPI" : "WhatsApp", "INR", cat);
       saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "INR", payment: method, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
       const items = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
       const waFallback = () => BK.wa ? ` <a class="link" href="${waUrl(orderText(cat, f, ref, totals(cat, "whatsapp").total, "Online payment failed – please help"))}" target="_blank" rel="noopener">Order on WhatsApp instead →</a>` : "";
@@ -427,7 +472,7 @@
 
   // Dynamic sections translate themselves when rendered; avoid a full-body observer for performance.
 
-  // ---------- country & currency (all countries; local prices shown approx., charged in USD) ----------
+  // ---------- country & currency: exact configured market price, otherwise explicit international USD ----------
   const flag = (c) => (c && c.length === 2 ? String.fromCodePoint(...[...c.toUpperCase()].map((ch) => 127397 + ch.charCodeAt(0))) : "🌍");
   const CL = BK.countries || [];
   const getCC = () => { try { return JSON.parse(localStorage.getItem("bk_country") || "null"); } catch { return null; } };
@@ -459,11 +504,10 @@
   function setCountry(row, silent) {
     cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); try { if (!localStorage.getItem("bk_lang_manual")) setLang(langForCountry(cc.c), false); } catch {} } catch {}
     const wasUSD = isUSD(), toUSD = cc.c !== "IN"; document.documentElement.classList.toggle("usd", toUSD);
-    if (!silent) { toast(cc.c === "IN" ? "Showing prices in ₹ for India" : `Prices for ${cc.n}${cc.cur !== "USD" ? " (approx. " + cc.cur + ", charged in US $)" : " in US $"}`); if (co && wasUSD !== toUSD) return location.reload(); }
+    if (!silent) { toast(cc.c === "IN" ? "Showing BAHE India prices in ₹" : `Showing BAHE prices for ${cc.n}: exact market price when configured, otherwise international USD`); if (co && wasUSD !== toUSD) return location.reload(); }
     ensureRates().then(applyLocal); renderCart().catch(() => {});
   }
-  let ratesP;
-  const ensureRates = () => { const cur = cc?.cur; if (!cur || cur === "USD" || cur === "INR" || rates[cur]) return Promise.resolve(); return (ratesP ||= (async () => { try { const c = JSON.parse(localStorage.getItem("bk_rates") || "null"); if (c && Date.now() - c.t < 12 * 36e5) { rates = { ...c.r, ...(BK.rates || {}), USD: 1 }; return; } } catch {} try { const r = await fetch("https://open.er-api.com/v6/latest/USD"); const j = await r.json(); if (j && j.rates) { rates = { ...j.rates, ...(BK.rates || {}), USD: 1 }; try { localStorage.setItem("bk_rates", JSON.stringify({ t: Date.now(), r: j.rates })); } catch {} } } catch {} })()); };
+  const ensureRates = () => Promise.resolve(); // 2050: no FX-derived selling prices
   const cm = $("[data-country-modal]"), cq = $("[data-country-q]"), clist = $("[data-country-list]");
   const renderCL = () => { const q = (cq.value || "").trim().toLowerCase(); const rows = CL.filter((r) => !q || r[1].toLowerCase().includes(q) || r[0].toLowerCase() === q || r[2].toLowerCase() === q); const top = q ? rows : [...CL.filter((r) => ["IN", "US", "GB", "AE", "CA", "AU"].includes(r[0])), ...rows]; clist.innerHTML = [...new Map(top.map((r) => [r[0], r])).values()].slice(0, 260).map((r) => `<button type="button" data-cc="${r[0]}"${cc?.c === r[0] ? ' class="on"' : ""}><span>${flag(r[0])} ${esc(r[1])}</span><small>${r[0] === "IN" ? "₹ INR" : r[2]}</small></button>`).join(""); };
   $$("[data-country]").forEach((b) => b.addEventListener("click", () => { if (!cm?.showModal) return; closeAll(); cq.value = ""; renderCL(); cm.showModal(); document.documentElement.classList.add("locked"); setTimeout(() => cq.focus(), 50); }));

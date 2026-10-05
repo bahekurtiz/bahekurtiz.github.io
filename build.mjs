@@ -34,7 +34,6 @@ if (!String(S.hero_image || "").trim() && siteFile("hero-teal.jpg")) S.hero_imag
 const logoMark = () => (logoImg ? `<img class="logo-img" src="${esc(u(logoImg))}" alt="${esc(brand)}" width="300" height="100">` : `${esc(brand)}<small>JAIPUR</small>`);
 const waNumber = (() => { let d = digits(S.whatsapp); if (d.length === 10) d = "91" + d; return d; })();
 const waLink = (msg) => (waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}` : "");
-const usdRate = num(S.usd_rate);
 const ASSET_V = ["assets/style.css", "assets/app.js"].map((f) => { try { return fs.readFileSync(path.join(ROOT, "static", f), "utf8"); } catch { return ""; } }).join("").split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36);
 const today = new Date().toISOString().slice(0, 10);
 const year = new Date().getFullYear();
@@ -250,7 +249,7 @@ const linkList = (list, legacy) => {
   for (const [k, n] of legacy) if (S[k]) out.push({ name: n, url: S[k] });
   return out.filter((x) => x.name && /^https?:\/\//i.test(x.url));
 };
-const socials = linkList(S.social_links, [["instagram", "Instagram"], ["facebook", "Facebook"], ["youtube", "YouTube"], ["pinterest", "Pinterest"]]);
+const socials = linkList(S.social_links, [["instagram", "Instagram"], ["facebook", "Facebook"], ["youtube", "YouTube"], ["pinterest", "Pinterest"], ["linkedin", "LinkedIn"], ["tiktok", "TikTok"]]);
 const markets = linkList(S.marketplace_links, [["myntra", "Myntra"], ["amazon", "Amazon"], ["flipkart", "Flipkart"], ["etsy", "Etsy"]]);
 const sameAs = [...socials, ...markets].map((x) => x.url);
 const socialIcon = (n) => {
@@ -387,7 +386,7 @@ ${pixelBody}
       ${products.some((p) => p.bestseller) ? `<a href="${u("bestsellers/")}">Bestsellers</a>` : ""}
       <a href="${u("shop/")}">New Arrivals</a>
       <a href="${u("wholesale/")}">Wholesale</a>
-      <div class="nav-shop"><button type="button" aria-haspopup="true">Discover ▾</button><div class="mega"><div class="wrap mega-grid discover-grid">
+      <div class="has-mega discover-menu"><button class="mega-trigger discover-trigger" type="button" aria-haspopup="true">Discover ▾</button><div class="mega"><div class="wrap mega-grid discover-grid">
         <div><h4>Try & discover</h4><a href="${u("feed/")}">▶ Watch & Shop</a><a href="${u("mirror/")}">🪞 Mirror · Try your look</a><a href="${u("designs/")}">✨ My Designs · Vote</a></div>
         <div><h4>Save & share</h4><a href="${u("wishlist/")}">♡ Wishlist</a><a href="${u("refer/")}">🎁 Share & Earn</a><a href="${u("gift-card/")}">💌 E-Gift Card</a></div>
       </div></div></div>
@@ -450,7 +449,7 @@ ${noindex || ["home", "pdp"].includes(bodyClass) ? "" : reelsHtml()}
 ${["home", "pdp", "checkout-page"].includes(bodyClass) ? "" : `<section class="usp">
   <div class="wrap usp-grid">
     <div>${I.needle}<strong>Made in Jaipur</strong><span>Designed and stitched by our own team</span></div>
-    <div>${I.shield}<strong>Secure prepaid payments</strong><span class="cur-inr">UPI, cards & netbanking via Razorpay</span>${intlOn ? `<span class="cur-usd">PayPal & international cards</span>` : ""}</div>
+    <div>${I.shield}<strong>Secure prepaid payment</strong><span>Payment options are shown at checkout after availability is verified.</span></div>
     <div>${intlOn ? I.globe : I.truck}<strong>${intlOn ? "Ships worldwide" : "Pan-India delivery"}</strong><span>${esc(S.dispatch_note || "Ships from Jaipur")}</span></div>
     ${num(S.return_days) ? `<div>${I.swap}<strong>${num(S.return_days)}-day size exchange</strong><span><a href="${u("returns/")}">See our return policy</a></span></div>` : ""}
   </div>
@@ -494,7 +493,7 @@ ${waHi ? `<a class="wa-float" href="${esc(waHi)}" target="_blank" rel="noopener"
 <div class="login-box login-done" data-login-done hidden><h2>Welcome, <span data-login-name></span>!</h2><p class="muted">You are signed in on this device. Your details will be filled at checkout.</p><a class="btn btn-wa btn-block" href="${u("refer/")}">🎁 Refer & Earn – get your link</a><button class="btn btn-ghost btn-block" type="button" data-logout>Sign out</button><button class="btn btn-block" type="button" data-close-login>Continue shopping</button></div>
 </dialog>
 <dialog class="country-modal lang-modal" data-lang-modal aria-label="Choose language"><div class="country-box"><button class="icon-btn login-x" type="button" data-close-language aria-label="Close">${I.close}</button><h2>Choose language</h2><p class="muted small">Language and country are separate. You can change this anytime.</p><div class="lang-list" data-lang-list></div></div></dialog>
-${intlOn ? `<dialog class="country-modal" data-country-modal aria-label="Choose your country"><div class="country-box"><button class="icon-btn login-x" type="button" data-close-country aria-label="Close">${I.close}</button><h2>Where should we ship?</h2><p class="muted small">Prices change to your country. International orders are charged in US $; local prices are approximate.</p><input type="search" placeholder="Search country – India, UK, UAE, USA…" data-country-q aria-label="Search country" autocomplete="off"><div class="country-list" data-country-list></div></div></dialog>` : ""}
+${intlOn ? `<dialog class="country-modal" data-country-modal aria-label="Choose your country"><div class="country-box"><button class="icon-btn login-x" type="button" data-close-country aria-label="Close">${I.close}</button><h2>Where should we ship?</h2><p class="muted small">Prices use your exact BAHE market price when configured for your country; otherwise the international USD price is shown. We never convert the India selling price.</p><input type="search" placeholder="Search country – India, UK, UAE, USA…" data-country-q aria-label="Search country" autocomplete="off"><div class="country-list" data-country-list></div></div></dialog>` : ""}
 <dialog class="story-modal" data-story-modal aria-label="Story"><div class="story-stage" data-story-stage></div></dialog>
 <dialog class="finder-modal" data-finder aria-label="Style finder"><div class="finder-box"><button class="icon-btn login-x" type="button" data-close-finder aria-label="Close">${I.close}</button><div data-finder-body></div></div></dialog>
 <dialog class="search-modal" data-search-modal aria-label="Search"><div class="search-box"><div class="search-bar">${I.search}<button class="icon-btn mic" type="button" data-mic aria-label="Search by voice" hidden>${I.mic}</button><input type="search" placeholder="Search kurtis, dresses, block print, cotton…" data-search-input aria-label="Search products" autocomplete="off"><button class="icon-btn" type="button" data-close-search aria-label="Close">${I.close}</button></div>
@@ -502,7 +501,7 @@ ${intlOn ? `<dialog class="country-modal" data-country-modal aria-label="Choose 
 <nav class="bnav" aria-label="Quick links"><a href="${u()}">${I.home}<span>Home</span></a><a href="${u("shop/")}">${I.grid}<span>Shop</span></a><button type="button" data-open-search>${I.search}<span>Search</span></button><a href="${u("wishlist/")}">${I.heart}<span>Wishlist</span><i class="bag-count" data-wish-count hidden>0</i></a><button type="button" data-open-cart>${I.bag}<span>Bag</span><i class="bag-count" data-bag-count hidden>0</i></button></nav>
 ${mini && !noindex && (bodyClass === "home" || bodyClass === "pdp") ? `<div class="mini-reel" data-mini><button class="mini-x" type="button" data-mini-close aria-label="Close video">×</button><button class="mini-play" type="button" data-mini-open aria-label="Watch video${mini.caption ? ": " + esc(mini.caption) : ""}"><video data-src="${esc(mini.video)}"${mini.cover ? ` poster="${esc(mini.cover)}"` : ""} muted loop playsinline preload="none" aria-hidden="true"></video><span class="mini-badge">${I.play} Watch</span></button></div>` : ""}
 <dialog class="reel-modal" data-reel-modal aria-label="Reel"><button class="icon-btn reel-x" data-reel-close aria-label="Close">${I.close}</button><div class="reel-stage" data-reel-stage></div></dialog>
-<script>window.BK=${JSON.stringify({ base: BASE, wa: waNumber, brand, email: S.email || "", intl: intlOn, sheet: /^https:\/\/script\.google\.com\//.test(String(S.customer_sheet_url || "").trim()) ? String(S.customer_sheet_url).trim() : "", gid: String(S.google_client_id || "").trim(), popup: S.login_popup !== false, stories: bodyClass === "home" ? storiesData.map((st) => ({ t: st.t, s: st.s.map((x) => ({ img: x.img ? u(x.img) : "", vid: x.vid ? u(x.vid) : "", cap: x.cap, link: x.link ? u(x.link) : "", shop: x.shop })) })) : [], fests: festAll, countries: intlOn ? countryList : [], rates: Object.fromEntries((Array.isArray(S.currency_rates) ? S.currency_rates : []).map((r) => [String(r?.code || "").toUpperCase(), num(r?.per_usd)]).filter(([c, v]) => c && v)), occasions, fabrics, productI18n: Object.fromEntries(products.map((p) => [p.slug, p.i18n || {}])), marketPrices: Object.fromEntries(products.map((p) => [p.slug, p.market_prices || {}])), ship: { dispatch: num(S.dispatch_days) || 3, min: num(S.transit_days_min) || 3, max: num(S.transit_days_max) || 7, local: num(S.transit_days_local) || 2, intlMin: num(S.intl_eta_min) || 7, intlMax: num(S.intl_eta_max) || 12 }, reels: reels.length ? reelData() : [], mini: mini || null }).replace(/</g, "\\u003c")};</script>
+<script>window.BK=${JSON.stringify({ base: BASE, wa: waNumber, brand, email: S.email || "", intl: intlOn, sheet: /^https:\/\/script\.google\.com\//.test(String(S.customer_sheet_url || "").trim()) ? String(S.customer_sheet_url).trim() : "", gid: String(S.google_client_id || "").trim(), popup: S.login_popup !== false, stories: bodyClass === "home" ? storiesData.map((st) => ({ t: st.t, s: st.s.map((x) => ({ img: x.img ? u(x.img) : "", vid: x.vid ? u(x.vid) : "", cap: x.cap, link: x.link ? u(x.link) : "", shop: x.shop })) })) : [], fests: festAll, countries: intlOn ? countryList : [], occasions, fabrics, productI18n: {}, marketPrices: Object.fromEntries(products.map((p) => [p.slug, p.market_prices || {}])), ship: { dispatch: num(S.dispatch_days) || 3, min: num(S.transit_days_min) || 3, max: num(S.transit_days_max) || 7, local: num(S.transit_days_local) || 2, intlMin: num(S.intl_eta_min) || 7, intlMax: num(S.intl_eta_max) || 12 }, reels: reels.length ? reelData() : [], mini: mini || null }).replace(/</g, "\\u003c")};</script>
 <script src="${u("assets/app.js")}?v=${ASSET_V}" defer></script>
 </body>
 </html>`;
@@ -555,8 +554,16 @@ const circles = (active = "") => categories.length ? `<nav class="circles" aria-
   <a class="circle" href="${u("wholesale/")}"><span class="circle-img circle-all">B2B</span><em>Wholesale</em></a>
 </div></nav>` : "";
 const reviews = (Array.isArray(S.reviews) ? S.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), city: String(r?.city || "").trim(), text: String(r?.text || "").trim(), rating: num(r?.rating) || 5, photo: String(r?.photo || "").trim() })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
-const pages = [];
-const add = (file, html) => pages.push([file, html]);
+// 2050 scale build: stream generated pages to disk instead of retaining hundreds/thousands of full HTML documents in RAM.
+fs.rmSync(OUT, { recursive: true, force: true });
+fs.cpSync(path.join(ROOT, "static"), OUT, { recursive: true });
+let pageCount = 0, lastPageHtml = "";
+const add = (file, html) => {
+  const f = path.join(OUT, file);
+  fs.mkdirSync(path.dirname(f), { recursive: true });
+  fs.writeFileSync(f, html);
+  pageCount++; lastPageHtml = html;
+};
 
 // ---------- home ----------
 {
@@ -602,7 +609,7 @@ ${slides.length > 1 ? `<div class="hero-dots">${slides.map((_, i) => `<button ty
   <div class="wrap trust-row">
     <div>${I.needle}<span><strong>Handmade in Jaipur</strong>Hand block prints by our own karigars</span></div>
     <div>${intlOn ? I.globe : I.truck}<span><strong>${intlOn ? "Ships worldwide" : "Pan-India delivery"}</strong>${esc(S.dispatch_note || "Dispatched from Sanganer, Jaipur")}</span></div>
-    <div>${I.shield}<span><strong>100% secure prepaid</strong><span class="cur-inr">UPI · Cards · Netbanking</span>${intlOn ? `<span class="cur-usd">PayPal · International cards</span>` : ""}</span></div>
+    <div>${I.shield}<span><strong>Secure prepaid checkout</strong><span>Available payment options are confirmed at checkout</span></span></div>
     <div>${I.box}<span><strong>Wholesale & private label</strong><a href="${u("wholesale/")}">Bulk orders for boutiques →</a></span></div>
   </div>
 </section>
@@ -649,7 +656,7 @@ ${reviews.length >= 3 ? `<section class="wrap section reviews"><div class="secti
 </section>`;
   add("index.html", page({
     title: `${brand} | Kurtis & Dresses for Women, Made in Jaipur`,
-    description: clip(`Shop ${categories.map((c) => c.plural.toLowerCase()).join(" & ")} for women by ${brand}, Jaipur. ${S.tagline || ""}. Secure prepaid payment${intlOn ? ", shipping worldwide" : " and pan-India delivery"}.`),
+    description: clip(`Shop ${categories.map((c) => c.plural.toLowerCase()).join(" & ")} for women by ${brand}, Jaipur. ${S.tagline || ""}. Worldwide ordering${intlOn ? ", shipping worldwide" : " and pan-India delivery"}.`),
     pathname: "", body, bodyClass: "home",
     ld: [{ "@context": "https://schema.org", "@type": "WebSite", name: brand, url: SITE_URL + "/" }],
   }));
@@ -657,29 +664,40 @@ ${reviews.length >= 3 ? `<section class="wrap section reviews"><div class="secti
 
 // ---------- listing pages ----------
 function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "" }) {
-  const body = `
+  const PAGE_SIZE = 48, totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pageBody = (pageItems, pageNo) => {
+    const pagePath = pageNo === 1 ? pathname : `${pathname}page/${pageNo}/`;
+    const pager = totalPages > 1 ? `<nav class="catalog-pager" aria-label="Catalog pages">${pageNo > 1 ? `<a class="btn btn-ghost btn-sm" href="${u(pageNo === 2 ? pathname : `${pathname}page/${pageNo-1}/`)}">← Previous</a>` : ""}<span>Page ${pageNo} of ${totalPages}</span>${pageNo < totalPages ? `<a class="btn btn-ghost btn-sm" href="${u(`${pathname}page/${pageNo+1}/`)}">Next →</a>` : ""}</nav>` : "";
+    return `
 <section class="wrap section">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / ${crumbs}</nav>
-  <div class="list-head"><h1>${esc(h1)}</h1><p class="muted">${esc(intro)}</p></div>
+  <div class="list-head"><h1>${esc(h1)}</h1><p class="muted">${esc(intro)}${totalPages > 1 ? ` · Page ${pageNo}/${totalPages}` : ""}</p></div>
   ${circles(pathname)}
   <div class="chips">
-
-    ${(() => { const fs_ = uniq(items.map((p) => p.fabric).filter((f) => f && f !== "Other")); const ps = uniq(items.flatMap((p) => p.print_work));
+    ${(() => { const fs_ = uniq(pageItems.map((p) => p.fabric).filter((f) => f && f !== "Other")); const ps = uniq(pageItems.flatMap((p) => p.print_work));
       return `${ps.length > 1 ? `<label class="sort">Print <select data-filter="print"><option value="">All</option>${ps.map((x) => `<option>${esc(x)}</option>`).join("")}</select></label>` : ""}${fs_.length > 1 ? `<label class="sort">Fabric <select data-filter="fabric"><option value="">All</option>${fs_.map((x) => `<option>${esc(x)}</option>`).join("")}</select></label>` : ""}`; })()}
     <label class="sort">Sort <select data-sort><option value="">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label>
   </div>
   <p class="filter-empty muted" data-filter-empty hidden>No styles match this filter. <button class="link" type="button" data-filter-clear>Show all</button></p>
-  <div class="grid" data-grid>${items.map((p, i) => card(p, i).replace('<article class="card"', `<article class="card" data-price="${p.price ?? ""}" data-usd="${p.intl ? p.price_usd : ""}" data-i="${i}"`)).join("")}</div>
-  ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
+  <div class="grid" data-grid>${pageItems.map((p, i) => card(p, i).replace('<article class="card"', `<article class="card" data-price="${p.price ?? ""}" data-usd="${p.intl ? p.price_usd : ""}" data-i="${i}"`)).join("")}</div>
+  ${pager}
+  ${seo && pageNo === 1 ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
 </section>`;
-  add(file, page({
-    title, description, pathname, body, image: items[0]?.images[0],
-    ld: [crumbLd([[h1, pathname]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: h1, url: SITE_URL + "/" + pathname,
-      mainEntity: { "@type": "ItemList", itemListElement: items.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: SITE_URL + "/" + p.url, name: p.title })) } }],
-  }));
+  };
+  for (let pageNo = 1; pageNo <= totalPages; pageNo++) {
+    const pageItems = items.slice((pageNo - 1) * PAGE_SIZE, pageNo * PAGE_SIZE);
+    const pagePath = pageNo === 1 ? pathname : `${pathname}page/${pageNo}/`;
+    const pageFile = pageNo === 1 ? file : `${pathname}page/${pageNo}/index.html`;
+    add(pageFile, page({
+      title: pageNo === 1 ? title : `${h1} – Page ${pageNo} | ${brand}`,
+      description, pathname: pagePath, body: pageBody(pageItems, pageNo), image: pageItems[0]?.images[0],
+      ld: [crumbLd([[h1, pathname]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: h1, url: SITE_URL + "/" + pagePath,
+        mainEntity: { "@type": "ItemList", itemListElement: pageItems.map((p, i) => ({ "@type": "ListItem", position: (pageNo-1)*PAGE_SIZE+i+1, url: SITE_URL + "/" + p.url, name: p.title })) } }],
+    }));
+  }
 }
 listing({ file: "shop/index.html", pathname: "shop/", h1: "Shop All", intro: `${products.length} styles, made in Jaipur`, items: products, crumbs: "<span>Shop All</span>",
-  title: `Shop Women's Kurtis & Dresses Online | ${brand}`, description: `Browse all kurtis and dresses by ${brand}, Jaipur. Embroidered kurtis, floral dresses and more with secure online payment and pan-India delivery.` });
+  title: `Shop Women's Kurtis & Dresses Online | ${brand}`, description: `Browse all kurtis and dresses by ${brand}, Jaipur. Embroidered kurtis, floral dresses and more with order support and pan-India delivery.` });
 { const best = products.filter((p) => p.bestseller); if (best.length) listing({ file: "bestsellers/index.html", pathname: "bestsellers/", h1: "Bestsellers", intro: `Our most loved styles, made in Jaipur`, items: best, crumbs: "<span>Bestsellers</span>",
   title: `Bestsellers – Most Loved Kurtis & Dresses | ${brand}`, description: `Shop the bestselling kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints loved by our customers.` }); }
 // ---------- Fabric & print guide + one page per fabric / print that has products ----------
@@ -690,13 +708,13 @@ listing({ file: "shop/index.html", pathname: "shop/", h1: "Shop All", intro: `${
     body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Craft guide</p><h1>Fabric & Print Guide</h1><p class="lead">Every print has a place, a community and a story. Here is what each one means, where it comes from, and how to care for it.</p></div></section>${sec("print", "Prints & handwork")}${sec("fabric", "Fabrics")}` }));
   for (const [type, names] of [["print", prints], ["fabric", fabrics]]) for (const n of names) { const items = products.filter((p) => (type === "fabric" ? p.fabric === n : p.print_work.includes(n))); if (!items.length) continue; const c = craftInfo(type, n);
     listing({ file: `${craftUrl(n)}index.html`, pathname: craftUrl(n), h1: `${n} ${type === "fabric" ? "Kurtis & Dresses" : "Kurtis & Dresses"}`, intro: `${items.length} ${items.length === 1 ? "style" : "styles"}${c?.[0] ? " · " + c[0] : ""}`, items, crumbs: `<a href="${u("craft/")}">Fabric & print guide</a> / <span>${esc(n)}</span>`, title: `${n} Kurtis & Dresses Online – Made in Jaipur | ${brand}`, description: clip(`Shop ${n} kurtis, kurta sets and dresses by ${brand}, Jaipur. ${c ? c[1] : ""}`), seo: c ? `${c[1]}\n\nCare: ${c[2]}` : "" }); } }
-for (const o of occasions) { const items = products.filter((p) => p.occasion.includes(o)); const slug = slugify(o); listing({ file: `occasion/${slug}/index.html`, pathname: `occasion/${slug}/`, h1: `${o} Wear`, intro: `${items.length} styles for ${o.toLowerCase()}, made in Jaipur`, items, crumbs: `<span>${esc(o)}</span>`, title: `${o} Kurtis & Dresses – Hand Block Print | ${brand}`, description: `Shop ${o.toLowerCase()} kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints, secure prepaid payment.` }); }
+for (const o of occasions) { const items = products.filter((p) => p.occasion.includes(o)); const slug = slugify(o); listing({ file: `occasion/${slug}/index.html`, pathname: `occasion/${slug}/`, h1: `${o} Wear`, intro: `${items.length} styles for ${o.toLowerCase()}, made in Jaipur`, items, crumbs: `<span>${esc(o)}</span>`, title: `${o} Kurtis & Dresses – Hand Block Print | ${brand}`, description: `Shop ${o.toLowerCase()} kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints, made in Jaipur.` }); }
 const catSeo = Object.fromEntries((Array.isArray(S.category_seo) ? S.category_seo : []).map((x) => [String(x?.category || "").trim(), String(x?.text || "").trim()]));
 for (const c of categories) {
   const fb = uniq(c.items.map((p) => p.fabric)).slice(0, 4), pw = uniq(c.items.flatMap((p) => p.print_work)).slice(0, 4);
-  c.seoText = catSeo[c.name] || `Shop ${c.plural.toLowerCase()} for women by ${brand}, made in our own unit in Sanganer, Jaipur${pw.length ? ` – ${pw.join(", ").toLowerCase()}` : ""}${fb.length ? ` in ${fb.join(", ").toLowerCase()}` : ""}. Secure prepaid payment, shipping across India${intlOn ? " and worldwide" : ""}. Boutiques and brands can also order ${c.plural.toLowerCase()} in wholesale or under their own private label.`;
+  c.seoText = catSeo[c.name] || `Shop ${c.plural.toLowerCase()} for women by ${brand}, made in our own unit in Sanganer, Jaipur${pw.length ? ` – ${pw.join(", ").toLowerCase()}` : ""}${fb.length ? ` in ${fb.join(", ").toLowerCase()}` : ""}. Order support, shipping across India${intlOn ? " and worldwide" : ""}. Boutiques and brands can also order ${c.plural.toLowerCase()} in wholesale or under their own private label.`;
   listing({ file: c.url + "index.html", pathname: c.url, h1: c.plural, intro: `${c.items.length} styles`, seo: c.seoText, items: c.items, crumbs: `<a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span>`,
-    title: `${c.plural} for Women – Made in Jaipur | ${brand}`, description: `Shop ${c.plural.toLowerCase()} for women by ${brand}, Jaipur. Handcrafted designs, secure online payment and pan-India delivery.` });
+    title: `${c.plural} for Women – Made in Jaipur | ${brand}`, description: `Shop ${c.plural.toLowerCase()} for women by ${brand}, Jaipur. Handcrafted designs, order support and pan-India delivery.` });
 }
 
 // ---------- product pages ----------
@@ -784,7 +802,7 @@ add("checkout/index.html", page({
         <label>Full name<input name="name" autocomplete="name" required maxlength="80"></label>
         <label><span class="cur-inr">Mobile number</span><span class="cur-usd">Phone / WhatsApp (with country code)</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="18" placeholder="10-digit mobile" data-phone></label>
       </div>
-      <label>Email (for order updates<span class="cur-usd"> and PayPal invoice</span>)<input name="email" type="email" autocomplete="email" maxlength="100" data-email></label>
+      <label>Email (for order and payment updates)<input name="email" type="email" autocomplete="email" maxlength="100" data-email></label>
       ${intlOn ? `<label class="cur-usd">Country<input name="country" autocomplete="country-name" maxlength="60" list="countries" data-country></label>
       <datalist id="countries">${allCountries.map((c) => `<option value="${c}">`).join("")}</datalist>` : ""}
       <label>House no., building, street, area<textarea name="address" autocomplete="street-address" required rows="2" maxlength="200"></textarea></label>
@@ -800,8 +818,8 @@ add("checkout/index.html", page({
       <div class="pay-opts" data-pay-opts><p class="muted">Loading payment options…</p></div>
       <p class="form-error" data-co-error hidden></p>
       <button class="btn btn-block btn-lg" type="submit" data-place disabled>Place order</button>
-      ${intlOn ? `<p class="secure cur-usd">${I.shield} International orders are prepaid in USD through a secure PayPal invoice (cards accepted). We ship after payment.</p>` : ""}
-      <p class="secure" data-secure hidden>${I.shield} Payments are processed securely by Razorpay. We never see your card details.</p>
+      ${intlOn ? `<p class="secure cur-usd">${I.shield} International orders are prepaid. The available secure payment method is confirmed at checkout/order review. We ship after verified payment.</p>` : ""}
+      <p class="secure" data-secure hidden>${I.shield} Secure online payment is available only when the verified payment gateway is enabled. We never store your card or bank details.</p>
     </form>
     <aside class="co-summary">
       <h2>Order summary</h2>
@@ -830,7 +848,7 @@ infoPage("about/index.html", "about/", `Our Story – ${brand}, Jaipur`, S.about
 infoPage("contact/index.html", "contact/", `Contact Us | ${brand}`, "Contact Us", contactHtml, `Contact ${brand}, Jaipur for orders, sizes, custom requests and bulk enquiries. Chat with us on WhatsApp${S.email ? " or write to us by email" : ""}.`);
 infoPage("shipping/index.html", "shipping/", `Shipping Policy | ${brand}`, "Shipping Policy", paras(S.shipping_policy), `Shipping policy of ${brand}: dispatch time from Jaipur, delivery time across India, tracking details and made-to-order timelines.`);
 infoPage("returns/index.html", "returns/", `Returns, Exchange & Refund Policy | ${brand}`, "Returns, Exchange & Refunds", paras(S.return_policy), `Return, exchange and refund policy of ${brand}: how to request an exchange, eligible products and refund timelines for online payments.`);
-infoPage("privacy/index.html", "privacy/", `Privacy Policy | ${brand}`, "Privacy Policy", paras(S.privacy_policy), `Privacy policy of ${brand}: what details we collect for your order, how we use them, secure payments via Razorpay and how to delete your data.`);
+infoPage("privacy/index.html", "privacy/", `Privacy Policy | ${brand}`, "Privacy Policy", paras(S.privacy_policy), `Privacy policy of ${brand}: what details we collect for your order, how we use them, payment-provider privacy and how to delete your data.`);
 infoPage("terms/index.html", "terms/", `Terms & Conditions | ${brand}`, "Terms & Conditions", paras(S.terms), `Terms and conditions for shopping on the ${brand} website: orders, pricing, payments, cancellations and governing law.`);
 
 if (S.intl_shipping_policy) infoPage("international-shipping/index.html", "international-shipping/", `International Shipping Policy | ${brand}`, "International Shipping", paras(S.intl_shipping_policy), `International shipping policy of ${brand}, Jaipur: countries we ship to, delivery times, charges in USD and import duties.`);
@@ -926,7 +944,7 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
 </div></section>
 <section class="wrap section"><div class="section-head center"><p class="eyebrow">How it works</p><h2>From enquiry to dispatch</h2></div>
   <ol class="steps">${steps.map(([a, b]) => `<li><strong>${esc(a)}</strong><span>${esc(b)}</span></li>`).join("")}</ol>
-  <div class="terms-box"><p><strong>Minimum order:</strong> ${esc(S.wholesale_moq || "Depends on the design and fabric. Small boutique orders are welcome. Ask us on WhatsApp.")}</p><p><strong>Payment:</strong> ${esc(S.wholesale_payment || "Advance payment only (bank transfer / UPI in India, PayPal or wire transfer for international buyers). No cash on delivery.")}</p><p><strong>Prices:</strong> Shared as a written quotation after we understand your requirement.</p></div>
+  <div class="terms-box"><p><strong>Minimum order:</strong> ${esc(S.wholesale_moq || "Depends on the design and fabric. Small boutique orders are welcome. Ask us on WhatsApp.")}</p><p><strong>Payment:</strong> ${esc(S.wholesale_payment || "Advance payment only (bank transfer / UPI in India; secure prepaid method confirmed for international buyers). No cash on delivery.")}</p><p><strong>Prices:</strong> Shared as a written quotation after we understand your requirement.</p></div>
 </section>
 <section class="wrap section enquiry" id="enquiry">
   <div class="section-head center"><p class="eyebrow">Get a quotation</p><h2>Send your requirement</h2><p class="muted">Fill this and tap send. It opens WhatsApp with your details ready${S.email ? `, or email us at <a class="link" href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}.</p></div>
@@ -1120,36 +1138,40 @@ function dashMain() {
       h.addEventListener("pointerenter", show); h.addEventListener("click", show); h.addEventListener("pointerleave", () => { tipbox.hidden = true; $$("[data-i]").forEach((b) => (b.style.opacity = 1)); }); });
   }
   // ---------- Marketing Studio: tracked link + ad copy + ad images for any country ----------
-  let CAT = null, FX = null;
+  let CAT = null;
   const C_LIST = [["US", "United States", "USD"], ["GB", "United Kingdom", "GBP"], ["CA", "Canada", "CAD"], ["AU", "Australia", "AUD"], ["NZ", "New Zealand", "NZD"], ["AE", "UAE", "AED"], ["SG", "Singapore", "SGD"], ["MY", "Malaysia", "MYR"], ["DE", "Germany", "EUR"], ["FR", "France", "EUR"], ["NL", "Netherlands", "EUR"], ["IE", "Ireland", "EUR"], ["JP", "Japan", "JPY"], ["IN", "India", "INR"]];
   const CH = { meta: ["Meta ads (Facebook + Instagram)", "meta", "paid"], google: ["Google ads / Shopping", "google", "cpc"], pinterest: ["Pinterest ads", "pinterest", "paid"], insta: ["Instagram post / reel (free)", "instagram", "social"], wa: ["WhatsApp broadcast", "whatsapp_bc", "broadcast"], b2b: ["Boutiques / brands (B2B email)", "b2b", "email"] };
   const HOOK = { everyday: "Everyday comfort", diwali: "Diwali", wedding: "Wedding season", summer: "Summer", navratri: "Navratri", eid: "Eid", gifting: "Gifting / Christmas" };
   async function studio() {
     const sb = $("[data-studio-body]"); if (!sb) return;
     try { CAT ||= await (await fetch((window.BK?.base || "/") + "data/catalog.json")).json(); } catch { sb.innerHTML = "<p>Products load nahi hue.</p>"; return; }
-    if (!FX) { try { FX = (await (await fetch("https://open.er-api.com/v6/latest/USD")).json()).rates; } catch { FX = { USD: 1 }; } }
     const ps = Object.entries(CAT.products).filter(([, p]) => p.image);
     const opt = (o) => Object.entries(o).map(([k, v]) => `<option value="${k}">${Array.isArray(v) ? v[0] : v}</option>`).join("");
     sb.innerHTML = `<div class="studio-f"><label>Product<select data-s="p">${ps.map(([k, p]) => `<option value="${esc(k)}">${esc(p.title)}</option>`).join("")}</select></label><label>Desh (country)<select data-s="c">${C_LIST.map((c) => `<option value="${c[0]}">${c[1]}</option>`).join("")}</select></label><label>Kahan chalana hai<select data-s="ch">${opt(CH)}</select></label><label>Mauka<select data-s="h">${opt(HOOK)}</select></label><button class="btn" type="button" data-s-go>✨ Ad kit banao</button></div><div data-s-out></div>`;
     $("[data-s-go]").addEventListener("click", makeKit);
   }
-  const money = (usd, inrV, cur) => { if (cur === "INR") return inrV ? "₹" + Number(inrV).toLocaleString("en-IN") : ""; if (!usd) return ""; const r = FX?.[cur] || (cur === "USD" ? 1 : 0); if (!r) return "$" + usd; try { return new Intl.NumberFormat("en", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(usd * r); } catch { return "$" + usd; } };
+  const adMarketPrice = (p, country, cur) => {
+    if (country === "IN") return p.price ? "₹" + Number(p.price).toLocaleString("en-IN") : "";
+    const mp = p.market_prices?.[country];
+    if (mp?.price != null) { try { return new Intl.NumberFormat("en", { style: "currency", currency: mp.currency || cur, maximumFractionDigits: 0 }).format(Number(mp.price)); } catch { return `${mp.currency || cur} ${mp.price}`; } }
+    return p.price_usd ? "$" + Number(p.price_usd).toLocaleString("en-US") : "";
+  };
   function makeKit() {
     const g = (k) => $(`[data-s="${k}"]`).value, k = g("p"), p = CAT.products[k], cc = C_LIST.find((c) => c[0] === g("c")), ch = CH[g("ch")], hk = g("h"), hook = HOOK[hk];
     const brand = window.BK?.brand || "Bahe Kurtiz", ym = new Date().toISOString().slice(2, 7).replace("-", "");
     const camp = `${cc[0].toLowerCase()}-${hk}-${ym}`;
     const b2b = g("ch") === "b2b", path = b2b ? "wholesale/" : String(p.url).replace(/^\//, "");
     const link = `${location.origin}/${path}?country=${cc[0]}&utm_source=${ch[1]}&utm_medium=${ch[2]}&utm_campaign=${camp}&utm_content=${k}`;
-    const price = money(p.price_usd, p.price, cc[2]); const noUsd = cc[0] !== "IN" && !p.price_usd; const noFx = !["USD", "INR"].includes(cc[2]) && !FX?.[cc[2]];
+    const price = adMarketPrice(p, cc[0], cc[2]); const hasMarket = !!p.market_prices?.[cc[0]]?.price; const noIntl = cc[0] !== "IN" && !hasMarket && !p.price_usd;
     const craft = String(p.print || "").split(",")[0].trim() || "Handcrafted", fab = p.fabric || "cotton";
     const H = [`${p.title} – handmade in Jaipur`, `${hook} ready: ${craft} from Jaipur`, price ? `${craft} kurtis from ${price}` : `Authentic ${craft} from Jaipur`];
     const T = b2b ? `Hello,\n\nI am from ${brand}, a hand block print studio in Sanganer, Jaipur (India). We make kurtis, kurta sets and dresses in ${craft} on ${fab} and supply boutiques and brands in ${cc[1]}.\n\n• Small minimum orders, mixed designs\n• Private label available\n• Samples and catalogue on request\n• Worldwide shipping from Jaipur\n\nCatalogue & trade enquiry: ${link}\n\nWarm regards,\n${brand}`
       : `${hook === "Everyday comfort" ? "Comfort that looks handmade – because it is." : hook + " is better in something made by hand."} ${p.title}: ${craft} on breathable ${fab}${/block|sanganer|bagru|dabu|ajrakh|indigo|kalamkari|bagh/i.test(p.print || "") ? ", printed with wooden blocks in Sanganer, Jaipur" : ", made in Jaipur"}.${price ? " Now " + price + "." : ""} Ships to ${cc[1]}. Secure prepaid checkout.`;
     const D2 = `${/block|sanganer|bagru|dabu|ajrakh|indigo|kalamkari|bagh/i.test(p.print || "") ? "Hand block printed" : "Made"} in Jaipur · Ships to ${cc[1]}`;
     const tags = `#handblockprint #jaipurkurti #${craft.replace(/[^a-z]/gi, "").toLowerCase()} #indianwear #kurti #${cc[1].replace(/\s/g, "").toLowerCase()}indians #ethnicwear #madeinindia`;
-    const steps = { meta: [`Meta Ads Manager kholo (business.facebook.com) → Create → Sales.`, `Location: ${cc[1]} · Women · Age 25–55 · Interests: Indian fashion, Kurta, Saree, Bollywood, Diwali + "Expats (India)".`, `Budget ₹500–800/din se shuru karo, 3–5 din chalao, phir jo ad achha chale usi par budget badhao.`, `Neeche wali square aur story photo upload karo, headline aur text copy-paste karo.`, `Website URL mein upar wala link daalo.`], google: [`Google Merchant Center mein products feed: bahekurtiz.com/feeds/google-merchant-usd.xml (bahar ke liye, pehle se bana hai).`, `Google Ads → New campaign → Sales → Performance Max / Shopping.`, `Country: ${cc[1]} · Budget ₹500/din se shuru.`, `Headlines aur description neeche se copy karo; final URL upar wala link.`], pinterest: [`Pinterest Business → Ads → Create campaign → Consideration.`, `Country: ${cc[1]} · Interests: Women's fashion, Indian wedding, Boho.`, `Story (tall) photo upload karo, link upar wala.`], insta: [`Story/tall photo download karo, Instagram par post karo.`, `Caption mein text + hashtags paste karo.`, `Bio link ya story link sticker mein upar wala link lagao.`], wa: [`Sirf un customers ko bhejo jinhone offers ke liye haan bola hai.`, `Square photo + text + link bhejo.`], b2b: [`Boutique / brand ka email ya Instagram dhundo (Google Maps, Instagram "indian boutique ${cc[1]}").`, `Neeche wala email copy karke bhejo, saath mein square photo.`, `Reply aaye to Sheet mein "wholesale" row dekho; rate aur MOQ aap final karo.`] }[g("ch")];
+    const steps = { meta: [`Meta Ads Manager kholo (business.facebook.com) → Create → Sales.`, `Location: ${cc[1]} · Women · Age 25–55 · Interests: Indian fashion, Kurta, Saree, Bollywood, Diwali + "Expats (India)".`, `Budget ₹500–800/din se shuru karo, 3–5 din chalao, phir jo ad achha chale usi par budget badhao.`, `Neeche wali square aur story photo upload karo, headline aur text copy-paste karo.`, `Website URL mein upar wala link daalo.`], google: [`Google Merchant Center mein products feed: bahekurtiz.com/feeds/google-merchant.xml (bahar ke liye, pehle se bana hai).`, `Google Ads → New campaign → Sales → Performance Max / Shopping.`, `Country: ${cc[1]} · Budget ₹500/din se shuru.`, `Headlines aur description neeche se copy karo; final URL upar wala link.`], pinterest: [`Pinterest Business → Ads → Create campaign → Consideration.`, `Country: ${cc[1]} · Interests: Women's fashion, Indian wedding, Boho.`, `Story (tall) photo upload karo, link upar wala.`], insta: [`Story/tall photo download karo, Instagram par post karo.`, `Caption mein text + hashtags paste karo.`, `Bio link ya story link sticker mein upar wala link lagao.`], wa: [`Sirf un customers ko bhejo jinhone offers ke liye haan bola hai.`, `Square photo + text + link bhejo.`], b2b: [`Boutique / brand ka email ya Instagram dhundo (Google Maps, Instagram "indian boutique ${cc[1]}").`, `Neeche wala email copy karke bhejo, saath mein square photo.`, `Reply aaye to Sheet mein "wholesale" row dekho; rate aur MOQ aap final karo.`] }[g("ch")];
     const blk = (t, v) => `<div class="studio-b"><div class="studio-bh"><b>${t}</b><button type="button" class="link small" data-copy>Copy</button></div><pre>${esc(v)}</pre></div>`;
-    $("[data-s-out]").innerHTML = `${noUsd ? `<p class="dash-err">Is product ka $ price admin mein nahi bhara. Bahar ke ads se pehle $ price daalo.</p>` : ""}${noFx ? `<p class="dash-err">${cc[2]} ka rate nahi mila, isliye price $ mein dikh raha hai. Internet check karke dobara banao.</p>` : ""}
+    $("[data-s-out]").innerHTML = `${noIntl ? `<p class="dash-err">Is country ka exact market price ya international USD price admin mein nahi bhara. Ad chalane se pehle selling price set karo.</p>` : ""}
       ${blk("🔗 Tracked link (isi se pata chalega kitni sale aayi)", link)}${b2b ? blk("✉️ Email / DM", T) : blk("Headlines", H.join("\n")) + blk("Text", T) + blk("Description", D2) + blk("Hashtags", tags)}
       <div class="studio-imgs"><figure><canvas data-cv="sq" width="1080" height="1080"></canvas><button class="btn btn-ghost btn-sm" type="button" data-dl="sq">⬇ Square photo</button></figure><figure><canvas data-cv="st" width="1080" height="1920"></canvas><button class="btn btn-ghost btn-sm" type="button" data-dl="st">⬇ Story photo</button></figure></div>
       <div class="studio-b"><b>Ab ye karo</b><ol>${steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol></div>`;
@@ -1168,13 +1190,6 @@ function dashMain() {
 add("admin/dashboard/index.html", page({ title: `Business Dashboard | ${brand}`, description: "Owner dashboard", pathname: "admin/dashboard/", noindex: true, bodyClass: "dash-page", mini: null,
   body: `<section class="wrap section dash" data-dash><div class="dash-head"><div><p class="eyebrow">Owner only</p><h1>Business Dashboard</h1></div><span class="muted small" data-dash-status></span></div><div data-dash-body><p class="muted">Loading…</p></div></section><script>addEventListener("DOMContentLoaded", () => (${dashMain.toString()})());</script>` }));
 
-fs.rmSync(OUT, { recursive: true, force: true });
-fs.cpSync(path.join(ROOT, "static"), OUT, { recursive: true });
-for (const [file, html] of pages) {
-  const f = path.join(OUT, file);
-  fs.mkdirSync(path.dirname(f), { recursive: true });
-  fs.writeFileSync(f, html);
-}
 
 // catalog used by the cart, checkout and the payment server (prices are checked on the server)
 const catalog = {
@@ -1188,6 +1203,7 @@ const catalog = {
 };
 fs.mkdirSync(path.join(OUT, "data"), { recursive: true });
 fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
+fs.writeFileSync(path.join(OUT, "data/i18n.json"), JSON.stringify(Object.fromEntries(products.filter((p) => p.i18n && Object.keys(p.i18n).length).map((p) => [p.slug, p.i18n]))));
 
 // ---------- product feeds: Meta (Facebook/Instagram Shop) catalog + Google Merchant Center ----------
 {
@@ -1248,18 +1264,18 @@ fs.writeFileSync(path.join(OUT, "blog/feed.xml"), `<?xml version="1.0" encoding=
 ${posts.map((b) => `<item><title>${esc(b.title)}</title><link>${SITE_URL}/${b.url}</link><guid>${SITE_URL}/${b.url}</guid><pubDate>${new Date(b.date + "T09:00:00+05:30").toUTCString()}</pubDate><description>${esc(b.excerpt || "")}</description></item>`).join("\n")}
 </channel></rss>`);
 // for AI assistants and shopping agents (ChatGPT, Gemini, Perplexity…): a plain summary + full product data
-fs.writeFileSync(path.join(OUT, "llms.txt"), `# ${brand}\n\n> ${S.tagline || "Women's ethnic wear made in Sanganer, Jaipur"}. Manufacturer of hand block printed kurtis, kurta sets, dresses and co-ords. Retail in India (INR) and worldwide (USD), prepaid only. Wholesale, private label and export.\n\n## Shop\n- [All products](${SITE_URL}/shop/)\n${categories.map((c) => `- [${c.plural}](${SITE_URL}/${c.url})`).join("\n")}\n- [Product data (JSON)](${SITE_URL}/products.json)\n- [Google product feed](${SITE_URL}/feeds/google-merchant.xml)\n\n## Business\n- [Wholesale, private label & export](${SITE_URL}/wholesale/)\n${landings.map((l) => `- [${l.h1}](${SITE_URL}/${l.url})`).join("\n")}\n- [About](${SITE_URL}/about/)\n- [Contact](${SITE_URL}/contact/)${waNumber ? ` (WhatsApp +${waNumber})` : ""}\n\n## Policies\n- [Shipping – India](${SITE_URL}/shipping/)\n- [Returns – India](${SITE_URL}/returns/)\n${S.intl_shipping_policy ? `- [International shipping](${SITE_URL}/international-shipping/)\n` : ""}${S.intl_return_policy ? `- [International returns](${SITE_URL}/international-returns/)\n` : ""}- [Privacy](${SITE_URL}/privacy/)\n- [Terms](${SITE_URL}/terms/)\n`);
+fs.writeFileSync(path.join(OUT, "llms.txt"), `# ${brand}\n\n> ${S.tagline || "Women's ethnic wear made in Sanganer, Jaipur"}. Manufacturer of hand block printed kurtis, kurta sets, dresses and co-ords. Retail in India (INR) and worldwide using BAHE market pricing: an explicit country price when configured, otherwise the merchant-defined international USD price. Wholesale, private label and export.\n\n## Shop\n- [All products](${SITE_URL}/shop/)\n${categories.map((c) => `- [${c.plural}](${SITE_URL}/${c.url})`).join("\n")}\n- [Product data (JSON)](${SITE_URL}/products.json)\n- [Google product feed](${SITE_URL}/feeds/google-merchant.xml)\n\n## Business\n- [Wholesale, private label & export](${SITE_URL}/wholesale/)\n${landings.map((l) => `- [${l.h1}](${SITE_URL}/${l.url})`).join("\n")}\n- [About](${SITE_URL}/about/)\n- [Contact](${SITE_URL}/contact/)${waNumber ? ` (WhatsApp +${waNumber})` : ""}\n\n## Policies\n- [Shipping – India](${SITE_URL}/shipping/)\n- [Returns – India](${SITE_URL}/returns/)\n${S.intl_shipping_policy ? `- [International shipping](${SITE_URL}/international-shipping/)\n` : ""}${S.intl_return_policy ? `- [International returns](${SITE_URL}/international-returns/)\n` : ""}- [Privacy](${SITE_URL}/privacy/)\n- [Terms](${SITE_URL}/terms/)\n`);
 fs.writeFileSync(path.join(OUT, "products.json"), JSON.stringify({ brand, url: SITE_URL, currency: ["INR", ...(intlOn ? ["USD"] : [])], updated: today, products: products.map((p) => ({ id: p.slug, title: p.title, url: `${SITE_URL}/${p.url}`, category: p.category, color: p.color || undefined, fabric: p.fabric || undefined, craft: p.print_work.length ? p.print_work : undefined, occasion: p.occasion.length ? p.occasion : undefined, sizes: p.sizes, sold_out_sizes: p.sold_out.length ? p.sold_out : undefined, price_inr: p.price, mrp_inr: p.mrp || undefined, price_usd: p.intl ? p.price_usd : undefined, ships_internationally: p.ships_abroad, in_stock: p.in_stock, images: p.images.map(abs), description: String(p.description || "").replace(/\s+/g, " ").trim() || undefined, made_in: "Sanganer, Jaipur, India" })) }, null, 1));
 // more files AI agents read: one-line-per-product list, a Markdown page per product, and how-to-order notes
 fs.writeFileSync(path.join(OUT, "llms-full.txt"), `# ${brand} – full product list\n\n${products.map((p) => [p.title, p.price !== null ? "₹" + p.price : "price on request", p.intl ? "$" + p.price_usd : "", "sizes: " + (p.sizes.filter((z) => !p.sold_out.includes(z)).join("/") || "ask"), p.fabric, p.print_work.join("/"), p.occasion.join("/"), `${SITE_URL}/${p.url}`].filter(Boolean).join(" | ")).join("\n")}\n`);
 fs.mkdirSync(path.join(OUT, "p"), { recursive: true });
 for (const p of products) fs.writeFileSync(path.join(OUT, "p", p.slug + ".md"), `# ${p.title}\n\n- Brand: ${brand} (Sanganer, Jaipur, India)\n- Category: ${p.category}\n${p.color ? `- Colour: ${p.color}\n` : ""}${p.fabric ? `- Fabric: ${p.fabric}\n` : ""}${p.print_work.length ? `- Craft: ${p.print_work.join(", ")}\n` : ""}${p.occasion.length ? `- Occasion: ${p.occasion.join(", ")}\n` : ""}- Sizes: ${p.sizes.join(", ") || "ask"}${p.sold_out.length ? ` (sold out: ${p.sold_out.join(", ")})` : ""}\n- Price: ${p.price !== null ? "₹" + p.price + " INR" : "on request"}${p.intl ? ` / $${p.price_usd} USD` : ""}\n- Ships internationally: ${p.ships_abroad ? "yes" : "no"}\n- Buy: ${SITE_URL}/${p.url}\n\n${String(p.description || "").trim()}\n`);
-fs.writeFileSync(path.join(OUT, "agents.md"), `# How AI assistants can help shoppers buy from ${brand}\n\n- Product data: ${SITE_URL}/products.json (all products) and ${SITE_URL}/p/<product-id>.md (one product).\n- Sizes: Indian sizes XS–5XL by body bust in inches; size chart on every product page.\n- Currency: INR in India, USD elsewhere. Payment is prepaid only (UPI/cards in India, PayPal invoice abroad). No cash on delivery.\n- To order: send the shopper to the product page, or to WhatsApp ${waNumber ? "https://wa.me/" + waNumber : "(see contact page)"} with product name, size, quantity and delivery address.\n- A human shopper must approve and make every payment. There is no automated agent checkout.\n- Wholesale, private label and export: ${SITE_URL}/wholesale/\n`);
+fs.writeFileSync(path.join(OUT, "agents.md"), `# How AI assistants can help shoppers buy from ${brand}\n\n- Product data: ${SITE_URL}/products.json (all products) and ${SITE_URL}/p/<product-id>.md (one product).\n- Sizes: Indian sizes XS–5XL by body bust in inches; size chart on every product page.\n- Currency: INR in India, USD or an exact configured market price abroad. Payment is prepaid only; available payment options are confirmed during checkout/order review. No cash on delivery.\n- To order: send the shopper to the product page, or to WhatsApp ${waNumber ? "https://wa.me/" + waNumber : "(see contact page)"} with product name, size, quantity and delivery address.\n- A human shopper must approve and make every payment. There is no automated agent checkout.\n- Wholesale, private label and export: ${SITE_URL}/wholesale/\n`);
 
 // printable QR tags for the owner (not for Google)
 add("tags/index.html", page({ title: `Product QR tags | ${brand}`, description: "Printable QR tags", pathname: "tags/", noindex: true, bodyClass: "tags-page",
   body: `<section class="wrap section"><h1>Product QR tags</h1><p class="muted no-print">Print this page (Ctrl + P) and stick each tag on the product or packet. Scanning opens the product page.</p><button class="btn no-print" type="button" onclick="print()">Print tags</button><div class="tag-grid">${products.map((p) => `<div class="qr-tag"><div data-qr-box data-qr="${esc(SITE_URL + "/" + p.url + "?src=tag")}"></div><b>${esc(brand)}</b><span>${esc(p.title)}</span><small>Hand made in Sanganer, Jaipur</small></div>`).join("")}</div></section>` }));
-fs.mkdirSync(path.join(OUT, "tags"), { recursive: true }); fs.writeFileSync(path.join(OUT, "tags/index.html"), pages.at(-1)[1]);
+fs.mkdirSync(path.join(OUT, "tags"), { recursive: true }); fs.writeFileSync(path.join(OUT, "tags/index.html"), lastPageHtml);
 fs.writeFileSync(path.join(OUT, "robots.txt"), `# AI assistants and shopping agents are welcome to read products and policies\nUser-agent: OAI-SearchBot\nUser-agent: ChatGPT-User\nUser-agent: GPTBot\nUser-agent: Google-Extended\nUser-agent: PerplexityBot\nUser-agent: ClaudeBot\nAllow: /\nDisallow: /admin/\nDisallow: /checkout/\nDisallow: /api/\n\nUser-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /checkout/\nDisallow: /api/\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 const extraRedirects = fs.existsSync(path.join(ROOT, "content/redirects.txt")) ? fs.readFileSync(path.join(ROOT, "content/redirects.txt"), "utf8") : "";
 fs.writeFileSync(path.join(OUT, "_redirects"), [
@@ -1276,4 +1292,4 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
   extraRedirects.trim(),
 ].filter(Boolean).join("\n") + "\n");
 fs.writeFileSync(path.join(OUT, "_headers"), `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/images/*\n  Cache-Control: public, max-age=2592000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n`);
-console.log(`Built ${pages.length} pages, ${products.length} products, ${categories.length} categories → _site (url ${SITE_URL})`);
+console.log(`Built ${pageCount} pages, ${products.length} products, ${categories.length} categories → _site (url ${SITE_URL})`);

@@ -1,0 +1,12 @@
+BAHE KURTIZ 2050 CONSOLIDATED AUDIT
+
+This release consolidates the live-site fixes into one source package (not a patch chain).
+Locked storefront pricing: India INR; explicit country market price when configured; otherwise merchant-defined international USD. No INR-to-foreign selling-price conversion.
+Language: Search + language control stay together; core navigation, discovery/story labels and shopping controls have supported-language dictionaries; Arabic RTL remains supported.
+Discover: clean borderless premium navigation trigger with dropdown; no boxed button styling.
+Payments: public pages do not claim a provider is active before the verified gateway is enabled. Razorpay server-side foundation remains dormant until credentials/KYC are configured.
+SEO: canonical/meta/OG/Twitter, structured data, sitemap, robots, RSS, product/landing/blog SEO fields, Merchant/Meta/Pinterest feeds, llms/agents files and internal SEO pages are generated. Publishing remains merchant-controlled; no low-quality autonomous AI spam publishing.
+Social: arbitrary HTTPS social links are Admin-editable; Instagram, Facebook, LinkedIn, Pinterest, YouTube, TikTok and Google Business Profile are supported by the generic social list.
+Performance: no broad language MutationObserver; Mirror AI remains on-demand/bounded; existing Mera Size is preserved.
+
+Build/syntax/static checks can pass before deployment, but real production acceptance still requires live Cloudflare deployment plus phone/desktop smoke testing and external account activation checks (payment KYC, Search Console, Meta/Google/Pinterest credentials).

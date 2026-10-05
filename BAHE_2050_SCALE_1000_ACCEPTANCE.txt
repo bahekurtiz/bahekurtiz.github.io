@@ -1,0 +1,21 @@
+BAHE KURTIZ 2050 — 300–1000 PRODUCT SCALE ACCEPTANCE
+Date: 2026-10-05
+
+Scope: scalability-only upgrade on top of Worldwide V3 Master. Existing language, pricing, Admin, SEO/Meta, payment, Mirror and Mera Size architecture preserved.
+
+Changes:
+- Static catalogue pagination: 48 products per listing page.
+- Product cards retain lazy media and CSS content-visibility containment.
+- Build now streams generated pages to disk instead of holding all generated HTML in RAM.
+- Product translation payload removed from every HTML page and emitted once as /data/i18n.json; loaded only when a non-English language is requested.
+- Existing /data/catalog.json remains canonical client cart/search/payment catalogue.
+
+Synthetic acceptance test:
+- 1,000 products
+- 1,097 generated pages
+- Build completed in ~1.96 sec in test environment
+- Max RSS ~164 MB
+- Shop first page: 48 cards, ~130 KB HTML
+- Total generated test site ~115 MB (test products reused sample assets; synthetic test data is NOT included in release)
+
+Release package contains original real products only. No fake scale-test products are included.

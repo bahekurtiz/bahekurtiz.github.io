@@ -1,0 +1,28 @@
+BAHE KURTIZ 2050 — FINAL LIVE FIX ACCEPTANCE
+
+This package consolidates the latest Master Final + four live fixes + Discover/social/SEO audit.
+
+LOCKED LIVE FIXES
+1. Language control remains in header actions immediately after Search; never under logo.
+2. Core storefront translation packs cover header/discovery/style/follow shopping UI; no broad MutationObserver.
+3. Discover is a clean premium navigation trigger (no boxed browser-button look) with Watch & Shop, Mirror, My Designs, Wishlist, Share & Earn, Gift Card.
+4. Foreign selling price rule: India INR; explicit configured market price; otherwise merchant-defined international USD. Never derive selling price from INR FX conversion.
+5. Customer payment copy is provider-neutral until real merchant gateway/KYC/live credentials are activated.
+6. Editable social links remain Admin-driven; Instagram, Facebook, YouTube, Pinterest, LinkedIn and TikTok legacy/default support is recognized. Empty URLs do not render.
+
+SMART SEO / BLOG FOUNDATION PRESERVED
+- Admin-managed blog + SEO title/description
+- Product/category/landing SEO metadata
+- sitemap.xml + robots.txt + canonical URLs
+- Product, BlogPosting, Breadcrumb, FAQ structured data
+- RSS blog feed
+- SEO landing pages
+- Google Merchant and Pinterest catalog feeds
+- Organization sameAs from configured social/marketplace links
+- AI discovery/llms support where generated
+
+PRESERVED (NO REBUILD)
+Mera Size, Mirror architecture, Watch & Shop, Wishlist, Share & Earn, My Designs, mobile/desktop feature parity architecture, Order Admin, Meta/Google/Pinterest marketing foundations.
+
+EXTERNAL ACTIVATION STILL REQUIRED
+Search Console submission/indexing, Razorpay/other payment KYC and production secrets, Meta/Google/Pinterest account tokens/IDs, Cloudflare D1/ADMIN_TOKEN where applicable.

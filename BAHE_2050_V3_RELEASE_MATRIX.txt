@@ -1,0 +1,30 @@
+BAHE KURTIZ 2050 WORLDWIDE V3 — RELEASE MATRIX
+
+LIVE + ADMIN FOUNDATIONS IN THIS PACKAGE
+- Worldwide language layer: EN, HI, FR, DE, ES, IT, JA, AR; Arabic RTL; country and language kept independent; manual persistence.
+- Header language control is in the action rail next to Search, not under the logo.
+- Worldwide pricing rule: India INR; explicit country market price; otherwise merchant-defined USD; never INR FX-derived selling price.
+- Product Admin has price_usd + flexible market_prices + per-language product translations.
+- Worldwide shipping/return policy copy is included; Admin already exposes India/international shipping charge, ETA, duty note and policy fields.
+- Meta Pixel browser foundation + server-side CAPI endpoint; GA4, Clarity, Pinterest and verification settings.
+- Smart SEO: canonical/meta/schema/sitemap/robots/RSS/blog/landing pages + Google Merchant/Meta/Pinterest feeds + AI-readable outputs.
+- Social Admin: arbitrary links including Instagram/Facebook/LinkedIn/Pinterest/YouTube/TikTok/Google Business Profile.
+- Payment is runtime status-gated; Razorpay server-side create/verify/status foundation stays dormant until KYC/keys are configured.
+- Order Admin foundation with status, carrier, tracking and notes.
+- Mirror/Mera Size are preserved; heavy Mirror path remains isolated/on-demand.
+- No broad full-body MutationObserver and no automatic FX selling-price fetch.
+
+CONFIGURATION REQUIRED AFTER DEPLOYMENT (NOT CODE BUGS)
+- Real international USD/country prices must be entered by BAHE; they are intentionally not invented.
+- Payment provider KYC/live credentials.
+- Meta/Google/Pinterest IDs/tokens/approvals.
+- Search Console indexing/submission.
+- Cloudflare D1/ADMIN_TOKEN and production environment bindings where applicable.
+
+V3 FUTURE OPERATING-SYSTEM TARGETS NOT CLAIMED AS FULLY IMPLEMENTED
+- Unified RBAC/roles + audit log across all Admin modules.
+- Full real-user performance/error observability dashboard.
+- Automated backup/restore UI and staging/rollback control center.
+- SEO/Ads/Translation/Pricing health-score dashboards.
+- Authenticated general AI-agent commerce API contract.
+These remain V3 roadmap capabilities and should be added modularly, not by making the storefront heavy.

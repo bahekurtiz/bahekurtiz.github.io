@@ -1,7 +1,7 @@
 {
   "brand_name": "Bahe Kurtiz",
   "tagline": "Handcrafted kurtis & dresses from Jaipur",
-  "announcement": "Made in Jaipur | Secure online payment | Order help on WhatsApp: 70733 50886",
+  "announcement": "Made in Jaipur | Worldwide ordering | Order help on WhatsApp: 70733 50886",
   "hero_title": "Jaipur's charm, made for every day",
   "hero_subtitle": "Embroidered kurtis and flowy dresses, designed and stitched in Jaipur.",
   "hero_image": "/images/site/hero.jpg",
@@ -27,6 +27,18 @@
     {
       "name": "Google Business Profile",
       "url": ""
+    },
+    {
+      "name": "Pinterest",
+      "url": ""
+    },
+    {
+      "name": "YouTube",
+      "url": ""
+    },
+    {
+      "name": "TikTok",
+      "url": ""
     }
   ],
   "marketplace_links": [
@@ -39,16 +51,18 @@
   "free_shipping_above": 0,
   "cod_enabled": false,
   "cod_charge": 0,
-  "prepaid_discount_percent": 5,
+  "prepaid_discount_percent": 0,
   "upi_id": "",
   "dispatch_note": "Dispatched from Jaipur in 2–4 working days",
-  "shipping_policy": "We ship all over India from Jaipur.\n\nOrders are dispatched within 2–4 working days. Delivery usually takes 4–8 working days after dispatch, depending on your location. We share the tracking details on WhatsApp/SMS once your order is shipped.\n\nMade-to-order pieces may take a few extra days. We will tell you the exact timeline on WhatsApp.",
+  "shipping_policy": "BAHE KURTIZ ships from Jaipur, India. India and international delivery are managed according to the destination selected on the website.\n\nOrders are normally prepared within the dispatch time shown on the product/checkout. Delivery time depends on destination, carrier and customs. Tracking details are shared after dispatch.\n\nFor international orders, the checkout/product page shows the BAHE market price available for the selected country. Import duties, taxes or customs charges are communicated according to the destination policy and are never silently assumed.\n\nMade-to-order or customised pieces may require additional preparation time; the confirmed timeline is shared before dispatch.",
   "return_policy": "Exchange or return requests are accepted within 7 days of delivery, for unused products with original tags.\n\nTo raise a request, message us on WhatsApp with your order ID and photos of the product.\n\nFor prepaid orders, the refund goes to the original payment method within 5–7 working days after we receive the product back. Shipping charges are not refundable. Made-to-order pieces can be exchanged for size only.",
-  "privacy_policy": "We collect only the details needed to deliver your order: name, phone number, email and address. We use them to process your order, ship it and contact you about it.\n\nOnline payments are processed securely by Razorpay. We do not see or store your card or bank details.\n\nWe never sell your details to anyone. To get your data deleted, message us on WhatsApp or email.",
-  "terms": "By placing an order on this website you agree to these terms.\n\nProduct colours may look slightly different because of screen settings and lighting. Prices are in Indian Rupees and include applicable taxes unless mentioned otherwise.\n\nWe may cancel an order if a product is out of stock or if there is a pricing error. In that case any amount paid is refunded in full.\n\nFor any question, contact us on WhatsApp or by email. These terms are governed by the laws of India, and courts in Jaipur, Rajasthan have jurisdiction.",
+  "privacy_policy": "We collect only the details needed to deliver your order: name, phone number, email and address. We use them to process your order, ship it and contact you about it.\n\nWhen online payment is enabled, it is processed by the payment provider shown at checkout. We do not store your card or bank details.\n\nWe never sell your details to anyone. To get your data deleted, message us on WhatsApp or email.",
+  "terms": "By placing an order on this website you agree to these terms.\n\nProduct colours may look slightly different because of screen settings and lighting. Prices are shown using the BAHE market price configured for your country. India uses INR; overseas markets use an explicit country price when configured, otherwise the BAHE international USD price. Import duties or local taxes, where applicable, are shown or communicated separately.\n\nWe may cancel an order if a product is out of stock or if there is a pricing error. In that case any amount paid is refunded in full.\n\nFor any question, contact us on WhatsApp or by email. These terms are governed by the laws of India, and courts in Jaipur, Rajasthan have jurisdiction.",
   "site_url": "https://bahekurtiz.com",
   "google_site_verification": "",
   "currency": "INR",
   "github_repo": "",
-  "international_enabled": true
+  "international_enabled": true,
+  "intl_shipping_policy": "We ship eligible BAHE KURTIZ products worldwide from Jaipur, India. International availability, shipping charge and delivery estimate depend on the destination and the values configured by BAHE in the website Admin.\n\nInternational selling prices are not converted automatically from the India price. A country-specific BAHE market price is used when configured; otherwise the merchant-defined international USD price is used. If neither has been configured for a product, the website must not invent a foreign selling price.\n\nCustoms duties and local taxes vary by destination. Any DDP/DDU or duty promise should be shown only when BAHE has configured it for that market. Tracking is provided after dispatch.",
+  "intl_return_policy": "International return or exchange eligibility is confirmed according to the destination, product condition and the policy shown at the time of order. Customers should contact BAHE before returning an international parcel so the correct return instructions can be provided. Customised or made-to-order items may have different eligibility where disclosed before purchase."
 }
