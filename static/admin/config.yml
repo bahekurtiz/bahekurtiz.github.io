@@ -4,6 +4,7 @@ backend:
   name: github
   repo: __REPO__
   branch: __BRANCH__
+  base_url: https://bahe-sveltia-auth.bahekurti.workers.dev
   commit_messages:
     create: "नया प्रोडक्ट: {{slug}}"
     update: "अपडेट: {{slug}}"
