@@ -4,6 +4,9 @@
   "color": "Blue & Grey",
   "price": 1499,
   "mrp": 2499,
+  "price_usd": 30,
+  "mrp_usd": 90,
+  "ships_abroad": true,
   "sizes": [
     "S",
     "M",
@@ -12,7 +15,15 @@
     "XXL",
     "XS"
   ],
-  "fabric": "cotton",
+  "sold_out_sizes": [],
+  "occasion": [],
+  "model_height": "5.6",
+  "model_size": "s",
+  "fit": "Fitted",
+  "fabric": "Pure Cotton",
+  "print_work": [
+    "Hand Block Print"
+  ],
   "description": "A flowy floral maxi dress in soft blue and grey tones. A halter neck with a lace-up open back, a fitted bodice and a full, gathered skirt with a ruffle hem that twirls beautifully.\n\nPerfect for brunches, holidays and summer evenings. Made in Jaipur.",
   "images": [
     "/images/products/blue-halter-1.jpg",
@@ -20,8 +31,12 @@
     "/images/products/blue-halter-3.jpg",
     "/images/products/blue-halter-4.jpg"
   ],
+  "video": "",
+  "match_products": [],
+  "tryon_png": "",
   "in_stock": true,
   "featured": true,
+  "bestseller": false,
   "sort_order": 4,
   "seo_title": "",
   "seo_description": ""
