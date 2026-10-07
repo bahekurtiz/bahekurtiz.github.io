@@ -4,7 +4,6 @@ backend:
   name: github
   repo: __REPO__
   branch: __BRANCH__
-  base_url: https://bahe-sveltia-auth.bahekurti.workers.dev
   commit_messages:
     create: "नया प्रोडक्ट: {{slug}}"
     update: "अपडेट: {{slug}}"
@@ -28,9 +27,9 @@ media_libraries:
       transformations:
         raster_image:
           format: webp
-          quality: 82
-          width: 1600
-          height: 1600
+          quality: 80
+          width: 1400
+          height: 1400
 
 collections:
   - name: products
@@ -199,6 +198,13 @@ collections:
       - { name: video, label: "छोटी रील / वीडियो (optional, mp4)", widget: file, required: false, media_folder: /static/media/products, public_folder: /media/products, hint: "10-15 सेकंड, 8 MB से कम। फ़ोटो के साथ अपने-आप चलती रहेगी (बिना आवाज़)।" }
       - { name: match_products, label: "Shop the Look – साथ में मैच होने वाले प्रोडक्ट (optional)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], multiple: true, required: false, hint: "जैसे कुर्ती के साथ पलाज़ो / दुपट्टा। प्रोडक्ट पेज पर 'Complete the look' में दिखेंगे" }
       - { name: tryon_png, label: "Mirror के लिए कटआउट फ़ोटो (पारदर्शी PNG, सिर्फ़ कपड़ा) – optional", widget: image, required: false, hint: "बैकग्राउंड हटाकर सिर्फ़ ड्रेस वाली PNG डालोगे तो Mirror में ड्रेस ग्राहक की फ़ोटो पर ज़्यादा असली लगेगी" }
+      - { name: sku, label: "SKU / Product ID (optional)", widget: string, required: false }
+      - { name: set_items, label: "सेट में क्या-क्या है? (जैसे: Kurta, Pant, Dupatta) – optional", widget: list, required: false, field: { name: item, label: "चीज़", widget: string } }
+      - { name: care, label: "धुलाई / देखभाल (optional)", widget: string, required: false, hint: "खाली छोड़ो तो कपड़े के हिसाब से अपने-आप दिखेगा" }
+      - { name: processing_days, label: "बनने / पैक होने में दिन (optional, जैसे 2-4)", widget: string, required: false }
+      - { name: return_override, label: "इस प्रोडक्ट का return नियम (optional)", widget: select, required: false, options: ["Default", "Exchange only", "Non-returnable", "Custom size – no return"], default: "Default" }
+      - { name: garment_length, label: "कुर्ती / ड्रेस की लंबाई (inch, optional)", widget: number, value_type: float, required: false }
+      - { name: sale_paused, label: "⛔ बिक्री रोको (product दिखेगा, पर ऑर्डर नहीं होगा)", widget: boolean, default: false, required: false }
       - { name: in_stock, label: "स्टॉक में है? (In stock)", widget: boolean, default: true, hint: "बंद करोगे तो 'Made to order' दिखेगा" }
       - { name: featured, label: "होमपेज पर दिखाओ (Show on homepage)", widget: boolean, default: true }
       - { name: bestseller, label: "⭐ Bestseller (होमपेज के Bestsellers में + बैज)", widget: boolean, default: false }
@@ -336,6 +342,30 @@ collections:
           - { name: favicon, label: "छोटा आइकन (Favicon – 512×512 PNG)", widget: image, required: false }
           - { name: tagline, label: "टैगलाइन", widget: string }
           - { name: announcement, label: "ऊपर चलने वाली पट्टी (हर मैसेज के बीच | लगाओ)", widget: string, required: false }
+          - { name: emergency_note, label: "🚨 इमरजेंसी मैसेज (हर पेज पर सबसे ऊपर लाल पट्टी) – खाली = बंद", widget: string, required: false }
+          - { name: languages_off, label: "🌐 भाषा बटन (8 भाषाएँ) बंद करो?", widget: boolean, default: false, required: false }
+          - { name: local_currency_display, label: "विदेशी ग्राहक को अपनी currency में अंदाज़न price (≈ £, ≈ ¥) दिखाओ? (charge हमेशा $ में)", widget: boolean, default: true, required: false }
+          - { name: maintenance_mode, label: "🛠️ Maintenance mode (वेबसाइट दिखेगी, पर ऑर्डर बंद)", widget: boolean, default: false, required: false }
+          - { name: checkout_pause, label: "⏸️ Checkout pause (नए ऑर्डर अस्थायी बंद)", widget: boolean, default: false, required: false }
+          - { name: pause_message, label: "ऑर्डर बंद होने पर ग्राहक को मैसेज", widget: string, required: false, default: "We are updating our store. Orders will open again shortly – WhatsApp us for help." }
+          - { name: india_handling_days, label: "🇮🇳 India: पैक होने में दिन (जैसे 1-3)", widget: string, required: false, default: "1-3" }
+          - { name: india_transit_days, label: "🇮🇳 India: कूरियर में दिन (जैसे 3-7)", widget: string, required: false, default: "3-7" }
+          - { name: india_return_rule, label: "🇮🇳 India: Return / exchange नियम (ग्राहक को दिखेगा)", widget: string, required: false }
+          - name: markets
+            label: "🌍 देश-वार नियम (Market Control) – हर देश के लिए एक"
+            widget: list
+            required: false
+            summary: "{{fields.country}} – {{fields.status}}"
+            hint: "सिर्फ़ वही भरो जो सच में चलता है। कोई चीज़ खाली छोड़ी तो वेबसाइट उसका वादा नहीं करेगी।"
+            fields:
+              - { name: country, label: "देश कोड (US, GB, CA, AU, AE, DE…)", widget: string }
+              - { name: status, label: "स्थिति", widget: select, options: ["Live", "Paused", "Not launched"], default: "Live" }
+              - { name: handling_days, label: "पैक होने में दिन (जैसे 2-4)", widget: string, required: false }
+              - { name: transit_days, label: "कूरियर में दिन (जैसे 7-12)", widget: string, required: false }
+              - { name: courier, label: "कूरियर (DHL / FedEx / India Post…)", widget: string, required: false }
+              - { name: return_rule, label: "Return / exchange नियम", widget: string, required: false }
+              - { name: duty_note, label: "Duty / tax जानकारी (सच में जो लागू हो)", widget: string, required: false }
+              - { name: message, label: "इस देश के ग्राहक के लिए मैसेज", widget: string, required: false }
           - name: hero_slides
             label: "होमपेज बैनर स्लाइड (2-4 बैनर, अपने-आप बदलेंगे)"
             widget: list
@@ -377,6 +407,7 @@ collections:
               - { name: url, label: "पूरा लिंक (https://…)", widget: string }
           - { name: shipping_charge, label: "भारत: डिलीवरी चार्ज ₹ (0 = फ़्री)", widget: number, value_type: int, required: false }
           - { name: free_shipping_above, label: "भारत: इतने ₹ से ऊपर फ़्री डिलीवरी (0 = लागू नहीं)", widget: number, value_type: int, required: false }
+          - { name: paypal_client_id, label: "💳 PayPal Client ID (videsh se seedha card / PayPal payment) – optional", widget: string, required: false, hint: "developer.paypal.com → Apps & Credentials → Live → App → Client ID. Sirf Client ID daalo, Secret kabhi nahi. Khaali = PayPal invoice wala purana tarika." }
           - { name: intl_shipping_charge_usd, label: "विदेश: शिपिंग चार्ज $ (हर ऑर्डर)", widget: number, value_type: float, required: false }
           - { name: intl_free_shipping_above_usd, label: "विदेश: इतने $ से ऊपर फ़्री शिपिंग (0 = लागू नहीं)", widget: number, value_type: float, required: false }
           - { name: intl_duty_note, label: "विदेश: ड्यूटी/टैक्स की लाइन (चेकआउट और प्रोडक्ट पेज पर)", widget: string, required: false, default: "Prices exclude import duties and taxes of your country, which are paid by the buyer on delivery." }
@@ -406,6 +437,21 @@ collections:
               - { name: code, label: "करेंसी कोड (GBP, EUR, AED, CAD…)", widget: string }
               - { name: per_usd, label: "1 USD = कितने", widget: number, value_type: float }
           - { name: usd_rate, label: "डॉलर रेट (1 $ = कितने ₹) – विदेश दाम अपने-आप बनाने के लिए", widget: number, value_type: float, required: false, hint: "जैसे 70 लिखोगे तो ₹1400 वाला प्रोडक्ट $20 दिखेगा (ऊपर की ओर गोल)। जिस प्रोडक्ट में $ दाम खुद भरा है, वहाँ वही दिखेगा। खाली = अपने-आप नहीं बनेगा" }
+          - name: coupons
+            label: "🏷️ Coupon codes"
+            widget: list
+            required: false
+            summary: "{{fields.code}} – {{fields.kind}} {{fields.value}} ({{fields.market}})"
+            hint: "Code public hota hai – jo bhi likh de use mil jaata hai. Limit (sirf 1 baar) abhi nahi hai."
+            fields:
+              - { name: code, label: "Code (jaise DIWALI10)", widget: string }
+              - { name: kind, label: "Kis tarah ki chhoot", widget: select, options: ["Percent", "Fixed amount", "Free shipping"], default: "Percent" }
+              - { name: value, label: "Kitni (10 = 10% ya ₹10/$10)", widget: number, value_type: float, required: false }
+              - { name: market, label: "Kiske liye", widget: select, options: ["India (₹)", "International ($)", "Both"], default: "India (₹)" }
+              - { name: min_order, label: "Kam se kam order (₹ ya $)", widget: number, value_type: float, required: false }
+              - { name: start, label: "Shuru (date)", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+              - { name: end, label: "Khatam (date)", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+              - { name: active, label: "Chalu?", widget: boolean, default: true }
           - { name: prepaid_discount_percent, label: "ऑनलाइन पेमेंट पर छूट %", widget: number, value_type: int, required: false }
           - { name: upi_id, label: "UPI ID (Razorpay चालू न हो तब काम आएगी)", widget: string, required: false }
           - { name: dispatch_note, label: "डिस्पैच लाइन (प्रोडक्ट पेज पर)", widget: string, required: false }
@@ -416,7 +462,7 @@ collections:
           - { name: privacy_policy, label: "Privacy Policy", widget: text }
           - { name: terms, label: "Terms & Conditions", widget: text }
           - { name: site_url, label: "वेबसाइट का पता", widget: string }
-          - { name: google_site_verification, label: "Google Search Console कोड", widget: string, required: false }
+          - { name: google_site_verification, label: "📈 Google Search Console कोड", widget: string, required: false }
           - { name: referral_offer, label: "Refer & Earn – रेफर करने वाले को क्या मिलेगा", widget: string, required: false, hint: "जैसे: ₹150 off on your next order. खाली = 'a thank-you discount on your next order'" }
           - { name: referral_friend_offer, label: "Refer & Earn – नए दोस्त को क्या मिलेगा", widget: string, required: false, hint: "जैसे: ₹100 off on the first order" }
           - { name: referral_terms, label: "Refer & Earn – और शर्तें (optional)", widget: string, required: false }
@@ -427,12 +473,12 @@ collections:
           - { name: login_popup, label: "25 सेकंड बाद Sign-in पॉपअप दिखाओ (14 दिन में एक बार)", widget: boolean, default: true }
           - { name: login_title, label: "Sign-in पॉपअप की हेडिंग", widget: string, required: false, default: "Sign in for early access to sales" }
           - { name: login_text, label: "Sign-in पॉपअप की लाइन", widget: string, required: false }
-          - { name: ga4_id, label: "Google Analytics 4 – Measurement ID (G-XXXX)", widget: string, required: false, hint: "analytics.google.com → Admin → Data streams → Web → Measurement ID" }
-          - { name: clarity_id, label: "Microsoft Clarity – Project ID (फ़्री heatmap + recording)", widget: string, required: false, hint: "clarity.microsoft.com → Settings → Overview → Project ID" }
-          - { name: pinterest_tag_id, label: "Pinterest Tag ID – सिर्फ़ नंबर", widget: string, required: false }
-          - { name: pinterest_verification, label: "Pinterest website verify कोड (p:domain_verify)", widget: string, required: false, hint: "Pinterest → Settings → Claimed accounts → Website → HTML tag में content=\"...\" वाला कोड" }
-          - { name: facebook_domain_verification, label: "Facebook domain verify कोड", widget: string, required: false, hint: "Meta Business → Brand safety → Domains → Meta-tag में content=\"...\" वाला कोड" }
-          - { name: meta_pixel_id, label: "Meta (Facebook) Pixel ID – सिर्फ़ नंबर", widget: string, required: false, hint: "Events Manager → Data sources → Pixel ID (15-16 अंक)। खाली छोड़ो तो Pixel बंद रहेगा।" }
+          - { name: ga4_id, label: "📈 Google Analytics 4 – Measurement ID (G-XXXX)", widget: string, required: false, hint: "analytics.google.com → Admin → Data streams → Web → Measurement ID" }
+          - { name: clarity_id, label: "📈 Microsoft Clarity – Project ID (फ़्री heatmap + recording)", widget: string, required: false, hint: "clarity.microsoft.com → Settings → Overview → Project ID" }
+          - { name: pinterest_tag_id, label: "📈 Pinterest Tag ID – सिर्फ़ नंबर", widget: string, required: false }
+          - { name: pinterest_verification, label: "📈 Pinterest website verify कोड (p:domain_verify)", widget: string, required: false, hint: "Pinterest → Settings → Claimed accounts → Website → HTML tag में content=\"...\" वाला कोड" }
+          - { name: facebook_domain_verification, label: "📈 Facebook domain verify कोड", widget: string, required: false, hint: "Meta Business → Brand safety → Domains → Meta-tag में content=\"...\" वाला कोड" }
+          - { name: meta_pixel_id, label: "📈 Meta (Facebook) Pixel ID – सिर्फ़ नंबर", widget: string, required: false, hint: "Events Manager → Data sources → Pixel ID (15-16 अंक)। खाली छोड़ो तो Pixel बंद रहेगा।" }
           - { name: live_on, label: "🔴 अभी YouTube LIVE चल रहा है?", widget: boolean, default: false, hint: "Live शुरू करते ही इसे ON करके Save करो, खत्म होने पर OFF। 2-3 मिनट में वेबसाइट पर LIVE पट्टी आ जाएगी" }
           - { name: live_url, label: "YouTube live / video का लिंक", widget: string, required: false }
           - { name: live_title, label: "Live का टाइटल", widget: string, required: false }
