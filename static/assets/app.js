@@ -11,91 +11,6 @@
   const unit = (p) => (isUSD() ? p.price_usd : p.price);
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
 
-  // ---------- 2050 language layer: country, language and pricing stay independent ----------
-  // A language pack is applied as one unit. If a pack is unavailable we use English,
-  // rather than mixing partially translated controls with another language.
-  const LANGS = {
-    en: { name:"English", short:"EN", dir:"ltr" },
-    hi: { name:"हिन्दी", short:"हि", dir:"ltr" },
-    fr: { name:"Français", short:"FR", dir:"ltr" },
-    de: { name:"Deutsch", short:"DE", dir:"ltr" },
-    es: { name:"Español", short:"ES", dir:"ltr" },
-    it: { name:"Italiano", short:"IT", dir:"ltr" },
-    ja: { name:"日本語", short:"日", dir:"ltr" },
-    ar: { name:"العربية", short:"AR", dir:"rtl" }
-  };
-  const COUNTRY_LANG = { IN:"en", FR:"fr", DE:"de", AT:"de", CH:"de", ES:"es", MX:"es", AR:"es", CO:"es", CL:"es", PE:"es", IT:"it", JP:"ja", AE:"ar", SA:"ar", QA:"ar", KW:"ar", BH:"ar", OM:"ar", EG:"ar", MA:"ar" };
-  const UI = {
-    hi: {
-      "Home":"होम","Shop":"खरीदें","Search":"खोजें","Wishlist":"पसंद","Bag":"बैग","Shop All":"सभी खरीदें","Our Story":"हमारी कहानी","Contact":"संपर्क",
-      "Your Bag":"आपका बैग","Your bag is empty.":"आपका बैग खाली है।","Subtotal":"कुल सामान","Checkout":"चेकआउट","Delivery details":"डिलीवरी विवरण",
-      "Full name":"पूरा नाम","Mobile number":"मोबाइल नंबर","Email (optional)":"ईमेल (वैकल्पिक)","City":"शहर","State":"राज्य","Continue":"आगे बढ़ें",
-      "Choose language":"भाषा चुनें","Language":"भाषा","Change":"बदलें","Close":"बंद करें","Made in Jaipur":"जयपुर में निर्मित","Secure prepaid payments":"सुरक्षित प्रीपेड भुगतान",
-      "Ships worldwide":"दुनिया भर में डिलीवरी","Pan-India delivery":"पूरे भारत में डिलीवरी","Refer & Earn":"रेफर करें और कमाएँ","My account / Sign in":"मेरा अकाउंट / साइन इन"
-    },
-    fr: {
-      "Home":"Accueil","Shop":"Boutique","Search":"Rechercher","Wishlist":"Favoris","Bag":"Panier","Shop All":"Tout acheter","Our Story":"Notre histoire","Contact":"Contact",
-      "Your Bag":"Votre panier","Your bag is empty.":"Votre panier est vide.","Subtotal":"Sous-total","Checkout":"Paiement","Delivery details":"Adresse de livraison",
-      "Full name":"Nom complet","Mobile number":"Téléphone","City":"Ville","State":"Région","Continue":"Continuer","Choose language":"Choisir la langue","Language":"Langue","Change":"Modifier","Close":"Fermer",
-      "Made in Jaipur":"Fabriqué à Jaipur","Secure prepaid payments":"Paiement sécurisé","Ships worldwide":"Livraison mondiale","Pan-India delivery":"Livraison dans toute l’Inde","Refer & Earn":"Parrainer et gagner","My account / Sign in":"Mon compte / Connexion"
-    },
-    de: {
-      "Home":"Start","Shop":"Shop","Search":"Suchen","Wishlist":"Wunschliste","Bag":"Warenkorb","Shop All":"Alles shoppen","Our Story":"Unsere Geschichte","Contact":"Kontakt",
-      "Your Bag":"Ihr Warenkorb","Your bag is empty.":"Ihr Warenkorb ist leer.","Subtotal":"Zwischensumme","Checkout":"Kasse","Delivery details":"Lieferdetails",
-      "Full name":"Vollständiger Name","Mobile number":"Telefon","City":"Stadt","State":"Bundesland/Region","Continue":"Weiter","Choose language":"Sprache wählen","Language":"Sprache","Change":"Ändern","Close":"Schließen",
-      "Made in Jaipur":"Hergestellt in Jaipur","Secure prepaid payments":"Sichere Vorauszahlung","Ships worldwide":"Weltweiter Versand","Pan-India delivery":"Lieferung in ganz Indien","Refer & Earn":"Empfehlen & verdienen","My account / Sign in":"Mein Konto / Anmelden"
-    },
-    es: {
-      "Home":"Inicio","Shop":"Tienda","Search":"Buscar","Wishlist":"Favoritos","Bag":"Bolsa","Shop All":"Ver todo","Our Story":"Nuestra historia","Contact":"Contacto",
-      "Your Bag":"Tu bolsa","Your bag is empty.":"Tu bolsa está vacía.","Subtotal":"Subtotal","Checkout":"Pagar","Delivery details":"Datos de entrega",
-      "Full name":"Nombre completo","Mobile number":"Teléfono","City":"Ciudad","State":"Estado/Región","Continue":"Continuar","Choose language":"Elegir idioma","Language":"Idioma","Change":"Cambiar","Close":"Cerrar",
-      "Made in Jaipur":"Hecho en Jaipur","Secure prepaid payments":"Pago seguro","Ships worldwide":"Envíos a todo el mundo","Pan-India delivery":"Envíos en toda India","Refer & Earn":"Recomienda y gana","My account / Sign in":"Mi cuenta / Iniciar sesión"
-    },
-    it: {
-      "Home":"Home","Shop":"Negozio","Search":"Cerca","Wishlist":"Preferiti","Bag":"Borsa","Shop All":"Acquista tutto","Our Story":"La nostra storia","Contact":"Contatti",
-      "Your Bag":"La tua borsa","Your bag is empty.":"La tua borsa è vuota.","Subtotal":"Subtotale","Checkout":"Pagamento","Delivery details":"Dati di consegna",
-      "Full name":"Nome completo","Mobile number":"Telefono","City":"Città","State":"Regione","Continue":"Continua","Choose language":"Scegli la lingua","Language":"Lingua","Change":"Cambia","Close":"Chiudi",
-      "Made in Jaipur":"Realizzato a Jaipur","Secure prepaid payments":"Pagamento sicuro","Ships worldwide":"Spedizione mondiale","Pan-India delivery":"Consegna in tutta l’India","Refer & Earn":"Invita e guadagna","My account / Sign in":"Il mio account / Accedi"
-    },
-    ja: {
-      "Home":"ホーム","Shop":"ショップ","Search":"検索","Wishlist":"お気に入り","Bag":"バッグ","Shop All":"すべて見る","Our Story":"私たちについて","Contact":"お問い合わせ",
-      "Your Bag":"ショッピングバッグ","Your bag is empty.":"バッグは空です。","Subtotal":"小計","Checkout":"購入手続き","Delivery details":"配送先情報",
-      "Full name":"お名前","Mobile number":"電話番号","City":"市区町村","State":"都道府県","Continue":"続ける","Choose language":"言語を選択","Language":"言語","Change":"変更","Close":"閉じる",
-      "Made in Jaipur":"ジャイプール製","Secure prepaid payments":"安全な事前決済","Ships worldwide":"世界各国へ配送","Pan-India delivery":"インド全土へ配送","Refer & Earn":"紹介して特典を獲得","My account / Sign in":"アカウント / ログイン"
-    },
-    ar: {
-      "Home":"الرئيسية","Shop":"تسوق","Search":"بحث","Wishlist":"المفضلة","Bag":"الحقيبة","Shop All":"تسوق الكل","Our Story":"قصتنا","Contact":"اتصل بنا",
-      "Your Bag":"حقيبتك","Your bag is empty.":"حقيبتك فارغة.","Subtotal":"المجموع الفرعي","Checkout":"إتمام الشراء","Delivery details":"بيانات التوصيل",
-      "Full name":"الاسم الكامل","Mobile number":"رقم الهاتف","City":"المدينة","State":"المنطقة","Continue":"متابعة","Choose language":"اختر اللغة","Language":"اللغة","Change":"تغيير","Close":"إغلاق",
-      "Made in Jaipur":"صُنع في جايبور","Secure prepaid payments":"دفع مسبق آمن","Ships worldwide":"شحن إلى جميع أنحاء العالم","Pan-India delivery":"توصيل في جميع أنحاء الهند","Refer & Earn":"شارك واربح","My account / Sign in":"حسابي / تسجيل الدخول"
-    }
-  };
-  const getLang = () => { try { const x = localStorage.getItem("bk_lang"); return LANGS[x] ? x : ""; } catch { return ""; } };
-  let lang = getLang() || "en";
-  const ORIGINAL = new WeakMap();
-  const translateUI = (root=document) => {
-    const pack = UI[lang] || {};
-    document.documentElement.lang = lang;
-    document.documentElement.dir = LANGS[lang].dir;
-    $$("[data-lang-label]").forEach(x => x.textContent = LANGS[lang].short);
-    $$("[data-lang-name]").forEach(x => x.textContent = LANGS[lang].name);
-    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    let n; while ((n = w.nextNode())) {
-      if (n.parentElement?.closest("script,style,textarea,[data-no-translate]") || n.parentElement?.matches("[data-lang-label],[data-lang-name]")) continue;
-      const raw = ORIGINAL.get(n) ?? n.nodeValue;
-      if (!ORIGINAL.has(n)) ORIGINAL.set(n, raw);
-      const lead = raw.match(/^\\s*/)?.[0] || "", trail = raw.match(/\\s*$/)?.[0] || "", key = raw.trim();
-      if (!key) continue;
-      n.nodeValue = lead + (lang === "en" ? key : (pack[key] || key)) + trail;
-    }
-  };
-  const setLang = (code, manual=true) => {
-    lang = LANGS[code] ? code : "en";
-    try { localStorage.setItem("bk_lang", lang); if (manual) localStorage.setItem("bk_lang_manual","1"); } catch {}
-    translateUI();
-    document.dispatchEvent(new CustomEvent("bk:language", { detail:{ lang } }));
-  };
-
   // ---------- Meta Pixel events (only if pixel is on) ----------
   const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
   const track = (ev, data = {}, id) => { try { window.fbq && window.fbq("track", ev, data, id ? { eventID: id } : undefined); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
@@ -122,7 +37,7 @@
     const coc = document.querySelector("[data-co-consent]"); const consent = coc ? coc.checked : !!getUser()?.consent;
     const u0 = getUser() || {};
     setUser({ ...u0, name: f.name || u0.name, phone: f.phone || u0.phone, email: f.email || u0.email, city: f.city || u0.city, state: f.state || u0.state, pincode: f.pincode || u0.pincode, address: f.address || u0.address, country: f.country || u0.country || "", consent });
-    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: [aiText().replace(/\n?Found us via: /, ""), srcText()].filter(Boolean).join(" | "), gift: f.gift_to ? "yes" : "", ...extra });
+    sendSheet({ type, name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", country: f.country || "India", pincode: f.pincode || "", address: type === "order" || type === "paid" ? String(f.address || "").slice(0, 300) : "", consent: consent ? "yes" : "no", ref: refText().replace(/\n?Referred by: /, ""), via: [aiText().replace(/\n?Found us via: /, ""), srcText()].filter(Boolean).join(" | "), gift: f.gift_to ? "yes" : "", ...extra });
   }
   function paintUser() { const u0 = getUser(); document.querySelectorAll("[data-acct-dot]").forEach((d) => (d.hidden = !u0)); }
 
@@ -239,7 +154,22 @@
   // ---------- checkout (online payment via Razorpay; WhatsApp/UPI as fallback; no COD) ----------
   const co = $("[data-checkout]");
   let method = "", online = false;
+  // coupons (validated again on the payment server for online payments)
+  let coupon = (() => { try { return sessionStorage.getItem("bk_cpn") || ""; } catch { return ""; } })();
+  const istToday = () => new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10);
+  const findCoupon = (cat, code, sub) => { const c = (cat.settings.coupons || []).find((x) => x.c === String(code || "").trim().toUpperCase()); if (!c) return [null, "This code is not valid."];
+    if ((c.m === "in" && isUSD()) || (c.m === "intl" && !isUSD())) return [null, isUSD() ? "This code is for India orders." : "This code is for international orders."];
+    const d = istToday(); if ((c.s && d < c.s) || (c.e && d > c.e)) return [null, "This code is not active right now."];
+    if (c.min && sub < c.min) return [null, `Add ${isUSD() ? usd(c.min - sub) : inr(c.min - sub)} more to use this code.`]; return [c, ""]; };
   function totals(cat, m) {
+    const t0 = totals0(cat, m); if (!coupon) return t0;
+    const [c] = findCoupon(cat, coupon, t0.sub); if (!c) return t0;
+    const off = c.k === "Free shipping" ? 0 : c.k === "Percent" ? (isUSD() ? Math.round(t0.sub * c.v) / 100 : Math.round(t0.sub * c.v / 100)) : Math.min(c.v, t0.sub);
+    const shipping = c.k === "Free shipping" ? 0 : t0.shipping;
+    const total = Math.max(0, Math.round((t0.sub - t0.discount - off + shipping) * 100) / 100);
+    return { ...t0, coupon: c.c, couponOff: off + (c.k === "Free shipping" ? t0.shipping : 0), shipping, total };
+  }
+  function totals0(cat, m) {
     const s = cat.settings; let sub = 0;
     if (isUSD()) {
       for (const i of bag) { const p = cat.products[i.slug]; if (p && p.price_usd) sub += p.price_usd * i.qty; }
@@ -261,7 +191,7 @@
     itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
     const t = totals(cat, method);
     $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div>
-      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}
+      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${money(t.couponOff)}</span></div>` : ""}
       <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>
       <div class="row total"><span>Total</span><span>${money(t.total)}${isUSD() ? " USD" : ""}</span></div>`;
     $("[data-place]").textContent = method === "paypal" ? `Place order · ${usd(t.total)} (PayPal invoice)` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
@@ -274,6 +204,13 @@
       document.head.appendChild(s);
     });
   }
+  const cpIn = $("[data-coupon-in]"), cpMsg = $("[data-coupon-msg]");
+  if (cpIn) { if (coupon) cpIn.value = coupon;
+    $("[data-coupon-go]")?.addEventListener("click", async () => { const cat = await catalog(); const code = cpIn.value.trim().toUpperCase();
+      if (!code) { coupon = ""; try { sessionStorage.removeItem("bk_cpn"); } catch {} cpMsg.textContent = ""; renderCheckout(); return; }
+      const [c, err] = findCoupon(cat, code, totals0(cat, method).sub);
+      if (!c) { cpMsg.textContent = "❌ " + err; cpMsg.className = "small warn"; return; }
+      coupon = c.c; try { sessionStorage.setItem("bk_cpn", coupon); } catch {} cpMsg.textContent = `✅ ${coupon} applied`; cpMsg.className = "small save"; renderCheckout(); }); }
   async function setupPayOptions() {
     const btn = $("[data-place]"); btn.disabled = true;
     let s = {};
@@ -307,10 +244,11 @@
   const orderRef = () => { const d = new Date(); return "BK" + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(); };
   function orderText(cat, f, ref, total, payLine) {
     const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${inr(p.price * i.qty)}`; }).join("\n");
-    return `New order ${ref}\n\n${lines}\n\nTotal: ${inr(total)}\nPayment: ${payLine}\n\nName: ${f.name}\nPhone: ${f.phone}${f.email ? "\nEmail: " + f.email : ""}\nAddress: ${f.address}, ${f.city}, ${f.state} - ${f.pincode}${giftText(f)}${refText()}${aiText()}${gcText()}`;
+    return `New order ${ref}\n\n${lines}\n\n${coupon ? "Coupon: " + coupon + "\n" : ""}Total: ${inr(total)}\nPayment: ${payLine}\n\nName: ${f.name}\nPhone: ${f.phone}${f.email ? "\nEmail: " + f.email : ""}\nAddress: ${f.address}, ${f.city}, ${f.state} - ${f.pincode}${giftText(f)}${refText()}${aiText()}${gcText()}`;
   }
   const waUrl = (txt) => `https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}`;
   function showDone(html) {
+    try { sessionStorage.removeItem("bk_cpn"); } catch {} coupon = "";
     co.hidden = true; const d = $("[data-done]"); d.innerHTML = html + `<div class="done-refer"><p><b>🎁 Love it? Share with friends.</b> They get a welcome offer and you get a thank-you reward.</p><a class="btn btn-ghost" href="${url("refer/")}">Get my Refer & Earn link</a>${BK.wa ? ` <a class="btn btn-ghost" download="Bahe-Kurtiz.vcf" href="data:text/vcard;charset=utf-8,${encodeURIComponent(`BEGIN:VCARD\nVERSION:3.0\nFN:${BK.brand}\nORG:${BK.brand}\nTEL;TYPE=CELL:+${BK.wa}\nURL:${location.origin}\nEND:VCARD`)}">📇 Save our number</a><p class="muted small">Save our number to get order updates and new designs on WhatsApp.</p>` : ""}</div>`; d.hidden = false; scrollTo({ top: 0, behavior: "smooth" });
     $$("[data-clear-bag]", d).forEach((a) => a.addEventListener("click", () => setBag([])));
   }
@@ -328,12 +266,30 @@
         btn.disabled = true;
         let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
         const t = totals(cat, "paypal"); const ref = orderRef();
-        saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+        saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "USD", items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") + (t.coupon ? " | coupon " + t.coupon : ""), skus: bag.map((i) => `${i.slug}|${i.size || ""}|${i.qty}`).join(";") });
         const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${usd(p.price_usd * i.qty)}`; }).join("\n");
         const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? usd(t.shipping) : "Free"}\nTotal: ${usd(t.total)} USD\nPayment: Please send PayPal invoice\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}${aiText()}${gcText()}`;
         track("Lead", { value: t.total, currency: "USD" });
         const mail = cat.settings.email ? `mailto:${cat.settings.email}?subject=${encodeURIComponent("Order " + ref)}&body=${encodeURIComponent(txt)}` : "";
-        showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${usd(t.total)} USD</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
+        const invoiceDone = () => showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${usd(t.total)} USD</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
+        // Direct card / PayPal payment worldwide when the owner has added a PayPal client ID; otherwise the invoice flow above.
+        const cid = cat.settings.paypal_client_id;
+        if (!cid) { invoiceDone(); return; }
+        const ppItems = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
+        showDone(`<div class="done-box"><h1>Pay ${usd(t.total)} USD</h1><p>Order <strong>${ref}</strong>. Pay securely with PayPal or any debit / credit card.</p><div data-pp-box class="pp-box"><p class="muted">Loading secure payment…</p></div><p class="muted small">Import duties and taxes of your country are paid by you on delivery. <button type="button" class="link" data-pp-invoice>Prefer a PayPal invoice instead?</button></p></div>`);
+        $("[data-pp-invoice]")?.addEventListener("click", invoiceDone);
+        const s2 = document.createElement("script"); s2.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cid)}&currency=USD&intent=capture`;
+        s2.onerror = invoiceDone;
+        s2.onload = () => { try { $("[data-pp-box]").innerHTML = "";
+          window.paypal.Buttons({ style: { layout: "vertical", shape: "rect", label: "pay" },
+            createOrder: (d, actions) => actions.order.create({ purchase_units: [{ reference_id: ref, invoice_id: ref, description: `${BK.brand} order ${ref}`, amount: { currency_code: "USD", value: t.total.toFixed(2) } }] }),
+            onApprove: (d, actions) => actions.order.capture().then((res) => { const cap = res?.purchase_units?.[0]?.payments?.captures?.[0]?.id || d.orderID;
+              sendSheet({ type: "paid", name: f.name, phone: ph, email: f.email, country: f.country, city: f.city, pincode: f.pincode, address: String(f.address || "").slice(0, 300), ref_order: ref, total: t.total, currency: "USD", payment: "PayPal " + cap + " (check in PayPal)", items: ppItems.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+              track("Purchase", { value: t.total, currency: "USD", content_ids: ppItems.map((i) => i.slug), content_type: "product" }, ref); setBag([]);
+              showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">PayPal reference: ${esc(cap)}</p><p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p></div>`); }),
+            onError: () => { $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. You can try again, or ask for a PayPal invoice.</p>`; },
+          }).render("[data-pp-box]"); } catch { invoiceDone(); } };
+        document.head.appendChild(s2);
         return;
       }
       f.phone = f.phone.replace(/\D/g, "").slice(-10);
@@ -341,12 +297,13 @@
       btn.disabled = true;
       let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
       const t = totals(cat, method); const ref = orderRef();
-      saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "INR", payment: method, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+      saveCustomer(f, "order", { ref_order: ref, total: t.total, currency: "INR", payment: method, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") + (t.coupon ? " | coupon " + t.coupon : ""), skus: bag.map((i) => `${i.slug}|${i.size || ""}|${i.qty}`).join(";") });
       const items = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
       const waFallback = () => BK.wa ? ` <a class="link" href="${waUrl(orderText(cat, f, ref, totals(cat, "whatsapp").total, "Online payment failed – please help"))}" target="_blank" rel="noopener">Order on WhatsApp instead →</a>` : "";
       if (method === "online") {
         try {
-          const r = await fetch(url("api/create-order"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ items, customer: f, ref }) });
+          let vPath = "api/pay-verify", r = await fetch(url("api/pay-order"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ items, customer: f, ref, coupon: t.coupon || "" }) }).catch(() => null);
+          if (!r || r.status === 404 || r.status === 405 || r.status === 503) { if (t.coupon) throw new Error("Coupon with online payment is not switched on yet. Please remove the coupon or choose UPI / WhatsApp."); vPath = "api/verify-payment"; r = await fetch(url("api/create-order"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ items, customer: f, ref }) }); }
           const o = await r.json().catch(() => ({})); if (!r.ok) throw new Error(o.error || "Could not start payment");
           await loadRazorpay();
           const rzp = new window.Razorpay({
@@ -354,13 +311,13 @@
             prefill: { name: f.name, contact: "+91" + f.phone, email: f.email || undefined }, notes: { ref }, theme: { color: "#0e5b59" },
             modal: { ondismiss: () => fail("Payment was not completed. You can try again.", waFallback()) },
             handler: async (resp) => {
-              let ok = false; try { const v = await fetch(url("api/verify-payment"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(resp) }); ok = v.ok && (await v.json()).ok === true; } catch {}
+              let ok = false; try { const v = await fetch(url(vPath), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(resp) }); ok = v.ok && (await v.json()).ok === true; } catch {}
               const txt = orderText(cat, f, ref, o.amount / 100, `PAID online (Payment ID ${resp.razorpay_payment_id})`);
               if (ok) {
-                sendSheet({ type: "paid", name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", pincode: f.pincode || "", ref_order: ref, total: o.amount / 100, currency: "INR", payment: "Razorpay " + resp.razorpay_payment_id, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
+                sendSheet({ type: "paid", name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", pincode: f.pincode || "", ref_order: ref, total: o.amount / 100, currency: "INR", payment: "Razorpay " + resp.razorpay_payment_id, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") + (t.coupon ? " | coupon " + t.coupon : ""), skus: bag.map((i) => `${i.slug}|${i.size || ""}|${i.qty}`).join(";") });
                 track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" }, ref);
                 setBag([]);
-                showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">Payment ID: ${esc(resp.razorpay_payment_id)}</p>${BK.wa ? `<a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener">Get updates on WhatsApp</a>` : ""}<p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
+                showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p><p class="muted">Payment ID: ${esc(resp.razorpay_payment_id)}</p>${BK.wa ? `<a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener">Get updates on WhatsApp</a>` : ""}<p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
               } else {
                 showDone(`<div class="done-box"><h1>We are confirming your payment</h1><p>Order <strong>${ref}</strong> · Payment ID <strong>${esc(resp.razorpay_payment_id)}</strong></p><p>Please send these details to us on WhatsApp so we can confirm your order quickly.</p>${BK.wa ? `<a class="btn btn-wa" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}</div>`);
               }
@@ -404,45 +361,12 @@
     vids.forEach((v) => io.observe(v));
   }
 
-
-  // Language picker is intentionally separate from country/currency.
-  const langModal = $("[data-lang-modal]"), langList = $("[data-lang-list]");
-  const renderLangs = () => { if (!langList) return; langList.innerHTML = Object.entries(LANGS).map(([k,v]) => `<button type="button" data-lang-pick="${k}"${k===lang?' class="on"':''}><b>${v.name}</b><span>${v.short}</span></button>`).join(""); };
-  $$("[data-language]").forEach(btn => btn.addEventListener("click", () => { closeAll(); renderLangs(); langModal?.showModal(); document.documentElement.classList.add("locked"); }));
-  $("[data-close-language]")?.addEventListener("click", () => { langModal?.close(); unlockIfFree(); });
-  langModal?.addEventListener("close", unlockIfFree);
-  langList?.addEventListener("click", e => { const b=e.target.closest("[data-lang-pick]"); if(!b) return; setLang(b.dataset.langPick,true); langModal.close(); unlockIfFree(); });
-  translateUI();
-
-  // Keep the language control in the header action area; never cover product/cart actions.
-  const placeLanguageControl = () => {
-    const btn = document.querySelector("[data-language]");
-    if (!btn) return;
-    const host =
-      document.querySelector(".head-actions") ||
-      document.querySelector(".header-actions") ||
-      document.querySelector("header");
-    if (host && btn.parentElement !== host) host.appendChild(btn);
-    btn.style.position = "";
-    btn.style.top = "";
-    btn.style.right = "";
-    btn.style.left = "";
-    btn.style.zIndex = "";
-  };
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", placeLanguageControl, { once: true });
-  } else {
-    placeLanguageControl();
-  }
-
-  // Dynamic sections translate themselves when rendered; avoid a full-body observer for performance.
-
   // ---------- country & currency (all countries; local prices shown approx., charged in USD) ----------
   const flag = (c) => (c && c.length === 2 ? String.fromCodePoint(...[...c.toUpperCase()].map((ch) => 127397 + ch.charCodeAt(0))) : "🌍");
   const CL = BK.countries || [];
   const getCC = () => { try { return JSON.parse(localStorage.getItem("bk_country") || "null"); } catch { return null; } };
   let cc = getCC();
-  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); try { if (!localStorage.getItem("bk_lang_manual")) setLang(COUNTRY_LANG[cc.c] || "en", false); } catch {} } } catch {}
+  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } } catch {}
   if (!cc && CL.length) { // first visit: guess from browser
     let code = ""; try { const z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; if (/Calcutta|Kolkata/.test(z)) code = "IN"; } catch {}
     if (!code) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i); code = m ? m[1].toUpperCase() : (isUSD() ? "US" : "IN"); }
@@ -454,12 +378,12 @@
     const cur = cc?.cur || (isUSD() ? "USD" : "INR");
     $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" ? "$" : cur}` : el.textContent));
     $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${cur}` : el.textContent));
-    const local = cur !== "INR" && cur !== "USD" && rates[cur];
+    const local = !BK.noLocal && cur !== "INR" && cur !== "USD" && rates[cur];
     document.documentElement.classList.toggle("local-cur", !!local);
     $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? "≈ " + t : el.dataset.usdText; el.title = t ? `${el.dataset.usdText} USD – charged in US $` : ""; });
   }
   function setCountry(row, silent) {
-    cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); try { if (!localStorage.getItem("bk_lang_manual")) setLang(COUNTRY_LANG[cc.c] || "en", false); } catch {} } catch {}
+    cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
     const wasUSD = isUSD(), toUSD = cc.c !== "IN"; document.documentElement.classList.toggle("usd", toUSD);
     if (!silent) { toast(cc.c === "IN" ? "Showing prices in ₹ for India" : `Prices for ${cc.n}${cc.cur !== "USD" ? " (approx. " + cc.cur + ", charged in US $)" : " in US $"}`); if (co && wasUSD !== toUSD) return location.reload(); }
     ensureRates().then(applyLocal); renderCart().catch(() => {});
@@ -521,23 +445,34 @@
     $("[data-recent-grid]").innerHTML = items.map((x) => miniCard(x, cat.products[x])).join(""); box.hidden = false; paintWish();
   })().catch(() => {});
 
-  // ---------- listing filters (?fabric=Cotton / ?print=Hand Block Print) ----------
+  // ---------- listing filters + 48-per-page (size / colour / price / fabric / craft / occasion / stock) ----------
   if (grid) {
-    const sels = $$("[data-filter]"); const params = new URLSearchParams(location.search);
-    const empty = $("[data-filter-empty]");
-    const apply = () => {
-      const want = Object.fromEntries(sels.map((s2) => [s2.dataset.filter, s2.value]));
-      for (const k of ["fabric", "print"]) if (!sels.find((s2) => s2.dataset.filter === k) && params.get(k)) want[k] = params.get(k);
-      let shown = 0;
-      $$(".card", grid).forEach((c) => {
-        const ok = (!want.fabric || c.dataset.fabric === want.fabric) && (!want.print || (c.dataset.print || "").split("|").includes(want.print));
-        c.hidden = !ok; if (ok) shown++;
-      });
-      if (empty) empty.hidden = shown > 0;
+    const sels = $$("[data-filter]"), params = new URLSearchParams(location.search), empty = $("[data-filter-empty]"), cnt = $("[data-count]"), moreW = $("[data-more-wrap]");
+    const PAGE = 48; let limit = PAGE;
+    const psel = $('[data-filter="price"]');
+    if (psel) { const bands = isUSD() ? [["0-25", "Under $25"], ["25-50", "$25 – $50"], ["50-80", "$50 – $80"], ["80-", "$80+"]] : [["0-800", "Under ₹800"], ["800-1500", "₹800 – ₹1,500"], ["1500-2500", "₹1,500 – ₹2,500"], ["2500-", "₹2,500+"]]; psel.insertAdjacentHTML("beforeend", bands.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")); }
+    const KEYS = ["size", "color", "price", "fabric", "print", "occ", "stock"];
+    const test = (c, k, v) => { const d = c.dataset, list = (x) => String(x || "").split("|");
+      if (k === "size") return list(d.sizes).includes(v) && !list(d.out).includes(v);
+      if (k === "color") return d.color === v;
+      if (k === "price") { const pr = +(isUSD() ? d.usd : d.price); if (!pr) return false; const [lo, hi] = v.split("-").map((n) => (n === "" ? Infinity : +n)); return pr >= lo && pr <= (hi || Infinity); }
+      if (k === "print" || k === "occ") return list(d[k]).includes(v);
+      if (k === "stock") return d.stock === "1";
+      return d[k] === v; };
+    const apply = (keepLimit) => {
+      if (!keepLimit) limit = PAGE;
+      const want = {}; for (const k of KEYS) { const s2 = sels.find((x) => x.dataset.filter === k); const v = s2 ? s2.value : params.get(k); if (v) want[k] = v; }
+      let match = 0, shown = 0;
+      $$(".card", grid).forEach((c) => { const ok = Object.entries(want).every(([k, v]) => test(c, k, v)); if (ok) match++; const vis = ok && match <= limit; c.hidden = !vis; if (vis) shown++; });
+      if (empty) empty.hidden = match > 0;
+      if (cnt) cnt.textContent = match ? `Showing ${shown} of ${match} styles` : "";
+      if (moreW) moreW.hidden = shown >= match;
     };
     sels.forEach((s2) => { const v = params.get(s2.dataset.filter); if (v && [...s2.options].some((o) => o.value === v)) s2.value = v; s2.addEventListener("change", () => { const q2 = new URLSearchParams(location.search); s2.value ? q2.set(s2.dataset.filter, s2.value) : q2.delete(s2.dataset.filter); history.replaceState(null, "", location.pathname + (q2.toString() ? "?" + q2 : "")); apply(); }); });
-    $("[data-filter-clear]")?.addEventListener("click", () => { sels.forEach((s2) => (s2.value = "")); history.replaceState(null, "", location.pathname); params.delete("fabric"); params.delete("print"); apply(); });
-    if (params.get("fabric") || params.get("print")) apply();
+    $("[data-filter-clear]")?.addEventListener("click", () => { sels.forEach((s2) => (s2.value = "")); history.replaceState(null, "", location.pathname); KEYS.forEach((k) => params.delete(k)); apply(); });
+    $("[data-more]")?.addEventListener("click", () => { limit += PAGE; apply(true); });
+    sort?.addEventListener("change", () => apply(true));
+    apply();
   }
 
   // ---------- size chart ----------
@@ -690,7 +625,7 @@
   };
   $$("[data-open-login]").forEach((b) => b.addEventListener("click", () => { closeAll(); openLogin(); }));
   $$("[data-close-login]").forEach((b) => b.addEventListener("click", () => lm.close()));
-  langModal?.addEventListener("close", unlockIfFree);
+  lm?.addEventListener("close", unlockIfFree);
   lm?.addEventListener("click", (e) => { if (e.target === lm) lm.close(); });
   $("[data-logout]")?.addEventListener("click", () => { setUser(null); lm.close(); toast("Signed out"); });
   lf?.addEventListener("submit", (e) => {
@@ -852,38 +787,8 @@
     fm.addEventListener("close", unlockIfFree); fm.addEventListener("click", (e) => { if (e.target === fm) fm.close(); });
   }
 
-  // ---------- BAHE 2050 My Designs: lightweight local voting + viral share ----------
-  const dg = $("[data-design-grid]");
-  if (dg) {
-    const K = "bk_design_votes";
-    const getD = () => { try { return JSON.parse(localStorage.getItem(K) || "[]"); } catch { return []; } };
-    const setD = (v) => { try { localStorage.setItem(K, JSON.stringify(v.slice(0, 20))); } catch {} };
-    const paintD = () => { const v = getD(); $$('[data-design-vote]', dg).forEach((b) => { const on = v.includes(b.dataset.designVote); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); const e=b.querySelector("em"); if(e)e.textContent=on?"♥ Voted":"♡ Vote"; }); const n=$("[data-design-count]"); if(n)n.textContent=String(v.length); };
-    dg.addEventListener("click", (e) => { const b=e.target.closest("[data-design-vote]"); if(!b)return; let v=getD(), k=b.dataset.designVote; v=v.includes(k)?v.filter(x=>x!==k):[...v,k]; setD(v); paintD(); });
-    $("[data-design-share]")?.addEventListener("click", async () => { const v=getD(); if(!v.length)return toast("Pehle apne favourite designs select karo"); const link=location.origin+"/designs/?picks="+encodeURIComponent(v.join(","))+"&utm_source=share&utm_medium=design_vote"; const text=`Maine BAHE ke ${v.length} designs choose kiye hain ✨ Tum bhi batao kaunsa best hai: ${link}`; try { if(navigator.share){ await navigator.share({text,url:link}); return; } } catch(e){ if(e?.name==="AbortError")return; } window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank","noopener"); });
-    paintD();
-  }
-
   // ---------- refer & earn ----------
-  const myCode = () => {
-    const u0 = getUser();
-    if (u0?.phone) {
-      const d = u0.phone.replace(/\D/g, "").slice(-10);
-      let h = 7;
-      for (const ch of d + "bk") h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-      return "BK" + h.toString(36).toUpperCase().slice(-5);
-    }
-    try {
-      let c = localStorage.getItem("bk_ref_code");
-      if (!c) {
-        c = "BK" + Math.random().toString(36).slice(2, 8).toUpperCase();
-        localStorage.setItem("bk_ref_code", c);
-      }
-      return c;
-    } catch {
-      return "";
-    }
-  };
+  const myCode = () => { const u0 = getUser(); if (!u0?.phone) return ""; const d = u0.phone.replace(/\D/g, "").slice(-10); let h = 7; for (const ch of d + "bk") h = (h * 31 + ch.charCodeAt(0)) >>> 0; return "BK" + h.toString(36).toUpperCase().slice(-5); };
   const myLink = (path = "") => `${location.origin}/${path}?ref=${myCode()}`;
   const ro = $("[data-refer-out]");
   const paintRefer = () => {
@@ -1026,6 +931,84 @@
   $$("[data-yt]").forEach((b) => b.addEventListener("click", () => { b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&playsinline=1" title="Live video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`; }));
   try { if (window.BKeu && !localStorage.getItem("bk_consent") && (window.BKtags?.length || window.fbq)) { const cb = document.createElement("div"); cb.className = "consent-bar"; cb.innerHTML = `<p>We use cookies for ads and analytics to improve your shopping. <a href="${url("privacy/")}">Privacy</a></p><div><button type="button" class="btn btn-sm" data-cs="yes">Accept</button><button type="button" class="btn btn-ghost btn-sm" data-cs="no">Only necessary</button></div>`; document.body.appendChild(cb);
     cb.addEventListener("click", (e) => { const b = e.target.closest("[data-cs]"); if (!b) return; const ok = b.dataset.cs === "yes"; try { localStorage.setItem("bk_consent", ok ? "yes" : "no"); } catch {} if (ok) { const g = "granted"; try { window.gtag?.("consent", "update", { ad_storage: g, ad_user_data: g, ad_personalization: g, analytics_storage: g }); window.fbq?.("consent", "grant"); } catch {} } cb.remove(); }); } } catch {}
+  // ---------- market rules: delivery promise, return rule, pauses (all from admin settings; nothing invented) ----------
+  (() => {
+    const ccNow = (() => { try { return (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || (isUSD() ? "US" : "IN"); } catch { return "IN"; } })();
+    const mk = ccNow === "IN" ? BK.inr || {} : (BK.mk || {})[ccNow], cname = (BK.countries || []).find((r) => r[0] === ccNow)?.[1] || ccNow;
+    const blocked = ccNow !== "IN" && mk && mk.s && mk.s !== "Live";
+    const stop = BK.mm || BK.cp || blocked, prodEl = $("[data-product]"), why = blocked ? `Orders to ${cname} are paused right now. WhatsApp us and we will help.` : BK.pm;
+    const lock = (msg) => $$("[data-add],[data-buy],[data-sticky] button").forEach((b) => { b.disabled = true; b.title = msg; });
+    if (prodEl && (stop || prodEl.hasAttribute("data-paused"))) lock(stop ? why : "Not available right now"); if (prodEl && stop) $("[data-buy]", prodEl)?.closest(".buy-row")?.insertAdjacentHTML("beforebegin", `<p class="paused-note" role="status">⏸ ${esc(why)}</p>`);
+    if (prodEl) {
+      const addB = (d, n) => { const x = new Date(d); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 0) n--; } return x; };
+      const fmt = (d) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+      const proc = (prodEl.dataset.proc.match(/(\d+)\D*(\d+)?/) || []).slice(1).filter(Boolean).map(Number);
+      const h = proc.length ? [proc[0], proc[1] || proc[0]] : mk?.h, t = mk?.t, eta = $("[data-eta]", prodEl);
+      if (eta) { eta.hidden = false;
+        if (h && t) { const a = addB(new Date(), h[0] + t[0]), b = addB(new Date(), h[1] + t[1]); eta.textContent = `🚚 Ships in ${h[0]}–${h[1]} days · Delivery to ${cname} est. ${fmt(a)} – ${fmt(b)}${mk.c ? " · " + mk.c : ""}`; }
+        else if (h) eta.textContent = `📦 Ships from Jaipur in ${h[0]}–${h[1]} working days`;
+        else eta.textContent = ccNow === "IN" ? "" : `🌍 Delivery time to ${cname}: ask us on WhatsApp`; if (!eta.textContent) eta.hidden = true; }
+      const rl = $("[data-retline]", prodEl), ov = prodEl.dataset.ret;
+      if (rl) { const txt = ov && ov !== "Default" ? ov : mk?.r || ""; rl.hidden = !txt; rl.textContent = txt ? `↩️ ${txt}` : ""; }
+      const mm = $("[data-mkmsg]", prodEl); if (mm && mk && (mk.m || mk.d)) { mm.hidden = false; mm.textContent = [mk.m, mk.d].filter(Boolean).join(" · "); }
+    }
+    const coF = $("[data-co-form]");
+    if (stop && coF) { coF.addEventListener("submit", (e) => { e.preventDefault(); e.stopImmediatePropagation(); toast(why); }, true); const dis = () => coF.querySelectorAll("button[type=submit], button:not([type])").forEach((b) => (b.disabled = true)); dis(); setTimeout(dis, 800); coF.insertAdjacentHTML("afterbegin", `<p class="paused-note" role="alert">⏸ ${esc(why)}</p>`); }
+  })();
+  // ---------- live stock from the owner's Sheet (only products listed in the "Stock" tab; blank = not tracked) ----------
+  const liveStock = () => { if (!BK.sheet) return Promise.resolve({}); try { const c = JSON.parse(sessionStorage.getItem("bk_stock") || "null"); if (c && Date.now() - c.t < 12e4) return Promise.resolve(c.m); } catch {}
+    return fetch(`${BK.sheet}?action=stock`).then((r) => r.json()).then((m) => { try { sessionStorage.setItem("bk_stock", JSON.stringify({ t: Date.now(), m })); } catch {} return m || {}; }).catch(() => ({})); };
+  const pdpEl = $("[data-product]");
+  if (pdpEl && BK.sheet) liveStock().then((m) => { const st = m[pdpEl.dataset.product]; if (!st) return; const sz = $$(".size", pdpEl); let any = false;
+    sz.forEach((b) => { const q = st[b.dataset.size.toUpperCase()]; if (q !== undefined && q <= 0) { b.dataset.out = "1"; b.classList.add("out"); b.classList.remove("on"); b.setAttribute("aria-label", b.dataset.size + " – sold out, notify me"); } else any = true; });
+    if (!sz.length && st._ !== undefined && st._ <= 0) any = false; else if (!sz.length) any = true;
+    if (!any) { $$("[data-add],[data-buy]", pdpEl).forEach((b) => (b.disabled = true)); $("[data-buy]", pdpEl)?.closest(".buy-row")?.insertAdjacentHTML("beforebegin", `<p class="paused-note" role="status">Sold out right now – tap a size to get a WhatsApp alert when it is back.</p>`); } });
+  const coForm = $("[data-co-form]");
+  if (coForm && BK.sheet) { let stockM = {}; liveStock().then((m) => (stockM = m));
+    coForm.addEventListener("submit", (e) => { try { const bagNow = JSON.parse(localStorage.getItem("bk_bag_v1") || "[]"); const need = {};
+      for (const i of bagNow) { const k = i.slug + "|" + String(i.size || "_").toUpperCase(); need[k] = (need[k] || 0) + (i.qty || 1); }
+      for (const [k, q] of Object.entries(need)) { const [slug, size] = k.split("|"); const have = stockM[slug]?.[size]; if (have !== undefined && have < q) { e.preventDefault(); e.stopImmediatePropagation(); const er = $("[data-co-error]") || $(".co-error"); toast(have <= 0 ? `Size ${size} just sold out – please remove it from your bag.` : `Only ${have} left in size ${size} – please reduce the quantity.`); if (er) { er.textContent = "Some items just sold out. Please update your bag."; er.hidden = false; } return; } } } catch {} }, true); }
+
+  // ---------- language (EN / HI / FR / DE / ES / IT / JA / AR) – separate from country; loads only when chosen ----------
+  if (BK.langs) {
+    let lang = "en"; try { lang = localStorage.getItem("bk_lang") || "en"; } catch {}
+    let dict = null, tt = 0;
+    const SKIP = /^(SCRIPT|STYLE|TEXTAREA|CODE|PRE)$/;
+    const tr = () => { if (!dict) return; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement && !SKIP.test(n.parentElement.tagName) && !n.parentElement.closest("[data-no-i18n]") && n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+      for (let n = w.nextNode(); n; n = w.nextNode()) { const k = n.nodeValue.trim(); if (dict[k]) n.nodeValue = n.nodeValue.replace(k, dict[k]); }
+      $$("[placeholder],[aria-label]").forEach((el) => { for (const a of ["placeholder", "aria-label"]) { const v = el.getAttribute(a); if (v && dict[v]) el.setAttribute(a, dict[v]); } }); };
+    const later = () => { clearTimeout(tt); tt = setTimeout(tr, 80); };
+    const setLabel = () => $$("[data-lang-label]").forEach((el) => (el.textContent = lang.toUpperCase()));
+    const apply = async () => { document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"; setLabel(); if (lang === "en") return;
+      try { dict = await (await fetch(url(`assets/i18n/${lang}.json`))).json(); tr(); document.addEventListener("click", later, true); document.addEventListener("input", later, true); setTimeout(tr, 1200); } catch {} };
+    $$("[data-lang]").forEach((b) => b.addEventListener("click", () => { let d = $("[data-lang-dlg]"); if (!d) { d = document.createElement("dialog"); d.className = "lang-dlg"; d.dataset.langDlg = ""; d.dataset.noI18n = "";
+      d.innerHTML = `<h2>Language</h2><p class="muted small">Country & currency stay as you chose. Product details are in English.</p><div class="lang-list">${Object.entries(BK.langs).map(([k, n]) => `<button type="button" data-l="${k}" lang="${k}">${n}</button>`).join("")}</div><button type="button" class="btn btn-ghost btn-sm" data-l-x>Close</button>`; document.body.appendChild(d);
+      d.addEventListener("click", (e) => { const x = e.target.closest("[data-l]"); if (x) { try { localStorage.setItem("bk_lang", x.dataset.l); } catch {} location.reload(); } if (e.target.closest("[data-l-x]") || e.target === d) d.close(); }); }
+      $$("[data-l]", d).forEach((x) => x.classList.toggle("on", x.dataset.l === lang)); d.showModal(); }));
+    apply();
+  }
+
+  // ---------- order tracking + service forms (Google Sheet) ----------
+  const tf = $("[data-track-form]");
+  if (tf) { const out = $("[data-track-out]"); try { const q = new URLSearchParams(location.search); if (q.get("ref")) tf.ref.value = q.get("ref"); } catch {}
+    tf.addEventListener("submit", async (e) => { e.preventDefault(); const ref = tf.ref.value.trim().toUpperCase(), ph = tf.ph.value.replace(/\D/g, "").slice(-4);
+      if (!BK.sheet) { out.innerHTML = `<p class="paused-note">Online tracking is being set up. ${BK.wa ? `<a class="link" href="https://wa.me/${BK.wa}?text=${encodeURIComponent("Order status please: " + ref)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>` : ""}</p>`; return; }
+      out.innerHTML = `<p class="muted">Checking…</p>`;
+      try { const r = await (await fetch(`${BK.sheet}?action=track&ref=${encodeURIComponent(ref)}&ph=${ph}`)).json();
+        if (!r.ok) { out.innerHTML = `<p class="paused-note">We could not find this order with this phone number. Please check, or WhatsApp us.</p>`; return; }
+        const steps = ["Placed", "Paid", "Packed", "Shipped", "Delivered"], i = steps.indexOf(r.status);
+        out.innerHTML = `<div class="track-card"><p><b>${esc(r.ref)}</b> · ${esc(r.day || "")}</p><ol class="track-steps">${steps.map((s, k) => `<li class="${i >= k ? "done" : ""}${r.status === s ? " now" : ""}">${s}</li>`).join("")}</ol>${i < 0 ? `<p><b>Status:</b> ${esc(r.status)}</p>` : ""}${r.note ? `<p><b>Courier / tracking:</b> ${esc(r.note)}</p>` : ""}<p class="muted small">Last update: ${esc(r.updated || "")}</p></div>`;
+      } catch { out.innerHTML = `<p class="paused-note">Tracking is not reachable right now. Please try again or WhatsApp us.</p>`; } }); }
+  $$("form[data-svc]").forEach((f) => f.addEventListener("submit", (e) => { e.preventDefault(); if (!f.checkValidity()) { f.reportValidity(); return; }
+    const d = Object.fromEntries(new FormData(f)); const type = f.dataset.svc;
+    sendSheet({ type, name: d.name || "", phone: d.phone || getUser()?.phone || "", city: d.city || "", ref_order: d.ref_order || "", items: [d.want, d.items, d.reason, d.rating ? d.rating + "★" : "", d.msg].filter(Boolean).join(" | "), consent: "no" });
+    const out = f.nextElementSibling; f.hidden = true;
+    out.innerHTML = `<div class="track-card"><p><b>Thank you! ✓</b> ${type === "review" ? "Your review will appear after we check it." : "We have your request and will reply on WhatsApp within 1–2 working days."}</p>${BK.wa && type !== "review" ? `<a class="btn btn-wa" href="https://wa.me/${BK.wa}?text=${encodeURIComponent(`Return/exchange request ${d.ref_order}: ${d.want} – ${d.items || ""}`)}" target="_blank" rel="noopener">Also send on WhatsApp</a>` : ""}</div>`; }));
+
+  // ---------- image zoom (tap a product photo) ----------
+  $$(".gallery img").forEach((im) => im.addEventListener("click", () => { let d = $("[data-zoom]"); if (!d) { d = document.createElement("dialog"); d.className = "zoom-dlg"; d.dataset.zoom = ""; d.innerHTML = `<button type="button" class="icon-btn zoom-x" aria-label="Close">✕</button><div class="zoom-wrap"><img alt=""></div>`; document.body.appendChild(d); d.addEventListener("click", (e) => { if (e.target.closest(".zoom-x") || e.target === d) d.close(); }); $(".zoom-wrap img", d).addEventListener("click", (e) => e.currentTarget.classList.toggle("big")); }
+    const z = $(".zoom-wrap img", d); z.classList.remove("big"); z.src = im.currentSrc || im.src; z.alt = im.alt; d.showModal(); }));
+
   // ---------- speed: Instagram reels load only on tap; hover photo only on mouse devices ----------
   $$("[data-ig]").forEach((b) => b.addEventListener("click", () => { const d = document.createElement("div"); d.className = "reel reel-ig"; d.innerHTML = `<iframe src="${b.dataset.ig}" title="Instagram reel" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`; b.replaceWith(d); }));
   if (matchMedia("(hover: hover)").matches) document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".card"); const im = c && c.querySelector("img.alt[data-src]"); if (im) { im.src = im.dataset.src; im.removeAttribute("data-src"); } }, { passive: true });
