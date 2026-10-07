@@ -919,3 +919,8 @@ button[disabled]{opacity:.55;cursor:not-allowed}
 /* Arabic: right-to-left */
 [dir=rtl] body{text-align:right}[dir=rtl] .nav-icons,[dir=rtl] .buy-row,[dir=rtl] .size-row,[dir=rtl] .chips,[dir=rtl] .crumbs{direction:rtl}[dir=rtl] .announce-track{animation-direction:reverse}[dir=rtl] .wa-float{left:16px;right:auto}
 [dir=rtl] .skip:not(:focus){left:auto;right:-999px}
+/* safety net: never let one long word, image or embed push the page sideways on phones */
+body{overflow-x:clip}
+img,video,iframe,svg,canvas{max-width:100%}
+.product,.product>*,.buybox,.gallery,.specs dd,.prose,.seo-text,.card-body{min-width:0;overflow-wrap:anywhere}
+@media (max-width:420px){.nav-icons{gap:4px}.lang-btn{padding:3px 7px;font-size:.66rem;min-height:28px}.logo-img{max-width:34vw;height:auto}}
