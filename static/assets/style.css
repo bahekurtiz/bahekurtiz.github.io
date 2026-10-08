@@ -691,13 +691,13 @@ body{min-height:100vh;min-height:100dvh}
 /* ===== v9: live shopping, voice search, for-you, style finder, craft passport, QR tags ===== */
 .live-strip{display:flex;align-items:center;justify-content:center;gap:8px;background:#b3261e;color:#fff;font-size:.86rem;padding:9px 16px;text-decoration:none;text-align:center;flex-wrap:wrap}
 .live-strip.next{background:var(--ink)}.live-strip a{color:#fff}
-.live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:livep 1.4s infinite;vertical-align:middle}
+.live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff4d4d;vertical-align:middle;position:relative}.live-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:rgba(255,77,77,.7);animation:liveg 1.4s ease-out infinite;will-change:transform,opacity}
 .live-strip .live-dot{background:#fff}
 @keyframes livep{70%{box-shadow:0 0 0 8px rgba(255,77,77,0)}100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}}
 @media (prefers-reduced-motion:reduce){.live-dot{animation:none}}
 .live-frame{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;max-width:960px}
 .live-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.mic.listening{color:#b3261e;animation:livep 1.2s infinite;border-radius:50%}
+.mic.listening{color:#b3261e;border-radius:50%;outline:2px solid rgba(179,38,30,.5);animation:micb 1.2s ease-in-out infinite}
 .finder-cta{background:var(--surface);border-block:1px solid var(--line)}
 .finder-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:32px}
 .finder-row h2{margin:0 0 4px}.finder-row p{margin:0}
@@ -942,4 +942,9 @@ img,video,iframe,svg,canvas{max-width:100%}
 .auto-links{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;align-items:center;margin:4px 0 14px;padding-bottom:4px;scrollbar-width:none}.auto-links::-webkit-scrollbar{display:none}.auto-links>*{flex:0 0 auto}
 .auto-links .pill{text-decoration:none}
 .pfaq details{border-bottom:1px solid var(--line);padding:12px 0}.pfaq summary{cursor:pointer;font-weight:500}.pfaq p{margin:8px 0 0;color:var(--muted)}
-.mirror-dress{will-change:left,top,width;touch-action:none}
+.mirror-dress{touch-action:none}
+.mirror-stage{contain:layout paint}
+@keyframes liveg{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.6);opacity:0}}
+@keyframes micb{50%{opacity:.55}}
+.announce-track{will-change:transform}
+@media (prefers-reduced-motion:reduce){.live-dot::after{animation:none}}
