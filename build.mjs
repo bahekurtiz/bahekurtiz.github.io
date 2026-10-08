@@ -38,9 +38,10 @@ const brand = S.brand_name || "Bahe Kurtiz";
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
 const siteFile = (f) => (fs.existsSync(path.join(ROOT, "static/images/site", f)) ? "/images/site/" + f : "");
 const logoImg = String(S.logo || "").trim() || siteFile("logo.png");
-const favImg = String(S.favicon || "").trim() || siteFile("favicon.png");
+const favImg0 = String(S.favicon || "").trim() || siteFile("favicon.png");
+const favImg = favImg0 && fs.existsSync(path.join(ROOT, "static/images/_r/site/favicon-96.png")) && /favicon\.png$/.test(favImg0) ? "/images/_r/site/favicon-96.png" : favImg0;
 if (!String(S.hero_image || "").trim() && siteFile("hero-teal.jpg")) S.hero_image = "/images/site/hero-teal.jpg";
-const logoMark = () => (logoImg ? `<img class="logo-img" src="${esc(u(logoImg))}" alt="${esc(brand)}" width="300" height="100">` : `${esc(brand)}<small>JAIPUR</small>`);
+const logoMark = () => (logoImg ? `<img decoding="async" class="logo-img" src="${esc(u(logoImg))}" alt="${esc(brand)}" width="300" height="100">` : `${esc(brand)}<small>JAIPUR</small>`);
 const waNumber = (() => { let d = digits(S.whatsapp); if (d.length === 10) d = "91" + d; return d; })();
 const waLink = (msg) => (waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}` : "");
 const usdRate = num(S.usd_rate);
@@ -324,7 +325,7 @@ const crumbLd = (list) => ({ "@context": "https://schema.org", "@type": "Breadcr
 // ---------- Meta Pixel (ID from admin settings) ----------
 const pixelId = digits(S.meta_pixel_id);
 const pixelHead = `<script>(function(){var w=window;if(location.pathname.indexOf("/admin/")>-1)return;var S=w.BKtags||[];${pixelId ? `!function(f){if(f.fbq)return;var n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[]}(w);var c=null;try{c=localStorage.getItem("bk_consent")}catch(e){}if(w.BKeu&&c!=="yes")fbq("consent","revoke");var am={};try{var U=JSON.parse(localStorage.getItem("bk_user_v1")||"null");if(U){if(U.email)am.em=String(U.email).toLowerCase();var P=String(U.phone||"").replace(/\\D/g,"");if(P)am.ph=P.length==10?"91"+P:P;if(U.name)am.fn=String(U.name).split(" ")[0].toLowerCase();if(P)am.external_id=P}}catch(e){}fbq("init","${pixelId}",am);w.BKpv="PageView."+Date.now()+"."+Math.random().toString(36).slice(2,8);fbq("track","PageView",{},{eventID:w.BKpv});S.push("https://connect.facebook.net/en_US/fbevents.js");` : ""}if(!S.length)return;var L=function(){if(L.d)return;L.d=1;S.forEach(function(s){var t=document.createElement("script");t.async=1;t.src=s;document.head.appendChild(t)})};["pointerdown","keydown","scroll","touchstart"].forEach(function(e){addEventListener(e,L,{once:true,passive:true})});setTimeout(L,4000)})();</script>`;
-const pixelBody = pixelId ? `<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"></noscript>` : "";
+const pixelBody = pixelId ? `<noscript><img decoding="async" height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"></noscript>` : "";
 
 // ---------- Shoppable reels (Instagram-style videos, each can be linked to a product) ----------
 const igCode = (l) => (String(l || "").match(/instagram\.com\/(?:[^/]+\/)?(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i) || [])[1] || "";
@@ -350,7 +351,7 @@ const reelItem = (r, i, noShop = false) => {
       const inner = `${media}<span class="reel-play" aria-hidden="true">${I.play}</span>${r.creator ? `<span class="reel-by">Styled by ${esc(r.creator)}</span>` : ""}${r.caption ? `<span class="reel-cap">${esc(r.caption)}</span>` : ""}${r.link ? `<span class="reel-src">${socialIcon(fb ? "facebook" : "instagram")}</span>` : ""}`;
       const box = r.ig ? `<button class="reel reel-igf" type="button" data-ig="${esc(r.ig)}" aria-label="Play Instagram reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>` : r.video || p ? `<button class="reel" type="button" data-reel-open="${i}" aria-label="Play reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>`
         : r.link ? `<a class="reel" href="${esc(r.link)}" target="_blank" rel="noopener" aria-label="${esc(r.caption || "Watch reel")} on ${fb ? "Facebook" : "Instagram"}">${inner}</a>` : `<div class="reel">${inner}</div>`;
-      const shop = p && !noShop ? `<a class="reel-prod" href="${u(p.url)}"><img src="${esc(u(p.images[0] || ""))}" alt="" width="60" height="90" loading="lazy"><span><em>${esc(p.title)}</em><span class="card-price">${priceHtml(p)}</span></span><b>Shop</b></a>` : "";
+      const shop = p && !noShop ? `<a class="reel-prod" href="${u(p.url)}"><img decoding="async" src="${esc(u(p.images[0] || ""))}" alt="" width="60" height="90" loading="lazy"><span><em>${esc(p.title)}</em><span class="card-price">${priceHtml(p)}</span></span><b>Shop</b></a>` : "";
       return `<div class="reel-item">${box}${shop}</div>`;
 };
 const reelsHtml = () => !reels.length ? "" : `<section class="reels" aria-label="Shoppable reels">
@@ -421,7 +422,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
           <div><h4>Categories</h4><a href="${u("shop/")}">Shop All</a>${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
           ${prints.length ? `<div><h4>Shop by print</h4>${prints.slice(0, 9).map((x) => `<a href="${u(qs("print", x))}">${esc(x)}</a>`).join("")}</div>` : ""}
           ${fabrics.length ? `<div><h4>Shop by fabric</h4>${fabrics.slice(0, 9).map((x) => `<a href="${u(qs("fabric", x))}">${esc(x)}</a>`).join("")}</div>` : ""}
-          <a class="mega-feat" href="${u("wholesale/")}"><img src="${esc(u(products[0]?.images[0] || S.hero_image || ""))}" alt="" width="240" height="320" loading="lazy"><span><em>For boutiques & brands</em>Wholesale & Private Label →</span></a>
+          <a class="mega-feat" href="${u("wholesale/")}"><img decoding="async" src="${esc(u(products[0]?.images[0] || S.hero_image || ""))}" alt="" width="240" height="320" loading="lazy"><span><em>For boutiques & brands</em>Wholesale & Private Label →</span></a>
         </div></div>
       </div>
       ${products.some((p) => p.bestseller) ? `<a href="${u("bestsellers/")}">Bestsellers</a>` : ""}
@@ -584,12 +585,23 @@ const sizeDialog = `<dialog class="size-modal" data-size-modal aria-labelledby="
 <p class="muted small">How to measure: Bust – around the fullest part. Waist – around the natural waistline. Hip – around the fullest part of the hips.</p></div></dialog>`;
 const circles = (active = "") => categories.length ? `<nav class="circles" aria-label="Categories"><div class="circles-row">
   <a class="circle${active === "shop/" ? " on" : ""}" href="${u("shop/")}"><span class="circle-img circle-all">All</span><em>Shop All</em></a>
-  ${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="circle${active === c.url ? " on" : ""}" href="${u(c.url)}"><span class="circle-img">${img ? `<img src="${esc(u(img))}" alt="" width="160" height="160" loading="lazy">` : ""}</span><em>${esc(c.plural)}</em></a>`; }).join("")}
+  ${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="circle${active === c.url ? " on" : ""}" href="${u(c.url)}"><span class="circle-img">${img ? `<img decoding="async" src="${esc(u(img))}" alt="" width="160" height="160" loading="lazy">` : ""}</span><em>${esc(c.plural)}</em></a>`; }).join("")}
   <a class="circle" href="${u("wholesale/")}"><span class="circle-img circle-all">B2B</span><em>Wholesale</em></a>
 </div></nav>` : "";
 const reviews = (Array.isArray(S.reviews) ? S.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), city: String(r?.city || "").trim(), text: String(r?.text || "").trim(), rating: num(r?.rating) || 5, photo: String(r?.photo || "").trim() })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
 const pages = [];
-const add = (file, html) => pages.push([file, html]);
+// ---------- fast images: small copies (made by the GitHub "thumbs" robot) are used automatically when they exist ----------
+const RS = [480, 960];
+const rsPath = (src, w) => { const m = String(src || "").match(/^\/?(images\/(?!_r\/).+)\.(jpe?g|png|webp)$/i); return m ? `/images/_r/${m[1].slice(7)}-${w}.webp` : ""; };
+const rsHas = (src) => { const v = rsPath(src, RS[0]); return !!v && fs.existsSync(path.join(ROOT, "static", v)); };
+const small = (src) => (rsHas(src) ? rsPath(src, RS[0]) : src);
+const withSrcset = (html) => html.replace(/<img\b[^>]*>/g, (tag) => {
+  if (/\ssrcset=/.test(tag)) return tag; const m = tag.match(/\ssrc="([^"]+)"/); if (!m) return tag;
+  const raw = m[1].replace(/&amp;/g, "&"), local = BASE && raw.startsWith(BASE) ? "/" + raw.slice(BASE.length) : raw; if (!rsHas(local)) return tag;
+  const big = /data-rs="big"|class="post-cover"/.test(tag), wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
+  const sizes = big ? "(max-width: 900px) 82vw, 50vw" : wd && wd <= 120 ? "120px" : "(max-width: 720px) 46vw, 25vw";
+  return tag.replace(/\ssrc="/, ` srcset="${RS.map((w) => `${esc(u(rsPath(local, w)))} ${w}w`).join(", ")}, ${m[1]} 1200w" sizes="${sizes}" src="`); });
+const add = (file, html) => pages.push([file, withSrcset(html)]);
 
 // ---------- home ----------
 {
@@ -610,16 +622,16 @@ const add = (file, html) => pages.push([file, html]);
   }
   const featured = products.filter((p) => p.featured);
   const list = (featured.length ? featured : products).slice(0, 8);
-  const tiles = categories.map((c) => `<a class="tile" href="${u(c.url)}"><img src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
+  const tiles = categories.map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
   const body = `
-${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img src="${esc(u(st.c))}" alt="" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
+${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
 ${circles()}
 ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-dot"></span> LIVE NOW · ${esc(live.title)} <b>Watch & shop →</b></a>` : liveNextText ? `<div class="live-strip next">📺 Next live shopping: <b>${esc(liveNextText)}</b>${ytChan ? ` · <a href="${esc(ytChan)}" target="_blank" rel="noopener">Subscribe on YouTube</a>` : ""}</div>` : ""}
 ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}" data-us="${esc(festNext.order_by_intl)}"><div class="wrap fest-row"><span class="fest-name">${esc(festNext.name)} · ${esc(festNext.dateText)}</span><span class="fest-cut"><span class="cur-inr">Order by <b>${esc(festNext.order_by_in_text)}</b> for delivery in India</span>${intlOn ? `<span class="cur-usd">Order by <b>${esc(festNext.order_by_intl_text)}</b> for delivery abroad</span>` : ""} <span class="fest-left" data-fest-left></span></span><a class="link" href="${u(festNext.link || "shop/")}">Shop →</a><button class="link fest-cal" type="button" data-ics>📅 Add festivals to my calendar</button></div></div>` : ""}
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
 ${slides.map((sl, i) => `<div class="hero hero-slide${sl.wide ? " hero-full" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
-  <div class="hero-media">${sl.wide ? `<picture><source media="(min-width: 901px)" srcset="${esc(u(sl.wide))}"><img src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></picture>` : `<img src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>`}</div>
+  <div class="hero-media">${sl.wide ? `<picture><source media="(min-width: 901px)" srcset="${esc(u(sl.wide))}"><img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></picture>` : `<img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>`}</div>
   <div class="hero-text">
     <p class="eyebrow">${esc(sl.eyebrow || "New collection · Made in Jaipur")}</p>
     ${i === 0 ? `<h1>${esc(sl.title || brand)}</h1>` : `<h2 class="h1">${esc(sl.title || brand)}</h2>`}
@@ -666,11 +678,11 @@ ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class=
     <ul class="b2b-list"><li>${I.box}<span><strong>Wholesale</strong>Kurtis, sets, dresses & co-ords in bulk</span></li><li>${I.tag}<span><strong>Private label</strong>Your brand name, tags & packaging</span></li><li>${I.globe}<span><strong>Export</strong>Buyers in every country, worldwide</span></li></ul>
   </div>
 </section>
-${reviews.length >= 3 ? `<section class="wrap section reviews"><div class="section-head center"><p class="eyebrow">Loved by our customers</p><h2>Reviews</h2></div><div class="rev-row">${reviews.map((r) => `<figure class="rev">${r.photo ? `<img src="${esc(u(r.photo))}" alt="" width="400" height="500" loading="lazy">` : ""}<blockquote>${star(r.rating)}<p>${esc(r.text)}</p></blockquote><figcaption>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}</figcaption></figure>`).join("")}</div></section>` : ""}
+${reviews.length >= 3 ? `<section class="wrap section reviews"><div class="section-head center"><p class="eyebrow">Loved by our customers</p><h2>Reviews</h2></div><div class="rev-row">${reviews.map((r) => `<figure class="rev">${r.photo ? `<img decoding="async" src="${esc(u(r.photo))}" alt="" width="400" height="500" loading="lazy">` : ""}<blockquote>${star(r.rating)}<p>${esc(r.text)}</p></blockquote><figcaption>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}</figcaption></figure>`).join("")}</div></section>` : ""}
 <section class="wrap section recent" data-recent hidden><div class="section-head"><div><p class="eyebrow">Picked up where you left</p><h2>Recently viewed</h2></div></div><div class="grid" data-recent-grid></div></section>
 <section class="story">
   <div class="wrap story-grid">
-    <img src="${esc(u(products[0]?.images[2] || products[0]?.images[0] || S.hero_image))}" alt="${esc(brand)} kurti shot in Jaipur" width="1200" height="1800" loading="lazy">
+    <img decoding="async" src="${esc(u(products[0]?.images[2] || products[0]?.images[0] || S.hero_image))}" alt="${esc(brand)} kurti shot in Jaipur" width="1200" height="1800" loading="lazy">
     <div>
       <p class="eyebrow">Our story</p>
       <h2>${esc(S.about_title || "About us")}</h2>
@@ -780,10 +792,10 @@ for (const p of products) {
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
         ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
-        : `<figure class="slide"><img src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></figure>`).join("")}
+        : `<figure class="slide"><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></figure>`).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
-    <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
+    <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
   </div>
   <div class="buybox">
     <p class="eyebrow">${esc(p.category)}${p.color ? " · " + esc(p.color) : ""}</p>
@@ -970,7 +982,7 @@ if (S.intl_return_policy) infoPage("international-returns/index.html", "internat
   for (const r of reels) { const p = products.find((x) => x.slug === r.product); if (r.video || r.cover) items.push({ vid: r.video, img: r.cover, cap: r.caption, p }); }
   for (const p of products) { if (p.video && !items.some((x) => x.p === p && x.vid)) items.push({ vid: p.video, img: p.images[0], cap: p.title, p }); else if (p.images[0] && !items.some((x) => x.p === p)) items.push({ vid: "", img: p.images[1] || p.images[0], cap: p.title, p }); }
   add("feed/index.html", page({ title: `Feed – Watch & Shop | ${brand}`, description: clip(`Scroll the ${brand} feed: hand block printed kurtis and dresses from Jaipur in short videos and photos. Like, share and shop.`), pathname: "feed/", bodyClass: "feed-page", mini: null,
-  body: `<h1 class="sr-only">Watch & Shop – ${esc(brand)} feed</h1><section class="feed" data-feed>${items.map((it, i) => `<article class="feed-item" data-fi>${it.vid ? `<video data-src="${esc(u(it.vid))}"${it.img ? ` poster="${esc(u(it.img))}"` : ""} muted loop playsinline preload="none"></video>` : `<img src="${esc(u(it.img))}" alt="${esc(it.cap || brand)}" width="1080" height="1920" loading="${i < 2 ? "eager" : "lazy"}">`}
+  body: `<h1 class="sr-only">Watch & Shop – ${esc(brand)} feed</h1><section class="feed" data-feed>${items.map((it, i) => `<article class="feed-item" data-fi>${it.vid ? `<video data-src="${esc(u(it.vid))}"${it.img ? ` poster="${esc(u(it.img))}"` : ""} muted loop playsinline preload="none"></video>` : `<img decoding="async" src="${esc(u(it.img))}" alt="${esc(it.cap || brand)}" width="1080" height="1920" loading="${i < 2 ? "eager" : "lazy"}">`}
   <div class="feed-side">${it.p ? `<button class="feed-act wish" type="button" data-wish="${esc(it.p.slug)}" aria-label="Like" aria-pressed="false">${I.heart}<span>Like</span></button>` : ""}<button class="feed-act" type="button" data-feed-share="${esc(it.p ? SITE_URL + "/" + it.p.url : SITE_URL)}" aria-label="Share">${I.wa}<span>Share</span></button>${it.vid ? `<button class="feed-act" type="button" data-feed-sound aria-label="Sound">🔇<span>Sound</span></button>` : ""}</div>
   <div class="feed-info"><p class="feed-brand">${esc(brand)} · Jaipur</p>${it.cap ? `<p class="feed-cap">${esc(it.cap)}</p>` : ""}${it.p ? `<a class="feed-shop" href="${u(it.p.url)}"><span>${esc(it.p.title)}</span><b class="card-price">${priceHtml(it.p)}</b><em>Shop →</em></a>` : ""}</div></article>`).join("")}</section>` })); }
 
@@ -979,7 +991,7 @@ add("mirror/index.html", page({ title: `Mirror – Try Every Dress On Your Photo
   body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Mirror · beta</p><h1>Har dress, aap par</h1><p class="lead">Apni photo daalo. Har dress ek-ek karke aap par aayegi. Pasand aaye to <b>💚 Haan</b>, nahi to <b>✕ Na</b>. Aakhir mein family se poochho: "Kaunsi pehnu?" Your photo stays on your phone – it is never uploaded.</p></div></section>
 <section class="wrap section mirror" data-mirror>
   <div class="mirror-main">
-    <div class="mirror-stage" data-mirror-stage><div class="mirror-empty" data-mirror-empty><p><b>Step 1:</b> apni full-length photo daalo<br><small class="muted">Seedhe khade ho, saamne se, achhi roshni mein</small></p><label class="btn">📷 Add my photo<input type="file" accept="image/*" data-mirror-file hidden></label></div><img data-mirror-me alt="" hidden><img class="mirror-dress" data-mirror-dress alt="" hidden><div class="mirror-hud" data-mirror-hud data-no-i18n hidden><span data-mirror-count></span><span data-mirror-name></span></div><p class="mirror-status" data-mirror-status hidden></p><div class="mirror-flash" data-mirror-flash></div></div>
+    <div class="mirror-stage" data-mirror-stage><div class="mirror-empty" data-mirror-empty><p><b>Step 1:</b> apni full-length photo daalo<br><small class="muted">Seedhe khade ho, saamne se, achhi roshni mein</small></p><label class="btn">📷 Add my photo<input type="file" accept="image/*" data-mirror-file hidden></label></div><img decoding="async" data-mirror-me alt="" hidden><img decoding="async" class="mirror-dress" data-mirror-dress alt="" hidden><div class="mirror-hud" data-mirror-hud data-no-i18n hidden><span data-mirror-count></span><span data-mirror-name></span></div><p class="mirror-status" data-mirror-status hidden></p><div class="mirror-flash" data-mirror-flash></div></div>
     <div class="mirror-vote" data-mirror-vote hidden><button type="button" class="mv-no" data-mirror-no aria-label="Na">✕<small>Na</small></button><button type="button" class="mv-play" data-mirror-play aria-label="Pause">⏸</button><button type="button" class="mv-yes" data-mirror-yes aria-label="Haan">💚<small>Haan</small></button></div>
     <p class="muted small center" data-mirror-tip hidden>Swipe ← Na · Haan → · Dress ko ungli se khiskao · Photo par tap karo to dress wahan aayegi</p>
   </div>
@@ -1048,7 +1060,7 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
 function md(src = "") {
   const safeUrl = (x) => (/^(https?:\/\/|\/|#|mailto:)/i.test(x.trim()) ? x.trim() : "#");
   const inline = (t) => esc(t)
-    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, a, h) => `<img src="${esc(u(safeUrl(h)))}" alt="${a}" loading="lazy">`)
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, a, h) => `<img decoding="async" src="${esc(u(safeUrl(h)))}" alt="${a}" loading="lazy">`)
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, a, h) => { const x = safeUrl(h); return `<a href="${esc(u(x))}"${/^https?:/.test(x) && !x.includes(SITE_URL) ? ' target="_blank" rel="noopener"' : ""}>${a}</a>`; })
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/__([^_]+)__/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>").replace(/(^|\W)_([^_]+)_(?=\W|$)/g, "$1<em>$2</em>").replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -1098,7 +1110,7 @@ if (S.auto_guides !== false) for (const c of categories.filter((x) => x.items.le
 }
 const niceDate = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 const postCard = (b) => `<article class="post-card"><a href="${u(b.url)}">
-  ${b.cover ? `<div class="post-img"><img src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" loading="lazy"></div>` : ""}
+  ${b.cover ? `<div class="post-img"><img decoding="async" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" loading="lazy"></div>` : ""}
   <p class="eyebrow">${esc(niceDate(b.date))}${b.tags[0] ? " · " + esc(b.tags[0]) : ""}</p><h3>${esc(b.title)}</h3><p class="muted">${esc(b.excerpt || "")}</p></a></article>`;
 
 add("blog/index.html", page({
@@ -1117,7 +1129,7 @@ for (const b of posts) {
 <article class="wrap section post">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("blog/")}">Blog</a> / <span>${esc(b.title)}</span></nav>
   <header class="post-head"><p class="eyebrow">${esc(niceDate(b.date))}${b.tags.length ? " · " + b.tags.map(esc).join(", ") : ""}</p><h1>${esc(b.title)}</h1>${b.excerpt ? `<p class="lead">${esc(b.excerpt)}</p>` : ""}</header>
-  ${b.cover ? `<img class="post-cover" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" fetchpriority="high">` : ""}
+  ${b.cover ? `<img decoding="async" class="post-cover" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" fetchpriority="high">` : ""}
   <div class="post-body prose">${md(b.body)}</div>
   <p class="share">Share: <a href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener">WhatsApp</a> · <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL + "/" + b.url)}" target="_blank" rel="noopener">Facebook</a> · <a href="https://pinterest.com/pin/create/button/?url=${encodeURIComponent(SITE_URL + "/" + b.url)}&description=${encodeURIComponent(b.title)}" target="_blank" rel="noopener">Pinterest</a></p>
 </article>
@@ -1349,7 +1361,7 @@ const catalog = {
     upi_id: (S.upi_id || "").trim(), brand, whatsapp: waNumber, email: S.email || "",
     intl_shipping_charge_usd: num(S.intl_shipping_charge_usd) || 0, intl_free_shipping_above_usd: num(S.intl_free_shipping_above_usd) || 0,
   },
-  products: Object.fromEntries(products.map((p) => [p.slug, { title: p.title, price: p.price, sizes: p.sizes, image: p.images[0] || "", image2: p.images[1] || "", color: p.color || "", url: p.url, in_stock: p.in_stock, paused: p.sale_paused || undefined, out: p.sold_out, cutout: p.tryon_png || "", occ: p.occasion, cat: p.category, fabric: p.fabric, print: p.print_work.join(", "), price_usd: p.intl ? p.price_usd : null, mrp: p.mrp, mrp_usd: p.intl ? p.mrp_usd : null }])),
+  products: Object.fromEntries(products.map((p) => [p.slug, { title: p.title, price: p.price, sizes: p.sizes, image: p.images[0] || "", thumb: p.images[0] ? small(p.images[0]) : "", image2: p.images[1] || "", color: p.color || "", url: p.url, in_stock: p.in_stock, paused: p.sale_paused || undefined, out: p.sold_out, cutout: p.tryon_png || "", occ: p.occasion, cat: p.category, fabric: p.fabric, print: p.print_work.join(", "), price_usd: p.intl ? p.price_usd : null, mrp: p.mrp, mrp_usd: p.intl ? p.mrp_usd : null }])),
 };
 fs.mkdirSync(path.join(OUT, "data"), { recursive: true });
 fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
