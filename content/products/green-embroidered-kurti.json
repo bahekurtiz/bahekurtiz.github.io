@@ -2,8 +2,15 @@
   "title": "Bottle Green Embroidered Kurti with Side Tie-Up",
   "category": "Kurti",
   "color": "Bottle Green",
+  "color_custom": "green",
+  "neckline": "Round Neck",
+  "sleeve": "",
+  "length_type": "Knee Length",
   "price": 599,
   "mrp": 1245,
+  "price_usd": 30,
+  "mrp_usd": 70,
+  "ships_abroad": true,
   "sizes": [
     "S",
     "M",
@@ -12,7 +19,17 @@
     "XXL",
     "XS"
   ],
-  "fabric": "georgette",
+  "sold_out_sizes": [],
+  "occasion": [
+    "Daily"
+  ],
+  "model_height": "5,5",
+  "model_size": "s",
+  "fit": "Regular",
+  "fabric": "Georgette",
+  "print_work": [
+    "Embroidered"
+  ],
   "description": "A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
   "images": [
     "/images/products/green-1.jpg",
@@ -21,8 +38,20 @@
     "/images/products/green-4.jpg",
     "/images/products/green-5.jpg"
   ],
+  "video": "",
+  "match_products": [],
+  "tryon_png": "",
+  "sku": "",
+  "old_url": "",
+  "set_items": [],
+  "care": "",
+  "processing_days": "",
+  "return_override": "Default",
+  "garment_length": null,
+  "sale_paused": false,
   "in_stock": true,
   "featured": true,
+  "bestseller": false,
   "sort_order": 2,
   "seo_title": "",
   "seo_description": ""
