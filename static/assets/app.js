@@ -13,8 +13,13 @@
 
   // ---------- Meta Pixel events (only if pixel is on) ----------
   const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
-  const track = (ev, data = {}, id) => { try { window.fbq && window.fbq("track", ev, data, id ? { eventID: id } : undefined); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
+  // every event gets an id; the same id goes to the Pixel (browser) and to /api/capi (server) so Meta counts it once
+  const capi = (ev, id, data) => { try { if (!BK.px) return; if (window.BKeu && localStorage.getItem("bk_consent") !== "yes") return; let u = {}; try { u = JSON.parse(localStorage.getItem("bk_user_v1")) || {}; } catch {}
+    const body = JSON.stringify({ event_name: ev, event_id: id, url: location.href, data, fbclid: new URLSearchParams(location.search).get("fbclid") || undefined, user: { em: u.email, ph: u.phone, fn: u.name, ct: u.city, zp: u.pincode, country: (u.country || "").slice(0, 2) || undefined, id: u.phone } });
+    (navigator.sendBeacon && navigator.sendBeacon(url("api/capi"), new Blob([body], { type: "text/plain" }))) || fetch(url("api/capi"), { method: "POST", body, keepalive: true }).catch(() => {}); } catch {} };
+  const track = (ev, data = {}, id) => { id = id || `${ev}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`; capi(ev, id, data); try { window.fbq && window.fbq("track", ev, data, { eventID: id }); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
 
+  if (window.BKpv) capi("PageView", window.BKpv, {});
   // ---------- storage (safe) ----------
   const KEY = "bk_bag_v1";
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
@@ -450,15 +455,18 @@
     const sels = $$("[data-filter]"), params = new URLSearchParams(location.search), empty = $("[data-filter-empty]"), cnt = $("[data-count]"), moreW = $("[data-more-wrap]");
     const PAGE = 48; let limit = PAGE;
     const psel = $('[data-filter="price"]');
-    if (psel) { const bands = isUSD() ? [["0-25", "Under $25"], ["25-50", "$25 – $50"], ["50-80", "$50 – $80"], ["80-", "$80+"]] : [["0-800", "Under ₹800"], ["800-1500", "₹800 – ₹1,500"], ["1500-2500", "₹1,500 – ₹2,500"], ["2500-", "₹2,500+"]]; psel.insertAdjacentHTML("beforeend", bands.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")); }
-    const KEYS = ["size", "color", "price", "fabric", "print", "occ", "stock"];
+    if (psel) { const usd = isUSD(), cur = usd ? "$" : "₹", f = (n) => cur + Number(n).toLocaleString("en-IN");
+      const raw = (BK.bands && BK.bands[usd ? "usd" : "inr"]) || (usd ? [[0, 25], [25, 50], [50, 80], [80, 0]] : [[0, 800], [800, 1500], [1500, 2500], [2500, 0]]);
+      const bands = raw.map(([lo, hi]) => [`${lo}-${hi || ""}`, !lo ? `Under ${f(hi)}` : !hi ? `${f(lo)}+` : `${f(lo)} – ${f(hi)}`]);
+      psel.insertAdjacentHTML("beforeend", bands.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")); }
+    const KEYS = ["size", "color", "price", "fabric", "print", "occ", "neck", "sleeve", "len", "stock"];
     const test = (c, k, v) => { const d = c.dataset, list = (x) => String(x || "").split("|");
       if (k === "size") return list(d.sizes).includes(v) && !list(d.out).includes(v);
-      if (k === "color") return d.color === v;
-      if (k === "price") { const pr = +(isUSD() ? d.usd : d.price); if (!pr) return false; const [lo, hi] = v.split("-").map((n) => (n === "" ? Infinity : +n)); return pr >= lo && pr <= (hi || Infinity); }
-      if (k === "print" || k === "occ") return list(d[k]).includes(v);
+      if (k === "color" || k === "fabric") { const have = String(d[k === "color" ? "color" : "fabric"] || "").toLowerCase(), want = v.toLowerCase(); return have === want || new RegExp("(^|[^a-z])" + want.replace(/[^a-z0-9 ]/g, ".") + "([^a-z]|$)").test(have); }
+      if (k === "price") { const pr = +(isUSD() ? d.usd : d.price); if (!pr) return false; const [lo, hi] = v.split("-").map((n) => (n === "" ? Infinity : +n)); return pr >= lo && pr < hi; }
+      if (k === "print" || k === "occ") return list(d[k]).some((x) => x.toLowerCase() === v.toLowerCase());
       if (k === "stock") return d.stock === "1";
-      return d[k] === v; };
+      return String(d[k] || "").toLowerCase() === v.toLowerCase(); };
     const apply = (keepLimit) => {
       if (!keepLimit) limit = PAGE;
       const want = {}; for (const k of KEYS) { const s2 = sels.find((x) => x.dataset.filter === k); const v = s2 ? s2.value : params.get(k); if (v) want[k] = v; }
@@ -521,16 +529,31 @@
   rm?.addEventListener("click", (e) => { if (e.target === rm) closeReel(); });
   rm?.addEventListener("close", () => { stage.innerHTML = ""; unlockIfFree(); });
 
-  // ---------- wholesale enquiry → WhatsApp ----------
+  // ---------- wholesale enquiry + contact message: saved to the Sheet first, WhatsApp / email are optional ----------
+  const doneBox = (box, form, saved, txt, subject) => {
+    const wa = BK.wa ? `<a class="btn btn-wa" href="https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">WhatsApp</a>` : "";
+    const em = BK.email ? `<a class="btn btn-ghost" href="mailto:${BK.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(txt)}">✉️ Email</a>` : "";
+    box.innerHTML = saved ? `<p><strong>✓ Thank you! We have received your message.</strong></p><p class="muted">We will reply by email, usually within a few hours. You can also message us here:</p><p class="msg-btns">${wa}${em}</p>`
+      : `<p><strong>Almost done – choose how to send:</strong></p><p class="msg-btns">${em}${wa}</p>`;
+    box.hidden = false; if (saved) form.hidden = true; box.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
   const bf = $("[data-b2b-form]");
   bf?.addEventListener("submit", (e) => {
     e.preventDefault(); if (!bf.reportValidity()) return;
     const f = Object.fromEntries(new FormData(bf)); for (const k in f) f[k] = String(f[k]).trim();
-    const txt = `Wholesale / private label enquiry\n\nName: ${f.name}\nBusiness: ${f.business || "-"}\nCountry: ${f.country}\nType: ${f.type}\nProducts: ${f.products || "-"}\nQuantity: ${f.qty || "-"}\nDetails: ${f.msg || "-"}`;
+    const txt = `Wholesale / private label enquiry\n\nName: ${f.name}\nBusiness: ${f.business || "-"}\nEmail: ${f.email || "-"}\nWhatsApp: ${f.phone || "-"}\nCountry: ${f.country}\nType: ${f.type}\nProducts: ${f.products || "-"}\nQuantity: ${f.qty || "-"}\nDetails: ${f.msg || "-"}`;
     track("Lead", { content_name: "wholesale" });
     sendSheet({ type: "wholesale", name: f.name, phone: f.phone || "", email: f.email || "", country: f.country, items: `${f.type} | ${f.business || "-"} | ${f.products || "-"} | qty ${f.qty || "-"} | ${f.msg || ""}`, consent: "no" });
-    if (BK.wa) window.open(`https://wa.me/${BK.wa}?text=${encodeURIComponent(txt)}`, "_blank", "noopener");
-    else if (BK.email) location.href = `mailto:${BK.email}?subject=${encodeURIComponent("Wholesale enquiry")}&body=${encodeURIComponent(txt)}`;
+    doneBox($("[data-b2b-done]"), bf, !!BK.sheet, txt, "Wholesale enquiry");
+  });
+  const mf = $("[data-msg-form]");
+  mf?.addEventListener("submit", (e) => {
+    e.preventDefault(); if (!mf.reportValidity()) return;
+    const f = Object.fromEntries(new FormData(mf)); for (const k in f) f[k] = String(f[k]).trim();
+    const txt = `Message from website\n\nName: ${f.name}\nEmail: ${f.email}\nPhone: ${f.phone || "-"}\nCountry: ${f.country || "-"}\n\n${f.msg}`;
+    track("Lead", { content_name: "message" });
+    sendSheet({ type: "message", name: f.name, phone: f.phone || "", email: f.email, country: f.country || "", items: f.msg.slice(0, 1200), consent: "no" });
+    doneBox($("[data-msg-done]"), mf, !!BK.sheet, txt, "Message from website");
   });
 
   // ---------- search (instant, from catalog) ----------
@@ -974,13 +997,23 @@
     let lang = "en"; try { lang = localStorage.getItem("bk_lang") || "en"; } catch {}
     let dict = null, tt = 0;
     const SKIP = /^(SCRIPT|STYLE|TEXTAREA|CODE|PRE)$/;
-    const tr = () => { if (!dict) return; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement && !SKIP.test(n.parentElement.tagName) && !n.parentElement.closest("[data-no-i18n]") && n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
-      for (let n = w.nextNode(); n; n = w.nextNode()) { const k = n.nodeValue.trim(); if (dict[k]) n.nodeValue = n.nodeValue.replace(k, dict[k]); }
-      $$("[placeholder],[aria-label]").forEach((el) => { for (const a of ["placeholder", "aria-label"]) { const v = el.getAttribute(a); if (v && dict[v]) el.setAttribute(a, dict[v]); } }); };
-    const later = () => { clearTimeout(tt); tt = setTimeout(tr, 80); };
+    // dictionary keys are matched with collapsed spaces; "__p" holds patterns like "Showing {0} of {1} styles"
+    let pats = [], obs = null; const done = new WeakMap();
+    const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], DT = /\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g;
+    const dfmt = (() => { try { return new Intl.DateTimeFormat(lang, { weekday: "short", day: "numeric", month: "short" }); } catch { return null; } })();
+    const day = (d, mo) => { const n = new Date(), m = MON.indexOf(mo); let y = n.getFullYear(); if (m < n.getMonth() - 2) y++; return dfmt ? dfmt.format(new Date(y, m, +d)) : `${d} ${mo}`; };
+    const one = (t) => { let k = t.trim().replace(/\s+/g, " "); if (!k) return null; const k0 = k; k = k.replace(DT, (_, d, mo) => day(d, mo)); let v = dict[k];
+      if (!v) for (const [re, out] of pats) { const m = k.match(re); if (m) { v = out.replace(/\{(\d)\}/g, (_, i) => dict[m[+i + 1]] || m[+i + 1]); break; } }
+      v = v || k; return v !== k0 ? t.replace(t.trim(), v) : null; };
+    const tr = () => { if (!dict) return; obs?.disconnect();
+      const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement && !SKIP.test(n.parentElement.tagName) && !n.parentElement.closest("[data-no-i18n]") && n.nodeValue.trim() && done.get(n) !== n.nodeValue ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+      for (let n = w.nextNode(); n; n = w.nextNode()) { const v = one(n.nodeValue); if (v) n.nodeValue = v; done.set(n, n.nodeValue); }
+      $$("[placeholder],[aria-label],[title],input[type=submit][value]").forEach((el) => { if (el.closest("[data-no-i18n]")) return; for (const a of ["placeholder", "aria-label", "title", "value"]) { if (a === "value" && el.type !== "submit") continue; const x = el.getAttribute(a); const v = x && one(x); if (v) el.setAttribute(a, v); } });
+      obs?.observe(document.body, { childList: true, subtree: true, characterData: true }); };
+    const later = () => { clearTimeout(tt); tt = setTimeout(tr, 60); };
     const setLabel = () => $$("[data-lang-label]").forEach((el) => (el.textContent = lang.toUpperCase()));
     const apply = async () => { document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"; setLabel(); if (lang === "en") return;
-      try { dict = await (await fetch(url(`assets/i18n/${lang}.json`))).json(); tr(); document.addEventListener("click", later, true); document.addEventListener("input", later, true); setTimeout(tr, 1200); } catch {} };
+      try { dict = await (await fetch(url(`assets/i18n/${lang}.json`))).json(); pats = (dict.__p || []).map(([k, v]) => [new RegExp("^" + k.replace(/[.*+?^$()|[\]\\]/g, "\\$&").replace(/\{\d#\}/g, "(\\d+)").replace(/\{\d\}/g, "(.+?)") + "$"), v]); obs = new MutationObserver(later); tr(); setTimeout(tr, 1200); } catch {} };
     $$("[data-lang]").forEach((b) => b.addEventListener("click", () => { let d = $("[data-lang-dlg]"); if (!d) { d = document.createElement("dialog"); d.className = "lang-dlg"; d.dataset.langDlg = ""; d.dataset.noI18n = "";
       d.innerHTML = `<h2>Language</h2><p class="muted small">Country & currency stay as you chose. Product details are in English.</p><div class="lang-list">${Object.entries(BK.langs).map(([k, n]) => `<button type="button" data-l="${k}" lang="${k}">${n}</button>`).join("")}</div><button type="button" class="btn btn-ghost btn-sm" data-l-x>Close</button>`; document.body.appendChild(d);
       d.addEventListener("click", (e) => { const x = e.target.closest("[data-l]"); if (x) { try { localStorage.setItem("bk_lang", x.dataset.l); } catch {} location.reload(); } if (e.target.closest("[data-l-x]") || e.target === d) d.close(); }); }
