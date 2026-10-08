@@ -119,7 +119,7 @@
     const paintFit = (auto) => { if (!fitNote) return; const f = getFit(), r = recSize(f); if (!f || !r) { fitNote.hidden = !size; fitNote.innerHTML = size ? intlLine(size.toUpperCase()) : ""; return; }
       const btn = sizes.find((b) => b.dataset.size.toUpperCase() === r); fitNote.hidden = false;
       if (btn?.dataset.out) fitNote.innerHTML = `✨ Aapka size <b>${r}</b> abhi sold out hai. <button type="button" class="link" data-fit-notify>Wapas aane par batao</button>`;
-      else { fitNote.innerHTML = `✨ Aapke liye: <b>${r}</b>${/relaxed/i.test(pfit) ? " (relaxed fit)" : ""}${intlLine(r)} · <button type="button" class="link" data-fit-open>Badlo</button>`; if (auto && btn && !size) btn.click(); }
+      else { fitNote.innerHTML = `<span>✨ Aapke liye:</span> <b>${r}</b>${/relaxed/i.test(pfit) ? " <span>(relaxed fit)</span>" : ""}<span>${intlLine(r)}</span> · <button type="button" class="link" data-fit-open>Badlo</button>`; if (auto && btn && !size) btn.click(); }
       $("[data-fit-notify]", fitNote)?.addEventListener("click", () => openNotify(slug, btn.dataset.size)); $("[data-fit-open]", fitNote)?.addEventListener("click", openFit); };
     function openFit() {
       let d = $("[data-fit-dlg]"); const f = getFit() || {};
@@ -1057,32 +1057,37 @@
     const place = () => { dr.style.width = fit.w + "%"; dr.style.left = fit.x + "%"; dr.style.top = fit.y + "%"; scaleI.value = Math.round(fit.w); };
     const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
     // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides, feather the edges
+    // fast image helpers: decode + shrink off the main thread (createImageBitmap) so the page never freezes
+    const bitmap = async (src, max) => { const bl = src instanceof Blob ? src : await (await fetch(src)).blob(); try { const b0 = await createImageBitmap(bl); const s = Math.min(1, max / Math.max(b0.width, b0.height)); if (s === 1) return b0; const b = await createImageBitmap(bl, { resizeWidth: Math.round(b0.width * s), resizeHeight: Math.round(b0.height * s), resizeQuality: "medium" }); b0.close?.(); return b; } catch { return await loadImg(URL.createObjectURL(bl)); } };
+    const toURL = (cv, type, q) => new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : ""), type, q));
+    // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides (soft edges come from CSS mask, zero cost)
     const prep = (k) => cache[k] ||= (async () => {
       const p = cat.products[k]; if (p.cutout) return url(p.cutout);
-      try { const im = await loadImg(url(p.image)); const nw = im.naturalWidth, nh = im.naturalHeight; let box = null;
-        // find the model's shoulders in the product photo -> cut out just the outfit, matched to her shoulders
-        if (lmP) { try { const lm = await lmP; const L = lm.detect(im).landmarks?.[0]; if (L) { const ls = { x: L[11].x * nw, y: L[11].y * nh }, rs = { x: L[12].x * nw, y: L[12].y * nh }, sw = Math.abs(ls.x - rs.x); if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) - sw * 0.3; box = { sx: (ls.x + rs.x) / 2 - w / 2, sy: top, sw: w, sh: nh - top }; } } } catch {} }
-        if (!box) box = { sx: nw * 0.08, sy: nh * 0.16, sw: nw * 0.84, sh: nh * 0.82 };
-        const sc = Math.min(1, 700 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
-        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(im, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H);
-        const m = document.createElement("canvas"); m.width = W; m.height = H; const mg = m.getContext("2d"); const f = Math.round(W * 0.045); mg.filter = `blur(${f}px)`; mg.fillStyle = "#000"; mg.beginPath(); if (mg.roundRect) mg.roundRect(f, f, W - 2 * f, H - 2 * f, W * 0.22); else mg.rect(f, f, W - 2 * f, H - 2 * f); mg.fill(); mg.filter = "none";
-        g.globalCompositeOperation = "destination-in"; g.drawImage(m, 0, 0);
-        return await new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : url(p.image)), "image/png")); } catch { return url(p.image); }
+      try { const im = await bitmap(url(p.image), 900), nw = im.width, nh = im.height;
+        const box = { sx: nw * 0.08, sy: nh * 0.16, sw: nw * 0.84, sh: nh * 0.82 };
+        const sc = Math.min(1, 600 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; cv.getContext("2d").drawImage(im, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H);
+        return (await toURL(cv, "image/jpeg", 0.85)) || url(p.image); } catch { return url(p.image); }
     })();
+    const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
     const show = async (i) => {
       if (!list.length) return; idx = (i + list.length) % list.length; const k = list[idx], p = cat.products[k];
       $("[data-mirror-count]").textContent = `${idx + 1} / ${list.length}`; $("[data-mirror-name]").textContent = p.title; $("[data-mirror-hud]").hidden = false;
       $$("[data-mp]").forEach((x) => x.classList.toggle("on", x.dataset.mp === k));
       dr.classList.add("swap"); const src = await prep(k); if (list[idx] !== k) return;
       dr.src = src; dr.classList.toggle("is-cutout", !!p.cutout); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
-      prep(list[(idx + 1) % list.length]);
+      idle(() => prep(list[(idx + 1) % list.length]));
     };
     const stop = () => { clearInterval(timer); timer = null; playB.textContent = "▶"; playB.setAttribute("aria-label", "Play"); };
     const next = () => { seen++; if (seen >= list.length && timer) { stop(); say(`Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
     const play = () => { stop(); if (!list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
     const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
     const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
-      const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; g.drawImage(im, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, ir.width / r.width * W, ir.height / r.height * H); g.globalAlpha = 1; };
+      const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; const dw = ir.width / r.width * W, dh = ir.height / r.height * H; let src = im;
+        if (im === dr && !dr.classList.contains("is-cutout")) { const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(dw)); c.height = Math.max(1, Math.round(dh)); const x = c.getContext("2d"); x.drawImage(im, 0, 0, c.width, c.height); x.globalCompositeOperation = "destination-in";
+          const gh = x.createLinearGradient(0, 0, c.width, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.07, "#000"); gh.addColorStop(0.93, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gh; x.fillRect(0, 0, c.width, c.height);
+          const gv = x.createLinearGradient(0, 0, 0, c.height); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.06, "#000"); gv.addColorStop(0.92, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gv; x.fillRect(0, 0, c.width, c.height); src = c; }
+        g.drawImage(src, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, dw, dh); g.globalAlpha = 1; };
       if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
     const paintBoard = () => { $("[data-mirror-liked-n]").textContent = liked.length ? `(${liked.length})` : ""; board.innerHTML = liked.length ? liked.map((l, i) => `<figure><img src="${l.src}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption><button type="button" data-unlike="${i}" aria-label="Remove">✕</button></figure>`).join("") : `<p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p>`; };
     board.addEventListener("click", (e) => { const b = e.target.closest("[data-unlike]"); if (!b) return; liked.splice(+b.dataset.unlike, 1); paintBoard(); });
@@ -1090,13 +1095,15 @@
     const no = () => { if (!ready) return; flash("✕"); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
     $("[data-mirror-yes]").addEventListener("click", yes); $("[data-mirror-no]").addEventListener("click", no);
     playB.addEventListener("click", () => (timer ? stop() : play()));
+    document.addEventListener("visibilitychange", () => { if (document.hidden && timer) stop(); });
     // find shoulders on the photo (on-device), so every dress lands on her automatically
     let lmP = null;
     const fitBody = async () => {
       try {
         const V = await import(MP + "/vision_bundle.mjs");
-        lmP ||= V.FilesetResolver.forVisionTasks(MP + "/wasm").then((fs) => V.PoseLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: MODEL }, runningMode: "IMAGE", numPoses: 1 }));
-        const lm = await lmP; const L = lm.detect(me).landmarks?.[0]; if (!L) return false;
+        lmP ||= V.FilesetResolver.forVisionTasks(MP + "/wasm").then((fs) => { const o = (d) => ({ baseOptions: { modelAssetPath: MODEL, delegate: d }, runningMode: "IMAGE", numPoses: 1 }); return V.PoseLandmarker.createFromOptions(fs, o("GPU")).catch(() => V.PoseLandmarker.createFromOptions(fs, o("CPU"))); });
+        const lm = await lmP; await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 30)));
+        const small = await bitmap(await (await fetch(me.src)).blob(), 512); const L = lm.detect(small).landmarks?.[0]; small.close?.(); if (!L) return false;
         const r = stage.getBoundingClientRect(), W = r.width, H = r.height, s = Math.min(W / me.naturalWidth, H / me.naturalHeight), dw = me.naturalWidth * s, dh = me.naturalHeight * s, ox = (W - dw) / 2, oy = (H - dh) / 2;
         const P = (n) => ({ x: ox + L[n].x * dw, y: oy + L[n].y * dh });
         const ls = P(11), rs = P(12), sw = Math.abs(ls.x - rs.x); if (sw < W * 0.06) return false;
@@ -1105,7 +1112,8 @@
     };
     const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
     $("[data-mirror-file]").addEventListener("change", (e) => {
-      const f = e.target.files[0]; if (!f) return; stop(); me.src = URL.createObjectURL(f);
+      const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…");
+      (async () => { try { const b = await bitmap(f, 1400), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); me.src = (await toURL(c, "image/jpeg", 0.9)) || URL.createObjectURL(f); } catch { me.src = URL.createObjectURL(f); } })();
       me.onload = async () => { me.hidden = false; $("[data-mirror-empty]").hidden = true; $("[data-mirror-vote]").hidden = false; $("[data-mirror-tip]").hidden = false;
         say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 15000);
         if (!poseOk) { const s = Math.min(1, (stage.clientWidth / stage.clientHeight) / (me.naturalWidth / me.naturalHeight)); fit = { x: 50, y: 22, w: 52 * s }; }
