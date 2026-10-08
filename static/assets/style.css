@@ -923,4 +923,22 @@ button[disabled]{opacity:.55;cursor:not-allowed}
 body{overflow-x:clip}
 img,video,iframe,svg,canvas{max-width:100%}
 .product,.product>*,.buybox,.gallery,.specs dd,.prose,.seo-text,.card-body{min-width:0;overflow-wrap:anywhere}
-@media (max-width:420px){.nav-icons{gap:4px}.lang-btn{padding:3px 7px;font-size:.66rem;min-height:28px}.logo-img{max-width:34vw;height:auto}}
+@media (max-width:420px){.nav-icons{gap:4px}.lang-btn{padding:3px 7px;font-size:.66rem;min-height:28px}.logo-img{max-width:34vw;height:36px;object-fit:contain;object-position:left center}}
+
+.msg-form{margin-top:12px}.msg-done{margin:14px auto;max-width:640px;padding:16px;border:1px solid var(--line,#e6dccd);border-radius:14px;background:var(--card,#fff)}.msg-btns{display:flex;gap:10px;flex-wrap:wrap}.msg-btns .btn{flex:1 1 140px;justify-content:center}
+.mnav-cats{border-bottom:1px solid var(--line)}
+.mnav-cats>summary{list-style:none;padding:16px 24px;text-transform:uppercase;letter-spacing:.12em;font-size:.9rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.mnav-cats>summary::-webkit-details-marker{display:none}
+.mnav-cats>summary::after{content:"+";font-size:1.3rem;line-height:1;color:var(--accent)}
+.mnav-cats[open]>summary::after{content:"−"}
+.mnav-cat-list{display:flex;flex-direction:column;padding:0 0 8px;background:var(--card,#fff)}
+.mnav-cat-list a{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 24px 11px 36px;text-decoration:none;font-size:.95rem;border-top:1px solid var(--line)}
+.mnav-cat-list small{color:var(--muted);font-size:.72rem;white-space:nowrap}
+.mnav-cat-list a.soon span{color:var(--muted)}
+[dir=rtl] .mnav-cat-list a{padding:11px 36px 11px 24px}
+.soon-page{text-align:center;padding-top:40px;padding-bottom:60px}.soon-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.mnav-grp{margin:0;padding:12px 24px 6px 36px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border-top:1px solid var(--line)}
+[dir=rtl] .mnav-grp{padding:12px 36px 6px 24px}
+.auto-links{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;align-items:center;margin:4px 0 14px;padding-bottom:4px;scrollbar-width:none}.auto-links::-webkit-scrollbar{display:none}.auto-links>*{flex:0 0 auto}
+.auto-links .pill{text-decoration:none}
+.pfaq details{border-bottom:1px solid var(--line);padding:12px 0}.pfaq summary{cursor:pointer;font-weight:500}.pfaq p{margin:8px 0 0;color:var(--muted)}
