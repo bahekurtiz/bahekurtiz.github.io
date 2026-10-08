@@ -1013,7 +1013,7 @@
     const later = () => { clearTimeout(tt); tt = setTimeout(tr, 60); };
     const setLabel = () => $$("[data-lang-label]").forEach((el) => (el.textContent = lang.toUpperCase()));
     const apply = async () => { document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"; setLabel(); if (lang === "en") return;
-      try { dict = await (await fetch(url(`assets/i18n/${lang}.json`))).json(); pats = (dict.__p || []).map(([k, v]) => [new RegExp("^" + k.replace(/[.*+?^$()|[\]\\]/g, "\\$&").replace(/\{\d#\}/g, "(\\d+)").replace(/\{\d\}/g, "(.+?)") + "$"), v]); obs = new MutationObserver(later); tr(); setTimeout(tr, 1200); } catch {} };
+      try { dict = await (await fetch(url(`assets/i18n/${lang}.json`))).json(); pats = (dict.__p || []).map(([k, v]) => [new RegExp("^" + k.replace(/[.*+?^$()|[\]\\]/g, "\\$&").replace(/\{\d#\}/g, "(\\d+)").replace(/\{\d\}/g, "(.+?)") + "$"), v]); obs = new MutationObserver((ms) => { if (ms.some((m) => { const el = m.target.nodeType === 1 ? m.target : m.target.parentElement; return !el || !el.closest("[data-no-i18n]"); })) later(); }); tr(); setTimeout(tr, 1200); } catch {} };
     $$("[data-lang]").forEach((b) => b.addEventListener("click", () => { let d = $("[data-lang-dlg]"); if (!d) { d = document.createElement("dialog"); d.className = "lang-dlg"; d.dataset.langDlg = ""; d.dataset.noI18n = "";
       d.innerHTML = `<h2>Language</h2><p class="muted small">Country & currency stay as you chose. Product details are in English.</p><div class="lang-list">${Object.entries(BK.langs).map(([k, n]) => `<button type="button" data-l="${k}" lang="${k}">${n}</button>`).join("")}</div><button type="button" class="btn btn-ghost btn-sm" data-l-x>Close</button>`; document.body.appendChild(d);
       d.addEventListener("click", (e) => { const x = e.target.closest("[data-l]"); if (x) { try { localStorage.setItem("bk_lang", x.dataset.l); } catch {} location.reload(); } if (e.target.closest("[data-l-x]") || e.target === d) d.close(); }); }
@@ -1077,8 +1077,9 @@
         const sc = Math.min(1, 640 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
         await frame();
         const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(big, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H); big.close?.();
-        const m = document.createElement("canvas"); m.width = W; m.height = H; const mg = m.getContext("2d"); const f = Math.round(W * 0.045); mg.filter = `blur(${f}px)`; mg.fillStyle = "#000"; mg.beginPath(); if (mg.roundRect) mg.roundRect(f, f, W - 2 * f, H - 2 * f, W * 0.22); else mg.rect(f, f, W - 2 * f, H - 2 * f); mg.fill(); mg.filter = "none";
-        g.globalCompositeOperation = "destination-in"; g.drawImage(m, 0, 0);
+        g.globalCompositeOperation = "destination-in"; // soft edges with 2 gradients – cheap on every phone
+        const gh = g.createLinearGradient(0, 0, W, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.09, "#000"); gh.addColorStop(0.91, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gh; g.fillRect(0, 0, W, H);
+        const gv = g.createLinearGradient(0, 0, 0, H); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.07, "#000"); gv.addColorStop(0.93, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gv; g.fillRect(0, 0, W, H);
         return (await toURL(cv, "image/png")) || url(p.image); } catch { return url(p.image); }
     })();
     const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
@@ -1091,7 +1092,8 @@
       idle(() => prep(list[(idx + 1) % list.length]));
     };
     const stop = () => { clearInterval(timer); timer = null; playB.textContent = "▶"; playB.setAttribute("aria-label", "Play"); };
-    const next = () => { seen++; if (seen >= list.length && timer) { stop(); say(`Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
+    let scrolling = 0, wasPlaying = false; addEventListener("scroll", () => { scrolling = Date.now(); }, { passive: true });
+    const next = () => { if (Date.now() - scrolling < 400) return; seen++; if (seen >= list.length && timer) { stop(); say(`Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
     const play = () => { stop(); if (!list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
     const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
     const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
@@ -1108,6 +1110,7 @@
     $("[data-mirror-yes]").addEventListener("click", yes); $("[data-mirror-no]").addEventListener("click", no);
     playB.addEventListener("click", () => (timer ? stop() : play()));
     document.addEventListener("visibilitychange", () => { if (document.hidden && timer) stop(); });
+    if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { if (!e.isIntersecting && timer) { wasPlaying = true; stop(); } else if (e.isIntersecting && wasPlaying && ready) { wasPlaying = false; play(); } }, { threshold: 0.25 }).observe(stage);
     // find shoulders on the photo (on-device), so every dress lands on her automatically
     let lmP = null;
     const fitBody = async () => {
