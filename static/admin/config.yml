@@ -50,32 +50,94 @@ collections:
       - name: category
         label: "कैटेगरी (Category)"
         widget: select
+        hint: "80 कैटेगरी। जिस कैटेगरी में product डालोगे, वही वेबसाइट के मेन्यू में दिखेगी।"
         options:
-          - Kurti
-          - Kurti Set
-          - Kurta Pant Dupatta Set
-          - Anarkali Kurti
-          - A-Line Kurti
-          - Straight Kurti
-          - Short Kurti
-          - Long Kurti
-          - Angrakha Kurti
-          - Dress
-          - Maxi Dress
-          - Midi Dress
-          - Short Dress
-          - Anarkali Dress
-          - Gown
-          - Kaftan
-          - Co-ord Set
-          - Top
-          - Tunic
-          - Palazzo / Pants
-          - Dupatta
-          - Stole
-          - Accessories
+          - "Kurti"
+          - "Anarkali Kurti"
+          - "A-Line Kurti"
+          - "Straight Kurti"
+          - "Flared Kurti"
+          - "Short Kurti"
+          - "Long Kurti"
+          - "Angrakha Kurti"
+          - "Kaftan Kurti"
+          - "High-Low Kurti"
+          - "Asymmetric Kurti"
+          - "Front Slit Kurti"
+          - "Shirt Style Kurti"
+          - "Peplum Kurti"
+          - "Tunic"
+          - "Kurti Set"
+          - "Kurta Pant Set"
+          - "Kurta Pant Dupatta Set"
+          - "Kurta Palazzo Set"
+          - "Kurta Sharara Set"
+          - "Sharara Set"
+          - "Gharara Set"
+          - "Anarkali Suit"
+          - "Salwar Suit"
+          - "Patiala Suit"
+          - "Churidar Suit"
+          - "Afghani Suit"
+          - "Pakistani Suit"
+          - "Dress Material (Unstitched)"
+          - "Dress"
+          - "Maxi Dress"
+          - "Midi Dress"
+          - "Short Dress"
+          - "A-Line Dress"
+          - "Anarkali Dress"
+          - "Wrap Dress"
+          - "Shirt Dress"
+          - "Tiered Dress"
+          - "Gown"
+          - "Anarkali Gown"
+          - "Kaftan"
+          - "Co-ord Set"
+          - "Jumpsuit"
+          - "Dhoti Set"
+          - "Cape Set"
+          - "Indo-Western Set"
+          - "Corset"
+          - "Corset Set"
+          - "Lehenga Choli"
+          - "Ready-to-Wear Lehenga"
+          - "Saree"
+          - "Ready-to-Wear Saree"
+          - "Blouse"
+          - "Top"
+          - "Crop Top"
+          - "Shirt"
+          - "Palazzo / Pants"
+          - "Sharara Pants"
+          - "Dhoti Pants"
+          - "Salwar / Churidar"
+          - "Skirt"
+          - "Lehenga Skirt"
+          - "Jacket / Shrug"
+          - "Koti / Nehru Jacket"
+          - "Cape"
+          - "Night Suit"
+          - "Nightdress"
+          - "Loungewear Set"
+          - "Maternity Wear"
+          - "Dupatta"
+          - "Stole"
+          - "Scarf"
+          - "Potli Bag"
+          - "Jewellery"
+          - "Accessories"
+          - "Kids Kurta Set"
+          - "Kids Lehenga"
+          - "Kids Dress"
+          - "Mother-Daughter Set"
+          - "Fabric by Metre"
         default: Kurti
-      - { name: color, label: "रंग (Colour)", widget: string, required: false }
+      - { name: color, label: "रंग (Colour)", widget: select, required: false, options: ["Black", "Charcoal", "Grey", "Silver", "White", "Off White", "Ivory", "Cream", "Beige", "Khaki", "Nude", "Brown", "Coffee", "Tan", "Camel", "Rust", "Copper", "Gold", "Mustard", "Yellow", "Lemon", "Haldi Yellow", "Orange", "Peach", "Coral", "Salmon", "Red", "Cherry Red", "Maroon", "Wine", "Burgundy", "Pink", "Baby Pink", "Blush Pink", "Dusty Pink", "Onion Pink", "Rani Pink", "Fuchsia", "Magenta", "Hot Pink", "Purple", "Violet", "Lavender", "Lilac", "Mauve", "Plum", "Blue", "Navy", "Royal Blue", "Cobalt Blue", "Sky Blue", "Powder Blue", "Indigo", "Denim Blue", "Teal", "Turquoise", "Aqua", "Firozi", "Green", "Bottle Green", "Emerald", "Olive", "Mehendi Green", "Mint", "Sea Green", "Pista", "Parrot Green", "Lime", "Sage", "Multicolour", "Blue & Grey", "Black & White", "Red & White", "Indigo & White", "Pink & Green", "Other"] }
+      - { name: color_custom, label: "रंग – लिस्ट में नहीं है? यहाँ लिखो (optional)", widget: string, required: false }
+      - { name: neckline, label: "गला (Neckline)", widget: select, required: false, options: ["Round Neck", "V-Neck", "U-Neck", "Boat Neck", "Square Neck", "Sweetheart Neck", "Mandarin / Band Collar", "Shirt Collar", "Keyhole Neck", "Halter Neck", "Off-Shoulder", "Notched Neck", "Angrakha Neck", "Cowl Neck", "High Neck", "Collared"] }
+      - { name: sleeve, label: "बाजू (Sleeves)", widget: select, required: false, options: ["Sleeveless", "Cap Sleeves", "Short Sleeves", "Elbow Sleeves", "3/4 Sleeves", "Full Sleeves", "Bell Sleeves", "Puff Sleeves", "Flared Sleeves", "Cold-Shoulder", "Kimono Sleeves", "Bishop Sleeves", "Roll-Up Sleeves"] }
+      - { name: length_type, label: "लंबाई (Length)", widget: select, required: false, options: ["Hip Length", "Thigh Length", "Knee Length", "Calf Length", "Ankle Length", "Floor Length"] }
       - { name: price, label: "दाम ₹ (Selling price)", widget: number, value_type: int, required: false, hint: "खाली छोड़ोगे तो 'Price on WhatsApp' दिखेगा" }
       - { name: mrp, label: "MRP ₹ (कटा हुआ दाम, optional)", widget: number, value_type: int, required: false }
       - { name: price_usd, label: "विदेश का दाम $ (USD)", widget: number, value_type: float, required: false, hint: "विदेशी ग्राहक को यही दाम दिखेगा। खाली छोड़ोगे तो सेटिंग्स वाले 'डॉलर रेट' से अपने-आप बनेगा (रेट न हो तो 'Price on request')" }
@@ -85,14 +147,14 @@ collections:
         label: "साइज़ (Sizes)"
         widget: select
         multiple: true
-        options: [XS, S, M, L, XL, XXL, 3XL, 4XL, 5XL, Free Size]
+        options: ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL", "Free Size", "Custom Size"]
         default: [S, M, L, XL, XXL]
         required: false
-      - { name: sold_out_sizes, label: "कौन से साइज़ खत्म हैं? (Sold out – 'Notify me' दिखेगा)", widget: select, multiple: true, options: [XS, S, M, L, XL, XXL, 3XL, 4XL, 5XL, Free Size], required: false }
-      - { name: occasion, label: "मौका (Occasion)", widget: select, multiple: true, required: false, options: [Office, Daily, Festive, Wedding, Haldi & Mehendi, Party, Vacation, Gifting] }
+      - { name: sold_out_sizes, label: "कौन से साइज़ खत्म हैं? (Sold out – 'Notify me' दिखेगा)", widget: select, multiple: true, options: ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL", "Free Size", "Custom Size"], required: false }
+      - { name: occasion, label: "मौका (Occasion)", widget: select, multiple: true, required: false, options: ["Office", "Daily", "Festive", "Wedding", "Wedding Guest", "Haldi & Mehendi", "Sangeet", "Party", "Vacation", "Gifting", "Navratri", "Diwali", "Eid", "Karwa Chauth", "Teej", "Rakhi", "Puja", "College", "Maternity"] }
       - { name: model_height, label: "मॉडल की लंबाई (जैसे 5'5\")", widget: string, required: false }
       - { name: model_size, label: "मॉडल ने कौन सा साइज़ पहना है", widget: string, required: false }
-      - { name: fit, label: "फ़िट", widget: select, options: [Relaxed, Regular, Fitted], required: false }
+      - { name: fit, label: "फ़िट", widget: select, options: [Relaxed, Regular, Fitted, Oversized, Flowy], required: false }
       - name: fabric
         label: "कपड़ा (Fabric)"
         widget: select
@@ -145,6 +207,31 @@ collections:
           - Tencel
           - Polyester
           - Lycra
+          - "Silk"
+          - "Pure Silk"
+          - "Raw Silk"
+          - "Mysore Silk"
+          - "Kanjeevaram Silk"
+          - "Banarasi Silk"
+          - "Bhagalpuri Silk"
+          - "Vichitra Silk"
+          - "Upada Silk"
+          - "Slub Silk"
+          - "Chanderi Cotton"
+          - "Organza Silk"
+          - "Tissue Silk"
+          - "Brocade"
+          - "Pure Georgette"
+          - "Chinon"
+          - "Rayon Crepe"
+          - "Viscose Rayon"
+          - "Lawn Cotton"
+          - "Jaipuri Cotton"
+          - "Shantoon"
+          - "Taffeta"
+          - "Knit / Jersey"
+          - "Hosiery"
+          - "Terry Rayon"
           - Other
         hint: "लिस्ट में न मिले तो 'Other' चुनो और कपड़े का नाम जानकारी (Description) में लिखो"
       - name: print_work
@@ -189,6 +276,28 @@ collections:
           - Kutch Work
           - Pintuck
           - Lace Work
+          - "Zardozi"
+          - "Aari Work"
+          - "Resham Work"
+          - "Stone Work"
+          - "Cutdana Work"
+          - "Pearl Work"
+          - "Applique"
+          - "Schiffli"
+          - "Mukaish"
+          - "Warli Print"
+          - "Gond Print"
+          - "Geometric Print"
+          - "Abstract Print"
+          - "Animal Print"
+          - "Polka Dot"
+          - "Stripes"
+          - "Checks"
+          - "Paisley Print"
+          - "Ombre"
+          - "Patchwork"
+          - "Smocking"
+          - "Gota Work"
           - Solid / Plain
       - { name: description, label: "जानकारी (Description)", widget: text, required: false, hint: "2-3 लाइन। खाली लाइन = नया पैराग्राफ़" }
       - name: images
@@ -199,6 +308,7 @@ collections:
       - { name: match_products, label: "Shop the Look – साथ में मैच होने वाले प्रोडक्ट (optional)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], multiple: true, required: false, hint: "जैसे कुर्ती के साथ पलाज़ो / दुपट्टा। प्रोडक्ट पेज पर 'Complete the look' में दिखेंगे" }
       - { name: tryon_png, label: "Mirror के लिए कटआउट फ़ोटो (पारदर्शी PNG, सिर्फ़ कपड़ा) – optional", widget: image, required: false, hint: "बैकग्राउंड हटाकर सिर्फ़ ड्रेस वाली PNG डालोगे तो Mirror में ड्रेस ग्राहक की फ़ोटो पर ज़्यादा असली लगेगी" }
       - { name: sku, label: "SKU / Product ID (optional)", widget: string, required: false }
+      - { name: old_url, label: "🔗 पुराना लिंक (Shopify वाला, optional)", widget: string, required: false, hint: "Google पर इस product का पुराना link हो तो यहाँ paste करो (जैसे bahekurtiz.com/products/purana-naam)। वो link अब सीधे इस product पर आएगा, ranking नहीं जाएगी।" }
       - { name: set_items, label: "सेट में क्या-क्या है? (जैसे: Kurta, Pant, Dupatta) – optional", widget: list, required: false, field: { name: item, label: "चीज़", widget: string } }
       - { name: care, label: "धुलाई / देखभाल (optional)", widget: string, required: false, hint: "खाली छोड़ो तो कपड़े के हिसाब से अपने-आप दिखेगा" }
       - { name: processing_days, label: "बनने / पैक होने में दिन (optional, जैसे 2-4)", widget: string, required: false }
@@ -478,7 +588,7 @@ collections:
           - { name: pinterest_tag_id, label: "📈 Pinterest Tag ID – सिर्फ़ नंबर", widget: string, required: false }
           - { name: pinterest_verification, label: "📈 Pinterest website verify कोड (p:domain_verify)", widget: string, required: false, hint: "Pinterest → Settings → Claimed accounts → Website → HTML tag में content=\"...\" वाला कोड" }
           - { name: facebook_domain_verification, label: "📈 Facebook domain verify कोड", widget: string, required: false, hint: "Meta Business → Brand safety → Domains → Meta-tag में content=\"...\" वाला कोड" }
-          - { name: meta_pixel_id, label: "📈 Meta (Facebook) Pixel ID – सिर्फ़ नंबर", widget: string, required: false, hint: "Events Manager → Data sources → Pixel ID (15-16 अंक)। खाली छोड़ो तो Pixel बंद रहेगा।" }
+          - { name: meta_pixel_id, label: "📈 Meta (Facebook) Pixel ID – सिर्फ़ नंबर", widget: string, required: false, hint: "Events Manager → Data sources → Pixel ID। Conversions API (ads ki sahi ginti, iOS par bhi) के लिए: Pixel → Settings → Conversions API → Generate access token → Cloudflare → Pages → Settings → Environment variables में नाम META_CAPI_TOKEN से डालो (Secret)।" }
           - { name: live_on, label: "🔴 अभी YouTube LIVE चल रहा है?", widget: boolean, default: false, hint: "Live शुरू करते ही इसे ON करके Save करो, खत्म होने पर OFF। 2-3 मिनट में वेबसाइट पर LIVE पट्टी आ जाएगी" }
           - { name: live_url, label: "YouTube live / video का लिंक", widget: string, required: false }
           - { name: live_title, label: "Live का टाइटल", widget: string, required: false }
@@ -535,5 +645,57 @@ collections:
             fields:
               - { name: category, label: "कैटेगरी (जैसे Kurti, Dress)", widget: string }
               - { name: text, label: "2-4 लाइन (keywords के साथ)", widget: text }
+          - name: redirects
+            label: "🔗 पुराने लिंक → नया पेज (Redirects)"
+            widget: list
+            required: false
+            summary: "{{fields.from}} → {{fields.to}}"
+            hint: "Google पर पुराना link खुल नहीं रहा? 'पुराना' में वो link, 'नया' में नया पेज (जैसे shop/ या collections/kurtis/)।"
+            fields:
+              - { name: from, label: "पुराना link", widget: string }
+              - { name: to, label: "नया पेज", widget: string }
+          - { name: auto_pages, label: "🤖 Auto SEO पेज बनाओ (जैसे 'Pink Kurtis', 'Cotton Dresses')", widget: boolean, default: true, required: false, hint: "Product डालते ही Google के लिए नए पेज अपने-आप बनते हैं" }
+          - { name: auto_page_min, label: "Auto पेज के लिए कम से कम कितने product", widget: number, value_type: int, default: 2, required: false }
+          - { name: auto_guides, label: "🤖 Auto ब्लॉग गाइड (हर कैटेगरी की Buying Guide)", widget: boolean, default: true, required: false, hint: "किसी कैटेगरी में 3+ product होते ही ब्लॉग में गाइड अपने-आप बनती और अपडेट होती है" }
+          - { name: indexnow, label: "🤖 हर बदलाव पर Bing / ChatGPT search को अपने-आप बताओ (IndexNow)", widget: boolean, default: true, required: false }
+          - { name: show_empty_categories, label: "खाली कैटेगरी भी मेन्यू में दिखाओ ('Coming soon')", widget: boolean, default: false, required: false }
+          - name: menu_categories
+            label: "🗂️ मेन्यू की कैटेगरी (Categories list)"
+            widget: list
+            required: false
+            hint: "खाली छोड़ो (सबसे अच्छा)। मेन्यू में अपने-आप वही कैटेगरी आएगी जिसमें product डाला है। यहाँ लिखोगे तो सिर्फ़ ये ही दिखेंगी।"
+          - name: filter_colors
+            label: "🎨 फ़िल्टर – रंग (Colours list)"
+            widget: list
+            required: false
+            hint: "Shop पेज के Colour फ़िल्टर में ये सब दिखेंगे, product हो या न हो। 'Blue' चुनने पर 'Blue & Grey' वाले भी दिखेंगे।"
+          - name: filter_fabrics
+            label: "🧵 फ़िल्टर – कपड़ा (Fabrics list)"
+            widget: list
+            required: false
+            hint: "खाली = सारे कपड़े (Cotton, Silk, Chanderi, Georgette… 45+)। 'Silk' चुनने पर Chanderi Silk, Art Silk सब दिखेंगे।"
+          - name: filter_sizes
+            label: "📏 फ़िल्टर – साइज़ (Sizes list)"
+            widget: list
+            required: false
+            hint: "खाली = XS से 6XL और Free Size"
+          - name: price_bands_inr
+            label: "💰 फ़िल्टर – दाम ₹ (Price ranges)"
+            widget: list
+            required: false
+            summary: "₹{{fields.from}} – ₹{{fields.to}}"
+            hint: "खाली = Under ₹500, 500–800, 800–1,200, 1,200–1,500, 1,500–2,000, 2,000–2,500, 2,500–3,500, 3,500–5,000, ₹5,000+। आख़िरी लाइन में 'तक' खाली छोड़ो तो '+' बनेगा।"
+            fields:
+              - { name: from, label: "से (₹)", widget: number, value_type: int, required: false }
+              - { name: to, label: "तक (₹) – खाली = और ऊपर", widget: number, value_type: int, required: false }
+          - name: price_bands_usd
+            label: "💵 फ़िल्टर – दाम $ (विदेश)"
+            widget: list
+            required: false
+            summary: "${{fields.from}} – ${{fields.to}}"
+            hint: "खाली = Under $15, 15–25, 25–40, 40–60, 60–80, 80–120, $120+"
+            fields:
+              - { name: from, label: "से ($)", widget: number, value_type: int, required: false }
+              - { name: to, label: "तक ($) – खाली = और ऊपर", widget: number, value_type: int, required: false }
           - { name: currency, label: "Currency", widget: hidden, default: INR }
           - { name: github_repo, label: "GitHub repo", widget: hidden }
