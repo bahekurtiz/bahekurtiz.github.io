@@ -1058,16 +1058,28 @@
     const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
     // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides, feather the edges
     // fast image helpers: decode + shrink off the main thread (createImageBitmap) so the page never freezes
-    const bitmap = async (src, max) => { const bl = src instanceof Blob ? src : await (await fetch(src)).blob(); try { const b0 = await createImageBitmap(bl); const s = Math.min(1, max / Math.max(b0.width, b0.height)); if (s === 1) return b0; const b = await createImageBitmap(bl, { resizeWidth: Math.round(b0.width * s), resizeHeight: Math.round(b0.height * s), resizeQuality: "medium" }); b0.close?.(); return b; } catch { return await loadImg(URL.createObjectURL(bl)); } };
+    const blobOf = async (src) => (src instanceof Blob ? src : await (await fetch(src)).blob());
+    const bitmap = async (src, max) => { const bl = await blobOf(src); try { const b0 = await createImageBitmap(bl); const s = Math.min(1, max / Math.max(b0.width, b0.height)); if (s === 1) return b0; const b = await createImageBitmap(bl, { resizeWidth: Math.round(b0.width * s), resizeHeight: Math.round(b0.height * s), resizeQuality: "high" }); b0.close?.(); return b; } catch { return await loadImg(URL.createObjectURL(bl)); } };
     const toURL = (cv, type, q) => new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : ""), type, q));
-    // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides (soft edges come from CSS mask, zero cost)
+    const frame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+    // where the outfit is in each product photo (found once, remembered on this phone → instant next time)
+    const BK_BOX = "bk_mbox_v1"; let boxes = {}; try { boxes = JSON.parse(localStorage.getItem(BK_BOX)) || {}; } catch {}
+    const saveBox = (k, b) => { boxes[k] = b; try { localStorage.setItem(BK_BOX, JSON.stringify(boxes)); } catch {} };
+    // product photo -> dress layer: cutout PNG as is; normal photo: find the model's shoulders, keep only the outfit, soft edges
     const prep = (k) => cache[k] ||= (async () => {
       const p = cat.products[k]; if (p.cutout) return url(p.cutout);
-      try { const im = await bitmap(url(p.image), 900), nw = im.width, nh = im.height;
-        const box = { sx: nw * 0.08, sy: nh * 0.16, sw: nw * 0.84, sh: nh * 0.82 };
-        const sc = Math.min(1, 600 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
-        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; cv.getContext("2d").drawImage(im, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H);
-        return (await toURL(cv, "image/jpeg", 0.85)) || url(p.image); } catch { return url(p.image); }
+      try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, 1100), nw = big.width, nh = big.height;
+        let r = boxes[k] && boxes[k].v === p.image ? boxes[k].b : null;
+        if (!r && lmP) { try { const lm = await lmP; const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
+          if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; saveBox(k, { v: p.image, b: r }); } } } catch {} }
+        if (!r) r = [0.14, 0.26, 0.72, 0.72];
+        const box = { sx: r[0] * nw, sy: r[1] * nh, sw: r[2] * nw, sh: r[3] * nh };
+        const sc = Math.min(1, 640 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+        await frame();
+        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(big, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H); big.close?.();
+        const m = document.createElement("canvas"); m.width = W; m.height = H; const mg = m.getContext("2d"); const f = Math.round(W * 0.045); mg.filter = `blur(${f}px)`; mg.fillStyle = "#000"; mg.beginPath(); if (mg.roundRect) mg.roundRect(f, f, W - 2 * f, H - 2 * f, W * 0.22); else mg.rect(f, f, W - 2 * f, H - 2 * f); mg.fill(); mg.filter = "none";
+        g.globalCompositeOperation = "destination-in"; g.drawImage(m, 0, 0);
+        return (await toURL(cv, "image/png")) || url(p.image); } catch { return url(p.image); }
     })();
     const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
     const show = async (i) => {
@@ -1084,7 +1096,7 @@
     const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
     const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
       const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; const dw = ir.width / r.width * W, dh = ir.height / r.height * H; let src = im;
-        if (im === dr && !dr.classList.contains("is-cutout")) { const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(dw)); c.height = Math.max(1, Math.round(dh)); const x = c.getContext("2d"); x.drawImage(im, 0, 0, c.width, c.height); x.globalCompositeOperation = "destination-in";
+        if (false) { const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(dw)); c.height = Math.max(1, Math.round(dh)); const x = c.getContext("2d"); x.drawImage(im, 0, 0, c.width, c.height); x.globalCompositeOperation = "destination-in";
           const gh = x.createLinearGradient(0, 0, c.width, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.07, "#000"); gh.addColorStop(0.93, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gh; x.fillRect(0, 0, c.width, c.height);
           const gv = x.createLinearGradient(0, 0, 0, c.height); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.06, "#000"); gv.addColorStop(0.92, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gv; x.fillRect(0, 0, c.width, c.height); src = c; }
         g.drawImage(src, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, dw, dh); g.globalAlpha = 1; };
