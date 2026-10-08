@@ -91,7 +91,7 @@
     let sub = 0;
     const items = bag.filter((i) => cat.products[i.slug]);
     box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
-      return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
+      return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
       <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : money(pr * i.qty)}</strong></div>`; }).join("");
     $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false;
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
@@ -193,7 +193,7 @@
     bag = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
     const itemsBox = $("[data-co-items]");
     if (!bag.length) { co.innerHTML = `<h1>Checkout</h1><p class="empty">${skipped.length ? "The styles in your bag ship within India only. " : ""}Your bag is empty. <a class="link" href="${url("shop/")}">Shop the collection →</a></p>`; return; }
-    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.image))}" alt="" width="64" height="96"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
     const t = totals(cat, method);
     $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div>
       ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${money(t.couponOff)}</span></div>` : ""}
@@ -360,9 +360,15 @@
   }
 
   // reels: play muted only while visible (saves data)
+  // pause moving / blinking things when they are off the screen (no hidden work while scrolling)
+  if ("IntersectionObserver" in window) { const ioA = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle("off", !e.isIntersecting))); $$(".announce, .live-dot, .hero").forEach((el) => ioA.observe(el)); }
+  // only ONE reel plays at a time (the most visible one) – phones stay smooth while scrolling
   const vids = $$("video[data-reel]");
   if (vids.length && "IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting) { if (v.preload === "none") v.preload = "metadata"; v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.5 });
+    const vis = new Map(); let cur = null, vt = 0;
+    const pick = () => { let best = null, br = 0.5; vis.forEach((r, v) => { if (r > br) { br = r; best = v; } });
+      if (best === cur) return; cur?.pause(); cur = best; if (best) { if (best.preload === "none") best.preload = "metadata"; best.play().catch(() => {}); } };
+    const io = new IntersectionObserver((es) => { es.forEach((e) => vis.set(e.target, e.isIntersecting ? e.intersectionRatio : 0)); clearTimeout(vt); vt = setTimeout(pick, 150); }, { threshold: [0, 0.5, 0.75, 1] });
     vids.forEach((v) => io.observe(v));
   }
 
@@ -413,7 +419,7 @@
     const u2 = p.price_usd == null ? `<span class="price ask">India only</span>` : `<span class="price" data-usdv="${p.price_usd}">${usd(p.price_usd)}</span>${off(p.price_usd, p.mrp_usd) ? `<s class="mrp" data-usdv="${p.mrp_usd}">${usd(p.mrp_usd)}</s>` : ""}`;
     return `<span class="cur-inr">${i}</span><span class="cur-usd">${u2}</span>`;
   };
-  const miniCard = (slug, p) => `<article class="card" data-slug="${esc(slug)}"><a class="card-link" href="${url(p.url)}"><div class="card-img${p.image2 ? " has-alt" : ""}"><img src="${esc(url(p.image))}" alt="${esc(p.title)}" width="1200" height="1800" loading="lazy">${p.image2 ? `<img class="alt" src="${esc(url(p.image2))}" alt="" width="1200" height="1800" loading="lazy">` : ""}</div><div class="card-body"><h3>${esc(p.title)}</h3><div class="card-price">${priceBoth(p)}</div></div></a><button class="wish" type="button" data-wish="${esc(slug)}" aria-label="Save to wishlist" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.2-9.3C1.7 7.4 4 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.1 0 5.4 2.9 4.3 6.2C19.5 15.4 12 20 12 20z"/></svg></button></article>`;
+  const miniCard = (slug, p) => `<article class="card" data-slug="${esc(slug)}"><a class="card-link" href="${url(p.url)}"><div class="card-img${p.image2 ? " has-alt" : ""}"><img src="${esc(url(p.thumb || p.image))}" decoding="async" alt="${esc(p.title)}" width="1200" height="1800" loading="lazy">${p.image2 ? `<img class="alt" src="${esc(url(p.image2))}" alt="" width="1200" height="1800" loading="lazy">` : ""}</div><div class="card-body"><h3>${esc(p.title)}</h3><div class="card-price">${priceBoth(p)}</div></div></a><button class="wish" type="button" data-wish="${esc(slug)}" aria-label="Save to wishlist" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.2-9.3C1.7 7.4 4 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.1 0 5.4 2.9 4.3 6.2C19.5 15.4 12 20 12 20z"/></svg></button></article>`;
 
   // ---------- wishlist ----------
   const WK = "bk_wish_v1";
@@ -1138,7 +1144,7 @@
     catalog().then((c) => {
       cat = c; all = Object.entries(c.products).filter(([, p]) => p.image && p.in_stock !== false).map(([k]) => k); list = all.slice();
       const box = $("[data-mirror-picks]");
-      box.innerHTML = all.map((k) => { const p = c.products[k]; return `<button type="button" data-mp="${esc(k)}"><img src="${esc(url(p.cutout || p.image))}" alt="${esc(p.title)}" loading="lazy"><span>${esc(p.title)}</span></button>`; }).join("");
+      box.innerHTML = all.map((k) => { const p = c.products[k]; return `<button type="button" data-mp="${esc(k)}"><img src="${esc(url(p.cutout || p.thumb || p.image))}" alt="${esc(p.title)}" loading="lazy" decoding="async"><span>${esc(p.title)}</span></button>`; }).join("");
       box.addEventListener("click", (e) => { const b = e.target.closest("[data-mp]"); if (!b) return; if (me.hidden) { toast("Pehle apni photo daalo 📷"); stage.scrollIntoView({ behavior: "smooth", block: "center" }); return; } stop(); if (!list.includes(b.dataset.mp)) list = all.slice(); show(list.indexOf(b.dataset.mp)); });
       const occ = [...new Set(all.flatMap((k) => [].concat(c.products[k].occ || [])))].filter(Boolean);
       const ob = $("[data-mirror-occ]");
