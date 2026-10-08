@@ -943,4 +943,3 @@ img,video,iframe,svg,canvas{max-width:100%}
 .auto-links .pill{text-decoration:none}
 .pfaq details{border-bottom:1px solid var(--line);padding:12px 0}.pfaq summary{cursor:pointer;font-weight:500}.pfaq p{margin:8px 0 0;color:var(--muted)}
 .mirror-dress{will-change:left,top,width;touch-action:none}
-.mirror-dress:not(.is-cutout){-webkit-mask-image:linear-gradient(to right,transparent,#000 7%,#000 93%,transparent),linear-gradient(to bottom,transparent,#000 6%,#000 92%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 7%,#000 93%,transparent),linear-gradient(to bottom,transparent,#000 6%,#000 92%,transparent);mask-composite:intersect}
