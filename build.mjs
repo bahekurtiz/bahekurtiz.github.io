@@ -36,6 +36,7 @@ const DEF_BANDS_USD = [[0, 15], [15, 25], [25, 40], [40, 60], [60, 80], [80, 120
 const brand = S.brand_name || "Bahe Kurtiz";
 // logo from admin (Settings → Logo); falls back to the text logo
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
+const MIRROR_ON = !!(process.env.GEMINI_API_KEY || S.mirror_ai === true);
 const imgOk = (src) => { const v = String(src || "").trim(); if (!v || /^(https?:)?\/\//i.test(v)) return !!v; return fs.existsSync(path.join(ROOT, "static", decodeURI(v.replace(/^\/+/, "").split(/[?#]/)[0]))); };
 const siteFile = (f) => (fs.existsSync(path.join(ROOT, "static/images/site", f)) ? "/images/site/" + f : "");
 const logoImg = String(S.logo || "").trim() || siteFile("logo.png");
@@ -449,8 +450,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   <a href="${u("wholesale/")}">Wholesale & Private Label</a>
   <a href="${u("wishlist/")}">Wishlist</a>
   <a href="${u("feed/")}">▶ Feed – watch & shop</a>
-  <a href="${u("mirror/")}">🪞 Mirror – try your look</a>
-  <a href="${u("craft/")}">🧵 Fabric & print guide</a>
+${MIRROR_ON ? `  <a href="${u("mirror/")}">🪞 AI Mirror – try on yourself</a>\n` : ""}  <a href="${u("craft/")}">🧵 Fabric & print guide</a>
   <a href="${u("track/")}">📦 Track order</a>
   <a href="${u("return-request/")}">↩️ Return / exchange</a>
   <a href="${u("review/")}">⭐ Write a review</a>
@@ -985,7 +985,7 @@ if (S.intl_return_policy) infoPage("international-returns/index.html", "internat
 
 // ---------- Mirror 2.0: your photo, dresses appear on you one by one, Haan / Na, family vote ----------
 add("mirror/index.html", page({ title: `Mirror – Try Every Dress On Your Photo | ${brand}`, description: clip(`Add your photo and every ${brand} dress appears on you, one by one. Tap Haan or Na, make your shortlist for the wedding or function, and ask family on WhatsApp which one suits you.`), pathname: "mirror/", bodyClass: "mirror-page", mini: null,
-  body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Mirror · beta</p><h1>Har dress, aap par</h1><p class="lead">Apni photo daalo. Har dress ek-ek karke aap par aayegi. Pasand aaye to <b>💚 Haan</b>, nahi to <b>✕ Na</b>. Aakhir mein family se poochho: "Kaunsi pehnu?" Your photo stays on your phone – it is never uploaded.</p></div></section>
+  body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Mirror · beta</p><h1>Har dress, aap par</h1><p class="lead">Apni photo daalo. Har dress ek-ek karke aap par aayegi. Pasand aaye to <b>💚 Haan</b>, nahi to <b>✕ Na</b>. Aakhir mein family se poochho: "Kaunsi pehnu?" ${MIRROR_ON ? "AI makes every dress fit you, fit-to-fit. Your photo is used only to create your look – we never store it." : "Your photo stays on your phone – it is never uploaded."}</p></div></section>
 <section class="wrap section mirror" data-mirror>
   <div class="mirror-main">
     <div class="mirror-stage" data-mirror-stage><div class="mirror-empty" data-mirror-empty><p><b>Step 1:</b> apni full-length photo daalo<br><small class="muted">Seedhe khade ho, saamne se, achhi roshni mein</small></p><label class="btn">📷 Add my photo<input type="file" accept="image/*" data-mirror-file hidden></label></div><img decoding="async" data-mirror-me alt="" hidden><img decoding="async" class="mirror-dress" data-mirror-dress alt="" hidden><div class="mirror-hud" data-mirror-hud data-no-i18n hidden><span data-mirror-count></span><span data-mirror-name></span></div><p class="mirror-status" data-mirror-status hidden></p><div class="mirror-flash" data-mirror-flash></div></div>
