@@ -36,6 +36,7 @@ const DEF_BANDS_USD = [[0, 15], [15, 25], [25, 40], [40, 60], [60, 80], [80, 120
 const brand = S.brand_name || "Bahe Kurtiz";
 // logo from admin (Settings → Logo); falls back to the text logo
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
+const imgOk = (src) => { const v = String(src || "").trim(); if (!v || /^(https?:)?\/\//i.test(v)) return !!v; return fs.existsSync(path.join(ROOT, "static", decodeURI(v.replace(/^\/+/, "").split(/[?#]/)[0]))); };
 const siteFile = (f) => (fs.existsSync(path.join(ROOT, "static/images/site", f)) ? "/images/site/" + f : "");
 const logoImg = String(S.logo || "").trim() || siteFile("logo.png");
 const favImg0 = String(S.favicon || "").trim() || siteFile("favicon.png");
@@ -75,7 +76,7 @@ const csvProducts = (() => { const dir = path.join(ROOT, "content/import"); if (
 const jsonFiles = fs.readdirSync(prodDir).filter((f) => f.endsWith(".json"));
 const products = [...jsonFiles.map((f) => [f, JSON.parse(fs.readFileSync(path.join(prodDir, f), "utf8"))]), ...csvProducts.filter(([f]) => !jsonFiles.includes(f))].map(([f, p]) => {
   p.slug = slugify(f.replace(/\.json$/, "")).replace(/^-+|-+$/g, "") || "item-" + [...f].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36);
-  p.images = (p.images || []).map((x) => (typeof x === "string" ? x : x?.image)).filter(Boolean);
+  p.images = (p.images || []).map((x) => (typeof x === "string" ? x : x?.image)).filter(Boolean); { const okI = p.images.filter(imgOk); if (okI.length) p.images = okI; }
   p.sizes = [...new Set((p.sizes || []).filter(Boolean).map((x) => String(x).trim()))].sort((a, b) => sizeRank(a) - sizeRank(b));
   p.video = String(p.video || "").trim();
   p.category = (p.category || "Kurti").trim();
@@ -232,9 +233,6 @@ const storiesData = (() => {
   const auto = [];
   const mk = (t, list) => { const items = list.filter((p) => p.images[0]).slice(0, 6); if (items.length) auto.push({ t, c: items[0].images[0], s: items.map((p) => ({ img: p.images[0], vid: "", cap: `${p.title}${p.price !== null ? " · " + inr(p.price) : ""}`, link: p.url, shop: p.title })) }); };
   mk("New", products);
-  mk("Bestsellers", products.filter((p) => p.bestseller));
-  for (const o of occasions.slice(0, 3)) mk(o, products.filter((p) => p.occasion.includes(o)));
-  mk("Videos", products.filter((p) => p.video).map((p) => p));
   return auto;
 })();
 const qs = (k, v) => `shop/?${k}=${encodeURIComponent(v)}`;
@@ -608,7 +606,7 @@ const add = (file, html) => pages.push([file, withSrcset(html)]);
   // banners: admin "बैनर (Banners)" section first, then the older settings list
   const bDir = path.join(ROOT, "content/banners");
   const bannerFiles = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8"))).filter((b) => b && b.active !== false && (b.image || b.image_desktop) && (!b.end || String(b.end).slice(0, 10) >= today)).sort((a, b) => (num(a.order) ?? 50) - (num(b.order) ?? 50));
-  const slides = [...bannerFiles, ...(Array.isArray(S.hero_slides) ? S.hero_slides : [])].map((x) => ({ start: String(x?.start || "").slice(0, 10), end: String(x?.end || "").slice(0, 10), image: String(x?.image || x?.image_desktop || "").trim(), wide: String(x?.image_desktop || "").trim(), title: String(x?.title || "").trim(), subtitle: String(x?.subtitle || "").trim(), link: String(x?.link || "").trim(), button: String(x?.button || "").trim(), eyebrow: String(x?.eyebrow || "").trim() })).filter((x) => x.image);
+  const slides = [...bannerFiles, ...(Array.isArray(S.hero_slides) ? S.hero_slides : [])].map((x) => ({ start: String(x?.start || "").slice(0, 10), end: String(x?.end || "").slice(0, 10), image: String(x?.image || x?.image_desktop || "").trim(), wide: String(x?.image_desktop || "").trim(), title: String(x?.title || "").trim(), subtitle: String(x?.subtitle || "").trim(), link: String(x?.link || "").trim(), button: String(x?.button || "").trim(), eyebrow: String(x?.eyebrow || "").trim() })).filter((x) => x.image && imgOk(x.image)).map((x) => (x.wide && !imgOk(x.wide) ? { ...x, wide: "" } : x));
   if (!slides.length) {
     slides.push({ image: S.hero_image || "images/site/hero.jpg", wide: String(S.hero_image_desktop || "").trim() || (S.hero_image === "/images/site/hero-teal.jpg" ? siteFile("hero-wide.jpg") : ""), title: S.hero_title || brand, subtitle: S.hero_subtitle || S.tagline || "" });
     // ready-made promo banners until real ones are added in admin (Settings → होमपेज बैनर स्लाइड)
@@ -624,14 +622,12 @@ const add = (file, html) => pages.push([file, withSrcset(html)]);
   const list = (featured.length ? featured : products).slice(0, 8);
   const tiles = categories.map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
   const body = `
-${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
-${circles()}
+${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a><a class="story" href="${u("wholesale/")}"><span class="story-ring story-feed story-b2b">B2B</span><em>Wholesale</em></a></div></nav>` : ""}
 ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-dot"></span> LIVE NOW · ${esc(live.title)} <b>Watch & shop →</b></a>` : liveNextText ? `<div class="live-strip next">📺 Next live shopping: <b>${esc(liveNextText)}</b>${ytChan ? ` · <a href="${esc(ytChan)}" target="_blank" rel="noopener">Subscribe on YouTube</a>` : ""}</div>` : ""}
-${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}" data-us="${esc(festNext.order_by_intl)}"><div class="wrap fest-row"><span class="fest-name">${esc(festNext.name)} · ${esc(festNext.dateText)}</span><span class="fest-cut"><span class="cur-inr">Order by <b>${esc(festNext.order_by_in_text)}</b> for delivery in India</span>${intlOn ? `<span class="cur-usd">Order by <b>${esc(festNext.order_by_intl_text)}</b> for delivery abroad</span>` : ""} <span class="fest-left" data-fest-left></span></span><a class="link" href="${u(festNext.link || "shop/")}">Shop →</a><button class="link fest-cal" type="button" data-ics>📅 Add festivals to my calendar</button></div></div>` : ""}
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
-${slides.map((sl, i) => `<div class="hero hero-slide${sl.wide ? " hero-full" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
-  <div class="hero-media">${sl.wide ? `<picture><source media="(min-width: 901px)" srcset="${esc(u(sl.wide))}"><img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></picture>` : `<img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>`}</div>
+${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
+  <div class="hero-media" style="--hb:url('${esc(u(sl.image))}')"><img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></div>
   <div class="hero-text">
     <p class="eyebrow">${esc(sl.eyebrow || "New collection · Made in Jaipur")}</p>
     ${i === 0 ? `<h1>${esc(sl.title || brand)}</h1>` : `<h2 class="h1">${esc(sl.title || brand)}</h2>`}
@@ -643,6 +639,7 @@ ${slides.map((sl, i) => `<div class="hero hero-slide${sl.wide ? " hero-full" : "
 ${slides.length > 1 ? `<button class="hero-arrow prev" type="button" data-hero-step="-1" aria-label="Previous banner">‹</button><button class="hero-arrow next" type="button" data-hero-step="1" aria-label="Next banner">›</button>` : ""}
 ${slides.length > 1 ? `<div class="hero-dots">${slides.map((_, i) => `<button type="button" data-hero-go="${i}" aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>` : ""}
 </section>
+${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}" data-us="${esc(festNext.order_by_intl)}"><div class="wrap fest-row"><span class="fest-name">${esc(festNext.name)} · ${esc(festNext.dateText)}</span><span class="fest-cut"><span class="cur-inr">Order by <b>${esc(festNext.order_by_in_text)}</b> for delivery in India</span>${intlOn ? `<span class="cur-usd">Order by <b>${esc(festNext.order_by_intl_text)}</b> for delivery abroad</span>` : ""} <span class="fest-left" data-fest-left></span></span><a class="link" href="${u(festNext.link || "shop/")}">Shop →</a><button class="link fest-cal" type="button" data-ics>📅 Add festivals to my calendar</button></div></div>` : ""}
 <section class="trust" aria-label="Why shop with us">
   <div class="wrap trust-row">
     <div>${I.needle}<span><strong>Handmade in Jaipur</strong>Hand block prints by our own karigars</span></div>
