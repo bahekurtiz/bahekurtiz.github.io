@@ -76,7 +76,7 @@ const csvProducts = (() => { const dir = path.join(ROOT, "content/import"); if (
 const jsonFiles = fs.readdirSync(prodDir).filter((f) => f.endsWith(".json"));
 const products = [...jsonFiles.map((f) => [f, JSON.parse(fs.readFileSync(path.join(prodDir, f), "utf8"))]), ...csvProducts.filter(([f]) => !jsonFiles.includes(f))].map(([f, p]) => {
   p.slug = slugify(f.replace(/\.json$/, "")).replace(/^-+|-+$/g, "") || "item-" + [...f].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36);
-  p.images = (p.images || []).map((x) => (typeof x === "string" ? x : x?.image)).filter(Boolean); { const okI = p.images.filter(imgOk); if (okI.length) p.images = okI; }
+  p.images = (p.images || []).map((x) => (typeof x === "string" ? x : x?.image)).filter(Boolean); { const fix = (src) => { if (imgOk(src) || /^(https?:)?\/\//i.test(src)) return src; const rel = String(src).replace(/^\/+/, ""); const dir = path.join(ROOT, "static", path.dirname(rel)); const base = path.basename(rel); const alt = fs.existsSync(dir) ? fs.readdirSync(dir).find((f) => f.endsWith("-" + base) || f.toLowerCase() === base.toLowerCase()) : ""; return alt ? "/" + path.posix.join(path.posix.dirname(rel), alt) : src; }; p.images = p.images.map(fix); const okI = p.images.filter(imgOk); if (okI.length) p.images = okI; }
   p.sizes = [...new Set((p.sizes || []).filter(Boolean).map((x) => String(x).trim()))].sort((a, b) => sizeRank(a) - sizeRank(b));
   p.video = String(p.video || "").trim();
   p.category = (p.category || "Kurti").trim();
@@ -231,7 +231,7 @@ const storiesData = (() => {
     .sort((a, b) => (num(a.order) ?? 50) - (num(b.order) ?? 50)).map((x) => ({ t: String(x.title || "").slice(0, 18), c: x.cover || x.slides[0]?.image || "", s: x.slides.map((sl) => { const pr = products.find((p) => p.slug === slugify(String(sl.product || ""))); return { img: sl.image || "", vid: sl.video || "", cap: String(sl.caption || ""), link: sl.link || (pr ? pr.url : ""), shop: pr ? pr.title : (sl.button || "") }; }).filter((sl) => sl.img || sl.vid) })).filter((x) => x.s.length);
   if (own.length) return own;
   const auto = [];
-  const mk = (t, list) => { const items = list.filter((p) => p.images[0]).slice(0, 6); if (items.length) auto.push({ t, c: items[0].images[0], s: items.map((p) => ({ img: p.images[0], vid: "", cap: `${p.title}${p.price !== null ? " · " + inr(p.price) : ""}`, link: p.url, shop: p.title })) }); };
+  const mk = (t, list) => { const items = list.filter((p) => p.images[0]).slice(0, 6); if (items.length) auto.push({ t, c: items[0].images[0], s: items.map((p) => ({ img: p.images[0], vid: "", cap: `${p.title}${p.price !== null ? " · " + inr(p.price) : ""}`, link: p.url, shop: "Shop now" })) }); };
   mk("New", products);
   return auto;
 })();
