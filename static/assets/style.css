@@ -948,3 +948,39 @@ img,video,iframe,svg,canvas{max-width:100%}
 @keyframes micb{50%{opacity:.55}}
 .announce-track{will-change:transform}
 @media (prefers-reduced-motion:reduce){.live-dot::after{animation:none}}
+.announce.off .announce-track,.live-dot.off::after,.hero.off img{animation-play-state:paused}
+/* ===== v24: brand polish – slim festival strip, 3 stories, cleaner banner ===== */
+.fest{font-size:.8rem;background:#2a0c18}
+.fest-row{flex-wrap:nowrap;gap:10px;padding-block:7px;justify-content:center}
+.fest-row>*{white-space:nowrap}
+.fest-cut{overflow:hidden;text-overflow:ellipsis;min-width:0;display:block}
+.fest-cut>span{display:inline}
+.fest-cal{display:none}
+.stories{padding:14px 0 8px;border-bottom:1px solid var(--line)}
+.stories-row{justify-content:center;gap:22px}
+.story-b2b{font-family:var(--serif,Georgia,serif);font-size:1.05rem;letter-spacing:.02em;background:linear-gradient(135deg,#1c1310,#3a2a22)}
+@media (max-width:900px){
+  .hero-full .hero-media img{height:min(68svh,580px);object-position:center 18%}
+  .hero-full .hero-text{padding:90px 22px 26px;background:linear-gradient(transparent,rgba(10,8,8,.35) 30%,rgba(10,8,8,.82))}
+  .hero-full .hero-text .eyebrow{font-size:.68rem;letter-spacing:.22em}
+  .hero-full .hero-text .lead{display:block;font-size:.9rem;margin:6px 0 0;color:#f1e6dc;max-width:34ch}
+  .hero-full .hero-cta .btn{padding:12px 22px;background:#fff;color:#1c1310;border-color:#fff}
+  .fest{font-size:.74rem}
+  .fest .link{display:none}
+}
+/* v24b: banner looks the same on laptop as on mobile (photo in centre, soft blurred sides) */
+.hero-same .hero-media{position:relative;overflow:hidden;background:#1c1310}
+@media (min-width:901px){
+  .hero-wrap .hero-same .hero-media{height:min(72vh,700px);display:flex;justify-content:center;aspect-ratio:auto;max-height:none}
+  .hero-wrap .hero-same .hero-media::before{content:"";position:absolute;inset:-60px;background:var(--hb) center/cover no-repeat;filter:blur(40px) brightness(.5);transform:scale(1.1)}
+  .hero-wrap .hero-same .hero-media::after{content:none}
+  .hero-wrap .hero-same .hero-media img{position:relative;height:100%;width:auto;max-width:100%;aspect-ratio:2/3;object-fit:cover;object-position:center 18%;animation:none}
+  .hero-wrap .hero-same .hero-text{position:absolute;inset:auto auto 0 50%;transform:translateX(-50%);width:min(calc(min(72vh,700px)*2/3),100%);height:auto;display:block;padding:140px 34px 40px;color:#fff;background:linear-gradient(transparent,rgba(10,8,8,.35) 30%,rgba(10,8,8,.85))}
+  .hero-wrap .hero-same .hero-text h1,.hero-wrap .hero-same .hero-text .h1{font-size:clamp(2rem,2.6vw,2.6rem)}
+  .hero-wrap .hero-same .hero-text .eyebrow{color:#e6c37a;font-size:.7rem;letter-spacing:.22em}
+  .hero-wrap .hero-same .hero-text .lead{color:#f1e6dc;font-size:.95rem}
+  .hero-wrap .hero-same .hero-cta{margin-top:16px}
+  .hero-wrap .hero-same .hero-cta .btn{background:#fff;color:#1c1310;border-color:#fff}
+  .hero-wrap .hero-same .hero-cta .btn-ghost{display:none}
+  .hero-wrap:has(.hero-same) .hero-dots{left:50%;bottom:14px;top:auto;transform:translateX(-50%)}
+}
