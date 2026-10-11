@@ -1059,6 +1059,16 @@
     const MP = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14", MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task";
     let cat = null, all = [], list = [], idx = 0, seen = 0, timer = null, fit = { x: 50, y: 22, w: 52 }, liked = [], poseOk = false, ready = false;
     const cache = {};
+    // AI Mirror: real try-on (server /api/tryon) – the dress is redrawn on YOUR body, fit-to-fit. Falls back to the old overlay if AI is off.
+    let ai = false, meData = "", aiCache = {};
+    const aiI = document.createElement("img"); aiI.className = "mirror-ai"; aiI.alt = ""; aiI.hidden = true; aiI.decoding = "async"; dr.after(aiI);
+    const aiReady = fetch("/api/tryon", { cache: "no-store" }).then((r) => r.json()).then((j) => { ai = !!j.on; if (ai) mir.classList.add("is-ai"); return ai; }).catch(() => false);
+    const aiRes = (k) => aiCache[k] ||= (async () => {
+      const p = cat.products[k], prod = "/" + String(p.image || "").replace(/^(https?:\/\/[^/]+)?\/+/, "");
+      const r = await fetch("/api/tryon", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ person: meData, product: prod, title: p.title, category: p.cat || "" }) });
+      const j = await r.json().catch(() => ({})); if (!r.ok || !j.image) { delete aiCache[k]; throw new Error(j.error || "ai"); }
+      return j.image;
+    })();
     const say = (t, ms) => { statusEl.textContent = t; statusEl.hidden = !t; clearTimeout(say._h); if (ms) say._h = setTimeout(() => (statusEl.hidden = true), ms); };
     const place = () => { dr.style.width = fit.w + "%"; dr.style.left = fit.x + "%"; dr.style.top = fit.y + "%"; scaleI.value = Math.round(fit.w); };
     const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
@@ -1093,6 +1103,11 @@
       if (!list.length) return; idx = (i + list.length) % list.length; const k = list[idx], p = cat.products[k];
       $("[data-mirror-count]").textContent = `${idx + 1} / ${list.length}`; $("[data-mirror-name]").textContent = p.title; $("[data-mirror-hud]").hidden = false;
       $$("[data-mp]").forEach((x) => x.classList.toggle("on", x.dataset.mp === k));
+      if (ai) { aiI.classList.add("swap"); stage.classList.add("ai-busy"); say("✨ AI aap par ye dress pehna raha hai… (10–20 sec)");
+        try { const src = await aiRes(k); if (list[idx] !== k) return; aiI.src = src; aiI.hidden = false; dr.hidden = true; say("✓ Ye raha aapka look", 1800); }
+        catch (e) { if (list[idx] !== k) return; say(e.message === "limit" ? "Aaj ki free try-on limit poori ho gayi – kal phir aana 💚" : "AI abhi busy hai – thodi der baad dobara try karo", 4000); }
+        finally { if (list[idx] === k) { stage.classList.remove("ai-busy"); requestAnimationFrame(() => aiI.classList.remove("swap")); } }
+        return; }
       dr.classList.add("swap"); const src = await prep(k); if (list[idx] !== k) return;
       dr.src = src; dr.classList.toggle("is-cutout", !!p.cutout); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
       idle(() => prep(list[(idx + 1) % list.length]));
@@ -1100,7 +1115,7 @@
     const stop = () => { clearInterval(timer); timer = null; playB.textContent = "▶"; playB.setAttribute("aria-label", "Play"); };
     let scrolling = 0, wasPlaying = false; addEventListener("scroll", () => { scrolling = Date.now(); }, { passive: true });
     const next = () => { if (Date.now() - scrolling < 400) return; seen++; if (seen >= list.length && timer) { stop(); say(`Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
-    const play = () => { stop(); if (!list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
+    const play = () => { stop(); if (ai || !list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
     const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
     const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
       const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; const dw = ir.width / r.width * W, dh = ir.height / r.height * H; let src = im;
@@ -1108,10 +1123,11 @@
           const gh = x.createLinearGradient(0, 0, c.width, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.07, "#000"); gh.addColorStop(0.93, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gh; x.fillRect(0, 0, c.width, c.height);
           const gv = x.createLinearGradient(0, 0, 0, c.height); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.06, "#000"); gv.addColorStop(0.92, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gv; x.fillRect(0, 0, c.width, c.height); src = c; }
         g.drawImage(src, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, dw, dh); g.globalAlpha = 1; };
-      if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
+      if (ai && !aiI.hidden) { const s = Math.min(W / aiI.naturalWidth, H / aiI.naturalHeight), w = aiI.naturalWidth * s, h = aiI.naturalHeight * s; g.drawImage(aiI, (W - w) / 2, (H - h) / 2, w, h); }
+      else { if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); } g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
     const paintBoard = () => { $("[data-mirror-liked-n]").textContent = liked.length ? `(${liked.length})` : ""; board.innerHTML = liked.length ? liked.map((l, i) => `<figure><img src="${l.src}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption><button type="button" data-unlike="${i}" aria-label="Remove">✕</button></figure>`).join("") : `<p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p>`; };
     board.addEventListener("click", (e) => { const b = e.target.closest("[data-unlike]"); if (!b) return; liked.splice(+b.dataset.unlike, 1); paintBoard(); });
-    const yes = async () => { if (!ready || dr.hidden) return; const k = list[idx]; if (!liked.some((l) => l.k === k)) { const b = await snap(); liked.push({ k, b, src: URL.createObjectURL(b), t: cat.products[k].title, u: cat.products[k].url }); paintBoard(); } flash("💚"); track("AddToWishlist", { content_ids: [k] }); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
+    const yes = async () => { if (!ready || (dr.hidden && aiI.hidden)) return; const k = list[idx]; if (!liked.some((l) => l.k === k)) { const b = await snap(); liked.push({ k, b, src: URL.createObjectURL(b), t: cat.products[k].title, u: cat.products[k].url }); paintBoard(); } flash("💚"); track("AddToWishlist", { content_ids: [k] }); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
     const no = () => { if (!ready) return; flash("✕"); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
     $("[data-mirror-yes]").addEventListener("click", yes); $("[data-mirror-no]").addEventListener("click", no);
     playB.addEventListener("click", () => (timer ? stop() : play()));
@@ -1133,9 +1149,12 @@
     };
     const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
     $("[data-mirror-file]").addEventListener("change", (e) => {
-      const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…");
+      const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…"); aiCache = {}; aiI.hidden = true; meData = "";
+      (async () => { try { const b = await bitmap(f, 1024), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); meData = c.toDataURL("image/jpeg", 0.86); } catch {} })();
       (async () => { try { const b = await bitmap(f, 1400), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); me.src = (await toURL(c, "image/jpeg", 0.9)) || URL.createObjectURL(f); } catch { me.src = URL.createObjectURL(f); } })();
       me.onload = async () => { me.hidden = false; $("[data-mirror-empty]").hidden = true; $("[data-mirror-vote]").hidden = false; $("[data-mirror-tip]").hidden = false;
+        await aiReady;
+        if (ai) { for (let t = 0; !meData && t < 50; t++) await new Promise((r) => setTimeout(r, 100)); ready = true; $("[data-mirror-tip]").textContent = "Na / Haan dabao – har dress AI se aap par fit-to-fit banegi"; await show(idx); return; }
         say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 15000);
         if (!poseOk) { const s = Math.min(1, (stage.clientWidth / stage.clientHeight) / (me.naturalWidth / me.naturalHeight)); fit = { x: 50, y: 22, w: 52 * s }; }
         say(poseOk ? "✓ Fit ho gaya! Ab dresses aap par aayengi…" : "Gardan par tap karo, dress wahan aa jayegi", 3500);
