@@ -36,7 +36,7 @@ const DEF_BANDS_USD = [[0, 15], [15, 25], [25, 40], [40, 60], [60, 80], [80, 120
 const brand = S.brand_name || "Bahe Kurtiz";
 // logo from admin (Settings → Logo); falls back to the text logo
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
-const MIRROR_ON = !!(process.env.GEMINI_API_KEY || S.mirror_ai === true);
+const MIRROR_ON = !!process.env.GEMINI_API_KEY;
 const imgOk = (src) => { const v = String(src || "").trim(); if (!v || /^(https?:)?\/\//i.test(v)) return !!v; return fs.existsSync(path.join(ROOT, "static", decodeURI(v.replace(/^\/+/, "").split(/[?#]/)[0]))); };
 const siteFile = (f) => (fs.existsSync(path.join(ROOT, "static/images/site", f)) ? "/images/site/" + f : "");
 const logoImg = String(S.logo || "").trim() || siteFile("logo.png");
@@ -450,7 +450,8 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   <a href="${u("wholesale/")}">Wholesale & Private Label</a>
   <a href="${u("wishlist/")}">Wishlist</a>
   <a href="${u("feed/")}">▶ Feed – watch & shop</a>
-${MIRROR_ON ? `  <a href="${u("mirror/")}">🪞 AI Mirror – try on yourself</a>\n` : ""}  <a href="${u("craft/")}">🧵 Fabric & print guide</a>
+  <a href="${u("mirror/")}">🪞 ${MIRROR_ON ? "AI Mirror – try on yourself" : "Mirror – try your look"}</a>
+  <a href="${u("craft/")}">🧵 Fabric & print guide</a>
   <a href="${u("track/")}">📦 Track order</a>
   <a href="${u("return-request/")}">↩️ Return / exchange</a>
   <a href="${u("review/")}">⭐ Write a review</a>
