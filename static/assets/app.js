@@ -635,15 +635,17 @@
     if (off.length && off.length < allS.length) { off.forEach((x) => x.remove()); const dots = $$("[data-hero-go]", hero); dots.slice(allS.length - off.length).forEach((d) => d.remove()); $$("[data-hero-go]", hero).forEach((d, k) => (d.dataset.heroGo = k)); const first = $(".hero-slide", hero); if (first) { first.classList.add("on"); first.inert = false; first.removeAttribute("aria-hidden"); } }
     const sl = $$(".hero-slide", hero), hd = $$("[data-hero-go]", hero); let hi = 0, ht;
     const track = $("[data-hero-track]", hero);
-    const show = (i) => { hi = (i + sl.length) % sl.length; if (track) track.style.transform = `translateX(-${hi * 100}%)`; sl.forEach((x, k) => { x.classList.toggle("on", k === hi); x.setAttribute("aria-hidden", k !== hi); x.inert = k !== hi; }); hd.forEach((d, k) => d.classList.toggle("on", k === hi)); };
-    const auto = () => { clearInterval(ht); if (sl.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) ht = setInterval(() => show(hi + 1), 5000); };
+    const grid = () => sl.length > 1 && innerWidth > 900; // laptop: all banners side by side (same cards as phone)
+    const show = (i) => { hi = (i + sl.length) % sl.length; if (grid()) { if (track) track.style.transform = ""; sl.forEach((x) => { x.classList.add("on"); x.removeAttribute("aria-hidden"); x.inert = false; }); return; } if (track) track.style.transform = `translateX(-${hi * 100}%)`; sl.forEach((x, k) => { x.classList.toggle("on", k === hi); x.setAttribute("aria-hidden", k !== hi); x.inert = k !== hi; }); hd.forEach((d, k) => d.classList.toggle("on", k === hi)); };
+    addEventListener("resize", () => { show(hi); auto(); });
+    const auto = () => { clearInterval(ht); if (grid()) return; if (sl.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) ht = setInterval(() => show(hi + 1), 5000); };
     $$("[data-hero-step]", hero).forEach((b) => b.addEventListener("click", () => { show(hi + +b.dataset.heroStep); auto(); }));
     hero.addEventListener("mouseenter", () => clearInterval(ht)); hero.addEventListener("mouseleave", auto);
     hero.addEventListener("focusin", () => clearInterval(ht)); hero.addEventListener("focusout", (e) => { if (!hero.contains(e.relatedTarget)) auto(); });
     hd.forEach((d) => d.addEventListener("click", () => { show(+d.dataset.heroGo); auto(); }));
     let x0 = null; hero.addEventListener("touchstart", (e) => (x0 = e.touches[0].clientX), { passive: true });
     hero.addEventListener("touchend", (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { show(hi + (dx < 0 ? 1 : -1)); auto(); } x0 = null; });
-    auto();
+    show(0); auto();
   }
 
   // ---------- sign-in dialog (name + mobile, or Google) ----------
