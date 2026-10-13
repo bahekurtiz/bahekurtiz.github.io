@@ -137,7 +137,7 @@
     paintFit(true);
     const need = () => { if (sizes.length && !size) { const e = $("[data-size-error]"); if (e) e.hidden = false; $(".sizes")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast("Please select a size"); return false; } return true; };
     $$("[data-add]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); openCart(); }));
-    $$("[data-buy]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); location.href = url("checkout/"); }));
+    $$("[data-buy]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; if (!bag.some((i) => i.slug === slug && i.size === size)) addItem(slug, size); location.href = url("checkout/"); }));
     // gallery: swipe on mobile, dots + thumbs
     const slides = $("[data-slides]"), dots = $$("[data-dots] button"), thumbs = $$(".thumb");
     const go = (i) => slides.scrollTo({ left: slides.clientWidth * i, behavior: "smooth" });
@@ -193,7 +193,9 @@
     bag = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
     const itemsBox = $("[data-co-items]");
     if (!bag.length) { co.innerHTML = `<h1>Checkout</h1><p class="empty">${skipped.length ? "The styles in your bag ship within India only. " : ""}Your bag is empty. <a class="link" href="${url("shop/")}">Shop the collection →</a></p>`; return; }
-    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) + " · " : ""}Qty ${i.qty}</small></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i, n) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) : ""}</small><div class="qty"><button type="button" data-cq="${n}" data-cd="-1" aria-label="Less">−</button><span>${i.qty}</span><button type="button" data-cq="${n}" data-cd="1" aria-label="More">+</button><button type="button" class="rm" data-crm="${n}">Remove</button></div></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    $$("[data-cq]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })), it = b2[+b.dataset.cq]; it.qty = Math.max(0, Math.min(10, it.qty + +b.dataset.cd)); setBag(b2); });
+    $$("[data-crm]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })); b2.splice(+b.dataset.crm, 1); setBag(b2); });
     const t = totals(cat, method);
     $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div>
       ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${money(t.couponOff)}</span></div>` : ""}
