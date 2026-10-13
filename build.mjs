@@ -36,6 +36,7 @@ const DEF_BANDS_USD = [[0, 15], [15, 25], [25, 40], [40, 60], [60, 80], [80, 120
 const brand = S.brand_name || "Bahe Kurtiz";
 // logo from admin (Settings → Logo); falls back to the text logo
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
+const HAS_COUPONS = (Array.isArray(S.coupons) ? S.coupons : []).some((c) => c && c.active !== false && String(c.code || "").trim());
 const MIRROR_ON = !!process.env.GEMINI_API_KEY;
 const imgOk = (src) => { const v = String(src || "").trim(); if (!v || /^(https?:)?\/\//i.test(v)) return !!v; return fs.existsSync(path.join(ROOT, "static", decodeURI(v.replace(/^\/+/, "").split(/[?#]/)[0]))); };
 const siteFile = (f) => (fs.existsSync(path.join(ROOT, "static/images/site", f)) ? "/images/site/" + f : "");
@@ -873,12 +874,12 @@ add("checkout/index.html", page({
       <label>Email (for order updates<span class="cur-usd"> and PayPal invoice</span>)<input name="email" type="email" autocomplete="email" maxlength="100" data-email></label>
       ${intlOn ? `<label class="cur-usd">Country<input name="country" autocomplete="country-name" maxlength="60" list="countries" data-country></label>
       <datalist id="countries">${allCountries.map((c) => `<option value="${c}">`).join("")}</datalist>` : ""}
-      <label>House no., building, street, area<textarea name="address" autocomplete="street-address" required rows="2" maxlength="200"></textarea></label>
       <div class="f3">
         <label><span class="cur-inr">Pincode</span><span class="cur-usd">ZIP / Postal code</span><input name="pincode" autocomplete="postal-code" required maxlength="12" inputmode="numeric" data-pin></label>
         <label>City<input name="city" autocomplete="address-level2" required maxlength="60"></label>
         <label><span class="cur-inr">State</span><span class="cur-usd">State / Province</span><input name="state" autocomplete="address-level1" maxlength="40" list="states" data-state></label>
       </div>
+      <label>House no., building, street, area<textarea name="address" autocomplete="street-address" required rows="2" maxlength="200"></textarea></label>
       <datalist id="states">${["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi","Jammu and Kashmir","Ladakh","Chandigarh","Puducherry"].map((s) => `<option value="${s}">`).join("")}</datalist>
       <details class="gift"><summary>🎁 This is a gift</summary><div class="gift-body"><label>Recipient name<input name="gift_to" maxlength="60"></label><label>Gift message (printed on a card)<textarea name="gift_msg" rows="2" maxlength="150"></textarea></label><label class="check"><input type="checkbox" name="gift_hide" value="yes"> Do not put the price in the parcel</label><p class="muted small">Enter the recipient's address above as the delivery address.</p></div></details>
       <label class="check"><input type="checkbox" name="consent" value="yes" data-co-consent> Send me offers and new arrivals on WhatsApp / email</label>
@@ -892,7 +893,7 @@ add("checkout/index.html", page({
     <aside class="co-summary">
       <h2>Order summary</h2>
       <div data-co-items></div>
-      <div class="coupon-row"><label class="sr-only" for="cpn">Coupon code</label><input id="cpn" data-coupon-in placeholder="Coupon code" maxlength="24" autocomplete="off"><button class="btn btn-ghost btn-sm" type="button" data-coupon-go>Apply</button></div><p class="small" data-coupon-msg aria-live="polite"></p>
+      ${HAS_COUPONS ? `<details class="coupon-box"><summary>Have a coupon code?</summary><div class="coupon-row"><label class="sr-only" for="cpn">Coupon code</label><input id="cpn" data-coupon-in placeholder="Coupon code" maxlength="24" autocomplete="off"><button class="btn btn-ghost btn-sm" type="button" data-coupon-go>Apply</button></div><p class="small" data-coupon-msg aria-live="polite"></p></details>` : ""}
       <div class="totals" data-co-totals></div>
     </aside>
   </div>
