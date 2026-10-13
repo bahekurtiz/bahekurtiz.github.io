@@ -999,3 +999,16 @@ img,video,iframe,svg,canvas{max-width:100%}
 /* v28: on phones the order summary must NOT stick on top of the form (it was covering name/address fields) */
 @media (max-width:860px){.co-summary{position:static;top:auto;padding:16px}.co-summary .line img{width:52px;height:78px}}
 .co-summary .qty{margin-top:6px}
+/* v29: laptop banner = the same portrait cards as phone, all side by side (no blurred empty sides) */
+@media (min-width:901px){
+  .hero-wrap:has(.hero-same){background:var(--bg);padding:18px 24px 6px}
+  .hero-wrap:has(.hero-same) .hero-track{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,420px));justify-content:center;gap:18px;transform:none!important;max-width:1400px;margin:0 auto}
+  .hero-wrap:has(.hero-same) .hero-track>.hero-slide{display:block;min-width:0;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 10px 30px rgba(28,19,16,.12)}
+  .hero-wrap .hero-same .hero-media{height:auto!important;aspect-ratio:3/4;display:block}
+  .hero-wrap .hero-same .hero-media::before{content:none}
+  .hero-wrap .hero-same .hero-media img{width:100%!important;height:100%!important;object-fit:cover;object-position:center 15%}
+  .hero-wrap .hero-same .hero-text{inset:auto 0 0 0;transform:none;width:auto;padding:90px 24px 24px}
+  .hero-wrap .hero-same .hero-text h1,.hero-wrap .hero-same .hero-text .h1{font-size:clamp(1.5rem,1.9vw,2rem)}
+  .hero-wrap .hero-same .hero-text .lead{font-size:.88rem}
+  .hero-wrap:has(.hero-same) .hero-arrow,.hero-wrap:has(.hero-same) .hero-dots{display:none}
+}
