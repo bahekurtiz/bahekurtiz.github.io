@@ -719,6 +719,19 @@
     if (isUSD()) { pin.closest(".pin-row").hidden = true; showEta(); }
     pf.addEventListener("submit", (e) => { e.preventDefault(); showEta(); });
   }
+  // ---------- checkout: type the pincode → city + state fill themselves (India) ----------
+  if (co) { const f3 = $("[data-co-form]");
+    if (f3?.pincode) {
+      const ST = { 11: "Delhi", 12: "Haryana", 13: "Haryana", 14: "Punjab", 15: "Punjab", 16: "Punjab", 17: "Himachal Pradesh", 18: "Jammu and Kashmir", 19: "Jammu and Kashmir", 20: "Uttar Pradesh", 21: "Uttar Pradesh", 22: "Uttar Pradesh", 23: "Uttar Pradesh", 24: "Uttar Pradesh", 25: "Uttar Pradesh", 26: "Uttar Pradesh", 27: "Uttar Pradesh", 28: "Uttar Pradesh", 30: "Rajasthan", 31: "Rajasthan", 32: "Rajasthan", 33: "Rajasthan", 34: "Rajasthan", 36: "Gujarat", 37: "Gujarat", 38: "Gujarat", 39: "Gujarat", 40: "Maharashtra", 41: "Maharashtra", 42: "Maharashtra", 43: "Maharashtra", 44: "Maharashtra", 45: "Madhya Pradesh", 46: "Madhya Pradesh", 47: "Madhya Pradesh", 48: "Madhya Pradesh", 49: "Chhattisgarh", 50: "Telangana", 51: "Andhra Pradesh", 52: "Andhra Pradesh", 53: "Andhra Pradesh", 56: "Karnataka", 57: "Karnataka", 58: "Karnataka", 59: "Karnataka", 60: "Tamil Nadu", 61: "Tamil Nadu", 62: "Tamil Nadu", 63: "Tamil Nadu", 64: "Tamil Nadu", 67: "Kerala", 68: "Kerala", 69: "Kerala", 70: "West Bengal", 71: "West Bengal", 72: "West Bengal", 73: "West Bengal", 74: "West Bengal", 75: "Odisha", 76: "Odisha", 77: "Odisha", 78: "Assam", 80: "Bihar", 81: "Jharkhand", 82: "Jharkhand", 83: "Jharkhand", 84: "Bihar", 85: "Bihar" };
+      const ST3 = { 160: "Chandigarh", 194: "Ladakh", 403: "Goa", 605: "Puducherry", 737: "Sikkim", 790: "Arunachal Pradesh", 791: "Arunachal Pradesh", 792: "Arunachal Pradesh", 793: "Meghalaya", 794: "Meghalaya", 795: "Manipur", 796: "Mizoram", 797: "Nagaland", 798: "Nagaland", 799: "Tripura", 244: "Uttarakhand", 246: "Uttarakhand", 247: "Uttarakhand", 248: "Uttarakhand", 249: "Uttarakhand", 262: "Uttarakhand", 263: "Uttarakhand" };
+      const put = (el, v) => { if (el && v && (!el.value || el.dataset.auto === "1")) { el.value = v; el.dataset.auto = "1"; el.dispatchEvent(new Event("input", { bubbles: true })); } };
+      [f3.city, f3.state].forEach((el) => el?.addEventListener("input", (e) => { if (e.isTrusted) el.dataset.auto = ""; }));
+      let lastPin = "";
+      const fillPin = async () => { if (isUSD()) return; const v = (f3.pincode.value || "").replace(/\D/g, ""); if (!/^[1-9]\d{5}$/.test(v) || v === lastPin) return; lastPin = v;
+        put(f3.state, ST3[v.slice(0, 3)] || ST[v.slice(0, 2)] || "");
+        try { const r = await fetch("/api/pin?p=" + v); if (!r.ok) return; const j = await r.json(); if (v !== lastPin) return; put(f3.city, j.city); put(f3.state, j.state); } catch {} };
+      f3.pincode.addEventListener("input", fillPin); f3.pincode.addEventListener("change", fillPin); setTimeout(fillPin, 400);
+    } }
   if (co) { try { const sv = localStorage.getItem("bk_pin"); const f2 = $("[data-co-form]"); if (sv && f2?.pincode && !f2.pincode.value && !isUSD()) f2.pincode.value = sv; } catch {} }
 
   // ---------- sold-out size → notify me on WhatsApp ----------
