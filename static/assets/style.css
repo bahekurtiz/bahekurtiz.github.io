@@ -1082,3 +1082,32 @@ main>.section{padding-block:clamp(36px,6vw,72px)}
   .hero-wrap .hero-same .hero-text .lead{display:none}
 }
 @media (min-width:901px){.hero-wrap .hero-same{background:#1c1310}.hero-wrap .hero-same .hero-media img{display:block}}
+/* v36: Mirror on phones – short header, share bar always visible after first 💚 */
+.ma-count{display:none}
+@media (max-width:860px){
+  .mirror-page .refer-hero{padding-block:18px}
+  .mirror-page .refer-hero .lead{display:none}
+  .mirror-page .refer-hero h1{font-size:1.7rem;margin:.1em 0 0}
+  .mirror.has-likes .mirror-actions{position:fixed;left:8px;right:8px;bottom:calc(68px + env(safe-area-inset-bottom));z-index:40;display:grid;grid-template-columns:auto 1.6fr 1fr 1fr;gap:6px;align-items:center;background:rgba(255,255,255,.97);padding:8px;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.18);margin:0}
+  .mirror.has-likes .mirror-actions .btn{padding:10px 6px;font-size:.66rem;letter-spacing:.04em;min-height:0;line-height:1.2;white-space:normal}
+  .mirror.has-likes .mirror-actions .btn svg{width:16px;height:16px}
+  .mirror.has-likes .ma-count{display:block;font-size:.9rem;padding:0 4px}
+  .mirror-page:has(.mirror.has-likes) .wa-float{display:none}
+  .mirror.has-likes{padding-bottom:90px}
+}
+@media (max-width:860px){
+  .mirror-page .mirror-stage{width:min(100%,calc((100svh - 330px) * .75));margin-inline:auto}
+  .mirror.has-likes .mirror-actions{grid-template-columns:auto 1.5fr 1fr}
+  .mirror.has-likes .mirror-actions [data-mirror-wish]{display:none}
+  .mirror-page .mirror-vote{margin:10px 0 4px}
+}
+@media (max-width:860px){
+  .mirror-page .mirror-stage{width:min(100%,calc((100svh - 230px) * .75))}
+  .mirror-page .mirror-vote:not([hidden]){position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));z-index:41;margin:0;gap:14px;background:rgba(255,255,255,.95);padding:6px 14px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  .mirror-page .mirror.has-likes .mirror-vote:not([hidden]){bottom:calc(150px + env(safe-area-inset-bottom))}
+  .mirror-page .mirror-vote button{width:52px;height:52px}
+  .mirror-page .mirror-vote .mv-play{width:40px;height:40px}
+  .mirror-page [data-mirror-tip]{display:none}
+  .mirror-page .mirror{padding-bottom:170px}
+}
+@media (max-width:860px){.mirror-page .mirror-status{top:58px;bottom:auto}}
