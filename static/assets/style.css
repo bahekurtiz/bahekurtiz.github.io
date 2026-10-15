@@ -1122,3 +1122,9 @@ main>.section{padding-block:clamp(36px,6vw,72px)}
   .mirror-page .mirror:not(.stage-in) .ma-count{display:none!important}
   .mirror-page .mirror:not(.stage-in){padding-bottom:20px}
 }
+/* v38 mirror polish */
+.mirror-page .wa-float{display:none}
+.mirror-hud span:first-child{flex-shrink:0;min-width:3.2em;text-align:center}
+.mirror-hud span:last-child{min-width:0}
+.mirror-page .mirror-status{top:auto;bottom:12px;font-size:.78rem;padding:5px 12px;background:rgba(255,255,255,.92)}
+.mirror-dress.is-cutout{filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
