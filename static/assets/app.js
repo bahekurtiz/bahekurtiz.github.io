@@ -1101,13 +1101,13 @@
     // product photo -> dress layer: cutout PNG as is; normal photo: find the model's shoulders, keep only the outfit, soft edges
     const prep = (k) => cache[k] ||= (async () => {
       const p = cat.products[k]; if (p.cutout) return url(p.cutout);
-      try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, 1100), nw = big.width, nh = big.height;
+      try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, innerWidth < 900 ? 720 : 1000), nw = big.width, nh = big.height;
         let r = boxes[k] && boxes[k].v === p.image ? boxes[k].b : null;
         if (!r && lmP) { try { const lm = await lmP; const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
           if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; saveBox(k, { v: p.image, b: r }); } } } catch {} }
         if (!r) r = [0.14, 0.26, 0.72, 0.72];
         const box = { sx: r[0] * nw, sy: r[1] * nh, sw: r[2] * nw, sh: r[3] * nh };
-        const sc = Math.min(1, 640 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+        const sc = Math.min(1, (innerWidth < 900 ? 460 : 640) / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
         await frame();
         const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(big, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H); big.close?.();
         g.globalCompositeOperation = "destination-in"; // soft edges with 2 gradients – cheap on every phone
@@ -1142,7 +1142,7 @@
         g.drawImage(src, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, dw, dh); g.globalAlpha = 1; };
       if (ai && !aiI.hidden) { const s = Math.min(W / aiI.naturalWidth, H / aiI.naturalHeight), w = aiI.naturalWidth * s, h = aiI.naturalHeight * s; g.drawImage(aiI, (W - w) / 2, (H - h) / 2, w, h); }
       else { if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); } g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
-    const paintBoard = () => { $("[data-mirror-liked-n]").textContent = liked.length ? `(${liked.length})` : ""; board.innerHTML = liked.length ? liked.map((l, i) => `<figure><img src="${l.src}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption><button type="button" data-unlike="${i}" aria-label="Remove">✕</button></figure>`).join("") : `<p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p>`; };
+    const paintBoard = () => { mir.classList.toggle("has-likes", liked.length > 0); const lc = $("[data-mirror-likecount]"); if (lc) lc.textContent = liked.length; $("[data-mirror-liked-n]").textContent = liked.length ? `(${liked.length})` : ""; board.innerHTML = liked.length ? liked.map((l, i) => `<figure><img src="${l.src}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption><button type="button" data-unlike="${i}" aria-label="Remove">✕</button></figure>`).join("") : `<p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p>`; };
     board.addEventListener("click", (e) => { const b = e.target.closest("[data-unlike]"); if (!b) return; liked.splice(+b.dataset.unlike, 1); paintBoard(); });
     const yes = async () => { if (!ready || (dr.hidden && aiI.hidden)) return; const k = list[idx]; if (!liked.some((l) => l.k === k)) { const b = await snap(); liked.push({ k, b, src: URL.createObjectURL(b), t: cat.products[k].title, u: cat.products[k].url }); paintBoard(); } flash("💚"); track("AddToWishlist", { content_ids: [k] }); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
     const no = () => { if (!ready) return; flash("✕"); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
@@ -1172,7 +1172,7 @@
       me.onload = async () => { me.hidden = false; $("[data-mirror-empty]").hidden = true; $("[data-mirror-vote]").hidden = false; $("[data-mirror-tip]").hidden = false;
         await aiReady;
         if (ai) { for (let t = 0; !meData && t < 50; t++) await new Promise((r) => setTimeout(r, 100)); ready = true; $("[data-mirror-tip]").textContent = "Na / Haan dabao – har dress AI se aap par fit-to-fit banegi"; await show(idx); return; }
-        say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 15000);
+        say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 9000);
         if (!poseOk) { const s = Math.min(1, (stage.clientWidth / stage.clientHeight) / (me.naturalWidth / me.naturalHeight)); fit = { x: 50, y: 22, w: 52 * s }; }
         say(poseOk ? "✓ Fit ho gaya! Ab dresses aap par aayengi…" : "Gardan par tap karo, dress wahan aa jayegi", 3500);
         ready = true; await show(idx); play(); };
