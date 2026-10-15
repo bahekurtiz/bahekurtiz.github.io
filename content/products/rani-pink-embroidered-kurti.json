@@ -2,8 +2,15 @@
   "title": "Rani Pink Embroidered Kurti with Side Tie-Up",
   "category": "Kurti",
   "color": "Rani Pink",
+  "color_custom": "",
+  "neckline": "Round Neck",
+  "sleeve": "Elbow Sleeves",
+  "length_type": "Knee Length",
   "price": 599,
   "mrp": 1245,
+  "price_usd": 25,
+  "mrp_usd": 60,
+  "ships_abroad": true,
   "sizes": [
     "S",
     "M",
@@ -12,7 +19,20 @@
     "XXL",
     "XS"
   ],
-  "fabric": "georgette",
+  "sold_out_sizes": [],
+  "occasion": [
+    "Office",
+    "Daily",
+    "Party",
+    "Gifting"
+  ],
+  "model_height": "5.8",
+  "model_size": "s",
+  "fit": "",
+  "fabric": "Georgette",
+  "print_work": [
+    "Embroidered"
+  ],
   "description": "A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
   "images": [
     "/images/products/pink-1.jpg",
@@ -21,9 +41,23 @@
     "/images/products/pink-4.jpg",
     "/images/products/pink-5.jpg"
   ],
+  "video": "",
+  "match_products": [
+    "rani-pink-embroidered-kurti"
+  ],
+  "tryon_png": "",
+  "sku": "",
+  "old_url": "",
+  "set_items": [],
+  "care": "",
+  "processing_days": "",
+  "return_override": "Default",
+  "garment_length": 46,
+  "sale_paused": false,
   "in_stock": true,
   "featured": true,
-  "sort_order": 3,
+  "bestseller": false,
+  "sort_order": 1,
   "seo_title": "",
   "seo_description": ""
 }
