@@ -1074,3 +1074,11 @@ main>.section{padding-block:clamp(36px,6vw,72px)}
 .dna-prod img{width:56px;height:76px;object-fit:cover;border-radius:8px}
 .dna-prod span{display:grid;font-size:.8rem;color:var(--muted)}.dna-prod b{color:var(--ink);font-size:.95rem}
 @media (max-width:860px){.dna-out{grid-template-columns:1fr}.dna-form{grid-template-columns:1fr}}
+/* v35: banners always in ONE row on laptop (no wrapping / empty space on smaller or zoomed screens) */
+@media (min-width:901px){
+  .hero-wrap:has(.hero-same) .hero-track{grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:minmax(0,400px);justify-content:center}
+  .hero-wrap .hero-same .hero-media{max-height:72vh}
+  .hero-wrap .hero-same .hero-text{padding:70px 20px 20px}
+  .hero-wrap .hero-same .hero-text .lead{display:none}
+}
+@media (min-width:901px){.hero-wrap .hero-same{background:#1c1310}.hero-wrap .hero-same .hero-media img{display:block}}
