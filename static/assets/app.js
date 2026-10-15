@@ -1074,7 +1074,6 @@
   if (mir) {
     const me = $("[data-mirror-me]"), dr = $("[data-mirror-dress]"), stage = $("[data-mirror-stage]"), board = $("[data-mirror-board]"), statusEl = $("[data-mirror-status]"), playB = $("[data-mirror-play]"), scaleI = $("[data-mirror-scale]");
     const MP = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14", MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task";
-    let body = null, manual = false; // user's shoulders/ankles in stage % (found once per photo)
     let cat = null, all = [], list = [], idx = 0, seen = 0, timer = null, fit = { x: 50, y: 22, w: 52 }, liked = [], poseOk = false, ready = false;
     const cache = {};
     // AI Mirror: real try-on (server /api/tryon) – the dress is redrawn on YOUR body, fit-to-fit. Falls back to the old overlay if AI is off.
@@ -1097,17 +1096,15 @@
     const toURL = (cv, type, q) => new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : ""), type, q));
     const frame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
     // where the outfit is in each product photo (found once, remembered on this phone → instant next time)
-    const BK_BOX = "bk_mbox_v2"; let boxes = {}; try { boxes = JSON.parse(localStorage.getItem(BK_BOX)) || {}; } catch {}
+    const BK_BOX = "bk_mbox_v1"; let boxes = {}; try { boxes = JSON.parse(localStorage.getItem(BK_BOX)) || {}; } catch {}
     const saveBox = (k, b) => { boxes[k] = b; try { localStorage.setItem(BK_BOX, JSON.stringify(boxes)); } catch {} };
     // product photo -> dress layer: cutout PNG as is; normal photo: find the model's shoulders, keep only the outfit, soft edges
     const prep = (k) => cache[k] ||= (async () => {
-      const p = cat.products[k]; if (p.cutout) return { src: url(p.cutout), a: null };
+      const p = cat.products[k]; if (p.cutout) return url(p.cutout);
       try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, 1100), nw = big.width, nh = big.height;
-        let r = boxes[k] && boxes[k].v === p.image && boxes[k].a ? boxes[k].b : null, an = r ? boxes[k].a : null;
+        let r = boxes[k] && boxes[k].v === p.image ? boxes[k].b : null;
         if (!r && lmP) { try { const lm = await lmP; const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
-          if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, shY = Math.min(ls.y, rs.y) * nh, top = shY - sw * 0.3;
-            const ank = [L[27], L[28]].filter((q) => q && q.y < 1.02 && (q.visibility ?? 1) > 0.3), ankY = ank.length ? Math.max(...ank.map((q) => q.y)) * nh : 0, bot = ankY ? Math.min(nh, ankY + sw * 0.25) : nh;
-            r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, (bot - top) / nh]; an = { s: (shY - top) / (bot - top), f: ankY ? (ankY - top) / (bot - top) : 0 }; saveBox(k, { v: p.image, b: r, a: an }); } } } catch {} }
+          if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; saveBox(k, { v: p.image, b: r }); } } } catch {} }
         if (!r) r = [0.14, 0.26, 0.72, 0.72];
         const box = { sx: r[0] * nw, sy: r[1] * nh, sw: r[2] * nw, sh: r[3] * nh };
         const sc = Math.min(1, 640 / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
@@ -1116,7 +1113,7 @@
         g.globalCompositeOperation = "destination-in"; // soft edges with 2 gradients – cheap on every phone
         const gh = g.createLinearGradient(0, 0, W, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.09, "#000"); gh.addColorStop(0.91, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gh; g.fillRect(0, 0, W, H);
         const gv = g.createLinearGradient(0, 0, 0, H); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.07, "#000"); gv.addColorStop(0.93, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gv; g.fillRect(0, 0, W, H);
-        return { src: (await toURL(cv, "image/png")) || url(p.image), a: an ? { ...an, ar: W / H } : null }; } catch { return { src: url(p.image), a: null }; }
+        return (await toURL(cv, "image/png")) || url(p.image); } catch { return url(p.image); }
     })();
     const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
     const show = async (i) => {
@@ -1128,10 +1125,7 @@
         catch (e) { if (list[idx] !== k) return; say(e.message === "limit" ? "Aaj ki free try-on limit poori ho gayi – kal phir aana 💚" : "AI abhi busy hai – thodi der baad dobara try karo", 4000); }
         finally { if (list[idx] === k) { stage.classList.remove("ai-busy"); requestAnimationFrame(() => aiI.classList.remove("swap")); } }
         return; }
-      dr.classList.add("swap"); const lay = await prep(k); if (list[idx] !== k) return; const src = lay.src;
-      if (body && !manual) { const st = stage.getBoundingClientRect(), A = lay.a, wW = body.sw * 2.3; let w = wW;
-        if (A && A.f > A.s && body.ay) { const hL = (body.ay - body.sy) / (A.f - A.s), wH = hL * (st.height / st.width) * A.ar; w = Math.min(wW * 1.35, Math.max(wW * 0.75, 0.6 * wH + 0.4 * wW)); }
-        const hLay = w * (st.width / st.height) / (A ? A.ar : 0.62); fit = { x: body.cx, y: body.sy - (A ? A.s : 0.18) * hLay, w: Math.min(130, w) }; }
+      dr.classList.add("swap"); const src = await prep(k); if (list[idx] !== k) return;
       dr.src = src; dr.classList.toggle("is-cutout", !!p.cutout); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
       idle(() => prep(list[(idx + 1) % list.length]));
     };
@@ -1167,14 +1161,12 @@
         const r = stage.getBoundingClientRect(), W = r.width, H = r.height, s = Math.min(W / me.naturalWidth, H / me.naturalHeight), dw = me.naturalWidth * s, dh = me.naturalHeight * s, ox = (W - dw) / 2, oy = (H - dh) / 2;
         const P = (n) => ({ x: ox + L[n].x * dw, y: oy + L[n].y * dh });
         const ls = P(11), rs = P(12), sw = Math.abs(ls.x - rs.x); if (sw < W * 0.06) return false;
-        fit = { x: (ls.x + rs.x) / 2 / W * 100, y: (Math.min(ls.y, rs.y) - sw * 0.3) / H * 100, w: Math.min(120, sw * 2.3 / W * 100) };
-        const ank = [27, 28].filter((n) => L[n] && L[n].y < 1.02 && (L[n].visibility ?? 1) > 0.3).map((n) => P(n).y);
-        body = { cx: fit.x, sy: Math.min(ls.y, rs.y) / H * 100, sw: sw / W * 100, ay: ank.length ? Math.max(...ank) / H * 100 : 0 }; return true;
+        fit = { x: (ls.x + rs.x) / 2 / W * 100, y: (Math.min(ls.y, rs.y) - sw * 0.3) / H * 100, w: Math.min(120, sw * 2.3 / W * 100) }; return true;
       } catch { return false; }
     };
     const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
     $("[data-mirror-file]").addEventListener("change", (e) => {
-      const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…"); aiCache = {}; aiI.hidden = true; meData = ""; body = null; manual = false;
+      const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…"); aiCache = {}; aiI.hidden = true; meData = "";
       (async () => { try { const b = await bitmap(f, 1024), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); meData = c.toDataURL("image/jpeg", 0.86); } catch {} })();
       (async () => { try { const b = await bitmap(f, 1400), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); me.src = (await toURL(c, "image/jpeg", 0.9)) || URL.createObjectURL(f); } catch { me.src = URL.createObjectURL(f); } })();
       me.onload = async () => { me.hidden = false; $("[data-mirror-empty]").hidden = true; $("[data-mirror-vote]").hidden = false; $("[data-mirror-tip]").hidden = false;
@@ -1196,11 +1188,11 @@
         ob.addEventListener("click", (e) => { const b = e.target.closest("[data-mo]"); if (!b) return; $$("[data-mo]", ob).forEach((x) => x.classList.toggle("on", x === b)); const o = b.dataset.mo; list = o ? all.filter((k) => [].concat(cat.products[k].occ || []).includes(o)) : all.slice(); if (!list.length) list = all.slice(); idx = 0; show(0); if (!me.hidden) play(); }); }
       else ob.previousElementSibling.hidden = ob.hidden = true;
     }).catch(() => {});
-    scaleI.addEventListener("input", (e) => { stop(); manual = true; fit.w = +e.target.value; place(); });
+    scaleI.addEventListener("input", (e) => { stop(); fit.w = +e.target.value; place(); });
     $("[data-mirror-op]").addEventListener("input", (e) => { dr.style.opacity = e.target.value / 100; });
     // drag dress; swipe / tap on photo
     let drag = null, sw0 = null;
-    dr.addEventListener("pointerdown", (e) => { stop(); manual = true; drag = { x: e.clientX, y: e.clientY, px: fit.x, py: fit.y }; dr.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation(); });
+    dr.addEventListener("pointerdown", (e) => { stop(); drag = { x: e.clientX, y: e.clientY, px: fit.x, py: fit.y }; dr.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation(); });
     dr.addEventListener("pointermove", (e) => { if (!drag) return; const r = stage.getBoundingClientRect(); fit.x = drag.px + (e.clientX - drag.x) / r.width * 100; fit.y = drag.py + (e.clientY - drag.y) / r.height * 100; place(); });
     dr.addEventListener("pointerup", () => (drag = null));
     stage.addEventListener("pointerdown", (e) => { if (e.target === dr || me.hidden) return; sw0 = { x: e.clientX, y: e.clientY }; });
