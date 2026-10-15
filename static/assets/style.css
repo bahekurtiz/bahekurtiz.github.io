@@ -1111,3 +1111,14 @@ main>.section{padding-block:clamp(36px,6vw,72px)}
   .mirror-page .mirror{padding-bottom:170px}
 }
 @media (max-width:860px){.mirror-page .mirror-status{top:58px;bottom:auto}}
+/* v37: mirror – page scrolls normally when finger is on the photo; floating Na/Haan only while photo is on screen; sharp dresses */
+.mirror-page .mirror-stage{touch-action:pan-y}
+.mirror-page .mirror-dress{touch-action:none;image-rendering:auto}
+@media (max-width:860px){
+  .mirror-page .mirror:not(.stage-in) .mirror-vote:not([hidden]){position:static;transform:none;box-shadow:none;background:none;margin:12px auto 6px;width:max-content}
+  .mirror-page .mirror:not(.stage-in).has-likes .mirror-actions{position:static;grid-template-columns:1fr;box-shadow:none;background:none;padding:0}
+  .mirror-page .mirror:not(.stage-in).has-likes .mirror-actions .btn{font-size:.8rem;padding:14px}
+  .mirror-page .mirror:not(.stage-in).has-likes .mirror-actions [data-mirror-wish]{display:flex}
+  .mirror-page .mirror:not(.stage-in) .ma-count{display:none!important}
+  .mirror-page .mirror:not(.stage-in){padding-bottom:20px}
+}
