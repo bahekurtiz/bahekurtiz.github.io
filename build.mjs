@@ -96,7 +96,7 @@ const products = [...jsonFiles.map((f) => [f, JSON.parse(fs.readFileSync(path.jo
   p.sold_out = (Array.isArray(p.sold_out_sizes) ? p.sold_out_sizes : []).map((x) => String(x).trim()).filter(Boolean);
   p.occasion = (Array.isArray(p.occasion) ? p.occasion : p.occasion ? [p.occasion] : []).map((x) => String(x).trim()).filter(Boolean);
   p.intl = p.ships_abroad && p.price_usd !== null;
-  p.fabric = String(p.fabric || "").trim();
+  p.fabric = String(p.fabric || "").trim().replace(/\b([a-z])/g, (m) => m.toUpperCase());
   p.color = String(p.color_custom || "").trim() || String(p.color || "").trim();
   p.neckline = String(p.neckline || "").trim(); p.sleeve = String(p.sleeve || "").trim(); p.length_type = String(p.length_type || "").trim();
   p.print_work = (Array.isArray(p.print_work) ? p.print_work : p.print_work ? [p.print_work] : []).map((x) => String(x).trim()).filter(Boolean);
@@ -449,6 +449,9 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   <a href="${u("shop/")}">Shop All</a>
   ${menuCats.length ? `<details class="mnav-cats"><summary>Categories</summary><div class="mnav-cat-list">${menuGroups.map((g) => `${menuGroups.length > 1 ? `<p class="mnav-grp">${esc(g.name)}</p>` : ""}${g.cats.map((c) => `<a href="${u(c.url)}"${c.empty ? ' class="soon"' : ""}><span>${esc(c.plural)}</span>${c.empty ? "<small>Coming soon</small>" : `<small>${c.items.length}</small>`}</a>`).join("")}`).join("")}</div></details>` : ""}
   <a href="${u("wholesale/")}">Wholesale & Private Label</a>
+  <a href="${u("print-kundli/")}">✨ Print Kundli – find your print</a>
+  <a href="${u("studio/")}">🎨 Block Print Studio – design yours</a>
+  <a href="${u("custom/")}">✂️ Custom & Restyle</a>
   <a href="${u("wishlist/")}">Wishlist</a>
   <a href="${u("feed/")}">▶ Feed – watch & shop</a>
   <a href="${u("mirror/")}">🪞 ${MIRROR_ON ? "AI Mirror – try on yourself" : "Mirror – try your look"}</a>
@@ -499,7 +502,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap"><a href="${u("sh
       ${socials.length ? `<p class="social">${socials.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener me">${socialIcon(x.name)}${esc(x.name)}</a>`).join("")}</p>` : ""}
     </div>
     <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
-    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a><a href="${u("contact/")}">Contact Us</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="${u("terms/")}">Terms & Conditions</a></div>
+    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a><a href="${u("contact/")}">Contact Us</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("print-kundli/")}">Print Kundli</a><a href="${u("studio/")}">Block Print Studio</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="${u("terms/")}">Terms & Conditions</a></div>
     <div><h3>Contact</h3>
       ${waHi ? `<a href="${esc(waHi)}" target="_blank" rel="noopener">WhatsApp: ${esc(S.phone || "+" + waNumber)}</a>` : ""}
       ${S.email ? `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}
@@ -652,15 +655,14 @@ ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}"
 </section>
 ${live.on && live.url ? `<section class="wrap section live" id="live"><div class="section-head"><div><p class="eyebrow"><span class="live-dot"></span> Live now</p><h2>${esc(live.title)}</h2></div><a class="link" href="${esc(live.url)}" target="_blank" rel="noopener">Open on YouTube →</a></div>${live.id ? `<div class="live-frame"><button type="button" class="yt-facade" data-yt="${esc(live.id)}" aria-label="Play live: ${esc(live.title)}"><img src="https://i.ytimg.com/vi/${esc(live.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async"><span class="yt-play">▶</span></button></div>` : ""}<p class="muted">Like something in the live? ${waNumber ? `<a class="link" href="${esc(waLink("Hi " + brand + "! I saw this in your live: "))}" target="_blank" rel="noopener">Order it on WhatsApp</a>` : ""} or search it on the site.</p></section>` : ""}
 <section class="wrap section foryou" data-foryou hidden><div class="section-head"><div><p class="eyebrow">Based on what you viewed</p><h2>Picked for you</h2></div></div><div class="grid scroller" data-foryou-grid></div></section>
-<section class="follow-cta"><div class="wrap follow-row"><div><p class="eyebrow">Be part of the Bahe family</p><h2>Follow ${esc(brand)}</h2><p class="muted">New prints, live shows and festive drops – first to you. One tap, no spam.</p></div><button class="btn" type="button" data-follow><span data-follow-label>＋ Follow</span></button></div></section>
-<section class="finder-cta"><div class="wrap finder-row"><div><p class="eyebrow">Sakhi · your style helper</p><h2>Find your style in 3 taps</h2><p class="muted">Tell us the occasion, fabric and budget. We show the styles that fit.</p></div><button class="btn" type="button" data-open-finder>Start Style Finder</button></div></section>
 ${reelsHtml()}
 ${(() => { const best = products.filter((p) => p.bestseller).slice(0, 8); return best.length >= 4 ? `<section class="wrap section best"><div class="section-head"><div><p class="eyebrow">Most loved</p><h2>Bestsellers</h2></div><a class="link" href="${u("bestsellers/")}">View all →</a></div><div class="grid scroller">${best.map((p) => card(p)).join("")}</div></section>` : ""; })()}
 <section class="wrap section">
   <div class="section-head"><div><p class="eyebrow">Just in</p><h2>New Arrivals</h2></div><a class="link" href="${u("shop/")}">View all →</a></div>
   <div class="grid scroller">${list.map((p) => card(p)).join("")}</div>
 </section>
-${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Everyday Picks</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
+${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Everyday Picks</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
+<section class="studio-band"><div class="wrap sb-row"><div><p class="eyebrow">New · Just for fun</p><h2>Which Jaipur print is written in your stars?</h2><p class="muted">Name + birthday = your one-of-a-kind block print. Then check your Saheli Match with friends.</p></div><div class="sb-btns"><a class="btn" href="${u("print-kundli/")}">✨ Find my Print Kundli</a><a class="btn btn-ghost" href="${u("studio/")}">Design my own →</a></div></div></section>
 ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class="shopby"><div class="wrap">
   ${occasions.length ? `<div class="shopby-row"><p class="eyebrow">Shop by occasion</p><div class="pills">${occasions.map((o) => `<a class="pill" href="${u("occasion/" + slugify(o) + "/")}">${esc(o)}</a>`).join("")}</div></div>` : ""}
   ${prints.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by print</p><div class="pills">${prints.map((x) => `<a class="pill" href="${u(qs("print", x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
@@ -1050,6 +1052,58 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
   </form>
   <div class="msg-done" data-b2b-done hidden aria-live="polite"></div>
 </section>`;
+
+
+
+  add("print-kundli/index.html", page({ title: `Print Kundli – Discover Your Own Jaipur Block Print | ${brand}`, description: clip(`Type your name and birthday – get your one-of-a-kind Jaipur block print, what it says about you, and your Saheli Match with friends. Free, takes 10 seconds.`), pathname: "print-kundli/",
+    body: `<section class="wrap section dna" data-dna>
+  <div class="dna-head"><p class="eyebrow">New · Free · 10 seconds</p><h1>Your Print Kundli</h1><p class="lead">Every person has one block print written in their stars. Type your name and birthday – discover yours, what it says about you, and your <b>Saheli Match</b> with friends.</p><p class="st-remix" data-dna-friend hidden></p></div>
+  <form class="dna-form" data-dna-form><label>Your first name<input name="nm" required maxlength="24" autocomplete="given-name" placeholder="e.g. Priya"></label><label>Your birthday<input name="dob" type="date" required></label><button class="btn btn-lg" type="submit">✨ Reveal my print</button></form>
+  <div class="dna-out" data-dna-out hidden>
+    <canvas data-dna-cv width="900" height="700" hidden></canvas>
+    <div class="dna-text"><h2 data-dna-title></h2><p data-dna-say></p><p class="dna-match" data-dna-match hidden></p><canvas data-dna-cv2 width="900" height="320" hidden></canvas><div data-dna-prod></div>
+      <div class="st-actions"><button type="button" class="btn btn-block" data-dna-share>📸 Share my Print Kundli</button><button type="button" class="btn btn-wa btn-block" data-dna-wa>💞 Check Saheli Match with a friend</button><button type="button" class="btn btn-dark btn-block" data-dna-studio>🎨 Wear it – open in Block Print Studio</button></div><p class="small save" data-dna-msg></p></div>
+  </div>
+  <p class="muted small center">Just for fun ✨ Your birthday is only used on this phone to draw your print – we do not save it.</p>
+</section><script>addEventListener("DOMContentLoaded", () => (${dnaMain.toString()})());</script>` }));
+  add("studio/index.html", page({ title: `Block Print Studio – Design Your Own Jaipur Print | ${brand}`, description: clip(`Design your own hand block print in seconds: pick a motif, colours and stamp it on a kurti like a Jaipur karigar. Share it, let friends remix it – and we can make it for real.`), pathname: "studio/",
+    body: `<section class="wrap section studio" data-studio>
+  <div class="st-head"><p class="eyebrow">New · Play & create</p><h1>Block Print Studio</h1><p class="lead">Be a Jaipur karigar for a minute. Pick a block, choose colours, tap to print. Share your design – friends can remix it, and we can make it for real.</p><p class="st-remix" data-st-remix hidden>✨ You opened a friend's design – change it and make it yours!</p></div>
+  <div class="st-grid">
+    <div class="st-stage"><canvas data-st-canvas width="600" height="800" aria-label="Your kurti print"></canvas><p class="muted small center">Tap the kurti to stamp by hand · <span data-st-count></span></p>
+      <div class="st-row"><button type="button" class="btn btn-ghost btn-sm" data-st-undo>↶ Undo</button><button type="button" class="btn btn-ghost btn-sm" data-st-clear>Clear stamps</button><button type="button" class="btn btn-ghost btn-sm" data-st-random>🎲 Surprise me</button></div></div>
+    <div class="st-panel">
+      <p class="label">1 · Block (motif)</p><div class="st-motifs" data-st-motif></div>
+      <p class="label">2 · Fabric colour</p><div class="st-sw" data-st-base></div>
+      <p class="label">3 · Ink colour</p><div class="st-sw" data-st-ink></div>
+      <p class="label">4 · Layout</p><div class="st-row"><button type="button" class="chip" data-st-mode="auto">All-over</button><button type="button" class="chip" data-st-mode="border">Border + centre</button><button type="button" class="chip" data-st-mode="free">Only my stamps</button></div>
+      <label class="label">Block size <input type="range" min="0.6" max="1.6" step="0.05" value="1" data-st-size></label>
+      <label class="label">Name your print <input class="st-name" maxlength="30" placeholder="e.g. Neha's Monsoon" data-st-name></label>
+      <div class="st-actions"><button type="button" class="btn btn-block" data-st-share>📸 Save / Share my print</button><button type="button" class="btn btn-wa btn-block" data-st-wa>Ask friends on WhatsApp</button><button type="button" class="btn btn-dark btn-block" data-st-order>✂️ Make this kurti for me</button></div>
+      <p class="small save" data-st-msg></p>
+    </div>
+  </div>
+</section><script>addEventListener("DOMContentLoaded", () => (${studioMain.toString()})());</script>` }));
+  add("custom/index.html", page({ title: `Custom Size, Custom Design & Restyle | ${brand}, Jaipur`, description: clip(`Made-to-measure kurtis and dresses in your exact size, your own design made by our Jaipur karigars, and restyle or dye of your old fabric (India). Ships worldwide.`), pathname: "custom/",
+    body: `<section class="wrap section custom-page">
+  <div class="cp-head"><p class="eyebrow">Made for you · Jaipur</p><h1>Custom & Restyle</h1><p class="lead">Tell us what you want. Our karigars make it in your size, your design, your colour.</p></div>
+  <div class="cp-cards">
+    <div class="cp-card"><b>📏 Custom size</b><span>Any style in your exact measurements. Worldwide.</span></div>
+    <div class="cp-card"><b>🎨 Your design</b><span>Send a photo or sketch – we make it real. Worldwide.</span></div>
+    <div class="cp-card"><b>♻️ Restyle / Dye</b><span>Old saree, dupatta or fabric made new, or re-dyed. India only.</span></div>
+  </div>
+  <form class="cp-form" data-custom-form>
+    <label>What do you need?<select name="service" required><option value="">Choose…</option><option>Custom size</option><option>Custom design</option><option>Restyle old fabric (India)</option><option>Dye / colour change (India)</option></select></label>
+    <div class="f2"><label>Full name<input name="name" required maxlength="80" autocomplete="name"></label><label>Phone / WhatsApp (with country code)<input name="phone" required maxlength="20" inputmode="tel" autocomplete="tel" placeholder="+1 555 123 4567"></label></div>
+    <div class="f2"><label>Email<input name="email" type="email" maxlength="100" autocomplete="email"></label><label>Country<input name="country" maxlength="60" autocomplete="country-name" placeholder="India"></label></div>
+    <label>Tell us more (style, colour, fabric, measurements – bust / waist / hip / length)<textarea name="details" rows="4" required maxlength="1200"></textarea></label>
+    <div class="f2"><label>Budget (optional)<input name="budget" maxlength="40" placeholder="e.g. ₹2000 / $50"></label><label>Needed by (optional)<input name="by" type="date"></label></div>
+    <p class="muted small">After you send, WhatsApp opens – attach your photos / sketch there. We reply with price and time within 24 hours. Custom pieces are made only for you, so they cannot be returned.</p>
+    <button class="btn btn-block btn-lg" type="submit">Send request on WhatsApp</button>
+    <p class="save small" data-custom-ok hidden>✓ Request saved. Please send it in WhatsApp too.</p>
+  </form>
+</section>
+<script>addEventListener("DOMContentLoaded",()=>{const f=document.querySelector("[data-custom-form]");if(!f)return;const q=new URLSearchParams(location.search);if(q.get("print")){f.service.value="Custom design";f.details.value="I designed this print in Block Print Studio"+(q.get("name")?" (“"+q.get("name")+"”)":"")+":\\n"+q.get("print")+"\\n\\nStyle / size: ";}f.addEventListener("submit",(e)=>{e.preventDefault();if(!f.reportValidity())return;const d=Object.fromEntries(new FormData(f));const txt="Hi ${esc(brand)}! Custom request\\n\\nService: "+d.service+"\\nName: "+d.name+"\\nPhone: "+d.phone+(d.email?"\\nEmail: "+d.email:"")+"\\nCountry: "+(d.country||"")+"\\n\\n"+d.details+(d.budget?"\\nBudget: "+d.budget:"")+(d.by?"\\nNeeded by: "+d.by:"")+"\\n\\n(I will attach photos here)";try{if(window.BK&&BK.sheet)fetch(BK.sheet,{method:"POST",mode:"no-cors",headers:{"content-type":"text/plain;charset=utf-8"},body:JSON.stringify({type:"custom",name:d.name,phone:d.phone,email:d.email||"",country:d.country||"",items:d.service+" | "+d.details.slice(0,400),total:d.budget||"",page:location.pathname})}).catch(()=>{});}catch(x){}f.querySelector("[data-custom-ok]").hidden=false;${waNumber ? `location.href="https://wa.me/${waNumber}?text="+encodeURIComponent(txt);` : ""}});});</script>` }));
   add("wholesale/index.html", page({ title: `Wholesale & Private Label Kurti Manufacturer, Jaipur | ${brand}`, description: clip(`Wholesale and private label women's ethnic wear manufacturer in Sanganer, Jaipur. Hand block print kurtis, kurta sets, dresses and co-ords for boutiques, brands and importers.`), pathname: "wholesale/", body, bodyClass: "wholesale-page",
     ld: [{ "@context": "https://schema.org", "@type": "Service", serviceType: "Wholesale and private label clothing manufacturing", provider: { "@id": SITE_URL + "/#store" }, areaServed: "Worldwide", url: SITE_URL + "/wholesale/" }] }));
 }
@@ -1169,6 +1223,113 @@ add("404.html", page({ title: `Page not found | ${brand}`, description: "Page no
 
 // ---------- write ----------
 // ---------- Owner business dashboard: /admin/dashboard/ (reads the Google Sheet Apps Script, owner key only) ----------
+function studioMain() {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const root = $("[data-studio]"); if (!root) return;
+  const cv = $("[data-st-canvas]", root), g = cv.getContext("2d"), W = 600, H = 800;
+  const BASES = { Ivory: "#f4ecdc", Indigo: "#24345c", Mustard: "#d9a33a", Rose: "#e8a7a5", Sage: "#a9b89a", Black: "#1d1a19", Teal: "#11605e" };
+  const INKS = { Indigo: "#1f2c5c", Madder: "#a3262a", Black: "#1a1614", Gold: "#c99a2e", Leaf: "#3d6b3a", White: "#f7f2e8", Pink: "#c2457a" };
+  const MOTIFS = {
+    buti: (c) => { for (let i = 0; i < 6; i++) { c.save(); c.rotate(i * Math.PI / 3); c.beginPath(); c.ellipse(0, -11, 5, 10, 0, 0, 7); c.fill(); c.restore(); } c.beginPath(); c.arc(0, 0, 4.5, 0, 7); c.fill(); },
+    paisley: (c) => { c.beginPath(); c.moveTo(0, 18); c.bezierCurveTo(-16, 14, -16, -10, -2, -16); c.bezierCurveTo(10, -21, 16, -10, 8, -4); c.bezierCurveTo(14, 6, 10, 16, 0, 18); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.ellipse(-1, 4, 4, 7, -0.3, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; },
+    leaf: (c) => { c.beginPath(); c.moveTo(0, -20); c.quadraticCurveTo(14, 0, 0, 20); c.quadraticCurveTo(-14, 0, 0, -20); c.fill(); c.globalCompositeOperation = "destination-out"; c.fillRect(-0.8, -16, 1.6, 32); c.globalCompositeOperation = "source-over"; },
+    lotus: (c) => { [-0.9, -0.45, 0, 0.45, 0.9].forEach((a) => { c.save(); c.rotate(a); c.beginPath(); c.ellipse(0, -9, 4.5, 11, 0, 0, 7); c.fill(); c.restore(); }); c.fillRect(-12, 3, 24, 3); },
+    dot: (c) => { c.beginPath(); c.arc(0, 0, 9, 0, 7); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.arc(0, 0, 5, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; c.beginPath(); c.arc(0, 0, 2.2, 0, 7); c.fill(); },
+    star: (c) => { c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 6 : 15, a = i * Math.PI / 8; c.lineTo(Math.sin(a) * r, -Math.cos(a) * r); } c.closePath(); c.fill(); },
+  };
+  const st = { base: "Ivory", ink: "Indigo", motif: "buti", size: 1, mode: "auto", name: "", stamps: [] };
+  // kurti silhouette
+  const kurti = () => { const p = new Path2D(); p.moveTo(250, 90); p.quadraticCurveTo(300, 135, 350, 90); p.lineTo(410, 105); p.lineTo(520, 200); p.lineTo(485, 255); p.lineTo(420, 210); p.lineTo(440, 740); p.quadraticCurveTo(300, 770, 160, 740); p.lineTo(180, 210); p.lineTo(115, 255); p.lineTo(80, 200); p.lineTo(190, 105); p.closePath(); return p; };
+  const K = kurti();
+  let seed = 7; const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+  const stamp = (c, x, y, rot, s) => { c.save(); c.translate(x, y); c.rotate(rot); c.scale(s, s); c.globalAlpha = 0.82 + rnd() * 0.18; MOTIFS[st.motif](c); c.restore(); };
+  const draw = () => {
+    g.clearRect(0, 0, W, H); g.fillStyle = "#f3eee6"; g.fillRect(0, 0, W, H);
+    g.save(); g.clip(K); g.fillStyle = BASES[st.base]; g.fillRect(0, 0, W, H);
+    g.fillStyle = INKS[st.ink]; seed = 11;
+    const s = st.size, step = 46 * s;
+    if (st.mode === "auto") { let row = 0; for (let y = 60; y < H + step; y += step * 0.87, row++) for (let x = (row % 2) * step / 2; x < W + step; x += step) stamp(g, x + (rnd() - 0.5) * 2, y + (rnd() - 0.5) * 2, (rnd() - 0.5) * 0.12, s * (0.95 + rnd() * 0.08)); }
+    else if (st.mode === "border") { for (let x = 150; x < 460; x += step * 0.8) stamp(g, x, 715, 0, s * 0.9); for (let y = 140; y < 700; y += step) { stamp(g, 300, y, 0, s * 0.8); } }
+    st.stamps.forEach(([x, y, r]) => stamp(g, x, y, r / 100, s));
+    // fabric texture + shading
+    for (let i = 0; i < 1800; i++) { g.fillStyle = `rgba(0,0,0,${rnd() * 0.05})`; g.fillRect(rnd() * W, rnd() * H, 1.2, 1.2); }
+    const sh = g.createLinearGradient(160, 0, 440, 0); sh.addColorStop(0, "rgba(0,0,0,.18)"); sh.addColorStop(0.25, "rgba(0,0,0,0)"); sh.addColorStop(0.75, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,0,.18)"); g.fillStyle = sh; g.fillRect(0, 0, W, H);
+    g.restore();
+    g.lineWidth = 2; g.strokeStyle = "rgba(40,25,20,.35)"; g.stroke(K);
+    g.beginPath(); g.moveTo(300, 120); g.lineTo(300, 200); g.stroke();
+    $("[data-st-count]", root).textContent = st.stamps.length ? st.stamps.length + " stamps" : "";
+  };
+  // controls
+  const chips = (sel, obj, key, swatch) => { const box = $(sel, root); box.innerHTML = Object.keys(obj).map((k) => `<button type="button" data-k="${k}" title="${k}" ${swatch ? `style="--c:${obj[k]}"` : ""} class="${swatch ? "sw" : "mt"}">${swatch ? "" : `<canvas width="44" height="44"></canvas>`}<span>${k}</span></button>`).join("");
+    box.addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (!b) return; st[key] = b.dataset.k; sync(); draw(); save(); }); };
+  chips("[data-st-base]", BASES, "base", true); chips("[data-st-ink]", INKS, "ink", true); chips("[data-st-motif]", MOTIFS, "motif", false);
+  $$("[data-st-motif] canvas", root).forEach((c, i) => { const x = c.getContext("2d"); x.translate(22, 22); x.fillStyle = "#24345c"; MOTIFS[Object.keys(MOTIFS)[i]](x); });
+  const sync = () => { $$("[data-k]", root).forEach((b) => { const grp = b.parentElement.dataset; const key = "stBase" in grp ? "base" : "stInk" in grp ? "ink" : "motif"; b.classList.toggle("on", st[key] === b.dataset.k); }); $$("[data-st-mode]", root).forEach((b) => b.classList.toggle("on", b.dataset.stMode === st.mode)); $("[data-st-size]", root).value = st.size; $("[data-st-name]", root).value = st.name; };
+  $$("[data-st-mode]", root).forEach((b) => b.addEventListener("click", () => { st.mode = b.dataset.stMode; sync(); draw(); save(); }));
+  $("[data-st-size]", root).addEventListener("input", (e) => { st.size = +e.target.value; draw(); save(); });
+  $("[data-st-name]", root).addEventListener("input", (e) => { st.name = e.target.value.slice(0, 30); save(); });
+  $("[data-st-undo]", root).addEventListener("click", () => { st.stamps.pop(); draw(); save(); });
+  $("[data-st-clear]", root).addEventListener("click", () => { st.stamps = []; draw(); save(); });
+  $("[data-st-random]", root).addEventListener("click", () => { const pick = (o) => { const k = Object.keys(o); return k[Math.floor(Math.random() * k.length)]; }; st.base = pick(BASES); do { st.ink = pick(INKS); } while (INKS[st.ink] === BASES[st.base]); st.motif = pick(MOTIFS); st.mode = ["auto", "border"][Math.floor(Math.random() * 2)]; st.size = +(0.7 + Math.random() * 0.8).toFixed(2); st.stamps = []; sync(); draw(); save(); });
+  // tap to stamp (real block-print feel: a tiny thud animation)
+  cv.addEventListener("pointerdown", (e) => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H; if (!g.isPointInPath(K, x * (cv.width / W), y * (cv.height / H))) return; if (st.stamps.length >= 150) return; st.stamps.push([Math.round(x), Math.round(y), Math.round((Math.random() - 0.5) * 30)]); draw(); save(); cv.classList.remove("thud"); void cv.offsetWidth; cv.classList.add("thud"); try { navigator.vibrate?.(12); } catch {} });
+  // link (remix) – whole design lives in the URL, so friends open the same print and change it
+  const enc = () => [st.base, st.ink, st.motif, st.mode, st.size, encodeURIComponent(st.name), st.stamps.map((s) => s.map((n) => (n + 500).toString(36)).join(".")).join("_")].join("~");
+  const dec = (h) => { try { const [b, i, m, mo, sz, nm, sp] = h.split("~"); if (BASES[b]) st.base = b; if (INKS[i]) st.ink = i; if (MOTIFS[m]) st.motif = m; if (["auto", "border", "free"].includes(mo)) st.mode = mo; st.size = Math.min(1.6, Math.max(0.6, +sz || 1)); st.name = decodeURIComponent(nm || "").slice(0, 30); st.stamps = (sp || "").split("_").filter(Boolean).slice(0, 150).map((t) => t.split(".").map((n) => parseInt(n, 36) - 500)); return true; } catch { return false; } };
+  const save = () => { try { history.replaceState(null, "", "#d=" + enc()); } catch {} };
+  const link = () => location.origin + location.pathname + "#d=" + enc();
+  const from = (location.hash.match(/#d=(.+)/) || [])[1]; if (from && dec(from)) $("[data-st-remix]", root).hidden = false;
+  // share card
+  const card = () => new Promise((res) => { const c = document.createElement("canvas"); c.width = 1080; c.height = 1350; const x = c.getContext("2d"); x.fillStyle = "#f6efe2"; x.fillRect(0, 0, 1080, 1350); x.drawImage(cv, 140, 90, 800, 1067); x.fillStyle = "#1c1310"; x.textAlign = "center"; x.font = "600 54px Georgia,serif"; x.fillText(st.name ? `“${st.name}”` : "My block print", 540, 1215); x.font = "500 30px system-ui"; x.fillStyle = "#11605e"; x.fillText(`Designed by me on ${location.host}/studio · Bahe Kurtiz, Jaipur`, 540, 1270); c.toBlob(res, "image/jpeg", 0.9); });
+  $("[data-st-share]", root).addEventListener("click", async () => { const b = await card(), f = new File([b], "my-bahe-print.jpg", { type: "image/jpeg" }), text = `I designed my own Jaipur block print 🌸 Can you beat it? Remix it here: ${link()}`;
+    if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text }); return; } catch {} }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "my-bahe-print.jpg"; a.click(); try { await navigator.clipboard.writeText(text); } catch {} $("[data-st-msg]", root).textContent = "Image saved ✓ Link copied – paste it on WhatsApp / Instagram."; });
+  $("[data-st-wa]", root).addEventListener("click", () => { window.open("https://wa.me/?text=" + encodeURIComponent(`Look at the block print I designed 🌸 Which colour should I choose? Open & remix: ${link()}`), "_blank"); });
+  $("[data-st-order]", root).addEventListener("click", () => { location.href = "/custom/?print=" + encodeURIComponent(link()) + (st.name ? "&name=" + encodeURIComponent(st.name) : ""); });
+  sync(); draw();
+}
+
+function dnaMain() {
+  const $ = (s, r = document) => r.querySelector(s);
+  const root = $("[data-dna]"); if (!root) return;
+  const BASES = [["Ivory", "#f4ecdc", "calm and graceful – people trust you instantly"], ["Indigo", "#24345c", "deep and loyal – the friend everyone calls at 2 am"], ["Mustard", "#d9a33a", "warm and bright – you light up every room"], ["Rose", "#e8a7a5", "soft but strong – kind heart, clear mind"], ["Sage", "#a9b89a", "peaceful and wise – you keep everyone grounded"], ["Black", "#1d1a19", "bold and mysterious – you set the trends"], ["Teal", "#11605e", "creative and free – you see beauty everywhere"]];
+  const INKS = [["Indigo", "#1f2c5c"], ["Madder Red", "#a3262a"], ["Black", "#1a1614"], ["Gold", "#c99a2e"], ["Leaf", "#3d6b3a"], ["White", "#f7f2e8"], ["Pink", "#c2457a"]];
+  const MOT = [["Buti", "a little flower that blooms anywhere – adaptable and cheerful", (c) => { for (let i = 0; i < 6; i++) { c.save(); c.rotate(i * Math.PI / 3); c.beginPath(); c.ellipse(0, -11, 5, 10, 0, 0, 7); c.fill(); c.restore(); } c.beginPath(); c.arc(0, 0, 4.5, 0, 7); c.fill(); }],
+    ["Paisley", "the mango of Rajasthan – ambitious, full of dreams", (c) => { c.beginPath(); c.moveTo(0, 18); c.bezierCurveTo(-16, 14, -16, -10, -2, -16); c.bezierCurveTo(10, -21, 16, -10, 8, -4); c.bezierCurveTo(14, 6, 10, 16, 0, 18); c.fill(); }],
+    ["Leaf", "growth – you never stop learning", (c) => { c.beginPath(); c.moveTo(0, -20); c.quadraticCurveTo(14, 0, 0, 20); c.quadraticCurveTo(-14, 0, 0, -20); c.fill(); }],
+    ["Lotus", "rises above everything – calm under pressure", (c) => { [-0.9, -0.45, 0, 0.45, 0.9].forEach((a) => { c.save(); c.rotate(a); c.beginPath(); c.ellipse(0, -9, 4.5, 11, 0, 0, 7); c.fill(); c.restore(); }); c.fillRect(-12, 3, 24, 3); }],
+    ["Chakra", "the wheel – balanced, you bring people together", (c) => { c.beginPath(); c.arc(0, 0, 9, 0, 7); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.arc(0, 0, 5, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; c.beginPath(); c.arc(0, 0, 2.2, 0, 7); c.fill(); }],
+    ["Star", "the night sky of the desert – a born leader", (c) => { c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 6 : 15, a = i * Math.PI / 8; c.lineTo(Math.sin(a) * r, -Math.cos(a) * r); } c.closePath(); c.fill(); }]];
+  const hash = (s) => { let h = 2166136261; for (const ch of s) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; };
+  const dna = (name, dob) => { const h = hash(name.trim().toLowerCase() + "|" + dob); const b = h % BASES.length; let i = (h >>> 3) % INKS.length; if (INKS[i][1] === BASES[b][1] || (b === 0 && i === 5) || (b === 5 && i === 2)) i = (i + 2) % INKS.length; return { b, i, m: (h >>> 7) % MOT.length, lay: (h >>> 11) % 3, sz: 0.8 + ((h >>> 13) % 7) / 10, h, code: h.toString(36).toUpperCase().slice(0, 6) }; };
+  const paint = (cv, d, d2) => { const g = cv.getContext("2d"), W = cv.width, H = cv.height; let s = d.h % 9973; const r = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+    g.fillStyle = BASES[d.b][1]; g.fillRect(0, 0, W, H); const step = 52 * d.sz * (W / 600); let row = 0;
+    for (let y = step / 2; y < H + step; y += step * (d.lay === 1 ? 1 : 0.87), row++) for (let x = (d.lay === 0 ? (row % 2) * step / 2 : 0); x < W + step; x += step) {
+      const use = d2 && (row + Math.round(x / step)) % 2 ? d2 : d; g.save(); g.translate(x, y); g.rotate(d.lay === 2 ? (row % 2 ? 0.4 : -0.4) : (r() - 0.5) * 0.12); const k = step / 52; g.scale(k, k); g.globalAlpha = 0.82 + r() * 0.18; g.fillStyle = INKS[use.i][1]; MOT[use.m][2](g); g.restore(); }
+    for (let n = 0; n < W * 3; n++) { g.fillStyle = `rgba(0,0,0,${r() * 0.05})`; g.fillRect(r() * W, r() * H, 1.3, 1.3); } };
+  const say = (d) => `Your print is <b>${INKS[d.i][0]} ${MOT[d.m][0]} on ${BASES[d.b][0]}</b>. ${BASES[d.b][0]} means you are ${BASES[d.b][2]}. The ${MOT[d.m][0]} is ${MOT[d.m][1]}.`;
+  const out = $("[data-dna-out]", root), form = $("[data-dna-form]", root), cv = $("[data-dna-cv]", root), q = new URLSearchParams(location.search);
+  let me = null, friend = null;
+  const f0 = (q.get("f") || "").split("~"); if (f0[0] && f0[1]) { friend = { name: f0[0].slice(0, 24), dob: f0[1] }; const fd = dna(friend.name, friend.dob); $("[data-dna-friend]", root).hidden = false; $("[data-dna-friend]", root).innerHTML = `<b>${friend.name.replace(/[<>&]/g, "")}</b> shared their Print Kundli: <b>${INKS[fd.i][0]} ${MOT[fd.m][0]} on ${BASES[fd.b][0]}</b>. Make yours to see your <b>Saheli Match</b> 💞`; }
+  form.addEventListener("submit", async (e) => { e.preventDefault(); const name = form.nm.value.trim(), dob = form.dob.value; if (!name || !dob) return;
+    me = { name, dob }; const d = dna(name, dob); cv.hidden = false; paint(cv, d); out.hidden = false;
+    $("[data-dna-title]", root).textContent = `${name}'s Print Kundli · #${d.code}`; $("[data-dna-say]", root).innerHTML = say(d);
+    const mt = $("[data-dna-match]", root);
+    if (friend) { const fd = dna(friend.name, friend.dob), pair = [d.h, fd.h].sort().join("-"), pct = 61 + (hash(pair) % 39); const c2 = $("[data-dna-cv2]", root); c2.hidden = false; paint(c2, d, fd);
+      mt.hidden = false; mt.innerHTML = `💞 Saheli Match with ${friend.name.replace(/[<>&]/g, "")}: <b>${pct}%</b><br><small>This is your friendship print – both your blocks woven together. Twin outfits? 😉</small>`; }
+    try { const cat = await (await fetch("/data/catalog.json")).json(); const ps = Object.values(cat.products || {}).filter((p) => p.image && p.in_stock !== false); const want = BASES[d.b][0].toLowerCase(); const p = ps.find((x) => String(x.color || "").toLowerCase().includes(want)) || ps[d.h % Math.max(1, ps.length)];
+      if (p) $("[data-dna-prod]", root).innerHTML = `<a class="dna-prod" href="${p.url.startsWith("/") ? p.url : "/" + p.url}"><img src="${p.thumb || p.image}" alt=""><span>Your closest match in our collection<b>${p.title}</b></span></a>`; } catch {}
+    out.scrollIntoView({ behavior: "smooth", block: "start" }); });
+  const card = () => new Promise((res) => { const d = dna(me.name, me.dob), c = document.createElement("canvas"); c.width = 1080; c.height = 1350; const x = c.getContext("2d"); const p = document.createElement("canvas"); p.width = 1080; p.height = 900; paint(p, d); x.drawImage(p, 0, 0);
+    x.fillStyle = "#f6efe2"; x.fillRect(0, 900, 1080, 450); x.fillStyle = "#1c1310"; x.textAlign = "center"; x.font = "600 58px Georgia,serif"; x.fillText(`${me.name}'s Print Kundli`, 540, 1000); x.font = "500 38px system-ui"; x.fillStyle = "#11605e"; x.fillText(`${INKS[d.i][0]} ${MOT[d.m][0]} on ${BASES[d.b][0]} · #${d.code}`, 540, 1070); x.fillStyle = "#3a2a22"; x.font = "400 30px system-ui"; x.fillText(`Born to be ${BASES[d.b][2].split(" – ")[0]}.`, 540, 1135); x.font = "600 32px system-ui"; x.fillStyle = "#a3262a"; x.fillText(`What's yours? ${location.host}/print-kundli`, 540, 1260); c.toBlob(res, "image/jpeg", 0.9); });
+  const link = () => `${location.origin}/print-kundli/?f=${encodeURIComponent(me.name)}~${me.dob}`;
+  $("[data-dna-share]", root).addEventListener("click", async () => { if (!me) return; const b = await card(), f = new File([b], "my-print-kundli.jpg", { type: "image/jpeg" }), text = `My Jaipur Print Kundli 🌸 What's yours? And check our Saheli Match 💞 ${link()}`;
+    if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text }); return; } catch {} }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "my-print-kundli.jpg"; a.click(); try { await navigator.clipboard.writeText(text); } catch {} $("[data-dna-msg]", root).textContent = "Image saved ✓ Link copied – post it on your story!"; });
+  $("[data-dna-wa]", root).addEventListener("click", () => { if (!me) return; window.open("https://wa.me/?text=" + encodeURIComponent(`I found my Jaipur Print Kundli 🌸 Find yours & see our Saheli Match %: ${link()}`), "_blank"); });
+  $("[data-dna-studio]", root).addEventListener("click", () => { if (!me) return; const d = dna(me.name, me.dob); const B = ["Ivory", "Indigo", "Mustard", "Rose", "Sage", "Black", "Teal"][d.b], I = ["Indigo", "Madder", "Black", "Gold", "Leaf", "White", "Pink"][d.i], M = ["buti", "paisley", "leaf", "lotus", "dot", "star"][d.m]; location.href = `/studio/#d=${B}~${I}~${M}~auto~${d.sz.toFixed(2)}~${encodeURIComponent(me.name + "'s Kundli")}~`; });
+}
+
 function dashMain() {
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -1405,7 +1566,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "refer/", "gift-card/", "feed/", "mirror/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "custom/", "studio/", "print-kundli/", "refer/", "gift-card/", "feed/", "mirror/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x); return `<url><loc>${SITE_URL}/${x}</loc>${bp ? `<lastmod>${bp.date}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
