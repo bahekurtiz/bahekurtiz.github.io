@@ -1101,13 +1101,13 @@
     // product photo -> dress layer: cutout PNG as is; normal photo: find the model's shoulders, keep only the outfit, soft edges
     const prep = (k) => cache[k] ||= (async () => {
       const p = cat.products[k]; if (p.cutout) return url(p.cutout);
-      try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, innerWidth < 900 ? 720 : 1000), nw = big.width, nh = big.height;
+      try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, 1400), nw = big.width, nh = big.height;
         let r = boxes[k] && boxes[k].v === p.image ? boxes[k].b : null;
         if (!r && lmP) { try { const lm = await lmP; const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
           if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; saveBox(k, { v: p.image, b: r }); } } } catch {} }
         if (!r) r = [0.14, 0.26, 0.72, 0.72];
         const box = { sx: r[0] * nw, sy: r[1] * nh, sw: r[2] * nw, sh: r[3] * nh };
-        const sc = Math.min(1, (innerWidth < 900 ? 460 : 640) / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+        const sc = Math.min(1, Math.min(900, Math.round(stage.clientWidth * Math.min(2.5, devicePixelRatio || 1) * 0.9)) / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
         await frame();
         const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(big, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H); big.close?.();
         g.globalCompositeOperation = "destination-in"; // soft edges with 2 gradients – cheap on every phone
@@ -1149,6 +1149,7 @@
     $("[data-mirror-yes]").addEventListener("click", yes); $("[data-mirror-no]").addEventListener("click", no);
     playB.addEventListener("click", () => (timer ? stop() : play()));
     document.addEventListener("visibilitychange", () => { if (document.hidden && timer) stop(); });
+    if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { mir.classList.toggle("stage-in", e.intersectionRatio > 0.45); }, { threshold: [0, 0.45, 0.8] }).observe(stage);
     if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { if (!e.isIntersecting && timer) { wasPlaying = true; stop(); } else if (e.isIntersecting && wasPlaying && ready) { wasPlaying = false; play(); } }, { threshold: 0.25 }).observe(stage);
     // find shoulders on the photo (on-device), so every dress lands on her automatically
     let lmP = null;
