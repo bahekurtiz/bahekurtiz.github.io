@@ -427,10 +427,10 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
       </div>
       ${products.some((p) => p.bestseller) ? `<a href="${u("bestsellers/")}">Bestsellers</a>` : ""}
       <a href="${u("shop/")}">New Arrivals</a>
+      <a href="${u("custom/")}">Custom & Restyle</a>
+      <a href="${u("mirror/")}">Mirror</a>
       <a href="${u("wholesale/")}">Wholesale</a>
-      <a href="${u("blog/")}">Journal</a>
       <a href="${u("about/")}">Our Story</a>
-      <a href="${u("contact/")}">Contact</a>
     </nav>
     <div class="nav-icons">
       ${intlOn ? `<button class="cur-btn" type="button" data-country aria-label="Change country and currency"><span data-cc-label><span class="cur-inr">🇮🇳 ₹</span><span class="cur-usd">🌍 $</span></span></button>` : ""}
@@ -1001,7 +1001,7 @@ add("mirror/index.html", page({ title: `Mirror – Try Every Dress On Your Photo
     <p class="label">Ya khud chuno <small class="muted">(tap to try)</small></p><div class="mirror-picks" data-mirror-picks></div>
     <div class="mirror-tools"><label>Dress size <input type="range" min="20" max="120" value="52" data-mirror-scale></label><label>See-through <input type="range" min="40" max="100" value="100" data-mirror-op></label></div>
     <p class="label">💚 Aapki pasand <span data-mirror-liked-n></span></p><div class="mirror-board" data-mirror-board><p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p></div>
-    <div class="mirror-actions"><button class="btn btn-wa" type="button" data-mirror-share>${I.wa} Family se poochho: kaunsi?</button><button class="btn btn-ghost" type="button" data-mirror-card>🖼️ Top 3 vote card</button><button class="btn btn-ghost" type="button" data-mirror-wish>♡ Sab wishlist mein</button></div>
+    <div class="mirror-actions"><span class="ma-count">💚 <b data-mirror-likecount>0</b></span><button class="btn btn-wa" type="button" data-mirror-share>${I.wa} Family se poochho: kaunsi?</button><button class="btn btn-ghost" type="button" data-mirror-card>🖼️ Top 3 vote card</button><button class="btn btn-ghost" type="button" data-mirror-wish>♡ Sab wishlist mein</button></div>
     <p class="muted small">Beta: ye photo ke upar dress ka andaaza hai, exact fitting nahi. Size ke liye size chart dekho.</p></div>
 </section>` }));
 
@@ -1073,7 +1073,7 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
     <div class="st-stage"><canvas data-st-canvas width="600" height="800" aria-label="Your kurti print"></canvas><p class="muted small center">Tap the kurti to stamp by hand · <span data-st-count></span></p>
       <div class="st-row"><button type="button" class="btn btn-ghost btn-sm" data-st-undo>↶ Undo</button><button type="button" class="btn btn-ghost btn-sm" data-st-clear>Clear stamps</button><button type="button" class="btn btn-ghost btn-sm" data-st-random>🎲 Surprise me</button></div></div>
     <div class="st-panel">
-      <p class="label">1 · Block (motif)</p><div class="st-motifs" data-st-motif></div>
+      <p class="label">1 · Traditional Jaipur block</p><div class="st-motifs" data-st-motif></div>
       <p class="label">2 · Fabric colour</p><div class="st-sw" data-st-base></div>
       <p class="label">3 · Ink colour</p><div class="st-sw" data-st-ink></div>
       <p class="label">4 · Layout</p><div class="st-row"><button type="button" class="chip" data-st-mode="auto">All-over</button><button type="button" class="chip" data-st-mode="border">Border + centre</button><button type="button" class="chip" data-st-mode="free">Only my stamps</button></div>
@@ -1228,21 +1228,22 @@ function studioMain() {
   const root = $("[data-studio]"); if (!root) return;
   const cv = $("[data-st-canvas]", root), g = cv.getContext("2d"), W = 600, H = 800;
   const BASES = { Ivory: "#f4ecdc", Indigo: "#24345c", Mustard: "#d9a33a", Rose: "#e8a7a5", Sage: "#a9b89a", Black: "#1d1a19", Teal: "#11605e" };
-  const INKS = { Indigo: "#1f2c5c", Madder: "#a3262a", Black: "#1a1614", Gold: "#c99a2e", Leaf: "#3d6b3a", White: "#f7f2e8", Pink: "#c2457a" };
+  const INKS = { Indigo: "#1f2c5c", Madder: "#a3262a", Black: "#1a1614", Gold: "#c99a2e", Leaf: "#3d6b3a", White: "#f7f2e8", Pink: "#c2457a", Kashish: "#5b4636" };
   const MOTIFS = {
-    buti: (c) => { for (let i = 0; i < 6; i++) { c.save(); c.rotate(i * Math.PI / 3); c.beginPath(); c.ellipse(0, -11, 5, 10, 0, 0, 7); c.fill(); c.restore(); } c.beginPath(); c.arc(0, 0, 4.5, 0, 7); c.fill(); },
-    paisley: (c) => { c.beginPath(); c.moveTo(0, 18); c.bezierCurveTo(-16, 14, -16, -10, -2, -16); c.bezierCurveTo(10, -21, 16, -10, 8, -4); c.bezierCurveTo(14, 6, 10, 16, 0, 18); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.ellipse(-1, 4, 4, 7, -0.3, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; },
-    leaf: (c) => { c.beginPath(); c.moveTo(0, -20); c.quadraticCurveTo(14, 0, 0, 20); c.quadraticCurveTo(-14, 0, 0, -20); c.fill(); c.globalCompositeOperation = "destination-out"; c.fillRect(-0.8, -16, 1.6, 32); c.globalCompositeOperation = "source-over"; },
-    lotus: (c) => { [-0.9, -0.45, 0, 0.45, 0.9].forEach((a) => { c.save(); c.rotate(a); c.beginPath(); c.ellipse(0, -9, 4.5, 11, 0, 0, 7); c.fill(); c.restore(); }); c.fillRect(-12, 3, 24, 3); },
-    dot: (c) => { c.beginPath(); c.arc(0, 0, 9, 0, 7); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.arc(0, 0, 5, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; c.beginPath(); c.arc(0, 0, 2.2, 0, 7); c.fill(); },
-    star: (c) => { c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 6 : 15, a = i * Math.PI / 8; c.lineTo(Math.sin(a) * r, -Math.cos(a) * r); } c.closePath(); c.fill(); },
+    // traditional Jaipur block shapes, drawn originally (Sanganeri buta, Bagru dabu, kairi, ajrakh, jaal, bel)
+    sanganeri: (c) => { c.save(); for (let i = 0; i < 5; i++) { c.save(); c.rotate(i * Math.PI * 2 / 5); c.beginPath(); c.ellipse(0, -8, 4.2, 7.5, 0, 0, 7); c.fill(); c.restore(); } c.globalCompositeOperation = "destination-out"; c.beginPath(); c.arc(0, 0, 3.2, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; c.beginPath(); c.arc(0, 0, 1.6, 0, 7); c.fill(); c.lineWidth = 1.6; c.beginPath(); c.moveTo(0, 14); c.quadraticCurveTo(2, 19, 0, 24); c.stroke(); c.beginPath(); c.ellipse(-6, 19, 4.5, 2, -0.6, 0, 7); c.fill(); c.beginPath(); c.ellipse(6, 19, 4.5, 2, 0.6, 0, 7); c.fill(); c.restore(); },
+    kairi: (c) => { c.beginPath(); c.moveTo(0, 18); c.bezierCurveTo(-16, 14, -16, -10, -2, -16); c.bezierCurveTo(10, -21, 16, -10, 8, -4); c.bezierCurveTo(14, 6, 10, 16, 0, 18); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.moveTo(0, 13); c.bezierCurveTo(-10, 10, -10, -6, -1, -10); c.bezierCurveTo(6, -13, 10, -6, 5, -2); c.bezierCurveTo(9, 4, 6, 11, 0, 13); c.fill(); c.globalCompositeOperation = "source-over"; for (let k = 0; k < 4; k++) { c.beginPath(); c.arc(-2 + k * 1.2, 8 - k * 5, 1.8, 0, 7); c.fill(); } },
+    dabu: (c) => { c.beginPath(); c.arc(0, 0, 11, 0, 7); c.fill(); c.globalCompositeOperation = "destination-out"; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; c.beginPath(); c.arc(Math.cos(a) * 6.5, Math.sin(a) * 6.5, 2.2, 0, 7); c.fill(); } c.beginPath(); c.arc(0, 0, 2.6, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; },
+    ajrakh: (c) => { c.save(); c.rotate(Math.PI / 4); c.fillRect(-9, -9, 18, 18); c.restore(); c.globalCompositeOperation = "destination-out"; c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 3 : 8, a = i * Math.PI / 8; c.lineTo(Math.sin(a) * r, -Math.cos(a) * r); } c.closePath(); c.fill(); c.globalCompositeOperation = "source-over"; c.beginPath(); c.arc(0, 0, 1.8, 0, 7); c.fill(); [[0, -16], [16, 0], [0, 16], [-16, 0]].forEach(([x, y]) => { c.beginPath(); c.arc(x, y, 2.2, 0, 7); c.fill(); }); },
+    jaal: (c) => { [-0.9, -0.45, 0, 0.45, 0.9].forEach((a) => { c.save(); c.rotate(a); c.beginPath(); c.ellipse(0, -9, 4.5, 11, 0, 0, 7); c.fill(); c.restore(); }); c.fillRect(-12, 3, 24, 3); c.lineWidth = 1.4; c.beginPath(); c.moveTo(-24, 10); c.quadraticCurveTo(-12, 22, 0, 10); c.quadraticCurveTo(12, -2, 24, 10); c.stroke(); },
+    bel: (c) => { c.lineWidth = 1.8; c.beginPath(); c.moveTo(0, -22); c.bezierCurveTo(8, -10, -8, 4, 0, 22); c.stroke(); [[-1, -12, -0.9], [1, -2, 0.9], [-1, 9, -0.9]].forEach(([s, y, r]) => { c.save(); c.translate(s * 2, y); c.rotate(r); c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(s * 8, -5, s * 13, 0); c.quadraticCurveTo(s * 8, 5, 0, 0); c.fill(); c.restore(); }); c.beginPath(); c.arc(0, -22, 2.4, 0, 7); c.fill(); },
   };
-  const st = { base: "Ivory", ink: "Indigo", motif: "buti", size: 1, mode: "auto", name: "", stamps: [] };
+  const st = { base: "Ivory", ink: "Indigo", motif: "sanganeri", size: 1, mode: "auto", name: "", stamps: [] };
   // kurti silhouette
   const kurti = () => { const p = new Path2D(); p.moveTo(250, 90); p.quadraticCurveTo(300, 135, 350, 90); p.lineTo(410, 105); p.lineTo(520, 200); p.lineTo(485, 255); p.lineTo(420, 210); p.lineTo(440, 740); p.quadraticCurveTo(300, 770, 160, 740); p.lineTo(180, 210); p.lineTo(115, 255); p.lineTo(80, 200); p.lineTo(190, 105); p.closePath(); return p; };
   const K = kurti();
   let seed = 7; const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
-  const stamp = (c, x, y, rot, s) => { c.save(); c.translate(x, y); c.rotate(rot); c.scale(s, s); c.globalAlpha = 0.82 + rnd() * 0.18; MOTIFS[st.motif](c); c.restore(); };
+  const stamp = (c, x, y, rot, s) => { c.save(); c.translate(x, y); c.rotate(rot); c.scale(s, s); c.globalAlpha = 0.82 + rnd() * 0.18; c.strokeStyle = c.fillStyle; MOTIFS[st.motif](c); c.restore(); };
   const draw = () => {
     g.clearRect(0, 0, W, H); g.fillStyle = "#f3eee6"; g.fillRect(0, 0, W, H);
     g.save(); g.clip(K); g.fillStyle = BASES[st.base]; g.fillRect(0, 0, W, H);
@@ -1260,10 +1261,10 @@ function studioMain() {
     $("[data-st-count]", root).textContent = st.stamps.length ? st.stamps.length + " stamps" : "";
   };
   // controls
-  const chips = (sel, obj, key, swatch) => { const box = $(sel, root); box.innerHTML = Object.keys(obj).map((k) => `<button type="button" data-k="${k}" title="${k}" ${swatch ? `style="--c:${obj[k]}"` : ""} class="${swatch ? "sw" : "mt"}">${swatch ? "" : `<canvas width="44" height="44"></canvas>`}<span>${k}</span></button>`).join("");
+  const chips = (sel, obj, key, swatch) => { const box = $(sel, root); box.innerHTML = Object.keys(obj).map((k) => `<button type="button" data-k="${k}" title="${k}" ${swatch ? `style="--c:${obj[k]}"` : ""} class="${swatch ? "sw" : "mt"}">${swatch ? "" : `<canvas width="44" height="44"></canvas>`}<span>${({ sanganeri: "Sanganeri buta", kairi: "Kairi", dabu: "Bagru dabu", ajrakh: "Ajrakh", jaal: "Kamal jaal", bel: "Bel" })[k] || k}</span></button>`).join("");
     box.addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (!b) return; st[key] = b.dataset.k; sync(); draw(); save(); }); };
   chips("[data-st-base]", BASES, "base", true); chips("[data-st-ink]", INKS, "ink", true); chips("[data-st-motif]", MOTIFS, "motif", false);
-  $$("[data-st-motif] canvas", root).forEach((c, i) => { const x = c.getContext("2d"); x.translate(22, 22); x.fillStyle = "#24345c"; MOTIFS[Object.keys(MOTIFS)[i]](x); });
+  $$("[data-st-motif] canvas", root).forEach((c, i) => { const x = c.getContext("2d"); x.translate(22, 22); x.fillStyle = x.strokeStyle = "#24345c"; MOTIFS[Object.keys(MOTIFS)[i]](x); });
   const sync = () => { $$("[data-k]", root).forEach((b) => { const grp = b.parentElement.dataset; const key = "stBase" in grp ? "base" : "stInk" in grp ? "ink" : "motif"; b.classList.toggle("on", st[key] === b.dataset.k); }); $$("[data-st-mode]", root).forEach((b) => b.classList.toggle("on", b.dataset.stMode === st.mode)); $("[data-st-size]", root).value = st.size; $("[data-st-name]", root).value = st.name; };
   $$("[data-st-mode]", root).forEach((b) => b.addEventListener("click", () => { st.mode = b.dataset.stMode; sync(); draw(); save(); }));
   $("[data-st-size]", root).addEventListener("input", (e) => { st.size = +e.target.value; draw(); save(); });
@@ -1294,12 +1295,12 @@ function dnaMain() {
   const root = $("[data-dna]"); if (!root) return;
   const BASES = [["Ivory", "#f4ecdc", "calm and graceful – people trust you instantly"], ["Indigo", "#24345c", "deep and loyal – the friend everyone calls at 2 am"], ["Mustard", "#d9a33a", "warm and bright – you light up every room"], ["Rose", "#e8a7a5", "soft but strong – kind heart, clear mind"], ["Sage", "#a9b89a", "peaceful and wise – you keep everyone grounded"], ["Black", "#1d1a19", "bold and mysterious – you set the trends"], ["Teal", "#11605e", "creative and free – you see beauty everywhere"]];
   const INKS = [["Indigo", "#1f2c5c"], ["Madder Red", "#a3262a"], ["Black", "#1a1614"], ["Gold", "#c99a2e"], ["Leaf", "#3d6b3a"], ["White", "#f7f2e8"], ["Pink", "#c2457a"]];
-  const MOT = [["Buti", "a little flower that blooms anywhere – adaptable and cheerful", (c) => { for (let i = 0; i < 6; i++) { c.save(); c.rotate(i * Math.PI / 3); c.beginPath(); c.ellipse(0, -11, 5, 10, 0, 0, 7); c.fill(); c.restore(); } c.beginPath(); c.arc(0, 0, 4.5, 0, 7); c.fill(); }],
-    ["Paisley", "the mango of Rajasthan – ambitious, full of dreams", (c) => { c.beginPath(); c.moveTo(0, 18); c.bezierCurveTo(-16, 14, -16, -10, -2, -16); c.bezierCurveTo(10, -21, 16, -10, 8, -4); c.bezierCurveTo(14, 6, 10, 16, 0, 18); c.fill(); }],
-    ["Leaf", "growth – you never stop learning", (c) => { c.beginPath(); c.moveTo(0, -20); c.quadraticCurveTo(14, 0, 0, 20); c.quadraticCurveTo(-14, 0, 0, -20); c.fill(); }],
-    ["Lotus", "rises above everything – calm under pressure", (c) => { [-0.9, -0.45, 0, 0.45, 0.9].forEach((a) => { c.save(); c.rotate(a); c.beginPath(); c.ellipse(0, -9, 4.5, 11, 0, 0, 7); c.fill(); c.restore(); }); c.fillRect(-12, 3, 24, 3); }],
-    ["Chakra", "the wheel – balanced, you bring people together", (c) => { c.beginPath(); c.arc(0, 0, 9, 0, 7); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.arc(0, 0, 5, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; c.beginPath(); c.arc(0, 0, 2.2, 0, 7); c.fill(); }],
-    ["Star", "the night sky of the desert – a born leader", (c) => { c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 6 : 15, a = i * Math.PI / 8; c.lineTo(Math.sin(a) * r, -Math.cos(a) * r); } c.closePath(); c.fill(); }]];
+  const MOT = [["Sanganeri Buta", "a little flower that blooms anywhere – adaptable and cheerful", (c) => { for (let i = 0; i < 6; i++) { c.save(); c.rotate(i * Math.PI / 3); c.beginPath(); c.ellipse(0, -11, 5, 10, 0, 0, 7); c.fill(); c.restore(); } c.beginPath(); c.arc(0, 0, 4.5, 0, 7); c.fill(); }],
+    ["Kairi", "the mango of Rajasthan – ambitious, full of dreams", (c) => { c.beginPath(); c.moveTo(0, 18); c.bezierCurveTo(-16, 14, -16, -10, -2, -16); c.bezierCurveTo(10, -21, 16, -10, 8, -4); c.bezierCurveTo(14, 6, 10, 16, 0, 18); c.fill(); }],
+    ["Bel", "the climbing vine – you never stop growing", (c) => { c.beginPath(); c.moveTo(0, -20); c.quadraticCurveTo(14, 0, 0, 20); c.quadraticCurveTo(-14, 0, 0, -20); c.fill(); }],
+    ["Kamal", "the lotus – rises above everything – calm under pressure", (c) => { [-0.9, -0.45, 0, 0.45, 0.9].forEach((a) => { c.save(); c.rotate(a); c.beginPath(); c.ellipse(0, -9, 4.5, 11, 0, 0, 7); c.fill(); c.restore(); }); c.fillRect(-12, 3, 24, 3); }],
+    ["Bagru Dabu", "the earthy Bagru circle – balanced, you bring people together", (c) => { c.beginPath(); c.arc(0, 0, 9, 0, 7); c.fill(); c.globalCompositeOperation = "destination-out"; c.beginPath(); c.arc(0, 0, 5, 0, 7); c.fill(); c.globalCompositeOperation = "source-over"; c.beginPath(); c.arc(0, 0, 2.2, 0, 7); c.fill(); }],
+    ["Ajrakh", "the ancient desert star – a born leader", (c) => { c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 6 : 15, a = i * Math.PI / 8; c.lineTo(Math.sin(a) * r, -Math.cos(a) * r); } c.closePath(); c.fill(); }]];
   const hash = (s) => { let h = 2166136261; for (const ch of s) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; };
   const dna = (name, dob) => { const h = hash(name.trim().toLowerCase() + "|" + dob); const b = h % BASES.length; let i = (h >>> 3) % INKS.length; if (INKS[i][1] === BASES[b][1] || (b === 0 && i === 5) || (b === 5 && i === 2)) i = (i + 2) % INKS.length; return { b, i, m: (h >>> 7) % MOT.length, lay: (h >>> 11) % 3, sz: 0.8 + ((h >>> 13) % 7) / 10, h, code: h.toString(36).toUpperCase().slice(0, 6) }; };
   const paint = (cv, d, d2) => { const g = cv.getContext("2d"), W = cv.width, H = cv.height; let s = d.h % 9973; const r = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
@@ -1327,7 +1328,7 @@ function dnaMain() {
     if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text }); return; } catch {} }
     const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "my-print-kundli.jpg"; a.click(); try { await navigator.clipboard.writeText(text); } catch {} $("[data-dna-msg]", root).textContent = "Image saved ✓ Link copied – post it on your story!"; });
   $("[data-dna-wa]", root).addEventListener("click", () => { if (!me) return; window.open("https://wa.me/?text=" + encodeURIComponent(`I found my Jaipur Print Kundli 🌸 Find yours & see our Saheli Match %: ${link()}`), "_blank"); });
-  $("[data-dna-studio]", root).addEventListener("click", () => { if (!me) return; const d = dna(me.name, me.dob); const B = ["Ivory", "Indigo", "Mustard", "Rose", "Sage", "Black", "Teal"][d.b], I = ["Indigo", "Madder", "Black", "Gold", "Leaf", "White", "Pink"][d.i], M = ["buti", "paisley", "leaf", "lotus", "dot", "star"][d.m]; location.href = `/studio/#d=${B}~${I}~${M}~auto~${d.sz.toFixed(2)}~${encodeURIComponent(me.name + "'s Kundli")}~`; });
+  $("[data-dna-studio]", root).addEventListener("click", () => { if (!me) return; const d = dna(me.name, me.dob); const B = ["Ivory", "Indigo", "Mustard", "Rose", "Sage", "Black", "Teal"][d.b], I = ["Indigo", "Madder", "Black", "Gold", "Leaf", "White", "Pink"][d.i], M = ["sanganeri", "kairi", "bel", "jaal", "dabu", "ajrakh"][d.m]; location.href = `/studio/#d=${B}~${I}~${M}~auto~${d.sz.toFixed(2)}~${encodeURIComponent(me.name + "'s Kundli")}~`; });
 }
 
 function dashMain() {
