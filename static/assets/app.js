@@ -1087,7 +1087,7 @@
       return j.image;
     })();
     const say = (t, ms) => { statusEl.textContent = t; statusEl.hidden = !t; clearTimeout(say._h); if (ms) say._h = setTimeout(() => (statusEl.hidden = true), ms); };
-    const place = () => { dr.style.width = fit.w + "%"; dr.style.left = fit.x + "%"; dr.style.top = fit.y + "%"; scaleI.value = Math.round(fit.w); };
+    const place = () => { dr.style.width = fit.w * (+dr.dataset.k || 1) + "%"; dr.style.left = fit.x + "%"; dr.style.top = fit.y + "%"; scaleI.value = Math.round(fit.w); };
     const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
     // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides, feather the edges
     // fast image helpers: decode + shrink off the main thread (createImageBitmap) so the page never freezes
@@ -1095,25 +1095,64 @@
     const bitmap = async (src, max) => { const bl = await blobOf(src); try { const b0 = await createImageBitmap(bl); const s = Math.min(1, max / Math.max(b0.width, b0.height)); if (s === 1) return b0; const b = await createImageBitmap(bl, { resizeWidth: Math.round(b0.width * s), resizeHeight: Math.round(b0.height * s), resizeQuality: "high" }); b0.close?.(); return b; } catch { return await loadImg(URL.createObjectURL(bl)); } };
     const toURL = (cv, type, q) => new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : ""), type, q));
     const frame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+    const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
     // where the outfit is in each product photo (found once, remembered on this phone → instant next time)
     const BK_BOX = "bk_mbox_v1"; let boxes = {}; try { boxes = JSON.parse(localStorage.getItem(BK_BOX)) || {}; } catch {}
     const saveBox = (k, b) => { boxes[k] = b; try { localStorage.setItem(BK_BOX, JSON.stringify(boxes)); } catch {} };
-    // product photo -> dress layer: cutout PNG as is; normal photo: find the model's shoulders, keep only the outfit, soft edges
+    // on-device AI (MediaPipe): pose = where her shoulders are, segmenter = which pixels are CLOTHES (auto cut-out for every new listing)
+    const SEG = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite";
+    let visP = null, fsP = null, lmP = null, segP = null;
+    const vis = () => (visP ||= import(MP + "/vision_bundle.mjs"));
+    const files = () => (fsP ||= vis().then((V) => V.FilesetResolver.forVisionTasks(MP + "/wasm")));
+    const getLm = () => (lmP ||= vis().then(async (V) => { const fs = await files(); const o = (d) => ({ baseOptions: { modelAssetPath: MODEL, delegate: d }, runningMode: "IMAGE", numPoses: 1 }); return V.PoseLandmarker.createFromOptions(fs, o("GPU")).catch(() => V.PoseLandmarker.createFromOptions(fs, o("CPU"))); }));
+    const getSeg = () => (segP ||= vis().then(async (V) => V.ImageSegmenter.createFromOptions(await files(), { baseOptions: { modelAssetPath: SEG, delegate: "CPU" }, runningMode: "IMAGE", outputCategoryMask: false, outputConfidenceMasks: true })));
+    // one square tile -> soft alpha mask of the clothes (class 4)
+    const segTile = (seg, src, sx, sy, side) => {
+      const c = document.createElement("canvas"); c.width = c.height = 256; const cg = c.getContext("2d"); cg.fillStyle = "#fff"; cg.fillRect(0, 0, 256, 256); cg.drawImage(src, sx, sy, side, side, 0, 0, 256, 256);
+      const r = seg.segment(c); try { const m = r.confidenceMasks?.[4]; if (!m) return null; const w = m.width, h = m.height, f = m.getAsFloat32Array();
+        const o = document.createElement("canvas"); o.width = w; o.height = h; const x = o.getContext("2d"), id = x.createImageData(w, h), d = id.data;
+        for (let i = 0; i < f.length; i++) { const a = (f[i] - 0.25) / 0.5, j = i * 4; d[j] = d[j + 1] = d[j + 2] = 255; d[j + 3] = a <= 0 ? 0 : a >= 1 ? 255 : a * 255; }
+        x.putImageData(id, 0, 0); return o; } finally { r.close?.(); }
+    };
+    const MC = "bk-mirror-v2"; // finished cut-outs are kept in the browser cache → next visit is instant
+    const fromCache = async (key) => { try { const r = await (await caches.open(MC)).match(key); return r ? URL.createObjectURL(await r.blob()) : ""; } catch { return ""; } };
+    const toCache = async (key, cv) => { try { const bl = await new Promise((r) => cv.toBlob(r, "image/png")); if (!bl) return ""; (await caches.open(MC)).put(key, new Response(bl)).catch(() => {}); return URL.createObjectURL(bl); } catch { return ""; } };
+    // product photo -> dress layer {src, k}: k = how much wider than the standard 2.3× shoulder box
     const prep = (k) => cache[k] ||= (async () => {
-      const p = cat.products[k]; if (p.cutout) return url(p.cutout);
+      const p = cat.products[k]; if (p.cutout) return { src: url(p.cutout), k: 1, cut: true };
+      const KW = 3.0, ck = `/__bkm/${encodeURIComponent(k)}?v=${encodeURIComponent(p.image)}&w=${KW}`;
+      const hit = boxes[k] && boxes[k].v === p.image && boxes[k].seg ? await fromCache(ck) : ""; if (hit) return { src: hit, k: KW / 2.3, cut: true };
       try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, 1400), nw = big.width, nh = big.height;
         let r = boxes[k] && boxes[k].v === p.image ? boxes[k].b : null;
-        if (!r && lmP) { try { const lm = await lmP; const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
-          if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; saveBox(k, { v: p.image, b: r }); } } } catch {} }
-        if (!r) r = [0.14, 0.26, 0.72, 0.72];
+        if (!r) { try { const lm = await timeout(getLm(), 8000); if (lm) { const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
+          if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; } } } } catch {} }
+        const found = !!r; if (!r) r = [0.14, 0.26, 0.72, 0.72];
+        // try the real cut-out first
+        const seg = await timeout(getSeg().catch(() => null), 12000);
+        if (seg) { try {
+          const cx = (r[0] + r[2] / 2) * nw, bw = r[2] * nw * KW / 2.3, sx = cx - bw / 2, sy = r[1] * nh, sh = nh - sy;
+          const sc = Math.min(1, Math.min(1100, Math.round(stage.clientWidth * Math.min(2.5, devicePixelRatio || 1) * 1.1)) / bw), W = Math.round(bw * sc), H = Math.round(sh * sc);
+          await frame();
+          const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.imageSmoothingQuality = "high";
+          const ix = Math.max(0, sx), iw = Math.min(nw, sx + bw) - ix; g.drawImage(big, ix, sy, iw, sh, (ix - sx) * sc, 0, iw * sc, H);
+          const M = document.createElement("canvas"); M.width = W; M.height = H; const mg = M.getContext("2d"); mg.imageSmoothingQuality = "high"; mg.globalCompositeOperation = "lighten";
+          const side = Math.min(bw, sh), step = side * 0.7, ys = []; for (let y = 0; ; y += step) { if (y + side >= sh) { ys.push(Math.max(0, sh - side)); break; } ys.push(y); }
+          for (const y of ys) { await frame(); const t = segTile(seg, cv, 0, y * sc, side * sc); if (t) mg.drawImage(t, 0, 0, t.width, t.height, 0, y * sc, side * sc, side * sc); }
+          // enough clothes found?
+          const q = document.createElement("canvas"); q.width = 40; q.height = 60; const qg = q.getContext("2d"); qg.drawImage(M, 0, 0, 40, 60); const qd = qg.getImageData(0, 0, 40, 60).data; let sum = 0; for (let i = 3; i < qd.length; i += 4) sum += qd[i]; const cover = sum / (255 * 2400);
+          if (cover > 0.06) { g.globalCompositeOperation = "destination-in"; g.drawImage(M, 0, 0); big.close?.();
+            saveBox(k, { v: p.image, b: r, seg: 1 }); const src = await toCache(ck, cv); if (src) return { src, k: KW / 2.3, cut: true }; }
+        } catch {} }
+        if (found) saveBox(k, { v: p.image, b: r });
+        // fallback: soft-edged crop (old way)
         const box = { sx: r[0] * nw, sy: r[1] * nh, sw: r[2] * nw, sh: r[3] * nh };
         const sc = Math.min(1, Math.min(900, Math.round(stage.clientWidth * Math.min(2.5, devicePixelRatio || 1) * 0.9)) / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
         await frame();
         const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(big, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H); big.close?.();
-        g.globalCompositeOperation = "destination-in"; // soft edges with 2 gradients – cheap on every phone
+        g.globalCompositeOperation = "destination-in";
         const gh = g.createLinearGradient(0, 0, W, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.09, "#000"); gh.addColorStop(0.91, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gh; g.fillRect(0, 0, W, H);
         const gv = g.createLinearGradient(0, 0, 0, H); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.07, "#000"); gv.addColorStop(0.93, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gv; g.fillRect(0, 0, W, H);
-        return (await toURL(cv, "image/png")) || url(p.image); } catch { return url(p.image); }
+        return { src: (await toURL(cv, "image/png")) || url(p.image), k: 1 }; } catch { return { src: url(p.image), k: 1 }; }
     })();
     const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
     const show = async (i) => {
@@ -1125,13 +1164,13 @@
         catch (e) { if (list[idx] !== k) return; say(e.message === "limit" ? "Aaj ki free try-on limit poori ho gayi – kal phir aana 💚" : "AI abhi busy hai – thodi der baad dobara try karo", 4000); }
         finally { if (list[idx] === k) { stage.classList.remove("ai-busy"); requestAnimationFrame(() => aiI.classList.remove("swap")); } }
         return; }
-      dr.classList.add("swap"); const src = await prep(k); if (list[idx] !== k) return;
-      dr.src = src; dr.classList.toggle("is-cutout", !!p.cutout); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
+      dr.classList.add("swap"); if (!cache[k]) say("✨ Dress taiyaar ho rahi hai…"); const lay = await prep(k); if (list[idx] !== k) return; if (statusEl.textContent.startsWith("✨ Dress")) say("");
+      dr.src = lay.src; dr.dataset.k = lay.k; dr.classList.toggle("is-cutout", !!lay.cut); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
       idle(() => prep(list[(idx + 1) % list.length]));
     };
     const stop = () => { clearInterval(timer); timer = null; playB.textContent = "▶"; playB.setAttribute("aria-label", "Play"); };
     let scrolling = 0, wasPlaying = false; addEventListener("scroll", () => { scrolling = Date.now(); }, { passive: true });
-    const next = () => { if (Date.now() - scrolling < 400) return; seen++; if (seen >= list.length && timer) { stop(); say(`Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
+    const next = () => { if (Date.now() - scrolling < 400) return; seen++; if (seen >= list.length && timer) { stop(); say(liked.length ? `Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}` : `Sab ${list.length} dress dekh li – jo pasand aaye us par 💚 Haan dabao`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
     const play = () => { stop(); if (ai || !list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
     const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
     const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
@@ -1152,12 +1191,9 @@
     if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { mir.classList.toggle("stage-in", e.intersectionRatio > 0.45); }, { threshold: [0, 0.45, 0.8] }).observe(stage);
     if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { if (!e.isIntersecting && timer) { wasPlaying = true; stop(); } else if (e.isIntersecting && wasPlaying && ready) { wasPlaying = false; play(); } }, { threshold: 0.25 }).observe(stage);
     // find shoulders on the photo (on-device), so every dress lands on her automatically
-    let lmP = null;
     const fitBody = async () => {
       try {
-        const V = await import(MP + "/vision_bundle.mjs");
-        lmP ||= V.FilesetResolver.forVisionTasks(MP + "/wasm").then((fs) => { const o = (d) => ({ baseOptions: { modelAssetPath: MODEL, delegate: d }, runningMode: "IMAGE", numPoses: 1 }); return V.PoseLandmarker.createFromOptions(fs, o("GPU")).catch(() => V.PoseLandmarker.createFromOptions(fs, o("CPU"))); });
-        const lm = await lmP; await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 30)));
+        getSeg().catch(() => {}); const lm = await getLm(); await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 30)));
         const small = await bitmap(await (await fetch(me.src)).blob(), 512); const L = lm.detect(small).landmarks?.[0]; small.close?.(); if (!L) return false;
         const r = stage.getBoundingClientRect(), W = r.width, H = r.height, s = Math.min(W / me.naturalWidth, H / me.naturalHeight), dw = me.naturalWidth * s, dh = me.naturalHeight * s, ox = (W - dw) / 2, oy = (H - dh) / 2;
         const P = (n) => ({ x: ox + L[n].x * dw, y: oy + L[n].y * dh });
@@ -1165,7 +1201,6 @@
         fit = { x: (ls.x + rs.x) / 2 / W * 100, y: (Math.min(ls.y, rs.y) - sw * 0.3) / H * 100, w: Math.min(120, sw * 2.3 / W * 100) }; return true;
       } catch { return false; }
     };
-    const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
     $("[data-mirror-file]").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…"); aiCache = {}; aiI.hidden = true; meData = "";
       (async () => { try { const b = await bitmap(f, 1024), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); meData = c.toDataURL("image/jpeg", 0.86); } catch {} })();
