@@ -1069,14 +1069,21 @@
   $$("[data-ig]").forEach((b) => b.addEventListener("click", () => { const d = document.createElement("div"); d.className = "reel reel-ig"; d.innerHTML = `<iframe src="${b.dataset.ig}" title="Instagram reel" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`; b.replaceWith(d); }));
   if (matchMedia("(hover: hover)").matches) document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".card"); const im = c && c.querySelector("img.alt[data-src]"); if (im) { im.src = im.dataset.src; im.removeAttribute("data-src"); } }, { passive: true });
 
-  // ---------- Mirror 2.0 ----------
+  // ---------- Mirror 3.0 (on-device AI: pose + clothes segmentation) ----------
   const mir = $("[data-mirror]");
   if (mir) {
     const me = $("[data-mirror-me]"), dr = $("[data-mirror-dress]"), stage = $("[data-mirror-stage]"), board = $("[data-mirror-board]"), statusEl = $("[data-mirror-status]"), playB = $("[data-mirror-play]"), scaleI = $("[data-mirror-scale]");
     const MP = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14", MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task";
-    let cat = null, all = [], list = [], idx = 0, seen = 0, timer = null, fit = { x: 50, y: 22, w: 52 }, liked = [], poseOk = false, ready = false;
+    const SEG = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite";
+    const KW = 3.0; // dress layer = 3× shoulder width, shoulder line at 0.1 × layer width from its top
+    let cat = null, all = [], list = [], idx = 0, seen = 0, timer = null, liked = [], poseOk = false, ready = false;
+    let fit = { x: 50, y: 22, w: 52, d: 4 }; // x,y = layer top-centre (%); w = 2.3× shoulder width (% of stage); d = shoulder line below layer top (%)
+    let U = null; // user's body info in stage px: { sw, sy, cx, arms:[[a,b]...], g:{gw,gh,cl,ps}, utw }
     const cache = {};
-    // AI Mirror: real try-on (server /api/tryon) – the dress is redrawn on YOUR body, fit-to-fit. Falls back to the old overlay if AI is off.
+    // erase layer: hides the user's own clothes that stick out from under the new dress
+    const er = document.createElement("canvas"); er.className = "mirror-erase"; er.hidden = true; me.after(er);
+    let bgFill = null;
+    // AI Mirror (server /api/tryon, optional)
     let ai = false, meData = "", aiCache = {};
     const aiI = document.createElement("img"); aiI.className = "mirror-ai"; aiI.alt = ""; aiI.hidden = true; aiI.decoding = "async"; dr.after(aiI);
     const aiReady = fetch("/api/tryon", { cache: "no-store" }).then((r) => r.json()).then((j) => { ai = !!j.on; if (ai) mir.classList.add("is-ai"); return ai; }).catch(() => false);
@@ -1087,131 +1094,213 @@
       return j.image;
     })();
     const say = (t, ms) => { statusEl.textContent = t; statusEl.hidden = !t; clearTimeout(say._h); if (ms) say._h = setTimeout(() => (statusEl.hidden = true), ms); };
-    const place = () => { dr.style.width = fit.w * (+dr.dataset.k || 1) + "%"; dr.style.left = fit.x + "%"; dr.style.top = fit.y + "%"; scaleI.value = Math.round(fit.w); };
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const mk = (w, h) => { const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
     const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
-    // product photo -> dress layer: cutout PNG as is; normal photo: trim head + sides, feather the edges
-    // fast image helpers: decode + shrink off the main thread (createImageBitmap) so the page never freezes
     const blobOf = async (src) => (src instanceof Blob ? src : await (await fetch(src)).blob());
     const bitmap = async (src, max) => { const bl = await blobOf(src); try { const b0 = await createImageBitmap(bl); const s = Math.min(1, max / Math.max(b0.width, b0.height)); if (s === 1) return b0; const b = await createImageBitmap(bl, { resizeWidth: Math.round(b0.width * s), resizeHeight: Math.round(b0.height * s), resizeQuality: "high" }); b0.close?.(); return b; } catch { return await loadImg(URL.createObjectURL(bl)); } };
     const toURL = (cv, type, q) => new Promise((r) => cv.toBlob((bl) => r(bl ? URL.createObjectURL(bl) : ""), type, q));
     const frame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
     const timeout = (pr, ms) => Promise.race([pr, new Promise((r) => setTimeout(() => r(false), ms))]);
-    // where the outfit is in each product photo (found once, remembered on this phone → instant next time)
-    const BK_BOX = "bk_mbox_v1"; let boxes = {}; try { boxes = JSON.parse(localStorage.getItem(BK_BOX)) || {}; } catch {}
-    const saveBox = (k, b) => { boxes[k] = b; try { localStorage.setItem(BK_BOX, JSON.stringify(boxes)); } catch {} };
-    // on-device AI (MediaPipe): pose = where her shoulders are, segmenter = which pixels are CLOTHES (auto cut-out for every new listing)
-    const SEG = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite";
+    const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
+    // ---- models (loaded once, from the browser cache after the first visit)
     let visP = null, fsP = null, lmP = null, segP = null;
     const vis = () => (visP ||= import(MP + "/vision_bundle.mjs"));
     const files = () => (fsP ||= vis().then((V) => V.FilesetResolver.forVisionTasks(MP + "/wasm")));
     const getLm = () => (lmP ||= vis().then(async (V) => { const fs = await files(); const o = (d) => ({ baseOptions: { modelAssetPath: MODEL, delegate: d }, runningMode: "IMAGE", numPoses: 1 }); return V.PoseLandmarker.createFromOptions(fs, o("GPU")).catch(() => V.PoseLandmarker.createFromOptions(fs, o("CPU"))); }));
-    const getSeg = () => (segP ||= vis().then(async (V) => V.ImageSegmenter.createFromOptions(await files(), { baseOptions: { modelAssetPath: SEG, delegate: "CPU" }, runningMode: "IMAGE", outputCategoryMask: false, outputConfidenceMasks: true })));
-    // one square tile -> soft alpha mask of the clothes (class 4)
-    const segTile = (seg, src, sx, sy, side) => {
-      const c = document.createElement("canvas"); c.width = c.height = 256; const cg = c.getContext("2d"); cg.fillStyle = "#fff"; cg.fillRect(0, 0, 256, 256); cg.drawImage(src, sx, sy, side, side, 0, 0, 256, 256);
-      const r = seg.segment(c); try { const m = r.confidenceMasks?.[4]; if (!m) return null; const w = m.width, h = m.height, f = m.getAsFloat32Array();
-        const o = document.createElement("canvas"); o.width = w; o.height = h; const x = o.getContext("2d"), id = x.createImageData(w, h), d = id.data;
-        for (let i = 0; i < f.length; i++) { const a = (f[i] - 0.25) / 0.5, j = i * 4; d[j] = d[j + 1] = d[j + 2] = 255; d[j + 3] = a <= 0 ? 0 : a >= 1 ? 255 : a * 255; }
-        x.putImageData(id, 0, 0); return o; } finally { r.close?.(); }
+    const getSeg = () => (segP ||= vis().then(async (V) => V.ImageSegmenter.createFromOptions(await files(), { baseOptions: { modelAssetPath: SEG, delegate: "CPU" }, runningMode: "IMAGE", outputCategoryMask: false, outputConfidenceMasks: true })).catch((e) => { segP = null; throw e; }));
+    // ---- segmentation of a canvas into a low-res grid: cl = clothes (minus accessories), ps = person (anything not background)
+    const segGrid = async (seg, src, gw) => {
+      const W = src.width, H = src.height, gh = Math.max(1, Math.round(gw * H / W)), cl = new Float32Array(gw * gh), ps = new Float32Array(gw * gh);
+      const side = Math.min(W, H), vert = H >= W, len = vert ? H : W, pos = [];
+      for (let p = 0; ; p += side * 0.7) { if (p + side >= len) { pos.push(Math.max(0, len - side)); break; } pos.push(p); }
+      const t = mk(256, 256), tg = t.getContext("2d", { willReadFrequently: true }); tg.imageSmoothingQuality = "high";
+      for (const p of pos) {
+        await frame();
+        const tx = vert ? 0 : p, ty = vert ? p : 0; tg.clearRect(0, 0, 256, 256); tg.drawImage(src, tx, ty, side, side, 0, 0, 256, 256);
+        const r = seg.segment(t);
+        try {
+          const M = r.confidenceMasks || []; if (M.length < 5) continue; const mw = M[0].width, mh = M[0].height;
+          const bgm = M[0].getAsFloat32Array(), c4 = M[4].getAsFloat32Array(), c5 = M[5] ? M[5].getAsFloat32Array() : null;
+          const x0 = Math.floor(tx / W * gw), x1 = Math.min(gw, Math.ceil((tx + side) / W * gw)), y0 = Math.floor(ty / H * gh), y1 = Math.min(gh, Math.ceil((ty + side) / H * gh));
+          for (let gy = y0; gy < y1; gy++) { const my = clamp(Math.floor(((gy + 0.5) / gh * H - ty) / side * mh), 0, mh - 1);
+            for (let gx = x0; gx < x1; gx++) { const mx = clamp(Math.floor(((gx + 0.5) / gw * W - tx) / side * mw), 0, mw - 1), j = my * mw + mx, i = gy * gw + gx;
+              const c = c4[j] - (c5 ? c5[j] * 0.8 : 0), pp = 1 - bgm[j]; if (c > cl[i]) cl[i] = c; if (pp > ps[i]) ps[i] = pp; } }
+        } finally { r.close?.(); }
+      }
+      return { gw, gh, cl, ps };
     };
-    const MC = "bk-mirror-v2"; // finished cut-outs are kept in the browser cache → next visit is instant
+    // fill holes (pixels not connected to the border) in a binary mask
+    const fillHoles = (m, w, h) => { const out = new Uint8Array(m), seen = new Uint8Array(w * h), st = [];
+      const push = (i) => { if (!seen[i] && !m[i]) { seen[i] = 1; st.push(i); } };
+      for (let x = 0; x < w; x++) { push(x); push((h - 1) * w + x); } for (let y = 0; y < h; y++) { push(y * w); push(y * w + w - 1); }
+      while (st.length) { const i = st.pop(), x = i % w; if (x > 0) push(i - 1); if (x < w - 1) push(i + 1); if (i >= w) push(i - w); if (i < w * (h - 1)) push(i + w); }
+      for (let i = 0; i < w * h; i++) if (!m[i] && !seen[i]) out[i] = 2; return out; };
+    // grid (0..1 values) -> alpha canvas
+    const alphaCanvas = (vals, w, h) => { const c = mk(w, h), g = c.getContext("2d"), id = g.createImageData(w, h), d = id.data; for (let i = 0; i < w * h; i++) { const j = i * 4; d[j] = d[j + 1] = d[j + 2] = 255; d[j + 3] = clamp(vals[i], 0, 1) * 255; } g.putImageData(id, 0, 0); return c; };
+    // push-pull fill: colours flow into transparent holes (cheap inpainting)
+    const pushPull = (src) => { const W = src.width, H = src.height, out = mk(W, H), o = out.getContext("2d"), lv = []; let cur = src, w = W, h = H;
+      while (w > 6 && h > 6) { w = Math.max(3, w >> 1); h = Math.max(3, h >> 1); const c = mk(w, h), g = c.getContext("2d"); g.imageSmoothingQuality = "high"; g.drawImage(cur, 0, 0, w, h); lv.push(c); cur = c; }
+      o.imageSmoothingQuality = "high"; for (let i = lv.length - 1; i >= 0; i--) for (let r = 0; r < (i === lv.length - 1 ? 8 : 1); r++) o.drawImage(lv[i], 0, 0, W, H); o.drawImage(src, 0, 0); return out; };
+    // ---- product photo -> clean dress cut-out
+    const BK_BOX = "bk_mbox_v1"; let boxes = {}; try { boxes = JSON.parse(localStorage.getItem(BK_BOX)) || {}; } catch {}
+    const saveBox = (k, b) => { boxes[k] = b; try { localStorage.setItem(BK_BOX, JSON.stringify(boxes)); } catch {} };
+    const MC = "bk-mirror-v3";
     const fromCache = async (key) => { try { const r = await (await caches.open(MC)).match(key); return r ? URL.createObjectURL(await r.blob()) : ""; } catch { return ""; } };
     const toCache = async (key, cv) => { try { const bl = await new Promise((r) => cv.toBlob(r, "image/png")); if (!bl) return ""; (await caches.open(MC)).put(key, new Response(bl)).catch(() => {}); return URL.createObjectURL(bl); } catch { return ""; } };
-    // product photo -> dress layer {src, k}: k = how much wider than the standard 2.3× shoulder box
+    const maskOf = (src) => new Promise(async (res) => { try { const im = await loadImg(src), w = 96, h = Math.max(1, Math.round(96 * im.naturalHeight / im.naturalWidth)), c = mk(w, h), g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(im, 0, 0, w, h); const d = g.getImageData(0, 0, w, h).data, a = new Float32Array(w * h); for (let i = 0; i < w * h; i++) a[i] = d[i * 4 + 3] / 255; res({ w, h, a }); } catch { res(null); } });
+    // garment width at chest line, as a fraction of the layer width
+    const chestFrac = (m) => { if (!m) return 0; const row = Math.round(clamp(0.85 / KW * m.w, 0, m.h - 1)); let best = 0; for (let r = row - 1; r <= row + 1; r++) { if (r < 0 || r >= m.h) continue; let a = -1, b = -1; for (let x = 0; x < m.w; x++) if (m.a[r * m.w + x] > 0.5) { if (a < 0) a = x; b = x; } if (a >= 0) best = Math.max(best, (b - a + 1) / m.w); } return best; };
     const prep = (k) => cache[k] ||= (async () => {
-      const p = cat.products[k]; if (p.cutout) return { src: url(p.cutout), k: 1, cut: true };
-      const KW = 3.0, ck = `/__bkm/${encodeURIComponent(k)}?v=${encodeURIComponent(p.image)}&w=${KW}`;
-      const hit = boxes[k] && boxes[k].v === p.image && boxes[k].seg ? await fromCache(ck) : ""; if (hit) return { src: hit, k: KW / 2.3, cut: true };
-      try { const bl = await blobOf(url(p.image)); const big = await bitmap(bl, 1400), nw = big.width, nh = big.height;
-        let r = boxes[k] && boxes[k].v === p.image ? boxes[k].b : null;
-        if (!r) { try { const lm = await timeout(getLm(), 8000); if (lm) { const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
-          if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; } } } } catch {} }
-        const found = !!r; if (!r) r = [0.14, 0.26, 0.72, 0.72];
-        // try the real cut-out first
-        const seg = await timeout(getSeg().catch(() => null), 12000);
-        if (seg) { try {
-          const cx = (r[0] + r[2] / 2) * nw, bw = r[2] * nw * KW / 2.3, sx = cx - bw / 2, sy = r[1] * nh, sh = nh - sy;
-          const sc = Math.min(1, Math.min(1100, Math.round(stage.clientWidth * Math.min(2.5, devicePixelRatio || 1) * 1.1)) / bw), W = Math.round(bw * sc), H = Math.round(sh * sc);
-          await frame();
-          const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.imageSmoothingQuality = "high";
-          const ix = Math.max(0, sx), iw = Math.min(nw, sx + bw) - ix; g.drawImage(big, ix, sy, iw, sh, (ix - sx) * sc, 0, iw * sc, H);
-          const M = document.createElement("canvas"); M.width = W; M.height = H; const mg = M.getContext("2d"); mg.imageSmoothingQuality = "high"; mg.globalCompositeOperation = "lighten";
-          const side = Math.min(bw, sh), step = side * 0.7, ys = []; for (let y = 0; ; y += step) { if (y + side >= sh) { ys.push(Math.max(0, sh - side)); break; } ys.push(y); }
-          for (const y of ys) { await frame(); const t = segTile(seg, cv, 0, y * sc, side * sc); if (t) mg.drawImage(t, 0, 0, t.width, t.height, 0, y * sc, side * sc, side * sc); }
-          // enough clothes found?
-          const q = document.createElement("canvas"); q.width = 40; q.height = 60; const qg = q.getContext("2d"); qg.drawImage(M, 0, 0, 40, 60); const qd = qg.getImageData(0, 0, 40, 60).data; let sum = 0; for (let i = 3; i < qd.length; i += 4) sum += qd[i]; const cover = sum / (255 * 2400);
-          if (cover > 0.06) { g.globalCompositeOperation = "destination-in"; g.drawImage(M, 0, 0); big.close?.();
-            saveBox(k, { v: p.image, b: r, seg: 1 }); const src = await toCache(ck, cv); if (src) return { src, k: KW / 2.3, cut: true }; }
-        } catch {} }
-        if (found) saveBox(k, { v: p.image, b: r });
-        // fallback: soft-edged crop (old way)
-        const box = { sx: r[0] * nw, sy: r[1] * nh, sw: r[2] * nw, sh: r[3] * nh };
-        const sc = Math.min(1, Math.min(900, Math.round(stage.clientWidth * Math.min(2.5, devicePixelRatio || 1) * 0.9)) / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+      const p = cat.products[k]; if (p.cutout) { const src = url(p.cutout), m = await maskOf(src); let t = 0; if (m) for (const v of m.a) if (v < 0.5) t++; if (m && t / m.a.length > 0.08) return { src, k: 1, cut: true, m }; } // a real transparent PNG only – a normal photo here is cut out by the AI below
+      const ck = `/__bkm/${encodeURIComponent(k)}?v=${encodeURIComponent(p.image)}&w=${KW}&r=3`;
+      if (boxes[k] && boxes[k].v === p.image && boxes[k].seg === 3) { const hit = await fromCache(ck); if (hit) return { src: hit, k: KW / 2.3, cut: true, m: await maskOf(hit) }; }
+      const bl = await blobOf(url(p.image)); const big = await bitmap(bl, 1400), nw = big.width, nh = big.height;
+      let r = boxes[k] && boxes[k].v === p.image ? boxes[k].b : null;
+      if (!r) { try { const lm = await timeout(getLm(), 30000); if (lm) { const sm = await bitmap(bl, 448); await frame(); const L = lm.detect(sm).landmarks?.[0]; sm.close?.();
+        if (L) { const ls = L[11], rs = L[12], sw = Math.abs(ls.x - rs.x) * nw; if (sw > nw * 0.05) { const w = sw * 2.3, top = Math.min(ls.y, rs.y) * nh - sw * 0.3; r = [((ls.x + rs.x) / 2 * nw - w / 2) / nw, top / nh, w / nw, 1 - top / nh]; } } } } catch {} }
+      if (!r) r = [0.14, 0.26, 0.72, 0.72];
+      const seg = await timeout(getSeg().catch(() => null), 45000);
+      if (seg) { try {
+        const cx = (r[0] + r[2] / 2) * nw, bw = r[2] * nw * KW / 2.3, sx = cx - bw / 2, sy = r[1] * nh, sh = nh - sy;
+        const sc = Math.min(1, Math.min(1100, Math.round(stage.clientWidth * Math.min(2.5, devicePixelRatio || 1) * 1.15)) / bw), W = Math.round(bw * sc), H = Math.round(sh * sc);
         await frame();
-        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.drawImage(big, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H); big.close?.();
-        g.globalCompositeOperation = "destination-in";
-        const gh = g.createLinearGradient(0, 0, W, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.09, "#000"); gh.addColorStop(0.91, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gh; g.fillRect(0, 0, W, H);
-        const gv = g.createLinearGradient(0, 0, 0, H); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.07, "#000"); gv.addColorStop(0.93, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gv; g.fillRect(0, 0, W, H);
-        return { src: (await toURL(cv, "image/png")) || url(p.image), k: 1 }; } catch { return { src: url(p.image), k: 1 }; }
-    })();
-    const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
+        const cv = mk(W, H), g = cv.getContext("2d"); g.imageSmoothingQuality = "high";
+        const ix = Math.max(0, sx), iw = Math.min(nw, sx + bw) - ix; g.drawImage(big, ix, sy, iw, sh, (ix - sx) * sc, 0, iw * sc, H); big.close?.();
+        const G = await segGrid(seg, cv, 192), n = G.gw * G.gh, bin = new Uint8Array(n); let cover = 0;
+        for (let i = 0; i < n; i++) { const a = clamp((G.cl[i] - 0.3) / 0.4, 0, 1); G.cl[i] = a; if (a > 0.5) { bin[i] = 1; cover++; } }
+        if (cover / n < 0.03) return { skip: true };
+        {
+          // keep only the biggest piece (drops stray bits) and fill holes left by arms / bags in front of the dress
+          const holes = fillHoles(bin, G.gw, G.gh), av = new Float32Array(n), hv = new Float32Array(n);
+          for (let i = 0; i < n; i++) { av[i] = G.cl[i]; if (holes[i] === 2) { av[i] = 1; hv[i] = 1; } }
+          const A = alphaCanvas(av, G.gw, G.gh), Hm = alphaCanvas(hv, G.gw, G.gh), O = alphaCanvas(G.cl, G.gw, G.gh);
+          // garment pixels only -> fill the holes with the dress's own colours
+          const only = mk(W, H), og = only.getContext("2d"); og.imageSmoothingQuality = "high"; og.drawImage(cv, 0, 0); og.globalCompositeOperation = "destination-in"; og.drawImage(O, 0, 0, W, H);
+          const filled = pushPull(only);
+          const out = mk(W, H), o = out.getContext("2d"); o.imageSmoothingQuality = "high";
+          o.drawImage(filled, 0, 0); o.globalCompositeOperation = "destination-in"; o.drawImage(Hm, 0, 0, W, H); // patches for holes
+          o.globalCompositeOperation = "source-over"; o.drawImage(only, 0, 0);
+          o.globalCompositeOperation = "destination-in"; o.drawImage(A, 0, 0, W, H);
+          saveBox(k, { v: p.image, b: r, seg: 3 });
+          const src = await toCache(ck, out);
+          if (src) return { src, k: KW / 2.3, cut: true, m: { w: G.gw, h: G.gh, a: av } };
+        }
+      } catch {} }
+      // fallback (AI could not load): soft-edged crop – not cached, so the cut-out is tried again next time
+      const box = { sx: r[0] * nw, sy: r[1] * nh, sw: r[2] * nw, sh: r[3] * nh };
+      const sc = Math.min(1, Math.min(900, Math.round(stage.clientWidth * Math.min(2.5, devicePixelRatio || 1) * 0.9)) / box.sw), W = Math.round(box.sw * sc), H = Math.round(box.sh * sc);
+      const cv = mk(W, H), g = cv.getContext("2d"); g.drawImage(big, box.sx, box.sy, box.sw, box.sh, 0, 0, W, H); big.close?.();
+      g.globalCompositeOperation = "destination-in";
+      const gh = g.createLinearGradient(0, 0, W, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.09, "#000"); gh.addColorStop(0.91, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gh; g.fillRect(0, 0, W, H);
+      const gv = g.createLinearGradient(0, 0, 0, H); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.07, "#000"); gv.addColorStop(0.93, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gv; g.fillRect(0, 0, W, H);
+      return { src: (await toURL(cv, "image/png")) || url(p.image), k: 1, cut: false, m: null };
+    })().then((v) => { if (!v.cut && !v.skip) delete cache[k]; return v; }, (e) => { delete cache[k]; throw e; });
+    // ---- placing the dress
+    let cur = null; // current layer {src,k,cut,m}
+    const extra = () => { // grow the dress so it covers her own clothes at the chest
+      if (!cur || !cur.cut || !U || !U.utw) return 1; const gf = chestFrac(cur.m); if (!gf) return 1;
+      const base = fit.w * cur.k; return clamp((U.utw * 1.06) / (gf * base), 1, 1.35); };
+    const geom = () => { const e = extra(), wPct = fit.w * (cur ? cur.k : 1) * e, top = fit.y + fit.d * (1 - e); return { e, wPct, top }; };
+    let erQ = 0;
+    const place = () => { const G = geom(); dr.style.width = G.wPct + "%"; dr.style.left = fit.x + "%"; dr.style.top = G.top + "%"; scaleI.value = Math.round(fit.w); if (!erQ) erQ = requestAnimationFrame(() => { erQ = 0; paintErase(); }); };
+    // erase: her clothes that are outside the new dress (but not her arms), between the dress's top and bottom
+    const paintErase = () => {
+      if (!U || !U.g || !bgFill || !cur || !cur.cut || !cur.m || dr.hidden) { er.hidden = true; return; }
+      const { gw, gh, cl } = U.g, S = stage.getBoundingClientRect(), SW = S.width, SH = S.height, G = geom();
+      const lw = SW * G.wPct / 100, lx = SW * fit.x / 100 - lw / 2, ly = SH * G.top / 100, m = cur.m, lh = lw * m.h / m.w;
+      const vals = new Float32Array(gw * gh), armR = U.sw * 0.3, armR2 = armR * armR;
+      const seg2 = (px, py, a, b) => { const vx = b.x - a.x, vy = b.y - a.y, L = vx * vx + vy * vy || 1, t = clamp(((px - a.x) * vx + (py - a.y) * vy) / L, 0, 1), dx = px - a.x - t * vx, dy = py - a.y - t * vy; return dx * dx + dy * dy; };
+      let any = 0; const yTop = Math.max(ly, U.sy - U.sw * 0.15), yBot = ly + lh;
+      for (let gy = 0; gy < gh; gy++) { const py = (gy + 0.5) / gh * SH; if (py < yTop || py > yBot) continue;
+        for (let gx = 0; gx < gw; gx++) { const i = gy * gw + gx; if (cl[i] < 0.45) continue; const px = (gx + 0.5) / gw * SW;
+          const mx = Math.floor((px - lx) / lw * m.w), my = Math.floor((py - ly) / lh * m.h); if (mx >= 0 && my >= 0 && mx < m.w && my < m.h && m.a[my * m.w + mx] > 0.35) continue;
+          let arm = false; for (const [a, b] of U.arms) if (seg2(px, py, a, b) < armR2) { arm = true; break; } if (arm) continue;
+          vals[i] = 1; any = 1; } }
+      if (!any) { er.hidden = true; return; }
+      const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(SW * dpr), H = Math.round(SH * dpr); if (er.width !== W || er.height !== H) { er.width = W; er.height = H; }
+      const A = alphaCanvas(vals, gw, gh), g = er.getContext("2d"); g.globalCompositeOperation = "source-over"; g.clearRect(0, 0, W, H); g.imageSmoothingQuality = "high";
+      g.drawImage(bgFill, 0, 0, W, H); g.globalCompositeOperation = "destination-in"; g.filter = "blur(2px)"; g.drawImage(A, 0, 0, W, H); g.filter = "none"; g.globalCompositeOperation = "source-over";
+      er.hidden = false;
+    };
     const show = async (i) => {
       if (!list.length) return; idx = (i + list.length) % list.length; const k = list[idx], p = cat.products[k];
       $("[data-mirror-count]").textContent = `${idx + 1} / ${list.length}`; $("[data-mirror-name]").textContent = p.title; $("[data-mirror-hud]").hidden = false;
       $$("[data-mp]").forEach((x) => x.classList.toggle("on", x.dataset.mp === k));
       if (ai) { aiI.classList.add("swap"); stage.classList.add("ai-busy"); say("✨ AI aap par ye dress pehna raha hai… (10–20 sec)");
-        try { const src = await aiRes(k); if (list[idx] !== k) return; aiI.src = src; aiI.hidden = false; dr.hidden = true; say("✓ Ye raha aapka look", 1800); }
+        try { const src = await aiRes(k); if (list[idx] !== k) return; aiI.src = src; aiI.hidden = false; dr.hidden = true; er.hidden = true; say("✓ Ye raha aapka look", 1800); }
         catch (e) { if (list[idx] !== k) return; say(e.message === "limit" ? "Aaj ki free try-on limit poori ho gayi – kal phir aana 💚" : "AI abhi busy hai – thodi der baad dobara try karo", 4000); }
         finally { if (list[idx] === k) { stage.classList.remove("ai-busy"); requestAnimationFrame(() => aiI.classList.remove("swap")); } }
         return; }
-      dr.classList.add("swap"); if (!cache[k]) say("✨ Dress taiyaar ho rahi hai…"); const lay = await prep(k); if (list[idx] !== k) return; if (statusEl.textContent.startsWith("✨ Dress")) say("");
-      dr.src = lay.src; dr.dataset.k = lay.k; dr.classList.toggle("is-cutout", !!lay.cut); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
-      idle(() => prep(list[(idx + 1) % list.length]));
+      dr.classList.add("swap"); const slow = setTimeout(() => say(segP ? "✨ Dress aap ke liye taiyaar ho rahi hai…" : "✨ Mirror AI load ho raha hai (pehli baar 10–20 sec)…"), 350);
+      let lay; try { lay = await prep(k); } catch { clearTimeout(slow); say("Ye dress abhi load nahi hui – agli dekho", 2500); return; }
+      clearTimeout(slow); if (list[idx] !== k) return; if (statusEl.textContent.startsWith("✨")) say("");
+      if (lay.skip) { list = list.filter((x) => x !== k); if (!list.length) list = all.slice(); show(idx); return; }
+      cur = lay; dr.src = lay.src; dr.classList.toggle("is-cutout", !!lay.cut); dr.hidden = false; place(); requestAnimationFrame(() => dr.classList.remove("swap"));
+      idle(() => prep(list[(idx + 1) % list.length]).catch(() => {}));
     };
     const stop = () => { clearInterval(timer); timer = null; playB.textContent = "▶"; playB.setAttribute("aria-label", "Play"); };
     let scrolling = 0, wasPlaying = false; addEventListener("scroll", () => { scrolling = Date.now(); }, { passive: true });
     const next = () => { if (Date.now() - scrolling < 400) return; seen++; if (seen >= list.length && timer) { stop(); say(liked.length ? `Sab ${list.length} dress dekh li! 💚 Pasand: ${liked.length}` : `Sab ${list.length} dress dekh li – jo pasand aaye us par 💚 Haan dabao`, 4000); if (liked.length) board.scrollIntoView({ behavior: "smooth", block: "center" }); } show(idx + 1); };
-    const play = () => { stop(); if (ai || !list.length || me.hidden) return; seen = 0; timer = setInterval(next, 2600); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
+    const play = () => { stop(); if (ai || !list.length || me.hidden) return; seen = 0; timer = setInterval(next, 3200); playB.textContent = "⏸"; playB.setAttribute("aria-label", "Pause"); };
     const flash = (t) => { const f = $("[data-mirror-flash]"); f.textContent = t; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); };
-    const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
-      const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; const dw = ir.width / r.width * W, dh = ir.height / r.height * H; let src = im;
-        if (false) { const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(dw)); c.height = Math.max(1, Math.round(dh)); const x = c.getContext("2d"); x.drawImage(im, 0, 0, c.width, c.height); x.globalCompositeOperation = "destination-in";
-          const gh = x.createLinearGradient(0, 0, c.width, 0); gh.addColorStop(0, "rgba(0,0,0,0)"); gh.addColorStop(0.07, "#000"); gh.addColorStop(0.93, "#000"); gh.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gh; x.fillRect(0, 0, c.width, c.height);
-          const gv = x.createLinearGradient(0, 0, 0, c.height); gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(0.06, "#000"); gv.addColorStop(0.92, "#000"); gv.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = gv; x.fillRect(0, 0, c.width, c.height); src = c; }
-        g.drawImage(src, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, dw, dh); g.globalAlpha = 1; };
+    const snap = () => new Promise((res) => { const r = stage.getBoundingClientRect(), W = 720, H = Math.round(W * r.height / r.width), cv = mk(W, H); const g = cv.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, W, H);
+      const draw = (im) => { if (im === me) { const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; g.drawImage(im, (W - w) / 2, (H - h) / 2, w, h); return; } if (im === er) { g.drawImage(er, 0, 0, W, H); return; }
+        const ir = im.getBoundingClientRect(); g.globalAlpha = +getComputedStyle(im).opacity || 1; g.drawImage(im, (ir.left - r.left) / r.width * W, (ir.top - r.top) / r.height * H, ir.width / r.width * W, ir.height / r.height * H); g.globalAlpha = 1; };
       if (ai && !aiI.hidden) { const s = Math.min(W / aiI.naturalWidth, H / aiI.naturalHeight), w = aiI.naturalWidth * s, h = aiI.naturalHeight * s; g.drawImage(aiI, (W - w) / 2, (H - h) / 2, w, h); }
-      else { if (!me.hidden) draw(me); if (!dr.hidden) draw(dr); } g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
+      else { if (!me.hidden) draw(me); if (!er.hidden) draw(er); if (!dr.hidden) draw(dr); } g.fillStyle = "rgba(14,91,89,.88)"; g.fillRect(0, H - 60, W, 60); g.fillStyle = "#fff"; g.font = "600 24px system-ui"; g.fillText(String(cat.products[list[idx]]?.title || "").slice(0, 40), 16, H - 22); g.font = "500 18px system-ui"; g.textAlign = "right"; g.fillText("Bahe Kurtiz", W - 16, H - 22); cv.toBlob(res, "image/jpeg", 0.88); });
     const paintBoard = () => { mir.classList.toggle("has-likes", liked.length > 0); const lc = $("[data-mirror-likecount]"); if (lc) lc.textContent = liked.length; $("[data-mirror-liked-n]").textContent = liked.length ? `(${liked.length})` : ""; board.innerHTML = liked.length ? liked.map((l, i) => `<figure><img src="${l.src}" alt=""><figcaption>${i + 1}. ${esc(l.t)}</figcaption><button type="button" data-unlike="${i}" aria-label="Remove">✕</button></figure>`).join("") : `<p class="muted small">Jo dress "Haan" karogi, wo yahan aayegi.</p>`; };
     board.addEventListener("click", (e) => { const b = e.target.closest("[data-unlike]"); if (!b) return; liked.splice(+b.dataset.unlike, 1); paintBoard(); });
-    const yes = async () => { if (!ready || (dr.hidden && aiI.hidden)) return; const k = list[idx]; if (!liked.some((l) => l.k === k)) { const b = await snap(); liked.push({ k, b, src: URL.createObjectURL(b), t: cat.products[k].title, u: cat.products[k].url }); paintBoard(); } flash("💚"); track("AddToWishlist", { content_ids: [k] }); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
-    const no = () => { if (!ready) return; flash("✕"); if (timer) { clearInterval(timer); timer = setInterval(next, 2600); } next(); };
+    const yes = async () => { if (!ready || (dr.hidden && aiI.hidden)) return; const k = list[idx]; if (!liked.some((l) => l.k === k)) { const b = await snap(); liked.push({ k, b, src: URL.createObjectURL(b), t: cat.products[k].title, u: cat.products[k].url }); paintBoard(); } flash("💚"); track("AddToWishlist", { content_ids: [k] }); if (timer) { clearInterval(timer); timer = setInterval(next, 3200); } next(); };
+    const no = () => { if (!ready) return; flash("✕"); if (timer) { clearInterval(timer); timer = setInterval(next, 3200); } next(); };
     $("[data-mirror-yes]").addEventListener("click", yes); $("[data-mirror-no]").addEventListener("click", no);
     playB.addEventListener("click", () => (timer ? stop() : play()));
     document.addEventListener("visibilitychange", () => { if (document.hidden && timer) stop(); });
     if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { mir.classList.toggle("stage-in", e.intersectionRatio > 0.45); }, { threshold: [0, 0.45, 0.8] }).observe(stage);
     if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { if (!e.isIntersecting && timer) { wasPlaying = true; stop(); } else if (e.isIntersecting && wasPlaying && ready) { wasPlaying = false; play(); } }, { threshold: 0.25 }).observe(stage);
-    // find shoulders on the photo (on-device), so every dress lands on her automatically
+    // ---- her photo: shoulders (pose) + her own clothes (segmentation) + background fill for hiding them
+    const stageShot = () => { const S = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(S.width * dpr), H = Math.round(S.height * dpr), c = mk(W, H), g = c.getContext("2d"); g.imageSmoothingQuality = "high";
+      const s = Math.min(W / me.naturalWidth, H / me.naturalHeight), w = me.naturalWidth * s, h = me.naturalHeight * s; g.fillStyle = getComputedStyle(stage).backgroundColor || "#efe6d6"; g.fillRect(0, 0, W, H); g.drawImage(me, (W - w) / 2, (H - h) / 2, w, h); return { c, S, dpr }; };
     const fitBody = async () => {
       try {
-        getSeg().catch(() => {}); const lm = await getLm(); await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 30)));
+        getSeg().catch(() => {}); const lm = await getLm(); await frame();
         const small = await bitmap(await (await fetch(me.src)).blob(), 512); const L = lm.detect(small).landmarks?.[0]; small.close?.(); if (!L) return false;
         const r = stage.getBoundingClientRect(), W = r.width, H = r.height, s = Math.min(W / me.naturalWidth, H / me.naturalHeight), dw = me.naturalWidth * s, dh = me.naturalHeight * s, ox = (W - dw) / 2, oy = (H - dh) / 2;
         const P = (n) => ({ x: ox + L[n].x * dw, y: oy + L[n].y * dh });
         const ls = P(11), rs = P(12), sw = Math.abs(ls.x - rs.x); if (sw < W * 0.06) return false;
-        fit = { x: (ls.x + rs.x) / 2 / W * 100, y: (Math.min(ls.y, rs.y) - sw * 0.3) / H * 100, w: Math.min(120, sw * 2.3 / W * 100) }; return true;
+        const sy = Math.min(ls.y, rs.y), cx = (ls.x + rs.x) / 2;
+        fit = { x: cx / W * 100, y: (sy - sw * 0.3) / H * 100, w: Math.min(120, sw * 2.3 / W * 100), d: sw * 0.3 / H * 100 };
+        U = { sw, sy, cx, arms: [[P(11), P(13)], [P(13), P(15)], [P(12), P(14)], [P(14), P(16)]], g: null, utw: 0 };
+        return true;
       } catch { return false; }
     };
+    const readBody = async () => { // her clothes + background (runs after the first dress is already showing)
+      try {
+        const seg = await timeout(getSeg(), 45000); if (!seg) return;
+        const { c, S, dpr } = stageShot(), G = await segGrid(seg, c, 160); if (!U) return;
+        U.g = G;
+        // her clothes width at the chest (minus arms)
+        const cy = U.sy + U.sw * 0.55, gy = clamp(Math.round(cy / S.height * G.gh), 0, G.gh - 1); let a = -1, b = -1;
+        for (let gx = 0; gx < G.gw; gx++) { if (G.cl[gy * G.gw + gx] < 0.5) continue; const px = (gx + 0.5) / G.gw * S.width; if (Math.abs(px - U.cx) > U.sw * 1.4) continue; if (a < 0) a = gx; b = gx; }
+        U.utw = a >= 0 ? (b - a + 1) / G.gw * 100 : 0;
+        // background without her (push-pull fill)
+        const hole = mk(c.width, c.height), hg = hole.getContext("2d"); hg.drawImage(c, 0, 0); hg.globalCompositeOperation = "destination-out"; hg.filter = "blur(3px)";
+        const pv = new Float32Array(G.gw * G.gh); for (let i = 0; i < pv.length; i++) pv[i] = G.ps[i] > 0.3 ? 1 : 0; hg.drawImage(alphaCanvas(pv, G.gw, G.gh), 0, 0, c.width, c.height); hg.drawImage(alphaCanvas(pv, G.gw, G.gh), 0, 0, c.width, c.height); hg.filter = "none";
+        await frame(); bgFill = pushPull(hole); void dpr;
+        place();
+      } catch {}
+    };
     $("[data-mirror-file]").addEventListener("change", (e) => {
-      const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…"); aiCache = {}; aiI.hidden = true; meData = "";
-      (async () => { try { const b = await bitmap(f, 1024), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); meData = c.toDataURL("image/jpeg", 0.86); } catch {} })();
-      (async () => { try { const b = await bitmap(f, 1400), c = document.createElement("canvas"); c.width = b.width; c.height = b.height; c.getContext("2d").drawImage(b, 0, 0); b.close?.(); me.src = (await toURL(c, "image/jpeg", 0.9)) || URL.createObjectURL(f); } catch { me.src = URL.createObjectURL(f); } })();
+      const f = e.target.files[0]; if (!f) return; stop(); say("📷 Photo taiyaar ho rahi hai…"); aiCache = {}; aiI.hidden = true; meData = ""; U = null; bgFill = null; er.hidden = true;
+      (async () => { try { const b = await bitmap(f, 1024), c = mk(b.width, b.height); c.getContext("2d").drawImage(b, 0, 0); b.close?.(); meData = c.toDataURL("image/jpeg", 0.86); } catch {} })();
+      (async () => { try { const b = await bitmap(f, 1400), c = mk(b.width, b.height); c.getContext("2d").drawImage(b, 0, 0); b.close?.(); me.src = (await toURL(c, "image/jpeg", 0.9)) || URL.createObjectURL(f); } catch { me.src = URL.createObjectURL(f); } })();
       me.onload = async () => { me.hidden = false; $("[data-mirror-empty]").hidden = true; $("[data-mirror-vote]").hidden = false; $("[data-mirror-tip]").hidden = false;
         await aiReady;
         if (ai) { for (let t = 0; !meData && t < 50; t++) await new Promise((r) => setTimeout(r, 100)); ready = true; $("[data-mirror-tip]").textContent = "Na / Haan dabao – har dress AI se aap par fit-to-fit banegi"; await show(idx); return; }
-        say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 9000);
-        if (!poseOk) { const s = Math.min(1, (stage.clientWidth / stage.clientHeight) / (me.naturalWidth / me.naturalHeight)); fit = { x: 50, y: 22, w: 52 * s }; }
-        say(poseOk ? "✓ Fit ho gaya! Ab dresses aap par aayengi…" : "Gardan par tap karo, dress wahan aa jayegi", 3500);
-        ready = true; await show(idx); play(); };
+        say("✨ Aapki body ka naap le rahe hain…"); poseOk = await timeout(fitBody(), 30000);
+        if (!poseOk) { const s = Math.min(1, (stage.clientWidth / stage.clientHeight) / (me.naturalWidth / me.naturalHeight)); fit = { x: 50, y: 22, w: 52 * s, d: 4 }; U = null; }
+        say(poseOk ? "✓ Fit ho gaya! Dresses aap par aa rahi hain…" : "Gardan par tap karo, dress wahan aa jayegi", 3500);
+        ready = true; await show(idx); if (poseOk) readBody(); play(); };
     });
     catalog().then((c) => {
       cat = c; all = Object.entries(c.products).filter(([, p]) => p.image && p.in_stock !== false).map(([k]) => k); list = all.slice();
@@ -1223,6 +1312,8 @@
       if (occ.length) { ob.innerHTML = [`<button type="button" class="on" data-mo="">All</button>`, ...occ.map((o) => `<button type="button" data-mo="${esc(o)}">${esc(o)}</button>`)].join("");
         ob.addEventListener("click", (e) => { const b = e.target.closest("[data-mo]"); if (!b) return; $$("[data-mo]", ob).forEach((x) => x.classList.toggle("on", x === b)); const o = b.dataset.mo; list = o ? all.filter((k) => [].concat(cat.products[k].occ || []).includes(o)) : all.slice(); if (!list.length) list = all.slice(); idx = 0; show(0); if (!me.hidden) play(); }); }
       else ob.previousElementSibling.hidden = ob.hidden = true;
+      // warm up: start cutting the first dresses while she picks her photo
+      idle(() => { getSeg().catch(() => {}); });
     }).catch(() => {});
     scaleI.addEventListener("input", (e) => { stop(); fit.w = +e.target.value; place(); });
     $("[data-mirror-op]").addEventListener("input", (e) => { dr.style.opacity = e.target.value / 100; });
