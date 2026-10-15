@@ -428,7 +428,6 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
       ${products.some((p) => p.bestseller) ? `<a href="${u("bestsellers/")}">Bestsellers</a>` : ""}
       <a href="${u("shop/")}">New Arrivals</a>
       <a href="${u("custom/")}">Custom & Restyle</a>
-      <a href="${u("mirror/")}">Mirror</a>
       <a href="${u("wholesale/")}">Wholesale</a>
       <a href="${u("about/")}">Our Story</a>
     </nav>
@@ -449,12 +448,9 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   <a href="${u("shop/")}">Shop All</a>
   ${menuCats.length ? `<details class="mnav-cats"><summary>Categories</summary><div class="mnav-cat-list">${menuGroups.map((g) => `${menuGroups.length > 1 ? `<p class="mnav-grp">${esc(g.name)}</p>` : ""}${g.cats.map((c) => `<a href="${u(c.url)}"${c.empty ? ' class="soon"' : ""}><span>${esc(c.plural)}</span>${c.empty ? "<small>Coming soon</small>" : `<small>${c.items.length}</small>`}</a>`).join("")}`).join("")}</div></details>` : ""}
   <a href="${u("wholesale/")}">Wholesale & Private Label</a>
-  <a href="${u("print-kundli/")}">✨ Print Kundli – find your print</a>
-  <a href="${u("studio/")}">🎨 Block Print Studio – design yours</a>
   <a href="${u("custom/")}">✂️ Custom & Restyle</a>
   <a href="${u("wishlist/")}">Wishlist</a>
   <a href="${u("feed/")}">▶ Feed – watch & shop</a>
-  <a href="${u("mirror/")}">🪞 ${MIRROR_ON ? "AI Mirror – try on yourself" : "Mirror – try your look"}</a>
   <a href="${u("craft/")}">🧵 Fabric & print guide</a>
   <a href="${u("track/")}">📦 Track order</a>
   <a href="${u("return-request/")}">↩️ Return / exchange</a>
@@ -502,7 +498,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap"><a href="${u("sh
       ${socials.length ? `<p class="social">${socials.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener me">${socialIcon(x.name)}${esc(x.name)}</a>`).join("")}</p>` : ""}
     </div>
     <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
-    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a><a href="${u("contact/")}">Contact Us</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("print-kundli/")}">Print Kundli</a><a href="${u("studio/")}">Block Print Studio</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="${u("terms/")}">Terms & Conditions</a></div>
+    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a><a href="${u("contact/")}">Contact Us</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="${u("terms/")}">Terms & Conditions</a></div>
     <div><h3>Contact</h3>
       ${waHi ? `<a href="${esc(waHi)}" target="_blank" rel="noopener">WhatsApp: ${esc(S.phone || "+" + waNumber)}</a>` : ""}
       ${S.email ? `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}
@@ -604,7 +600,8 @@ const withSrcset = (html) => html.replace(/<img\b[^>]*>/g, (tag) => {
   const big = /data-rs="big"|class="post-cover"/.test(tag), wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
   const sizes = big ? "(max-width: 900px) 82vw, 50vw" : wd && wd <= 120 ? "120px" : "(max-width: 720px) 46vw, 25vw";
   return tag.replace(/\ssrc="/, ` srcset="${RS.map((w) => `${esc(u(rsPath(local, w)))} ${w}w`).join(", ")}, ${m[1]} 1200w" sizes="${sizes}" src="`); });
-const add = (file, html) => pages.push([file, withSrcset(html)]);
+const REMOVED = new Set(["mirror/index.html", "studio/index.html", "print-kundli/index.html"]); // features switched off
+const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, withSrcset(html)]); };
 
 // ---------- home ----------
 {
@@ -662,7 +659,6 @@ ${(() => { const best = products.filter((p) => p.bestseller).slice(0, 8); return
   <div class="grid scroller">${list.map((p) => card(p)).join("")}</div>
 </section>
 ${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Everyday Picks</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
-<section class="studio-band"><div class="wrap sb-row"><div><p class="eyebrow">New · Just for fun</p><h2>Which Jaipur print is written in your stars?</h2><p class="muted">Name + birthday = your one-of-a-kind block print. Then check your Saheli Match with friends.</p></div><div class="sb-btns"><a class="btn" href="${u("print-kundli/")}">✨ Find my Print Kundli</a><a class="btn btn-ghost" href="${u("studio/")}">Design my own →</a></div></div></section>
 ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class="shopby"><div class="wrap">
   ${occasions.length ? `<div class="shopby-row"><p class="eyebrow">Shop by occasion</p><div class="pills">${occasions.map((o) => `<a class="pill" href="${u("occasion/" + slugify(o) + "/")}">${esc(o)}</a>`).join("")}</div></div>` : ""}
   ${prints.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by print</p><div class="pills">${prints.map((x) => `<a class="pill" href="${u(qs("print", x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
@@ -1567,7 +1563,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "custom/", "studio/", "print-kundli/", "refer/", "gift-card/", "feed/", "mirror/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x); return `<url><loc>${SITE_URL}/${x}</loc>${bp ? `<lastmod>${bp.date}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
@@ -1603,6 +1599,12 @@ const oldLinks = (() => { const seen = new Set(), out = [];
 const extraRedirects = fs.existsSync(path.join(ROOT, "content/redirects.txt")) ? fs.readFileSync(path.join(ROOT, "content/redirects.txt"), "utf8") : "";
 fs.writeFileSync(path.join(OUT, "_redirects"), [
   "# Old website links -> new pages (keeps Google ranking)",
+  "/mirror/* /shop/ 301",
+  "/mirror /shop/ 301",
+  "/studio/* /custom/ 301",
+  "/studio /custom/ 301",
+  "/print-kundli/* /shop/ 301",
+  "/print-kundli /shop/ 301",
   "/collections/all /shop/ 301",
   "/collections /shop/ 301",
   "/pages/contact /contact/ 301",
