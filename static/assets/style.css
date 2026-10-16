@@ -1134,3 +1134,8 @@ main>.section{padding-block:clamp(36px,6vw,72px)}
 .rev-src{display:block;font-size:.72rem;color:#2e7d32;margin-top:2px;font-weight:500}
 .pdp-trust{list-style:none;margin:14px 0 4px;padding:12px 14px;border:1px solid rgba(0,0,0,.08);border-radius:12px;background:#fbf8f3;display:grid;gap:6px;font-size:.85rem}
 .pdp-revs .pdp-rev{margin:0 0 12px;padding:0 0 12px;border-bottom:1px solid rgba(0,0,0,.06)}.pdp-rev p{margin:4px 0}.pdp-rev cite{font-size:.78rem;color:var(--muted,#6b5f58);font-style:normal}
+/* v42: banner whose photo already has the text – only the button */
+.hero-same.hero-clean .hero-text{background:none;padding:0 0 22px;text-align:center}
+.hero-same.hero-clean .hero-text .eyebrow,.hero-same.hero-clean .hero-text .lead,.hero-same.hero-clean .hero-text h1,.hero-same.hero-clean .hero-text .h1{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hero-same.hero-clean .hero-cta{margin:0;display:flex;justify-content:center}
+.hero-same.hero-clean .hero-cta .btn{box-shadow:0 8px 24px rgba(0,0,0,.35)}
