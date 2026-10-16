@@ -377,6 +377,7 @@ collections:
       - { name: link, label: "बटन का लिंक (जैसे: occasion/festive/ या shop/)", widget: string, required: false }
       - { name: start, label: "कब से दिखाना है (खाली = अभी से)", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", required: false }
       - { name: end, label: "कब तक (खाली = हमेशा) – तारीख के बाद अपने-आप हट जाएगा", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", required: false }
+      - { name: image_has_text, label: "फ़ोटो पर लिखा हुआ पहले से है? (हाँ = ऊपर का text छुपेगा, सिर्फ़ बटन दिखेगा)", widget: boolean, default: false, required: false }
       - { name: order, label: "क्रम (1 = सबसे पहले)", widget: number, value_type: int, default: 10 }
       - { name: active, label: "चालू है?", widget: boolean, default: true }
 
