@@ -1,1 +1,13 @@
-{"active":true,"order":1,"image":"/images/site/banner-dresses-tall.jpg","image_desktop":"/images/site/banner-dresses-wide.jpg","eyebrow":"New arrival · Hand block print","title":"Floral Maxi Dresses in Pure Cotton","subtitle":"Printed by hand in Jaipur. Light, flowy and made to twirl.","button":"Shop the dress","link":"products/navy-floral-hand-block-print-cotton-maxi-dress/"}
+{
+  "title": "The Navratri Edit",
+  "image": "/images/banners/navratri-tall (1).webp",
+  "image_desktop": "",
+  "eyebrow": "Festive · Handmade in Jaipur",
+  "subtitle": "Twirl-ready Anarkalis, hand block print sets and festive kurtis for all 9 nights.",
+  "button": "Shop Navratri",
+  "link": "occasion/navratri/",
+  "start": "",
+  "end": "",
+  "order": 1,
+  "active": true
+}
