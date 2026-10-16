@@ -614,12 +614,14 @@ collections:
             widget: list
             required: false
             summary: "{{fields.name}} – {{fields.rating}}★"
-            hint: "WhatsApp / Etsy / Google पर मिले असली रिव्यू ही डालो। खाली रहेगा तो होमपेज पर सेक्शन नहीं दिखेगा"
+            hint: "Etsy / Google / WhatsApp पर मिले असली रिव्यू ही डालो (Etsy से copy-paste)। 1 भी रिव्यू डालोगे तो होमपेज पर दिखेगा"
             fields:
               - { name: name, label: "ग्राहक का नाम (जैसे: Priya S.)", widget: string }
               - { name: city, label: "शहर / देश", widget: string, required: false }
               - { name: rating, label: "स्टार (1-5)", widget: number, value_type: int, min: 1, max: 5, default: 5 }
               - { name: text, label: "रिव्यू", widget: text }
+              - { name: source, label: "कहाँ मिला रिव्यू?", widget: select, options: ["Etsy", "Google", "WhatsApp", "Instagram", "Website"], default: "Etsy", required: false }
+              - { name: product, label: "किस प्रोडक्ट का रिव्यू (optional – प्रोडक्ट पेज पर भी दिखेगा)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], required: false }
               - { name: photo, label: "ग्राहक की फ़ोटो (optional, उनकी इजाज़त से)", widget: image, required: false, media_folder: /static/images/reviews, public_folder: /images/reviews }
           - name: size_chart
             label: "साइज़ चार्ट (इंच में, body measurement)"
