@@ -1139,3 +1139,46 @@ main>.section{padding-block:clamp(36px,6vw,72px)}
 .hero-same.hero-clean .hero-text .eyebrow,.hero-same.hero-clean .hero-text .lead,.hero-same.hero-clean .hero-text h1,.hero-same.hero-clean .hero-text .h1{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .hero-same.hero-clean .hero-cta{margin:0;display:flex;justify-content:center}
 .hero-same.hero-clean .hero-cta .btn{box-shadow:0 8px 24px rgba(0,0,0,.35)}
+/* ===== v44 CLEAN BRAND LOOK – calm, white, one accent, fewer things ===== */
+:root{--bg:#ffffff;--sand:#f6f3ef;--line:#ece6df;--r:2px}
+body{background:#fff}
+/* top bar: one calm line, no ticker, no buttons */
+.announce{background:var(--accent);color:#fff;letter-spacing:.06em;font-size:.76rem;padding:9px 12px;justify-content:center;text-align:center}
+.announce-track{animation:none!important;display:block;padding:0;flex:none;overflow:hidden;text-overflow:ellipsis}
+.announce-track>span:not(:first-child){display:none}
+.announce-cta{display:none!important}
+/* header */
+.site-header,header.site{background:#fff;border-bottom:1px solid var(--line)}
+/* home: no instagram circles, no wholesale block, short "shop by" */
+.stories{display:none!important}
+.b2b{display:none!important}
+.shopby{background:#fff}
+.shopby .shopby-row:not(:first-child){display:none}
+.shopby .pills .pill:nth-child(n+8){display:none}
+.pill{border-radius:999px;border-color:var(--line);background:#fff}
+.trust{background:var(--sand);border-block:1px solid var(--line)}
+.trust-row>div:nth-child(4){display:none}
+@media(min-width:861px){.trust-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:860px){.trust-row{grid-template-columns:1fr}.trust-row>div{align-items:center}}
+/* product cards: one tag only, quiet price */
+.tag-sale,.tag-vid{display:none!important}
+.tag{background:rgba(255,255,255,.92);color:var(--ink);font-weight:500;border-radius:2px}
+.card .off,.card .save{font-weight:500}
+/* section titles: elegant + centered */
+.section-head h2,.section-head .h1{font-weight:500;letter-spacing:.01em}
+.section{padding-block:44px}
+/* product page: only what helps buying */
+[data-status],.share-row{display:none!important}
+.pdp-trust{background:#fff}
+.buybox h1{font-weight:500}
+/* buttons: solid accent, square, premium */
+.btn{border-radius:2px;letter-spacing:.12em}
+.btn:not(.btn-ghost):not(.btn-light):not(.btn-wa):not(.btn-dark){background:var(--accent);border-color:var(--accent);color:#fff}
+.announce-track span::before{content:none!important}
+.foot-pay{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-block:14px;border-top:1px solid rgba(255,255,255,.12);font-size:.78rem;color:rgba(255,255,255,.75)}
+.foot-pay>span:first-child{letter-spacing:.14em;text-transform:uppercase;font-size:.7rem;margin-right:4px}
+.pay-pill{background:#fff;color:#1a1a1a;border-radius:4px;padding:3px 9px;font-size:.72rem;font-weight:700;letter-spacing:.02em}
+.pay-lock{margin-left:auto}
+@media(max-width:600px){.pay-lock{margin-left:0;width:100%}}
+/* keep one quiet share button (WhatsApp) for word-of-mouth */
+.share-row{display:flex!important}.share-row>*:not(:first-child){display:none!important}
