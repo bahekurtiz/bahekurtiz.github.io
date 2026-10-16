@@ -1129,3 +1129,8 @@ main>.section{padding-block:clamp(36px,6vw,72px)}
 .mirror-page .mirror-status{top:auto;bottom:12px;font-size:.78rem;padding:5px 12px;background:rgba(255,255,255,.92)}
 .mirror-dress.is-cutout{filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
 .mirror-erase{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+/* v42 trust + reviews */
+.rev-sum{margin:.4rem 0 0;color:var(--muted,#6b5f58);font-size:.9rem}.rev-sum a{color:inherit;text-decoration:underline}
+.rev-src{display:block;font-size:.72rem;color:#2e7d32;margin-top:2px;font-weight:500}
+.pdp-trust{list-style:none;margin:14px 0 4px;padding:12px 14px;border:1px solid rgba(0,0,0,.08);border-radius:12px;background:#fbf8f3;display:grid;gap:6px;font-size:.85rem}
+.pdp-revs .pdp-rev{margin:0 0 12px;padding:0 0 12px;border-bottom:1px solid rgba(0,0,0,.06)}.pdp-rev p{margin:4px 0}.pdp-rev cite{font-size:.78rem;color:var(--muted,#6b5f58);font-style:normal}
