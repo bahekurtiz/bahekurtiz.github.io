@@ -206,7 +206,8 @@ const craftCount = (type, n) => products.filter((p) => (type === "fabric" ? p.fa
 const craftUrl = (n) => `craft/${slugify(n)}/`;
 const craftInfo = (type, n) => CRAFT[type][n] || null;
 const craftLink = (type, n) => craftCount(type, n) ? `<a href="${u(craftUrl(n))}">${esc(n)}</a>` : esc(n);
-const occasions = uniq(products.flatMap((p) => p.occasion));
+const OCC_TOP = ["Festive", "Wedding Guest", "Party", "Office", "Daily", "Diwali", "Karwa Chauth", "Eid", "Navratri", "Haldi & Mehendi", "Sangeet", "Wedding", "Vacation"];
+const occasions = uniq(products.flatMap((p) => p.occasion)).sort((a, b) => ((OCC_TOP.indexOf(a) + 1) || 99) - ((OCC_TOP.indexOf(b) + 1) || 99));
 const addDays = (iso, d) => { const t = new Date(iso + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - d); return t.toISOString().slice(0, 10); };
 const nice = (iso) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 // default festive dates (Karwa Chauth 29 Oct 2026, Diwali 8 Nov 2026) until the owner sets their own list in admin
@@ -411,7 +412,7 @@ ${pixelHead}
 <body class="${bodyClass}">
 ${pixelBody}
 <a class="skip" href="#main">Skip to content</a>
-${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="alert">${esc(S.emergency_note)}</div>` : ""}${S.maintenance_mode || S.checkout_pause ? `<div class="emergency-bar pause-bar" role="status">⏸ ${esc(S.pause_message || "Orders are paused for a short while. Please WhatsApp us for help.")}</div>` : ""}<div class="announce" aria-label="Announcements">${annItems.length ? `<div class="announce-track">${[...annItems, ...annItems, ...annItems, ...annItems].map((a, i) => `<span${i >= annItems.length ? ' aria-hidden="true"' : ""}>${esc(a)}</span>`).join("")}</div>` : `<div class="announce-track"><span>Hand block printed in Jaipur · Ships worldwide</span></div>`}<div class="announce-cta"><a href="${u("wholesale/")}" class="ann-trade">For boutiques & brands</a><button type="button" class="ann-follow" data-follow><span data-follow-label>＋ Follow</span></button></div></div>
+${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="alert">${esc(S.emergency_note)}</div>` : ""}${S.maintenance_mode || S.checkout_pause ? `<div class="emergency-bar pause-bar" role="status">⏸ ${esc(S.pause_message || "Orders are paused for a short while. Please WhatsApp us for help.")}</div>` : ""}<div class="announce" aria-label="Announcements">${intlOn ? `<div class="announce-track"><span>Handmade in Jaipur · Ships worldwide · Secure PayPal checkout</span></div>` : annItems.length ? `<div class="announce-track">${[...annItems, ...annItems, ...annItems, ...annItems].map((a, i) => `<span${i >= annItems.length ? ' aria-hidden="true"' : ""}>${esc(a)}</span>`).join("")}</div>` : `<div class="announce-track"><span>Hand block printed in Jaipur · Ships worldwide</span></div>`}<div class="announce-cta"><a href="${u("wholesale/")}" class="ann-trade">For boutiques & brands</a><button type="button" class="ann-follow" data-follow><span data-follow-label>＋ Follow</span></button></div></div>
 <header class="site-header">
   <div class="wrap nav">
     <button class="icon-btn menu-btn" aria-label="Open menu" aria-expanded="false" data-open-menu>${I.menu}</button>
@@ -507,6 +508,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap"><a href="${u("sh
     </div>
   </div>
   ${landings.length ? `<div class="wrap foot-seo"><h3>Popular</h3><p>${landings.map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></div>` : ""}
+  <div class="wrap foot-pay"><span>Secure payments</span>${S.paypal_client_id ? `<b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b>` : ""}<b class="pay-pill cur-inr">UPI</b><b class="pay-pill cur-inr">RuPay</b><span class="pay-lock">🔒 SSL encrypted checkout</span></div>
   ${intlOn ? `<div class="wrap foot-country"><button type="button" class="foot-cc" data-country>${I.globe} Country / region: <b data-cc-name>India · ₹ INR</b> <u>Change</u></button></div>` : ""}
   <div class="wrap copy">© ${year} ${esc(brand)}, Jaipur. All rights reserved.</div>
 </footer>`}
