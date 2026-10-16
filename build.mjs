@@ -564,7 +564,7 @@ const card = (p, i = 9) => {
     <div class="card-img${b ? " has-alt" : ""}">
       ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1800" ${i < 2 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">` : ""}
       ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="" width="1200" height="1800" decoding="async">` : ""}
-      <div class="tags">${p.bestseller ? `<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale">-${off}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
+      <div class="tags">${p.bestseller ? `<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale${p.intl ? " cur-inr" : ""}">-${off}%</span>` : ""}${p.intl && p.mrp_usd > p.price_usd ? `<span class="tag tag-sale cur-usd">-${Math.round((1 - p.price_usd / p.mrp_usd) * 100)}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
     <div class="card-body">
       <h3>${esc(p.title)}</h3>
@@ -608,7 +608,7 @@ const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, withSrcs
   // banners: admin "बैनर (Banners)" section first, then the older settings list
   const bDir = path.join(ROOT, "content/banners");
   const bannerFiles = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8"))).filter((b) => b && b.active !== false && (b.image || b.image_desktop) && (!b.end || String(b.end).slice(0, 10) >= today)).sort((a, b) => (num(a.order) ?? 50) - (num(b.order) ?? 50));
-  const slides = [...bannerFiles, ...(Array.isArray(S.hero_slides) ? S.hero_slides : [])].map((x) => ({ start: String(x?.start || "").slice(0, 10), end: String(x?.end || "").slice(0, 10), image: String(x?.image || x?.image_desktop || "").trim(), wide: String(x?.image_desktop || "").trim(), title: String(x?.title || "").trim(), subtitle: String(x?.subtitle || "").trim(), link: String(x?.link || "").trim(), button: String(x?.button || "").trim(), eyebrow: String(x?.eyebrow || "").trim() })).filter((x) => x.image && imgOk(x.image)).map((x) => (x.wide && !imgOk(x.wide) ? { ...x, wide: "" } : x));
+  const slides = [...bannerFiles, ...(Array.isArray(S.hero_slides) ? S.hero_slides : [])].map((x) => ({ start: String(x?.start || "").slice(0, 10), end: String(x?.end || "").slice(0, 10), image: String(x?.image || x?.image_desktop || "").trim(), wide: String(x?.image_desktop || "").trim(), clean: !!x?.image_has_text, title: String(x?.title || "").trim(), subtitle: String(x?.subtitle || "").trim(), link: String(x?.link || "").trim(), button: String(x?.button || "").trim(), eyebrow: String(x?.eyebrow || "").trim() })).filter((x) => x.image && imgOk(x.image)).map((x) => (x.wide && !imgOk(x.wide) ? { ...x, wide: "" } : x));
   if (!slides.length) {
     slides.push({ image: S.hero_image || "images/site/hero.jpg", wide: String(S.hero_image_desktop || "").trim() || (S.hero_image === "/images/site/hero-teal.jpg" ? siteFile("hero-wide.jpg") : ""), title: S.hero_title || brand, subtitle: S.hero_subtitle || S.tagline || "" });
     // ready-made promo banners until real ones are added in admin (Settings → होमपेज बैनर स्लाइड)
@@ -628,7 +628,7 @@ ${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="st
 ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-dot"></span> LIVE NOW · ${esc(live.title)} <b>Watch & shop →</b></a>` : liveNextText ? `<div class="live-strip next">📺 Next live shopping: <b>${esc(liveNextText)}</b>${ytChan ? ` · <a href="${esc(ytChan)}" target="_blank" rel="noopener">Subscribe on YouTube</a>` : ""}</div>` : ""}
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
-${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
+${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.clean ? " hero-clean" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
   <div class="hero-media" style="--hb:url('${esc(u(sl.image))}')"><img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></div>
   <div class="hero-text">
     <p class="eyebrow">${esc(sl.eyebrow || "New collection · Made in Jaipur")}</p>
