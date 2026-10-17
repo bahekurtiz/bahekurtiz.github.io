@@ -7,7 +7,8 @@
   "button": "Shop Navratri",
   "link": "occasion/navratri/",
   "start": "",
-  "end": "",
+  "end": "2026-10-21",
+  "image_has_text": true,
   "order": 1,
   "active": true
 }
