@@ -7,7 +7,8 @@
   "button": "Shop the Edit",
   "link": "occasion/festive/",
   "start": "",
-  "end": "",
+  "end": "2026-10-29",
+  "image_has_text": true,
   "order": 2,
   "active": true
 }
