@@ -24,7 +24,7 @@
   "about_text": "Bahe Kurtiz is a Jaipur label making easy, elegant kurtis and dresses. Every piece is designed and stitched in our own unit, so you get better finishing at a fair price.\n\nWe make in small batches. If your size is not in stock, message us on WhatsApp and we will make it for you.",
   "whatsapp": "7073350886",
   "phone": "+91 70733 50886",
-  "email": "",
+  "email": "bahekurti@gmail.com",
   "address": "Jaipur, Rajasthan, India",
   "social_links": [
     {
@@ -34,6 +34,34 @@
     {
       "name": "Facebook",
       "url": "https://www.facebook.com/bahekurtiz/"
+    },
+    {
+      "name": "URL",
+      "url": "https://www.pinterest.com/bahekurtiz/"
+    },
+    {
+      "name": "YOUTUBE",
+      "url": "https://www.youtube.com/@bahekurtiz"
+    },
+    {
+      "name": "X (TWITTER)",
+      "url": "https://x.com/BaheKurtiz"
+    },
+    {
+      "name": "REDDIT",
+      "url": "https://www.reddit.com/user/Bahekurtiz/"
+    },
+    {
+      "name": "TELEGRAM (WHOLESALE)",
+      "url": "https://t.me/bahekurtiz_wholesale"
+    },
+    {
+      "name": "SNAPCHAT",
+      "url": "https://www.snapchat.com/add/bahekurtiz"
+    },
+    {
+      "name": "LINKEDIN",
+      "url": "https://www.linkedin.com/in/bahe-kurtiz-49030b293?utm_source=share_via&utm_content=profile&utm_medium=member_android"
     }
   ],
   "marketplace_links": [
@@ -45,13 +73,13 @@
   "shipping_charge": 0,
   "free_shipping_above": 0,
   "paypal_client_id": "BAAkMq_Y3_Bav41mBa9b1B5ckPTbFMYaw3TJYTkPAbaEJHwank7gvkfJx5xBiWmTawkGtng-H6JcVpDf-0",
-  "intl_shipping_charge_usd": null,
-  "intl_free_shipping_above_usd": null,
+  "intl_shipping_charge_usd": 0,
+  "intl_free_shipping_above_usd": 0,
   "intl_duty_note": "Prices exclude import duties and taxes of your country, which are paid by the buyer on delivery.",
   "dispatch_days": 3,
   "transit_days_local": 2,
   "transit_days_min": 3,
-  "transit_days_max": 7,
+  "transit_days_max": 5,
   "intl_eta_min": 7,
   "intl_eta_max": 12,
   "festivals": [],
@@ -60,17 +88,17 @@
   "coupons": [],
   "prepaid_discount_percent": 5,
   "upi_id": "",
-  "dispatch_note": "Dispatched from Jaipur in 2–4 working days",
+  "dispatch_note": "Handmade in Jaipur · Ready sizes ship in 2–4 days · Made-to-measure in 5–7 days",
   "shipping_policy": "We ship all over India from Jaipur.\n\nOrders are dispatched within 2–4 working days. Delivery usually takes 4–8 working days after dispatch, depending on your location. We share the tracking details on WhatsApp/SMS once your order is shipped.\n\nMade-to-order pieces may take a few extra days. We will tell you the exact timeline on WhatsApp.",
   "return_policy": "Exchange or return requests are accepted within 7 days of delivery, for unused products with original tags.\n\nTo raise a request, message us on WhatsApp with your order ID and photos of the product.\n\nFor prepaid orders, the refund goes to the original payment method within 5–7 working days after we receive the product back. Shipping charges are not refundable. Made-to-order pieces can be exchanged for size only.",
-  "intl_shipping_policy": "",
-  "intl_return_policy": "",
-  "privacy_policy": "We collect only the details needed to deliver your order: name, phone number, email and address. We use them to process your order, ship it and contact you about it.\n\nOnline payments are processed securely by Razorpay. We do not see or store your card or bank details.\n\nWe never sell your details to anyone. To get your data deleted, message us on WhatsApp or email.",
-  "terms": "By placing an order on this website you agree to these terms.\n\nProduct colours may look slightly different because of screen settings and lighting. Prices are in Indian Rupees and include applicable taxes unless mentioned otherwise.\n\nWe may cancel an order if a product is out of stock or if there is a pricing error. In that case any amount paid is refunded in full.\n\nFor any question, contact us on WhatsApp or by email. These terms are governed by the laws of India, and courts in Jaipur, Rajasthan have jurisdiction.",
+  "intl_shipping_policy": "Every piece is handmade in our Jaipur studio. Ready sizes ship in 2–4 working days; made-to-measure pieces take 5–7 working days. Shipping is free worldwide by express courier (DHL / FedEx / Aramex) with tracking. Delivery takes 5–10 business days to most countries (USA, UK, Canada, UAE, Australia). Customs duties and import taxes, if any, are charged by your country and paid by the buyer on delivery. You will get a tracking link on WhatsApp and email as soon as your order ships.",
+  "intl_return_policy": "Made-to-measure pieces are stitched only for you, so they are final sale – except defects. If we made it wrong to your measurements, we remake it free. If your measurements were off, we offer one free alteration (up to $10 local tailor credit). Ready-size pieces can be exchanged within 7 days of delivery; the customer pays return shipping. Damaged or wrong item? WhatsApp us a photo within 48 hours of delivery and we will fix it at our cost.",
+  "privacy_policy": "Online payments are processed securely by PayPal (international) and Razorpay (India). We never see or store your card or bank details.",
+  "terms": "Prices are shown in your selected currency. International orders are charged in USD via PayPal; Indian orders in INR including applicable taxes.",
   "site_url": "https://bahekurtiz.com",
   "google_site_verification": "",
-  "referral_offer": "",
-  "referral_friend_offer": "",
+  "referral_offer": "$5 / ₹300 off your next order",
+  "referral_friend_offer": "A free handmade potli with the first order",
   "referral_terms": "",
   "gift_amounts_inr": [],
   "gift_amounts_usd": [],
@@ -78,7 +106,7 @@
   "google_client_id": "",
   "login_popup": true,
   "login_title": "Sign in for early access to sales",
-  "login_text": "",
+  "login_text": "Between sizes? Choose \"Custom fit\" – we stitch to your measurements at no extra cost.",
   "ga4_id": "G-794LQVC931",
   "clarity_id": "yy15gjzoyj",
   "pinterest_tag_id": "",
@@ -89,15 +117,15 @@
   "live_url": "",
   "live_title": "",
   "live_next": "",
-  "legal_name": "",
+  "legal_name": "Anushka Creation",
   "reels_title": "Watch & Shop",
   "reels": [],
   "reviews": [],
   "size_chart": [],
-  "size_note": "",
-  "wholesale_intro": "",
-  "wholesale_moq": "",
-  "wholesale_payment": "",
+  "size_note": "Between sizes? Choose \"Custom fit\" – we stitch to your measurements at no extra cost.",
+  "wholesale_intro": "Boutiques and resellers worldwide: hand block printed kurta sets direct from our Jaipur unit. Private label available.",
+  "wholesale_moq": "Boutiques and resellers worldwide: hand block printed kurta sets direct from our Jaipur unit. Private label available.",
+  "wholesale_payment": "50% advance, balance before dispatch",
   "category_seo": [],
   "redirects": [],
   "auto_pages": true,
