@@ -1214,3 +1214,6 @@ body{background:#fff}
 .vip-band .btn-gold,.bb-page .btn-gold{background:#a8812f!important;border:1px solid #a8812f!important;color:#fff!important;padding:15px 30px}
 .vip-band .btn-gold:hover,.bb-page .btn-gold:hover{background:#8f6d25!important}
 .bb-page .btn-line{background:transparent!important;border:1px solid rgba(246,241,233,.75)!important;color:#f6f1e9!important;padding:15px 30px}
+
+/* v50 fit promise */
+.fit-promise{margin:14px 0;padding:14px 16px;border:1px solid #d4b26a;border-radius:12px;background:#f6f1e9}.fit-promise .fp-h{margin:0;font-family:Lora,serif;font-weight:600;color:#0e5b59;font-size:1.05rem}.fit-promise .fp-t{margin:2px 0 8px;font-size:.9rem;color:#5b4a2a}.fit-promise ul{margin:0 0 8px;padding-left:18px;font-size:.88rem;line-height:1.55}.fit-promise li{margin:2px 0}.fit-promise .fp-l{font-size:.85rem;color:#0e5b59;font-weight:600;text-decoration:underline}
