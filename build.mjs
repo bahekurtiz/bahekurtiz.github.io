@@ -634,7 +634,7 @@ ${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.cle
   <div class="hero-media" style="--hb:url('${esc(u(sl.image))}')"><img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></div>
   <div class="hero-text">
     <p class="eyebrow">${esc(sl.eyebrow || "New collection · Made in Jaipur")}</p>
-    ${i === 0 ? `<h1>${esc(sl.title || brand)}</h1>` : `<h2 class="h1">${esc(sl.title || brand)}</h2>`}
+    <h2 class="h1">${esc(sl.title || brand)}</h2>
     <p class="lead">${esc(sl.subtitle || "")}</p>
     <div class="hero-cta"><a class="btn" href="${u(sl.link || "shop/")}">${esc(sl.button || "Shop the collection")}</a>${i === 0 && categories[0] ? `<a class="btn btn-ghost" href="${u(categories[0].url)}">${esc(categories[0].plural)}</a>` : ""}</div>
   </div>
@@ -677,7 +677,7 @@ ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class=
     <ul class="b2b-list"><li>${I.box}<span><strong>Wholesale</strong>Kurtis, sets, dresses & co-ords in bulk</span></li><li>${I.tag}<span><strong>Private label</strong>Your brand name, tags & packaging</span></li><li>${I.globe}<span><strong>Export</strong>Buyers in every country, worldwide</span></li></ul>
   </div>
 </section>
-${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="section-head center"><p class="eyebrow">Loved by our customers worldwide</p><h2>Reviews</h2>${(() => { const n0 = reviews.length, avg0 = reviews.reduce((a, r) => a + r.rating, 0) / n0, ovr = num(S.review_overall_rating), ovc = num(S.review_overall_count), avg = ovr || avg0, n = ovc || n0, et = (Array.isArray(S.marketplace_links) ? S.marketplace_links : []).find((x) => /etsy/i.test(x?.name || x?.url || "")); return `<p class="rev-sum">${star(Math.round(avg))} <b>${avg.toFixed(1)}</b> · ${n} verified review${n > 1 ? "s" : ""}${ovc ? " on Etsy" : ""}${et && et.url ? ` · <a href="${esc(et.url)}" target="_blank" rel="noopener">See all on Etsy ↗</a>` : ""}</p>`; })()}</div><div class="rev-row">${reviews.map((r) => `<figure class="rev">${r.photo ? `<img decoding="async" src="${esc(u(r.photo))}" alt="" width="400" height="500" loading="lazy">` : ""}<blockquote>${star(r.rating)}<p>${esc(r.text)}</p></blockquote><figcaption>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? `<span class="rev-src">✓ Verified on ${esc(r.source)}</span>` : ""}</figcaption></figure>`).join("")}</div></section>` : ""}
+${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="section-head center"><p class="eyebrow">Loved by our customers worldwide</p><h2>Reviews</h2>${(() => { const n0 = reviews.length, avg0 = reviews.reduce((a, r) => a + r.rating, 0) / n0, ovr = num(S.review_overall_rating), ovc = num(S.review_overall_count), avg = ovr || avg0, n = ovc || n0, et = (Array.isArray(S.marketplace_links) ? S.marketplace_links : []).find((x) => /etsy/i.test(x?.name || x?.url || "")); return `<p class="rev-sum">${star(5)} Verified customer reviews${et && et.url ? ` · <a href="${esc(et.url)}" target="_blank" rel="noopener">See all on Etsy ↗</a>` : ""}</p>`; })()}</div><div class="rev-row">${reviews.map((r) => `<figure class="rev">${r.photo ? `<img decoding="async" src="${esc(u(r.photo))}" alt="" width="400" height="500" loading="lazy">` : ""}<blockquote>${star(r.rating)}<p>${esc(r.text)}</p></blockquote><figcaption>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? `<span class="rev-src">✓ Verified on ${esc(r.source)}</span>` : ""}</figcaption></figure>`).join("")}</div></section>` : ""}
 <section class="wrap section recent" data-recent hidden><div class="section-head"><div><p class="eyebrow">Picked up where you left</p><h2>Recently viewed</h2></div></div><div class="grid" data-recent-grid></div></section>
 <section class="story">
   <div class="wrap story-grid">
@@ -691,9 +691,9 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
   </div>
 </section>`;
   add("index.html", page({
-    title: `${brand} | Kurtis & Dresses for Women, Made in Jaipur`,
-    description: clip(`Shop ${((l) => (l.length > 1 ? l.slice(0, -1).join(", ") + " and " + l[l.length - 1] : l[0] || "kurtis"))(categories.slice(0, 4).map((c) => c.plural.toLowerCase()))} for women by ${brand}, Jaipur. ${S.tagline || ""}. Secure prepaid payment${intlOn ? ", shipping worldwide" : " and pan-India delivery"}.`),
-    pathname: "", body, bodyClass: "home",
+    title: `${brand} | Hand Block Printed Kurta Sets, Made to Measure in Jaipur`,
+    description: clip(intlOn ? `Hand block printed kurta sets, Anarkalis and dresses from Jaipur, stitched to your measurements. Free worldwide shipping to the USA, UK, Canada, UAE & Australia. Secure checkout.` : `Hand block printed kurtis, kurta sets and dresses from Jaipur by ${brand}. Secure prepaid payment and pan-India delivery.`),
+    pathname: "", body: `<h1 class="sr-only">${esc(brand)} – hand block printed kurta sets, made to measure in Jaipur</h1>` + body, bodyClass: "home",
     ld: [{ "@context": "https://schema.org", "@type": "WebSite", name: brand, url: SITE_URL + "/" }],
   }));
 }
@@ -726,7 +726,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   }));
 }
 listing({ file: "shop/index.html", pathname: "shop/", h1: "Shop All", intro: `${products.length} styles, made in Jaipur`, items: products, crumbs: "<span>Shop All</span>",
-  title: `Shop Women's Kurtis & Dresses Online | ${brand}`, description: `Browse all kurtis and dresses by ${brand}, Jaipur. Embroidered kurtis, floral dresses and more with secure online payment and pan-India delivery.` });
+  title: `Shop Women's Kurtis & Dresses Online | ${brand}`, description: `Browse all kurtis and dresses by ${brand}, Jaipur. Embroidered kurtis, floral dresses and more with secure online payment and ${intlOn ? "worldwide shipping" : "pan-India delivery"}.` });
 { const best = products.filter((p) => p.bestseller); if (best.length) listing({ file: "bestsellers/index.html", pathname: "bestsellers/", h1: "Bestsellers", intro: `Our most loved styles, made in Jaipur`, items: best, crumbs: "<span>Bestsellers</span>",
   title: `Bestsellers – Most Loved Kurtis & Dresses | ${brand}`, description: `Shop the bestselling kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints loved by our customers.` }); }
 // ---------- Fabric & print guide + one page per fabric / print that has products ----------
@@ -764,7 +764,7 @@ for (const c of categories) {
   const fb = uniq(c.items.map((p) => p.fabric)).slice(0, 4), pw = uniq(c.items.flatMap((p) => p.print_work)).slice(0, 4);
   c.seoText = catSeo[c.name] || `Shop ${c.plural.toLowerCase()} for women by ${brand}, made in our own unit in Sanganer, Jaipur${pw.length ? ` – ${pw.join(", ").toLowerCase()}` : ""}${fb.length ? ` in ${fb.join(", ").toLowerCase()}` : ""}. Secure prepaid payment, shipping across India${intlOn ? " and worldwide" : ""}. Boutiques and brands can also order ${c.plural.toLowerCase()} in wholesale or under their own private label.`;
   listing({ file: c.url + "index.html", pathname: c.url, h1: c.plural, intro: `${c.items.length} styles`, seo: c.seoText, items: c.items, links: autoPages.filter((x) => x.cat === c).slice(0, 12).map((x) => [x.label, x.url]), crumbs: `<a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span>`,
-    title: `${c.plural} for Women – Made in Jaipur | ${brand}`, description: `Shop ${c.plural.toLowerCase()} for women by ${brand}, Jaipur. Handcrafted designs, secure online payment and pan-India delivery.` });
+    title: `${c.plural} for Women – Made in Jaipur | ${brand}`, description: `Shop ${c.plural.toLowerCase()} for women by ${brand}, Jaipur. Handcrafted designs, secure online payment and ${intlOn ? "worldwide shipping" : "pan-India delivery"}.` });
 }
 
 for (const c of allCats.filter((x) => x.empty)) {
@@ -809,7 +809,7 @@ for (const p of products) {
       : `<a class="btn btn-wa btn-block" href="${esc(waAsk)}" target="_blank" rel="noopener">${I.wa} Ask price on WhatsApp</a>`}
     ${intlOn && !p.intl && waNumber ? `<div class="intl-ask cur-usd"><p>${p.ships_abroad ? "International price for this style is shared on request." : "This style currently ships within India only."} Message us for availability and similar styles that ship to your country.</p><a class="btn btn-wa btn-block" href="${esc(waLink(`Hi ${brand}! I am outside India. Can you ship this to my country?\n${p.title}\n${SITE_URL}/${p.url}`))}" target="_blank" rel="noopener">${I.wa} Ask on WhatsApp</a></div>` : ""}
     ${waAsk && p.price !== null ? `<a class="ask-wa" href="${esc(waAsk)}" target="_blank" rel="noopener">${I.wa} Questions? Chat with us on WhatsApp</a>` : ""}
-    ${(() => { const n = num(S.review_overall_count) || reviews.length, avg = num(S.review_overall_rating) || (reviews.length ? reviews.reduce((x, r) => x + r.rating, 0) / reviews.length : 0); return `<ul class="pdp-trust">${S.paypal_client_id ? `<li class="cur-usd">🔒 Secure checkout · PayPal Buyer Protection</li>` : ""}${n ? `<li>⭐ ${avg.toFixed(1)}/5 from ${n} verified customer review${n > 1 ? "s" : ""}${num(S.review_overall_count) ? " on Etsy" : ""}</li>` : ""}<li>✂️ Handmade in Jaipur · quality checked before dispatch</li><li>💬 Real people on WhatsApp – reply within a few hours</li></ul>`; })()}
+    ${(() => { const n = num(S.review_overall_count) || reviews.length, avg = num(S.review_overall_rating) || (reviews.length ? reviews.reduce((x, r) => x + r.rating, 0) / reviews.length : 0); return `<ul class="pdp-trust">${S.paypal_client_id ? `<li class="cur-usd">🔒 Secure checkout · PayPal Buyer Protection</li>` : ""}${n ? `<li>⭐ Verified customer reviews from Etsy</li>` : ""}<li>✂️ Handmade in Jaipur · quality checked before dispatch</li><li>💬 Real people on WhatsApp – reply within a few hours</li></ul>`; })()}
     <div class="deliv" data-deliv><form class="pin-check" data-pin-form><label class="cur-inr" for="pin-${esc(p.slug)}">Check delivery date</label>${intlOn ? `<label class="cur-usd" for="pin-${esc(p.slug)}">Delivery to your country</label>` : ""}<div class="pin-row"><input id="pin-${esc(p.slug)}" name="pin" inputmode="numeric" maxlength="6" autocomplete="postal-code" placeholder="Enter pincode" data-pin><button class="btn btn-ghost" type="submit">Check</button></div></form><p class="deliv-out" data-deliv-out aria-live="polite"></p></div>
     <div class="share-row"><button class="share-btn" type="button" data-share>${I.wa} Ask family</button><a class="share-btn" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(SITE_URL + "/" + p.url)}&media=${encodeURIComponent(abs(p.images[0] || ""))}&description=${encodeURIComponent(p.title + " – " + brand)}" target="_blank" rel="noopener">${socialIcon("pinterest")} Save</a><button class="share-btn" type="button" data-copy-link>${I.tag} Copy link</button><button class="share-btn status-btn" type="button" data-status>✨ Make WhatsApp Status</button></div>
     <ul class="perks"><li>${I.truck}${esc(S.dispatch_note || "Ships from Jaipur")}</li>${p.ships_abroad && intlOn ? `<li>${I.globe}Ships worldwide · <a href="${u(S.intl_shipping_policy ? "international-shipping/" : "shipping/")}">delivery times</a></li>` : ""}<li>${I.shield}Secure prepaid payment</li><li>${I.swap}<a href="${u("returns/")}">Easy exchange policy</a></li></ul>
