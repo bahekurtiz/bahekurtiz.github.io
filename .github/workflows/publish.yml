@@ -1,0 +1,19 @@
+name: Daily blog publish
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          date -u +%F > .publish-tick
+          git config user.name "bahe-bot"
+          git config user.email "bot@bahekurtiz.com"
+          git add .publish-tick
+          git commit -m "Daily publish tick $(date -u +%F)" || exit 0
+          git push
