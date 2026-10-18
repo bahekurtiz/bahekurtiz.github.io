@@ -306,7 +306,5 @@
   "currency": "INR",
   "github_repo": "",
   "cod_charge": 0,
-  "cod_enabled": false,
-  "review_overall_rating": 4.3,
-  "review_overall_count": 251
+  "cod_enabled": false
 }
