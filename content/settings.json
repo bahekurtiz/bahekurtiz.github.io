@@ -105,8 +105,8 @@
   "customer_sheet_url": "https://script.google.com/macros/s/AKfycbz-NuyW1v-DqrYU6EykxndG6Ttne1F_OAAtNenKV0r5UFo7amQ3yb8MMA_GglXOt8Tm/exec",
   "google_client_id": "",
   "login_popup": true,
-  "login_title": "Sign in for early access to sales",
-  "login_text": "Between sizes? Choose \"Custom fit\" – we stitch to your measurements at no extra cost.",
+  "login_title": "Free handmade potli with your first order",
+  "login_text": "Join the VIP list for early access to limited drops, new hand block prints and festive edits.",
   "ga4_id": "G-794LQVC931",
   "clarity_id": "yy15gjzoyj",
   "pinterest_tag_id": "",
@@ -306,5 +306,6 @@
   "currency": "INR",
   "github_repo": "",
   "cod_charge": 0,
-  "cod_enabled": false
+  "cod_enabled": false,
+  "login_eyebrow": "Bahe VIP · A gift from Jaipur"
 }
