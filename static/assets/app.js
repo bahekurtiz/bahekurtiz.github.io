@@ -37,7 +37,7 @@
   const UK = "bk_user_v1";
   const getUser = () => { try { return JSON.parse(localStorage.getItem(UK)) || null; } catch { return null; } };
   const setUser = (x) => { try { x ? localStorage.setItem(UK, JSON.stringify(x)) : localStorage.removeItem(UK); } catch {} paintUser(); };
-  const sendSheet = (data) => { if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
+  const sendSheet = (data) => { try { if (data && data.email && /^(signup|google|follow|checkout_started|paid)$/.test(data.type)) fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: data.type, email: data.email, name: data.name || "", consent: data.consent || "" }), keepalive: true }).catch(() => {}); } catch {} if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
   function saveCustomer(f, type, extra = {}) {
     const coc = document.querySelector("[data-co-consent]"); const consent = coc ? coc.checked : !!getUser()?.consent;
     const u0 = getUser() || {};
