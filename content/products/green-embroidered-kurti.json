@@ -8,8 +8,8 @@
   "length_type": "Knee Length",
   "price": 599,
   "mrp": 1245,
-  "price_usd": 30,
-  "mrp_usd": 70,
+  "price_usd": 25,
+  "mrp_usd": 50,
   "ships_abroad": true,
   "sizes": [
     "S",
