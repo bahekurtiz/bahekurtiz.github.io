@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: thumbs
+  cancel-in-progress: false
 jobs:
   thumbs:
     runs-on: ubuntu-latest
@@ -53,4 +56,5 @@ jobs:
           git config user.email "bot@bahekurtiz.com"
           git add static/images/_r
           git commit -m "Small image copies" || exit 0
-          git push
+          for i in 1 2 3 4 5; do git pull --rebase -X theirs origin main && git push && exit 0; sleep 10; done
+          exit 1
