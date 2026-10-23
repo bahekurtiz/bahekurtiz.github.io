@@ -430,7 +430,6 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
       <a href="${u("bahe-block/")}">The Bahe Block</a>
       <a href="${u("shop/")}">New Arrivals</a>
       <a href="${u("custom/")}">Custom & Restyle</a>
-      <a href="${u("wholesale/")}">Wholesale</a>
       <a href="${u("about/")}">Our Story</a>
     </nav>
     <div class="nav-icons">
@@ -628,7 +627,7 @@ const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, withSrcs
   const list = (featured.length ? featured : products).slice(0, 8);
   const tiles = categories.map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
   const body = `
-${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a><a class="story" href="${u("wholesale/")}"><span class="story-ring story-feed story-b2b">B2B</span><em>Wholesale</em></a></div></nav>` : ""}
+${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
 ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-dot"></span> LIVE NOW · ${esc(live.title)} <b>Watch & shop →</b></a>` : liveNextText ? `<div class="live-strip next">📺 Next live shopping: <b>${esc(liveNextText)}</b>${ytChan ? ` · <a href="${esc(ytChan)}" target="_blank" rel="noopener">Subscribe on YouTube</a>` : ""}</div>` : ""}
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
