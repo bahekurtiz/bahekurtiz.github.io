@@ -30,9 +30,9 @@
   ],
   "description": "A flowy floral maxi dress in soft blue and grey tones. A halter neck with a lace-up open back, a fitted bodice and a full, gathered skirt with a ruffle hem that twirls beautifully.\n\nPerfect for brunches, holidays and summer evenings. Made in Jaipur.",
   "images": [
-    "/images/products/blue-halter-1.jpg",
-    "/images/products/blue-halter-2.jpg",
     "/images/products/blue-halter-3.jpg",
+    "/images/products/blue-halter-2.jpg",
+    "/images/products/blue-halter-1.jpg",
     "/images/products/blue-halter-4.jpg"
   ],
   "video": "/media/products/WhatsApp Video 2026-10-16 at 15.23.56.mp4",
@@ -49,7 +49,7 @@
   "in_stock": true,
   "featured": true,
   "bestseller": false,
-  "sort_order": 4,
+  "sort_order": 13,
   "seo_title": "",
   "seo_description": ""
 }
