@@ -492,7 +492,7 @@ ${["home", "pdp", "checkout-page"].includes(bodyClass) ? "" : `<section class="u
     ${num(S.return_days) ? `<div>${I.swap}<strong>${num(S.return_days)}-day size exchange</strong><span><a href="${u("returns/")}">See our return policy</a></span></div>` : ""}
   </div>
 </section>`}
-${waNumber && bodyClass !== "checkout-page" ? `<section class="join"><div class="wrap join-row"><div><h2>New designs, first on WhatsApp</h2><p>Get new arrivals and restock alerts straight on WhatsApp. No spam.</p></div><a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}! Please add me to your new arrivals updates.`))}" target="_blank" rel="noopener">${I.wa} Join on WhatsApp</a></div></section>` : ""}
+${waNumber && bodyClass !== "checkout-page" && bodyClass !== "home" ? `<section class="join"><div class="wrap join-row"><div><h2>New designs, first on WhatsApp</h2><p>Get new arrivals and restock alerts straight on WhatsApp. No spam.</p></div><a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}! Please add me to your new arrivals updates.`))}" target="_blank" rel="noopener">${I.wa} Join on WhatsApp</a></div></section>` : ""}
 ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap"><a href="${u("shipping/")}">Shipping</a> · <a href="${u("returns/")}">Returns</a> · <a href="${u("privacy/")}">Privacy</a> · <a href="${u("terms/")}">Terms</a><br>© ${year} ${esc(brand)}, Jaipur</footer>` : `<footer class="site-footer">
   <div class="wrap foot">
     <div class="foot-brand">
@@ -509,7 +509,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap"><a href="${u("sh
       ${markets.length ? `<h3 class="mt">Also on</h3>${markets.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)}</a>`).join("")}` : ""}
     </div>
   </div>
-  ${landings.length ? `<div class="wrap foot-seo"><h3>Popular</h3><p>${landings.map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></div>` : ""}
+  ${landings.length && !intlOn ? `<div class="wrap foot-seo"><h3>Popular</h3><p>${landings.map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></div>` : ""}
   <div class="wrap foot-pay"><span>Secure payments</span>${S.paypal_client_id ? `<b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b>` : ""}<b class="pay-pill cur-inr">UPI</b><b class="pay-pill cur-inr">RuPay</b><span class="pay-lock">🔒 SSL encrypted checkout</span></div>
   ${intlOn ? `<div class="wrap foot-country"><button type="button" class="foot-cc" data-country>${I.globe} Country / region: <b data-cc-name>India · ₹ INR</b> <u>Change</u></button></div>` : ""}
   <div class="wrap copy">© ${year} ${esc(brand)}, Jaipur. All rights reserved.</div>
@@ -662,13 +662,13 @@ ${(() => { const best = products.filter((p) => p.bestseller).slice(0, 8); return
   <div class="section-head"><div><p class="eyebrow">Just in</p><h2>New Arrivals</h2></div><a class="link" href="${u("shop/")}">View all →</a></div>
   <div class="grid scroller">${list.map((p) => card(p)).join("")}</div>
 </section>
-${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Everyday Picks</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
+${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Easy cotton favourites</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
 ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class="shopby"><div class="wrap">
   ${occasions.length ? `<div class="shopby-row"><p class="eyebrow">Shop by occasion</p><div class="pills">${occasions.map((o) => `<a class="pill" href="${u("occasion/" + slugify(o) + "/")}">${esc(o)}</a>`).join("")}</div></div>` : ""}
   ${prints.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by print</p><div class="pills">${prints.map((x) => `<a class="pill" href="${u(qs("print", x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
   ${fabrics.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by fabric</p><div class="pills">${fabrics.map((x) => `<a class="pill" href="${u(craftUrl(x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
 </div></section>` : ""}
-<section class="b2b">
+<section class="b2b"${intlOn ? ' style="display:none"' : ""}>
   <div class="wrap b2b-grid">
     <div>
       <p class="eyebrow">For boutiques, brands & importers</p>
