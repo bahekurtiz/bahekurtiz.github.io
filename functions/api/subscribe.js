@@ -29,7 +29,7 @@ function welcome(email, name) {
   const html = `<!doctype html><html><body style="margin:0;background:#f6f1e9;font-family:Arial,Helvetica,sans-serif;color:#2b2522">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f1e9;padding:24px 0"><tr><td align="center">
 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden">
-<tr><td style="background:#0e5b59;padding:22px;text-align:center"><img src="https://bahekurtiz.com/images/site/logo.png" alt="Bahe Kurtiz" width="150" style="display:inline-block;filter:brightness(0) invert(1)"></td></tr>
+<tr><td style="background:#ffffff;padding:22px;text-align:center;border-bottom:3px solid #0e5b59"><img src="https://bahekurtiz.com/images/site/logo.png" alt="Bahe Kurtiz" width="150" style="display:inline-block"></td></tr>
 <tr><td style="padding:30px 32px 10px">
 <p style="margin:0 0 6px;font-size:12px;letter-spacing:3px;color:#a8812f">BAHE VIP</p>
 <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-weight:normal;font-size:26px;color:#0e5b59">Welcome, ${first}!</h1>
