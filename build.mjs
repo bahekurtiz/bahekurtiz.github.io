@@ -702,7 +702,9 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
 }
 
 // ---------- listing pages ----------
+const THIN = new Set();
 function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [] }) {
+  const thin = /^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4; if (thin) THIN.add(pathname);
   const body = `
 <section class="wrap section">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / ${crumbs}</nav>
@@ -724,7 +726,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
 </section>`;
   add(file, page({
-    title, description, pathname, body, image: items[0]?.images[0],
+    title, description, pathname, body, image: items[0]?.images[0], noindex: thin,
     ld: [crumbLd([[h1, pathname]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: h1, url: SITE_URL + "/" + pathname,
       mainEntity: { "@type": "ItemList", itemListElement: items.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: SITE_URL + "/" + p.url, name: p.title })) } }],
   }));
@@ -1591,6 +1593,7 @@ if (fs.existsSync(cfgPath)) {
 
 // sitemap, robots, redirects for old shop links, headers
 const urls = ["", "shop/", ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x); return `<url><loc>${SITE_URL}/${x}</loc>${bp ? `<lastmod>${bp.date}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
