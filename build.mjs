@@ -304,7 +304,7 @@ const socialIcon = (n) => {
 };
 
 const orgLd = {
-  "@context": "https://schema.org", "@type": "ClothingStore", "@id": SITE_URL + "/#store", name: brand, url: SITE_URL + "/",
+  "@context": "https://schema.org", "@type": "ClothingStore", "@id": SITE_URL + "/#store", name: brand, alternateName: ["Bahe Kurti", "Bahe Kurtis", "BaheKurtiz", "Bahe Kurtiz Jaipur", "बाहे कुर्तीज़"], url: SITE_URL + "/",
   logo: abs(logoImg || favImg || "favicon.svg"), image: abs(S.hero_image || "images/site/hero.jpg"), description: S.tagline,
   address: { "@type": "PostalAddress", addressLocality: "Jaipur", addressRegion: "Rajasthan", addressCountry: "IN", streetAddress: S.address || undefined },
   telephone: waNumber ? "+" + waNumber : undefined, email: S.email || undefined, sameAs, priceRange: "₹₹", legalName: S.legal_name || undefined,
@@ -509,7 +509,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap"><a href="${u("sh
       ${markets.length ? `<h3 class="mt">Also on</h3>${markets.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)}</a>`).join("")}` : ""}
     </div>
   </div>
-  ${landings.length && !intlOn ? `<div class="wrap foot-seo"><h3>Popular</h3><p>${landings.map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></div>` : ""}
+  ${landings.some((l) => !intlOn || l.type === "shop") ? `<div class="wrap foot-seo"><h3>Popular</h3><p>${landings.filter((l) => !intlOn || l.type === "shop").map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></div>` : ""}
   <div class="wrap foot-pay"><span>Secure payments</span>${S.paypal_client_id ? `<b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b>` : ""}<b class="pay-pill cur-inr">UPI</b><b class="pay-pill cur-inr">RuPay</b><span class="pay-lock">🔒 SSL encrypted checkout</span></div>
   ${intlOn ? `<div class="wrap foot-country"><button type="button" class="foot-cc" data-country>${I.globe} Country / region: <b data-cc-name>India · ₹ INR</b> <u>Change</u></button></div>` : ""}
   <div class="wrap copy">© ${year} ${esc(brand)}, Jaipur. All rights reserved.</div>
@@ -645,6 +645,7 @@ ${slides.length > 1 ? `<button class="hero-arrow prev" type="button" data-hero-s
 ${slides.length > 1 ? `<div class="hero-dots">${slides.map((_, i) => `<button type="button" data-hero-go="${i}" aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>` : ""}
 </section>
 ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}" data-us="${esc(festNext.order_by_intl)}"><div class="wrap fest-row"><span class="fest-name">${esc(festNext.name)} · ${esc(festNext.dateText)}</span><span class="fest-cut"><span class="cur-inr">Order by <b>${esc(festNext.order_by_in_text)}</b> for delivery in India</span>${intlOn ? `<span class="cur-usd">Order by <b>${esc(festNext.order_by_intl_text)}</b> for delivery abroad</span>` : ""} <span class="fest-left" data-fest-left></span></span><a class="link" href="${u(festNext.link || "shop/")}">Shop →</a><button class="link fest-cal" type="button" data-ics>📅 Add festivals to my calendar</button></div></div>` : ""}
+<section class="brand-intro"><h1>${esc(brand)}</h1><p>Hand block printed kurta sets &amp; Anarkalis from Jaipur – stitched to your measurements.</p></section>
 <section class="trust" aria-label="Why shop with us">
   <div class="wrap trust-row">
     <div>${I.needle}<span><strong>Handmade in Jaipur</strong>Hand block prints by our own karigars</span></div>
@@ -694,9 +695,9 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
 </section>`;
   add("index.html", page({
     title: `${brand} | Hand Block Printed Kurta Sets, Made to Measure in Jaipur`,
-    description: clip(intlOn ? `Hand block printed kurta sets, Anarkalis and dresses from Jaipur, stitched to your measurements. Free worldwide shipping to the USA, UK, Canada, UAE & Australia. Secure checkout.` : `Hand block printed kurtis, kurta sets and dresses from Jaipur by ${brand}. Secure prepaid payment and pan-India delivery.`),
-    pathname: "", body: `<h1 class="sr-only">${esc(brand)} – hand block printed kurta sets, made to measure in Jaipur</h1>` + body, bodyClass: "home",
-    ld: [{ "@context": "https://schema.org", "@type": "WebSite", name: brand, url: SITE_URL + "/" }],
+    description: clip(intlOn ? `${brand}: hand block printed kurta sets & Anarkalis from Jaipur, stitched to your size. Free shipping to the USA, UK, Canada, UAE & Australia.` : `Hand block printed kurtis, kurta sets and dresses from Jaipur by ${brand}. Secure prepaid payment and pan-India delivery.`),
+    pathname: "", body: `` + body, bodyClass: "home",
+    ld: [{ "@context": "https://schema.org", "@type": "WebSite", name: brand, alternateName: ["Bahe Kurti", "Bahe Kurtis", "BaheKurtiz", "Bahe Kurtiz Jaipur", "बाहे कुर्तीज़"], url: SITE_URL + "/" }],
   }));
 }
 
@@ -1214,17 +1215,17 @@ ${more.length ? `<section class="wrap section"><div class="section-head"><h2>Mor
 // ---------- SEO landing pages (content/landing/*.json) – rank for "manufacturer / wholesale" searches ----------
 for (const l of landings) {
   const words = String(l.match || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
-  const items = (words.length ? products.filter((p) => words.some((w) => [p.title, p.category, p.fabric, p.print_work.join(" ")].join(" ").toLowerCase().includes(w))) : products).slice(0, 8);
-  const waL = waLink(`Hi ${brand}! I saw your page: ${l.h1}. I want details.`);
+  const items = (words.length ? products.filter((p) => words.some((w) => [p.title, p.category, p.fabric, p.print_work.join(" ")].join(" ").toLowerCase().includes(w))) : products).slice(0, l.type === "shop" ? 12 : 8);
+  const waL = waLink(l.type === "shop" ? `Hi ${brand}! I need help choosing my size (${l.h1}).` : `Hi ${brand}! I saw your page: ${l.h1}. I want details.`);
   const body = `
 <section class="b2b-hero land-hero"><div class="wrap">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <span>${esc(l.h1)}</span></nav>
-  <p class="eyebrow">${esc(l.eyebrow || "Manufacturer · Sanganer, Jaipur")}</p>
+  <p class="eyebrow">${esc(l.eyebrow || (l.type === "shop" ? "Made in Jaipur · Ships worldwide" : "Manufacturer · Sanganer, Jaipur"))}</p>
   <h1>${esc(l.h1)}</h1>
   ${l.lead ? `<p class="lead">${esc(l.lead)}</p>` : ""}
-  <div class="hero-cta">${waL ? `<a class="btn btn-wa" href="${esc(waL)}" target="_blank" rel="noopener">${I.wa} WhatsApp us</a>` : ""}<a class="btn btn-light" href="${u("wholesale/")}#enquiry">Get a quotation</a></div>
+  <div class="hero-cta">${waL ? `<a class="btn btn-wa" href="${esc(waL)}" target="_blank" rel="noopener">${I.wa} WhatsApp us</a>` : ""}${l.type === "shop" ? `<a class="btn btn-light" href="#land-shop">Shop the collection</a>` : `<a class="btn btn-light" href="${u("wholesale/")}#enquiry">Get a quotation</a>`}</div>
 </div></section>
-${items.length ? `<section class="wrap section"><div class="section-head"><div><p class="eyebrow">From our collection</p><h2>${esc(l.products_title || "Styles we make")}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid">${items.map((p) => card(p)).join("")}</div></section>` : ""}
+${items.length ? `<section class="wrap section" id="land-shop"><div class="section-head"><div><p class="eyebrow">From our collection</p><h2>${esc(l.products_title || "Styles we make")}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid">${items.map((p) => card(p)).join("")}</div></section>` : ""}
 <section class="wrap section prose land-body">${md(l.body || "")}</section>
 ${l.faq.length ? `<section class="wrap section faq"><div class="section-head"><h2>Frequently asked questions</h2></div>${l.faq.map((x) => `<details><summary>${esc(x.q)}</summary><div>${paras(x.a)}</div></details>`).join("")}</section>` : ""}`;
   const ld = [{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE_URL + "/" }, { "@type": "ListItem", position: 2, name: l.h1, item: SITE_URL + "/" + l.url }] }];
