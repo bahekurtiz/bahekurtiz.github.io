@@ -300,7 +300,7 @@
               sendSheet({ type: "paid", name: f.name, phone: ph, email: f.email, country: f.country, city: f.city, pincode: f.pincode, address: String(f.address || "").slice(0, 300), ref_order: ref, total: t.total, currency: "USD", payment: "PayPal " + cap + " (check in PayPal)", items: ppItems.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
               track("Purchase", { value: t.total, currency: "USD", content_ids: ppItems.map((i) => i.slug), content_type: "product" }, ref); setBag([]);
               showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">PayPal reference: ${esc(cap)}</p><p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p></div>`); }),
-            onError: () => { $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. You can try again, or ask for a PayPal invoice.</p>`; },
+            onError: (err) => { const m = String((err && (err.message || err)) || "").replace(/[<>&]/g, "").slice(0, 160); try { console.error("PayPal error", err); } catch (e) {} $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. You can try again, or ask for a PayPal invoice.</p>${m ? `<p class="muted small">PayPal says: ${m}</p>` : ""}`; },
           }).render("[data-pp-box]"); } catch { invoiceDone(); } };
         document.head.appendChild(s2);
         return;
