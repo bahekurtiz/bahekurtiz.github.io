@@ -589,7 +589,6 @@ const sizeDialog = `<dialog class="size-modal" data-size-modal aria-labelledby="
 const circles = (active = "") => categories.length ? `<nav class="circles" aria-label="Categories"><div class="circles-row">
   <a class="circle${active === "shop/" ? " on" : ""}" href="${u("shop/")}"><span class="circle-img circle-all">All</span><em>Shop All</em></a>
   ${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="circle${active === c.url ? " on" : ""}" href="${u(c.url)}"><span class="circle-img">${img ? `<img decoding="async" src="${esc(u(img))}" alt="" width="160" height="160" loading="lazy">` : ""}</span><em>${esc(c.plural)}</em></a>`; }).join("")}
-  <a class="circle" href="${u("wholesale/")}"><span class="circle-img circle-all">B2B</span><em>Wholesale</em></a>
 </div></nav>` : "";
 const reviews = (Array.isArray(S.reviews) ? S.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), city: String(r?.city || "").trim(), text: String(r?.text || "").trim(), rating: num(r?.rating) || 5, photo: String(r?.photo || "").trim(), source: String(r?.source || "").trim(), product: String(r?.product || "").trim() })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
 const pages = [];
@@ -709,13 +708,14 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   <div class="list-head"><h1>${esc(h1)}</h1><p class="muted">${esc(intro)}</p></div>
   ${circles(pathname)}
   ${links.length ? `<nav class="auto-links" aria-label="Popular searches"><span class="muted small">Popular:</span> ${links.map(([t, h]) => `<a class="pill" href="${u(h)}">${esc(t)}</a>`).join("")}</nav>` : ""}
+  <div class="filt"><button class="filt-btn" type="button" aria-expanded="false" onclick="var o=this.parentNode.classList.toggle('fopen');this.setAttribute('aria-expanded',o)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filter &amp; Sort</button>
   <div class="chips">
 
     ${(() => { const sel = (key, label, vals, always) => vals.length > (always ? 0 : 1) ? `<label class="sort">${label} <select data-filter="${key}"><option value="">All</option>${vals.map((x) => `<option value="${esc(x)}">${esc(x)}</option>`).join("")}</select></label>` : "";
       const sizesAll = fullOpts(FLT.sizes, items.flatMap((p) => p.sizes)).sort((a, b) => sizeRank(a) - sizeRank(b));
       return sel("size", "Size", sizesAll, 1) + sel("color", "Colour", fullOpts(FLT.colors, items.map((p) => p.color).filter(Boolean)), 1) + `<label class="sort">Price <select data-filter="price"><option value="">All</option></select></label>` + sel("fabric", "Fabric", fullOpts(FLT.fabrics, items.map((p) => p.fabric).filter((f) => f && f !== "Other")), 1) + sel("print", "Craft", fullOpts(Object.keys(CRAFT.print || {}).filter((x) => x !== "Other"), items.flatMap((p) => p.print_work)), 1) + sel("occ", "Occasion", fullOpts(TAX.occ, items.flatMap((p) => p.occasion)), 1) + (items.some((p) => p.neckline) ? sel("neck", "Neckline", fullOpts(TAX.neck, items.map((p) => p.neckline).filter(Boolean)), 1) : "") + (items.some((p) => p.sleeve) ? sel("sleeve", "Sleeves", fullOpts(TAX.sleeve, items.map((p) => p.sleeve).filter(Boolean)), 1) : "") + (items.some((p) => p.length_type) ? sel("len", "Length", fullOpts(TAX.length, items.map((p) => p.length_type).filter(Boolean)), 1) : "") + (items.some((p) => !p.in_stock) ? `<label class="sort">Stock <select data-filter="stock"><option value="">All</option><option value="1">Ready stock</option></select></label>` : ""); })()}
     <label class="sort">Sort <select data-sort><option value="">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label>
-  </div>
+  </div></div>
   <p class="filter-empty muted" data-filter-empty hidden>No styles match this filter. <button class="link" type="button" data-filter-clear>Show all</button></p>
   <p class="muted small" data-count aria-live="polite"></p>
   <div class="grid" data-grid>${items.map((p, i) => card(p, i).replace('<article class="card"', `<article class="card" data-price="${p.price ?? ""}" data-usd="${p.intl ? p.price_usd : ""}" data-i="${i}"`)).join("")}</div>
