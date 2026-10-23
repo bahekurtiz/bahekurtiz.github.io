@@ -1,0 +1,56 @@
+name: Make small images
+on:
+  push:
+    branches: [main]
+    paths:
+      - "static/images/**"
+      - "!static/images/_r/**"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  thumbs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow
+      - name: Make 480 and 960 px copies
+        run: |
+          python3 - <<'PY'
+          import os
+          from PIL import Image
+          src = "static/images"
+          made = 0
+          for root, dirs, files in os.walk(src):
+              if "/_r" in root.replace("\\", "/") + "/" and root.replace("\\", "/").startswith(src + "/_r"):
+                  continue
+              for f in files:
+                  if not f.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+                      continue
+                  p = os.path.join(root, f)
+                  rel = os.path.relpath(p, src)
+                  if rel.startswith("_r"):
+                      continue
+                  base = os.path.splitext(rel)[0]
+                  for w in (480, 960):
+                      out = os.path.join(src, "_r", f"{base}-{w}.webp")
+                      if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(p):
+                          continue
+                      try:
+                          im = Image.open(p)
+                          im = im.convert("RGBA" if im.mode in ("RGBA", "LA", "P") else "RGB")
+                          if im.width > w:
+                              im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+                          os.makedirs(os.path.dirname(out), exist_ok=True)
+                          im.save(out, "WEBP", quality=74, method=6)
+                          made += 1
+                      except Exception as e:
+                          print("skip", p, e)
+          print("made", made)
+          PY
+      - run: |
+          git config user.name "bahe-bot"
+          git config user.email "bot@bahekurtiz.com"
+          git add static/images/_r
+          git commit -m "Small image copies" || exit 0
+          git push
