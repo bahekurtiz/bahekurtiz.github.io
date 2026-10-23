@@ -101,6 +101,7 @@ const products = [...jsonFiles.map((f) => [f, JSON.parse(fs.readFileSync(path.jo
   p.neckline = String(p.neckline || "").trim(); p.sleeve = String(p.sleeve || "").trim(); p.length_type = String(p.length_type || "").trim();
   p.print_work = (Array.isArray(p.print_work) ? p.print_work : p.print_work ? [p.print_work] : []).map((x) => String(x).trim()).filter(Boolean);
   p.match = (Array.isArray(p.match_products) ? p.match_products : []).map((x) => slugify(String(x || ""))).filter(Boolean);
+  if (S.show_mrp !== true) { p.mrp = undefined; p.mrp_usd = undefined; } // premium look: one clean price, no "% OFF"
   return p;
 }).filter((p) => p.title && p.draft !== true)
   .sort((a, b) => (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999) || a.title.localeCompare(b.title));
