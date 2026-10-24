@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install pillow
-      - name: Make 480 and 960 px copies
+      - name: Make 480, 960 and 1400 px copies
         run: |
           python3 - <<'PY'
           import os
@@ -35,7 +35,7 @@ jobs:
                   if rel.startswith("_r"):
                       continue
                   base = os.path.splitext(rel)[0]
-                  for w in (480, 960):
+                  for w in (480, 960, 1400):
                       out = os.path.join(src, "_r", f"{base}-{w}.webp")
                       if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(p):
                           continue
@@ -45,7 +45,7 @@ jobs:
                           if im.width > w:
                               im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
                           os.makedirs(os.path.dirname(out), exist_ok=True)
-                          im.save(out, "WEBP", quality=74, method=6)
+                          im.save(out, "WEBP", quality=78 if w >= 1400 else 74, method=6)
                           made += 1
                       except Exception as e:
                           print("skip", p, e)
