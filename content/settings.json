@@ -6,7 +6,7 @@
   "announcement": "Made in Jaipur | Secure online payment | Order help on WhatsApp: 70733 50886",
   "emergency_note": "",
   "languages_off": false,
-  "local_currency_display": true,
+  "local_currency_display": false,
   "maintenance_mode": false,
   "checkout_pause": false,
   "pause_message": "We are updating our store. Orders will open again shortly – WhatsApp us for help.",
