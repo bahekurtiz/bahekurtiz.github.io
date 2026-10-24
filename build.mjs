@@ -326,7 +326,7 @@ w.BKtags=S;})();</script>` : "";
 const crumbLd = (list) => ({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [["Home", ""], ...list].map(([name, path_], i) => ({ "@type": "ListItem", position: i + 1, name, item: SITE_URL + "/" + path_ })) });
 // ---------- Meta Pixel (ID from admin settings) ----------
 const pixelId = digits(S.meta_pixel_id);
-const pixelHead = `<script>(function(){var w=window;if(location.pathname.indexOf("/admin/")>-1)return;var S=w.BKtags||[];${pixelId ? `!function(f){if(f.fbq)return;var n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[]}(w);var c=null;try{c=localStorage.getItem("bk_consent")}catch(e){}if(w.BKeu&&c!=="yes")fbq("consent","revoke");var am={};try{var U=JSON.parse(localStorage.getItem("bk_user_v1")||"null");if(U){if(U.email)am.em=String(U.email).toLowerCase();var P=String(U.phone||"").replace(/\\D/g,"");if(P)am.ph=P.length==10?"91"+P:P;if(U.name)am.fn=String(U.name).split(" ")[0].toLowerCase();if(P)am.external_id=P}}catch(e){}fbq("init","${pixelId}",am);w.BKpv="PageView."+Date.now()+"."+Math.random().toString(36).slice(2,8);fbq("track","PageView",{},{eventID:w.BKpv});S.push("https://connect.facebook.net/en_US/fbevents.js");` : ""}if(!S.length)return;var L=function(){if(L.d)return;L.d=1;S.forEach(function(s){var t=document.createElement("script");t.async=1;t.src=s;document.head.appendChild(t)})};["pointerdown","keydown","scroll","touchstart"].forEach(function(e){addEventListener(e,L,{once:true,passive:true})});setTimeout(L,4000)})();</script>`;
+const pixelHead = `<script>(function(){var w=window;if(location.pathname.indexOf("/admin/")>-1)return;var S=w.BKtags||[];${pixelId ? `!function(f){if(f.fbq)return;var n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[]}(w);var c=null;try{c=localStorage.getItem("bk_consent")}catch(e){}if(w.BKeu&&c!=="yes")fbq("consent","revoke");var am={};try{var U=JSON.parse(localStorage.getItem("bk_user_v1")||"null");if(U){if(U.email)am.em=String(U.email).toLowerCase();var P=String(U.phone||"").replace(/\\D/g,"");if(P){var UC=String(U.country||"").trim(),IN;if(UC)IN=/^(india|in|bharat)$/i.test(UC);else{try{var K=JSON.parse(localStorage.getItem("bk_country")||"null");if(K&&K.c)IN=K.c==="IN"}catch(e){}if(IN===undefined)IN=!document.documentElement.classList.contains("usd")}am.ph=P.length==10&&IN?"91"+P:P}if(U.name)am.fn=String(U.name).split(" ")[0].toLowerCase();if(P)am.external_id=P}}catch(e){}fbq("init","${pixelId}",am);w.BKpv="PageView."+Date.now()+"."+Math.random().toString(36).slice(2,8);fbq("track","PageView",{},{eventID:w.BKpv});S.push("https://connect.facebook.net/en_US/fbevents.js");` : ""}if(!S.length)return;var L=function(){if(L.d)return;L.d=1;S.forEach(function(s){var t=document.createElement("script");t.async=1;t.src=s;document.head.appendChild(t)})};["pointerdown","keydown","scroll","touchstart"].forEach(function(e){addEventListener(e,L,{once:true,passive:true})});setTimeout(L,4000)})();</script>`;
 const pixelBody = pixelId ? `<noscript><img decoding="async" height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"></noscript>` : "";
 
 // ---------- Shoppable reels (Instagram-style videos, each can be linked to a product) ----------
@@ -353,7 +353,7 @@ const reelItem = (r, i, noShop = false) => {
       const inner = `${media}<span class="reel-play" aria-hidden="true">${I.play}</span>${r.creator ? `<span class="reel-by">Styled by ${esc(r.creator)}</span>` : ""}${r.caption ? `<span class="reel-cap">${esc(r.caption)}</span>` : ""}${r.link ? `<span class="reel-src">${socialIcon(fb ? "facebook" : "instagram")}</span>` : ""}`;
       const box = r.ig ? `<button class="reel reel-igf" type="button" data-ig="${esc(r.ig)}" aria-label="Play Instagram reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>` : r.video || p ? `<button class="reel" type="button" data-reel-open="${i}" aria-label="Play reel${r.caption ? ": " + esc(r.caption) : ""}">${inner}</button>`
         : r.link ? `<a class="reel" href="${esc(r.link)}" target="_blank" rel="noopener" aria-label="${esc(r.caption || "Watch reel")} on ${fb ? "Facebook" : "Instagram"}">${inner}</a>` : `<div class="reel">${inner}</div>`;
-      const shop = p && !noShop ? `<a class="reel-prod" href="${u(p.url)}"><img decoding="async" src="${esc(u(p.images[0] || ""))}" alt="" width="60" height="90" loading="lazy"><span><em>${esc(p.title)}</em><span class="card-price">${priceHtml(p)}</span></span><b>Shop</b></a>` : "";
+      const shop = p && !noShop ? `<a class="reel-prod" href="${u(p.url)}"><img decoding="async" src="${esc(u(p.images[0] || ""))}" alt="${esc(p.title)}" width="60" height="90" loading="lazy"><span><em>${esc(p.title)}</em><span class="card-price">${priceHtml(p)}</span></span><b>Shop</b></a>` : "";
       return `<div class="reel-item">${box}${shop}</div>`;
 };
 const reelsHtml = () => !reels.length ? "" : `<section class="reels" aria-label="Shoppable reels">
@@ -424,7 +424,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
           <div><h4>Categories</h4><a href="${u("shop/")}">Shop All</a>${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
           ${prints.length ? `<div><h4>Shop by print</h4>${prints.slice(0, 9).map((x) => `<a href="${u(qs("print", x))}">${esc(x)}</a>`).join("")}</div>` : ""}
           ${fabrics.length ? `<div><h4>Shop by fabric</h4>${fabrics.slice(0, 9).map((x) => `<a href="${u(qs("fabric", x))}">${esc(x)}</a>`).join("")}</div>` : ""}
-          <a class="mega-feat" href="${u("wholesale/")}"><img decoding="async" src="${esc(u(products[0]?.images[0] || S.hero_image || ""))}" alt="" width="240" height="320" loading="lazy"><span><em>For boutiques & brands</em>Wholesale & Private Label →</span></a>
+          <a class="mega-feat" href="${u("wholesale/")}"><img decoding="async" src="${esc(u(products[0]?.images[0] || S.hero_image || ""))}" alt="${esc(products[0]?.title || brand)} – wholesale from Jaipur" width="240" height="320" loading="lazy"><span><em>For boutiques & brands</em>Wholesale & Private Label →</span></a>
         </div></div>
       </div>
       ${products.some((p) => p.bestseller) ? `<a href="${u("bestsellers/")}">Bestsellers</a>` : ""}
@@ -491,11 +491,12 @@ ${["home", "pdp", "checkout-page"].includes(bodyClass) ? "" : `<section class="u
     <div>${I.needle}<strong>Made in Jaipur</strong><span>Designed and stitched by our own team</span></div>
     <div>${I.shield}<strong>Secure prepaid payments</strong><span class="cur-inr">UPI, cards & netbanking via Razorpay</span>${intlOn ? `<span class="cur-usd">PayPal & international cards</span>` : ""}</div>
     <div>${intlOn ? I.globe : I.truck}<strong>${intlOn ? "Ships worldwide" : "Pan-India delivery"}</strong><span>${esc(S.dispatch_note || "Ships from Jaipur")}</span></div>
-    ${num(S.return_days) ? `<div>${I.swap}<strong>${num(S.return_days)}-day size exchange</strong><span><a href="${u("returns/")}">See our return policy</a></span></div>` : ""}
+    ${num(S.return_days) ? `<div>${I.swap}<strong>${num(S.return_days)}-day size exchange</strong><span>${intlOn && S.intl_return_policy ? `<a class="cur-inr" href="${u("returns/")}">See our return policy</a><a class="cur-usd" href="${u("international-returns/")}">See our international returns policy</a>` : `<a href="${u("returns/")}">See our return policy</a>`}</span></div>` : ""}
   </div>
 </section>`}
 ${waNumber && bodyClass !== "checkout-page" && bodyClass !== "home" ? `<section class="join"><div class="wrap join-row"><div><h2>New designs, first on WhatsApp</h2><p>Get new arrivals and restock alerts straight on WhatsApp. No spam.</p></div><a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}! Please add me to your new arrivals updates.`))}" target="_blank" rel="noopener">${I.wa} Join on WhatsApp</a></div></section>` : ""}
-${bodyClass === "checkout-page" ? `<footer class="co-foot wrap"><a href="${u("shipping/")}">Shipping</a> · <a href="${u("returns/")}">Returns</a> · <a href="${u("privacy/")}">Privacy</a> · <a href="${u("terms/")}">Terms</a><br>© ${year} ${esc(brand)}, Jaipur</footer>` : `<footer class="site-footer">
+${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.intl_shipping_policy ? `<a class="cur-inr" href="${u("shipping/")}">Shipping</a><a class="cur-usd" href="${u("international-shipping/")}">International Shipping</a>` : `<a href="${u("shipping/")}">Shipping</a>`} · ${intlOn && S.intl_return_policy ? `<a class="cur-inr" href="${u("returns/")}">Returns</a><a class="cur-usd" href="${u("international-returns/")}">International Returns</a>` : `<a href="${u("returns/")}">Returns</a>`} · <a href="${u("privacy/")}">Privacy</a> · <a href="${u("terms/")}">Terms</a><br>© ${year} ${esc(brand)}, Jaipur</footer>` : `<footer class="site-footer">
+  ${["dash-page", "tags-page"].includes(bodyClass) || String(pathname || "").startsWith("admin") ? "" : `<div class="foot-vip"><div class="wrap foot-vip-in"><div class="foot-vip-txt"><p class="eyebrow">Bahe VIP</p><h2>Join Bahe VIP – early access to new drops &amp; a free gift on your first order</h2></div><form class="vip-form" data-vip-form novalidate><div class="vip-row"><label class="sr-only" for="vip-email">Email address</label><input id="vip-email" type="email" name="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Your email address"><button class="btn btn-gold" type="submit">Join</button></div><p class="vip-msg" data-vip-msg role="status" aria-live="polite"></p><p class="vip-fine">No spam · leave anytime · <a href="${u("privacy/")}">Privacy</a></p></form></div></div>`}
   <div class="wrap foot">
     <div class="foot-brand">
       <div class="logo${logoImg ? " has-img" : ""}">${logoMark()}</div>
@@ -569,7 +570,7 @@ const card = (p, i = 9) => {
   <a href="${u(p.url)}" class="card-link">
     <div class="card-img${b ? " has-alt" : ""}">
       ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1800" ${i < 2 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">` : ""}
-      ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="" width="1200" height="1800" decoding="async">` : ""}
+      ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="${esc(p.title)} – alternate view" width="1200" height="1800" decoding="async">` : ""}
       <div class="tags">${p.bestseller ? `<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale${p.intl ? " cur-inr" : ""}">-${off}%</span>` : ""}${p.intl && p.mrp_usd > p.price_usd ? `<span class="tag tag-sale cur-usd">-${Math.round((1 - p.price_usd / p.mrp_usd) * 100)}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
     <div class="card-body">
@@ -590,21 +591,27 @@ const sizeDialog = `<dialog class="size-modal" data-size-modal aria-labelledby="
 <p class="muted small">How to measure: Bust – around the fullest part. Waist – around the natural waistline. Hip – around the fullest part of the hips.</p></div></dialog>`;
 const circles = (active = "") => categories.length ? `<nav class="circles" aria-label="Categories"><div class="circles-row">
   <a class="circle${active === "shop/" ? " on" : ""}" href="${u("shop/")}"><span class="circle-img circle-all">All</span><em>Shop All</em></a>
-  ${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="circle${active === c.url ? " on" : ""}" href="${u(c.url)}"><span class="circle-img">${img ? `<img decoding="async" src="${esc(u(img))}" alt="" width="160" height="160" loading="lazy">` : ""}</span><em>${esc(c.plural)}</em></a>`; }).join("")}
+  ${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="circle${active === c.url ? " on" : ""}" href="${u(c.url)}"><span class="circle-img">${img ? `<img decoding="async" src="${esc(u(img))}" alt="${esc(c.plural)} collection" width="160" height="160" loading="lazy">` : ""}</span><em>${esc(c.plural)}</em></a>`; }).join("")}
 </div></nav>` : "";
 const reviews = (Array.isArray(S.reviews) ? S.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), city: String(r?.city || "").trim(), text: String(r?.text || "").trim(), rating: num(r?.rating) || 5, photo: String(r?.photo || "").trim(), source: String(r?.source || "").trim(), product: String(r?.product || "").trim() })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
 const pages = [];
 // ---------- fast images: small copies (made by the GitHub "thumbs" robot) are used automatically when they exist ----------
 const RS = [480, 960];
-const rsPath = (src, w) => { const m = String(src || "").match(/^\/?(images\/(?!_r\/).+)\.(jpe?g|png|webp)$/i); return m ? `/images/_r/${m[1].slice(7)}-${w}.webp` : ""; };
+const decU = (v) => { try { return decodeURI(v); } catch { return v; } };
+// file names with spaces ("WhatsApp Image … (1).webp"): look up the real file, emit %20-encoded URLs (a raw space breaks srcset)
+const encU = (v) => encodeURI(decU(v)).replace(/,/g, "%2C");
+const rsPath = (src, w) => { const m = decU(String(src || "")).match(/^\/?(images\/(?!_r\/).+)\.(jpe?g|png|webp)$/i); return m ? `/images/_r/${m[1].slice(7)}-${w}.webp` : ""; };
 const rsHas = (src) => { const v = rsPath(src, RS[0]); return !!v && fs.existsSync(path.join(ROOT, "static", v)); };
 const small = (src) => (rsHas(src) ? rsPath(src, RS[0]) : src);
 const withSrcset = (html) => html.replace(/<img\b[^>]*>/g, (tag) => {
   if (/\ssrcset=/.test(tag)) return tag; const m = tag.match(/\ssrc="([^"]+)"/); if (!m) return tag;
-  const raw = m[1].replace(/&amp;/g, "&"), local = BASE && raw.startsWith(BASE) ? "/" + raw.slice(BASE.length) : raw; if (!rsHas(local)) return tag;
+  const raw = m[1].replace(/&amp;/g, "&"), local = BASE && raw.startsWith(BASE) ? "/" + raw.slice(BASE.length) : raw;
+  const srcFixed = /\s/.test(raw) && raw.startsWith("/") ? esc(encU(raw)) : m[1];
+  if (srcFixed !== m[1]) tag = tag.replace(/\ssrc="[^"]+"/, () => ` src="${srcFixed}"`);
+  if (!rsHas(local)) return tag;
   const big = /data-rs="big"|class="post-cover"/.test(tag), wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
   const sizes = big ? "(max-width: 900px) 82vw, 50vw" : wd && wd <= 120 ? "120px" : "(max-width: 720px) 46vw, 25vw";
-  return tag.replace(/\ssrc="/, ` srcset="${RS.map((w) => `${esc(u(rsPath(local, w)))} ${w}w`).join(", ")}, ${m[1]} 1200w" sizes="${sizes}" src="`); });
+  return tag.replace(/\ssrc="/, () => ` srcset="${RS.map((w) => `${esc(encU(u(rsPath(local, w))))} ${w}w`).join(", ")}, ${esc(encU(raw))} 1200w" sizes="${sizes}" src="`); });
 const REMOVED = new Set(["mirror/index.html", "studio/index.html", "print-kundli/index.html"]); // features switched off
 const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, withSrcset(html)]); };
 
@@ -629,7 +636,7 @@ const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, withSrcs
   const list = (featured.length ? featured : products).slice(0, 8);
   const tiles = categories.map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
   const body = `
-${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
+${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="${esc(st.t)}" width="120" height="120" loading="${i < 5 ? "eager" : "lazy"}"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
 ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-dot"></span> LIVE NOW · ${esc(live.title)} <b>Watch & shop →</b></a>` : liveNextText ? `<div class="live-strip next">📺 Next live shopping: <b>${esc(liveNextText)}</b>${ytChan ? ` · <a href="${esc(ytChan)}" target="_blank" rel="noopener">Subscribe on YouTube</a>` : ""}</div>` : ""}
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
@@ -681,7 +688,7 @@ ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class=
     <ul class="b2b-list"><li>${I.box}<span><strong>Wholesale</strong>Kurtis, sets, dresses & co-ords in bulk</span></li><li>${I.tag}<span><strong>Private label</strong>Your brand name, tags & packaging</span></li><li>${I.globe}<span><strong>Export</strong>Buyers in every country, worldwide</span></li></ul>
   </div>
 </section>
-${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="section-head center"><p class="eyebrow">Loved by our customers worldwide</p><h2>Reviews</h2>${(() => { const n0 = reviews.length, avg0 = reviews.reduce((a, r) => a + r.rating, 0) / n0, ovr = num(S.review_overall_rating), ovc = num(S.review_overall_count), avg = ovr || avg0, n = ovc || n0, et = (Array.isArray(S.marketplace_links) ? S.marketplace_links : []).find((x) => /etsy/i.test(x?.name || x?.url || "")); return `<p class="rev-sum">${star(5)} Verified customer reviews${et && et.url ? ` · <a href="${esc(et.url)}" target="_blank" rel="noopener">See all on Etsy ↗</a>` : ""}</p>`; })()}</div><div class="rev-row">${reviews.map((r) => `<figure class="rev">${r.photo ? `<img decoding="async" src="${esc(u(r.photo))}" alt="" width="400" height="500" loading="lazy">` : ""}<blockquote>${star(r.rating)}<p>${esc(r.text)}</p></blockquote><figcaption>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? `<span class="rev-src">✓ Verified on ${esc(r.source)}</span>` : ""}</figcaption></figure>`).join("")}</div></section>` : ""}
+${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="section-head center"><p class="eyebrow">Loved by our customers worldwide</p><h2>Reviews</h2>${(() => { const n0 = reviews.length, avg0 = reviews.reduce((a, r) => a + r.rating, 0) / n0, ovr = num(S.review_overall_rating), ovc = num(S.review_overall_count), avg = ovr || avg0, n = ovc || n0, et = (Array.isArray(S.marketplace_links) ? S.marketplace_links : []).find((x) => /etsy/i.test(x?.name || x?.url || "")); return `<p class="rev-sum">${star(5)} Verified customer reviews${et && et.url ? ` · <a href="${esc(et.url)}" target="_blank" rel="noopener">See all on Etsy ↗</a>` : ""}</p>`; })()}</div><div class="rev-row">${reviews.map((r) => `<figure class="rev">${r.photo ? `<img decoding="async" src="${esc(u(r.photo))}" alt="Customer photo from ${esc(r.name)}" width="400" height="500" loading="lazy">` : ""}<blockquote>${star(r.rating)}<p>${esc(r.text)}</p></blockquote><figcaption>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? `<span class="rev-src">✓ Verified on ${esc(r.source)}</span>` : ""}</figcaption></figure>`).join("")}</div></section>` : ""}
 <section class="vip-band"><div class="wrap vip-in"><p class="eyebrow">Bahe VIP</p><h2>Limited drops. Hand block printed.<br>You hear first.</h2><p>Every month we print a small batch of new designs in Jaipur – some sell out in days. Join the VIP list for early access, new prints and a free handmade potli with your first order.</p><button class="btn btn-gold" type="button" data-open-login>Join the VIP list</button><p class="vip-small">No spam · WhatsApp or email · leave anytime</p></div></section>
 <section class="wrap section recent" data-recent hidden><div class="section-head"><div><p class="eyebrow">Picked up where you left</p><h2>Recently viewed</h2></div></div><div class="grid" data-recent-grid></div></section>
 <section class="story">
@@ -787,6 +794,12 @@ for (const c of categories) {
     title: `${c.plural} for Women – Made in Jaipur | ${brand}`, description: `Shop ${c.plural.toLowerCase()} for women by ${brand}, Jaipur. Handcrafted designs, secure online payment and ${intlOn ? "worldwide shipping" : "pan-India delivery"}.` });
 }
 
+// /collections/ – every category in one place (no more empty directory page)
+if (categories.length) add("collections/index.html", page({ title: `All Collections – Kurtis, Kurta Sets & Dresses | ${brand}`, description: clip(`Browse every ${brand} collection: ${categories.map((c) => c.plural.toLowerCase()).join(", ")}. Hand block printed in Jaipur, shipped worldwide.`), pathname: "collections/",
+  ld: [crumbLd([["Collections", "collections/"]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: "All Collections", url: SITE_URL + "/collections/", hasPart: categories.map((c) => ({ "@type": "CollectionPage", name: c.plural, url: SITE_URL + "/" + c.url })) }],
+  body: `<section class="wrap section"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <span>Collections</span></nav><div class="section-head"><div><p class="eyebrow">Shop by category</p><h1>All Collections</h1></div><a class="link" href="${u("shop/")}">Shop all styles →</a></div>
+  <div class="grid coll-grid">${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="coll-tile" href="${u(c.url)}"><span class="card-img">${img ? `<img src="${esc(u(img))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy" decoding="async">` : ""}</span><span class="coll-name">${esc(c.plural)}</span><small>${c.items.length} style${c.items.length === 1 ? "" : "s"}</small></a>`; }).join("")}</div></section>` }));
+
 for (const c of allCats.filter((x) => x.empty)) {
   add(c.url + "index.html", page({ title: `${c.plural} – Coming Soon | ${brand}`, description: `${c.plural} by ${brand}, Jaipur – coming soon.`, pathname: c.url, noindex: true,
     body: `<section class="wrap section narrow center soon-page"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span></nav><h1>${esc(c.plural)}</h1><p class="muted">New designs in this category are coming soon.</p>
@@ -814,7 +827,7 @@ for (const p of products) {
         : `<figure class="slide"><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></figure>`).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
-    <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
+    <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="${esc(p.title)} – ${m.video ? "video" : "view " + (i + 1)}" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
   </div>
   <div class="buybox">
     <p class="eyebrow">${esc(p.category)}${p.color ? " · " + esc(p.color) : ""}</p>
@@ -834,7 +847,7 @@ for (const p of products) {
     <div class="share-row"><button class="share-btn" type="button" data-share>${I.wa} Ask family</button><a class="share-btn" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(SITE_URL + "/" + p.url)}&media=${encodeURIComponent(abs(p.images[0] || ""))}&description=${encodeURIComponent(p.title + " – " + brand)}" target="_blank" rel="noopener">${socialIcon("pinterest")} Save</a><button class="share-btn" type="button" data-copy-link>${I.tag} Copy link</button><button class="share-btn status-btn" type="button" data-status>✨ Make WhatsApp Status</button></div>
     <ul class="perks"><li>${I.truck}${esc(S.dispatch_note || "Ships from Jaipur")}</li>${p.ships_abroad && intlOn ? `<li>${I.globe}Ships worldwide · <a href="${u(S.intl_shipping_policy ? "international-shipping/" : "shipping/")}">delivery times</a></li>` : ""}<li>${I.shield}Secure prepaid payment</li><li>${I.swap}<a href="${u("returns/")}">Easy exchange policy</a></li></ul>
     <details open><summary>Description</summary><div>${paras(p.description) || "<p>Handcrafted in Jaipur.</p>"}</div></details>
-    ${(() => { const mine = reviews.filter((r) => r.product === p.slug), list = (mine.length ? mine : reviews).slice(0, 4); return list.length ? `<details open class="pdp-revs"><summary>${mine.length ? "Reviews for this style" : "What our customers say"} (${list.length})</summary><div>${list.map((r) => `<blockquote class="pdp-rev">${star(r.rating)}<p>${esc(r.text)}</p><cite>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? ` · ✓ ${esc(r.source)}` : ""}</cite></blockquote>`).join("")}</div></details>` : ""; })()}
+    ${(() => { const mine = reviews.filter((r) => r.product === p.slug), list = (mine.length ? mine : reviews).slice(0, 4); return list.length ? `<details open class="pdp-revs"><summary>${mine.length ? "Reviews for this style" : (list.every((r) => /etsy/i.test(r.source)) ? "Reviews from our Etsy shop" : "Shop reviews")} (${list.length})</summary><div>${mine.length ? "" : `<p class="muted small rev-note">Shop reviews from past customers – not specific to this style.</p>`}${list.map((r) => `<blockquote class="pdp-rev">${star(r.rating)}<p>${esc(r.text)}</p><cite>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? ` · ✓ ${esc(r.source)}` : ""}</cite></blockquote>`).join("")}</div></details>` : ""; })()}
     <details><summary>Product details</summary><dl class="specs">
       ${p.color ? `<dt>Colour</dt><dd>${esc(p.color)}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${craftLink("fabric", p.fabric)}</dd>` : ""}${p.print_work.length ? `<dt>Print / work</dt><dd>${p.print_work.map((n) => craftLink("print", n)).join(", ")}</dd>` : ""}
       ${p.sizes.length ? `<dt>Sizes</dt><dd>${esc(p.sizes.join(", "))}</dd>` : ""}${p.neckline ? `<dt>Neckline</dt><dd>${esc(p.neckline)}</dd>` : ""}${p.sleeve ? `<dt>Sleeves</dt><dd>${esc(p.sleeve)}</dd>` : ""}${p.length_type ? `<dt>Length</dt><dd>${esc(p.length_type)}</dd>` : ""}${p.set_items.length ? `<dt>In this set</dt><dd>${esc(p.set_items.join(" + "))}</dd>` : ""}${p.garment_length ? `<dt>Length</dt><dd>${cm(num(p.garment_length))}</dd>` : ""}${p.sku ? `<dt>SKU</dt><dd>${esc(p.sku)}</dd>` : ""}<dt>Care</dt><dd>${esc(p.care || (CRAFT.fabric[p.fabric]?.[2]) || "Gentle cold hand wash, dry in shade.")}</dd><dt>Country of origin</dt><dd>India (made in Jaipur)</dd><dt>Status</dt><dd>${p.in_stock ? "In stock" : "Made to order"}</dd>
@@ -899,7 +912,7 @@ add("checkout/index.html", page({
         <label>Full name<input name="name" autocomplete="name" required maxlength="80"></label>
         <label><span class="cur-inr">Mobile number</span><span class="cur-usd">Phone / WhatsApp (with country code)</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="18" placeholder="10-digit mobile" data-phone></label>
       </div>
-      <label>Email (for order updates<span class="cur-usd"> and PayPal invoice</span>)<input name="email" type="email" autocomplete="email" maxlength="100" data-email></label>
+      <label>Email (for order updates<span class="cur-usd">&nbsp;and your payment receipt</span>)<input name="email" type="email" autocomplete="email" maxlength="100" data-email></label>
       ${intlOn ? `<label class="cur-usd">Country<input name="country" autocomplete="country-name" maxlength="60" list="countries" data-country></label>
       <datalist id="countries">${allCountries.map((c) => `<option value="${c}">`).join("")}</datalist>` : ""}
       <div class="f3">
@@ -915,7 +928,7 @@ add("checkout/index.html", page({
       <div class="pay-opts" data-pay-opts><p class="muted">Loading payment options…</p></div>
       <p class="form-error" data-co-error hidden></p>
       <button class="btn btn-block btn-lg" type="submit" data-place disabled>Place order</button>
-      ${intlOn ? `<p class="secure cur-usd">${I.shield} International orders are prepaid in USD through a secure PayPal invoice (cards accepted). We ship after payment.</p>` : ""}
+      ${intlOn ? `<div class="co-cards cur-usd"><p>${I.shield} <b>Pay with PayPal or any debit/credit card – no PayPal account needed</b></p>${S.paypal_client_id ? `<p class="co-pills"><b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b></p>` : ""}<p class="muted small">Charged in USD · duties &amp; taxes included · PayPal Buyer Protection. Prefer an invoice? ${waNumber ? `<a href="${esc(waLink(`Hi ${brand}! I would like to pay my order by invoice.`))}" target="_blank" rel="noopener">WhatsApp us</a>` : "WhatsApp us"}.</p></div>` : ""}
       <p class="secure" data-secure hidden>${I.shield} Payments are processed securely by Razorpay. We never see your card details.</p>
     </form>
     <aside class="co-summary">
@@ -970,7 +983,7 @@ add("review/index.html", page({ title: `Write a Review | ${brand}`, description:
   <label>Product<select name="items"><option value="">General</option>${products.map((p) => `<option>${esc(p.title)}</option>`).join("")}</select></label>
   <fieldset class="stars"><legend>Rating</legend>${[5, 4, 3, 2, 1].map((n) => `<label><input type="radio" name="rating" value="${n}"${n === 5 ? " checked" : ""}><span>${"★".repeat(n)}</span></label>`).join("")}</fieldset>
   <label>Your review<textarea name="msg" rows="4" required maxlength="800"></textarea></label><label class="check"><input type="checkbox" name="ok" value="yes" required> I agree that ${esc(brand)} may show my review and first name on the website.</label><button class="btn" type="submit">Send review</button></form><div data-svc-out aria-live="polite"></div></section>` }));
-infoPage("about/index.html", "about/", `Our Story – ${brand}, Jaipur`, S.about_title || "Our Story", paras(S.about_text) + `<p><a class="btn btn-ghost" href="${u("founder/")}">Meet our founder →</a></p><h2>Get in touch</h2>` + contactHtml, clip(`${brand} is a Jaipur label making kurtis and dresses for women. ${S.tagline || ""}`));
+infoPage("about/index.html", "about/", `Our Story – ${brand}, Jaipur`, S.about_title || "Our Story", paras(S.about_text) + `<p><a class="btn btn-ghost" href="${u("founder/")}">Meet our founder →</a></p><h2>Get in touch</h2>` + contactHtml, clip(`The story of ${brand}, Jaipur: hand block print kurtas, sets & dresses made in our own studio and shipped worldwide duties-paid.`));
 // Founder page
 {
   const FN = S.founder_name || "Suresh Kumar Choudhary";
@@ -1006,8 +1019,8 @@ ${waNumber ? `<p class="muted">Want to talk to us? <a class="link" href="https:/
   add("founder/index.html", page({ title: `${FN} – Founder of ${brand}, Jaipur`, description: clip(`Meet ${FN}, founder of ${brand}. Working with clothes since 2018, he started the brand in Jaipur during the lockdown with one promise: real craft and the best designs at a fair price.`), pathname: "founder/", image: "images/site/bahe-unit-jaipur-1.webp", body, ld: [crumbLd([["Our Story", "about/"], ["Meet the Founder", "founder/"]]), person, prof], type: "profile" }));
 }
 infoPage("contact/index.html", "contact/", `Contact Us | ${brand}`, "Contact Us", contactHtml, `Contact ${brand}, Jaipur for orders, sizes, custom requests and bulk enquiries. Chat with us on WhatsApp${S.email ? " or write to us by email" : ""}.`);
-infoPage("shipping/index.html", "shipping/", `Shipping Policy | ${brand}`, "Shipping Policy", paras(S.shipping_policy), `Shipping policy of ${brand}: dispatch time from Jaipur, delivery time across India, tracking details and made-to-order timelines.`);
-infoPage("returns/index.html", "returns/", `Returns, Exchange & Refund Policy | ${brand}`, "Returns, Exchange & Refunds", paras(S.return_policy), `Return, exchange and refund policy of ${brand}: how to request an exchange, eligible products and refund timelines for online payments.`);
+infoPage("shipping/index.html", "shipping/", `Shipping Policy | ${brand}`, "Shipping Policy", (intlOn && S.intl_shipping_policy ? `<p class="intl-note cur-usd">🌍 Shopping from outside India? See our <a href="${u("international-shipping/")}">International Shipping</a> / <a href="${u("international-returns/")}">International Returns</a> policy.</p>` : "") + paras(S.shipping_policy), `Shipping policy of ${brand}: dispatch time from Jaipur, delivery time across India, tracking details and made-to-order timelines.`);
+infoPage("returns/index.html", "returns/", `Returns, Exchange & Refund Policy | ${brand}`, "Returns, Exchange & Refunds", (intlOn && S.intl_return_policy ? `<p class="intl-note cur-usd">🌍 Shopping from outside India? See our <a href="${u("international-shipping/")}">International Shipping</a> / <a href="${u("international-returns/")}">International Returns</a> policy.</p>` : "") + paras(S.return_policy), `Return, exchange and refund policy of ${brand}: how to request an exchange, eligible products and refund timelines for online payments.`);
 infoPage("privacy/index.html", "privacy/", `Privacy Policy | ${brand}`, "Privacy Policy", paras(S.privacy_policy), `Privacy policy of ${brand}: what details we collect for your order, how we use them, secure payments via Razorpay and how to delete your data.`);
 infoPage("terms/index.html", "terms/", `Terms & Conditions | ${brand}`, "Terms & Conditions", paras(S.terms), `Terms and conditions for shopping on the ${brand} website: orders, pricing, payments, cancellations and governing law.`);
 
@@ -1561,12 +1574,30 @@ add("admin/dashboard/index.html", page({ title: `Business Dashboard | ${brand}`,
   body: `<section class="wrap section dash" data-dash data-addr="${esc(String(S.address || S.business_address || "Sanganer, Jaipur, Rajasthan, India").trim())}"><div class="dash-head"><div><p class="eyebrow">Owner only · <a class="link" href="${u("admin/")}">✏️ Products & settings (Admin)</a> · <a class="link" href="${u()}" target="_blank" rel="noopener">View live ↗</a></p><h1>Business Dashboard</h1></div><span class="muted small" data-dash-status></span></div><div data-dash-body><p class="muted">Loading…</p></div></section><script>addEventListener("DOMContentLoaded", () => (${dashMain.toString()})());</script>` }));
 
 fs.rmSync(OUT, { recursive: true, force: true });
-fs.cpSync(path.join(ROOT, "static"), OUT, { recursive: true });
+// skip junk uploads (zips, stray builder copies, "file (1).js"-style duplicates of code files, saved WhatsApp web folder); images & videos are never skipped
+const STATIC = path.join(ROOT, "static");
+const junk = (src) => { const rel = path.relative(STATIC, src).split(path.sep).join("/"); if (!rel) return false; const base = rel.split("/").pop();
+  if (/\.zip$/i.test(base) || rel === "build.mjs" || rel.split("/")[0] === "assetsweb.whatsapp.com") return true;
+  return !/^(images|media)\//.test(rel) && /\s\(\d+\)\.(m?js|css|html?|json|ya?ml|txt|md)$/i.test(base); };
+fs.cpSync(STATIC, OUT, { recursive: true, filter: (src) => !junk(src) });
 for (const [file, html] of pages) {
   const f = path.join(OUT, file);
   fs.mkdirSync(path.dirname(f), { recursive: true });
   fs.writeFileSync(f, html);
 }
+
+// smaller stylesheet: drop comments and extra spaces (strings and url(...) are kept exactly as written)
+{ const cf = path.join(OUT, "assets/style.css"); try { const css = fs.readFileSync(cf, "utf8"); let out = "", i = 0;
+  while (i < css.length) { const c = css[i];
+    if (c === "/" && css[i + 1] === "*") { const e = css.indexOf("*/", i + 2); i = e < 0 ? css.length : e + 2; out += " "; continue; }
+    if (c === '"' || c === "'") { let j = i + 1; while (j < css.length && css[j] !== c) { if (css[j] === "\\") j++; j++; } out += css.slice(i, j + 1); i = j + 1; continue; }
+    if (/url\(/i.test(css.slice(i, i + 4)) && !/['"]/.test(css.slice(i + 4).trimStart()[0] || "")) { const e = css.indexOf(")", i); const j = e < 0 ? css.length : e + 1; out += css.slice(i, j); i = j; continue; }
+    if (/\s/.test(c)) { let j = i; while (j < css.length && /\s/.test(css[j])) j++; out += " "; i = j; continue; }
+    out += c; i++; }
+  // only spaces next to { } ; and after a comma are removed – never around + > ~ : (calc and selectors stay safe)
+  const parts = out.split(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|url\((?!\s*['"])[^)]*\))/i);
+  const min = parts.map((x, k) => (k % 2 ? x : x.replace(/\s*([{};])\s*/g, "$1").replace(/,\s+/g, ","))).join("").replace(/;}/g, "}").trim();
+  if (min.length > 1000 && min.split("{").length === css.replace(/\/\*[\s\S]*?\*\//g, "").split("{").length) fs.writeFileSync(cf, min); } catch {} }
 
 // UI translations, loaded only when a shopper picks a language (product text stays as written by the owner)
 fs.mkdirSync(path.join(OUT, "assets/i18n"), { recursive: true });
@@ -1629,7 +1660,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
@@ -1673,7 +1704,6 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
   "/print-kundli/* /shop/ 301",
   "/print-kundli /shop/ 301",
   "/collections/all /shop/ 301",
-  "/collections /shop/ 301",
   "/pages/contact /contact/ 301",
   "/pages/about-us /about/ 301",
   "/policies/shipping-policy /shipping/ 301",
