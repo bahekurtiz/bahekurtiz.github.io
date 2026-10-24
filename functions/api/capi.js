@@ -18,13 +18,16 @@ const clean = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !=
 export async function buildEvent(b, req) {
   const u = b.user || {};
   const phone = String(u.ph || "").replace(/\D/g, "");
+  // country: 2-letter ISO code sent by the browser; add India's 91 only for Indian 10-digit numbers (never guess for other countries)
+  const cc = /^[a-z]{2}$/i.test(String(u.country || "").trim()) ? String(u.country).trim().toLowerCase() : undefined;
+  const phE164 = phone.length === 10 && cc === "in" ? "91" + phone : phone;
   const user_data = clean({
     client_ip_address: req.headers.get("cf-connecting-ip") || undefined,
     client_user_agent: req.headers.get("user-agent") || undefined,
     fbp: cookie(req, "_fbp"), fbc: cookie(req, "_fbc") || (b.fbclid ? `fb.1.${Date.now()}.${b.fbclid}` : undefined),
-    em: [await sha256(u.em)], ph: [await sha256(phone.length === 10 ? "91" + phone : phone)],
+    em: [await sha256(u.em)], ph: [await sha256(phE164)],
     fn: [await sha256(String(u.fn || "").split(/\s+/)[0])], ct: [await sha256(String(u.ct || "").replace(/\s+/g, ""))],
-    zp: [await sha256(String(u.zp || "").replace(/\s+/g, ""))], country: [await sha256(u.country)],
+    zp: [await sha256(String(u.zp || "").replace(/\s+/g, ""))], country: [await sha256(cc)],
     external_id: [await sha256(u.id || phone)],
   });
   const d = b.data || {};
