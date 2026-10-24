@@ -205,7 +205,7 @@
     const t = totals(cat, method);
     $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div>
       ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${money(t.couponOff)}</span></div>` : ""}
-      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>
+      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>${isUSD() ? `<div class="row save"><span>Import duties &amp; taxes</span><span>Included</span></div>` : ""}
       <div class="row total"><span>Total</span><span>${money(t.total)}${isUSD() ? " USD" : ""}</span></div>`;
     $("[data-place]").textContent = method === "paypal" ? `Place order · ${usd(t.total)} (PayPal invoice)` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
   }
@@ -300,7 +300,7 @@
               sendSheet({ type: "paid", name: f.name, phone: ph, email: f.email, country: f.country, city: f.city, pincode: f.pincode, address: String(f.address || "").slice(0, 300), ref_order: ref, total: t.total, currency: "USD", payment: "PayPal " + cap + " (check in PayPal)", items: ppItems.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
               track("Purchase", { value: t.total, currency: "USD", content_ids: ppItems.map((i) => i.slug), content_type: "product" }, ref); setBag([]);
               showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">PayPal reference: ${esc(cap)}</p><p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p></div>`); }),
-            onError: (err) => { const raw = String((err && (err.message || err)) || ""); const iss = (raw.match(/"issue":"[A-Z_]+"/g) || []).map((x) => x.slice(9, -1)).join(", "); const m = (iss ? "Issue: " + iss + " · " : "") + raw.replace(/[<>&]/g, "").slice(0, 120); try { console.error("PayPal error", err); } catch (e) {} $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. You can try again, or ask for a PayPal invoice.</p>${m ? `<p class="muted small">PayPal says: ${m}</p>` : ""}`; },
+            onError: (err) => { const raw = String((err && (err.message || err)) || ""); const iss = (raw.match(/"issue":"[A-Z_]+"/g) || []).map((x) => x.slice(9, -1)).join(", "); const m = (iss ? "Issue: " + iss + " · " : "") + raw.replace(/[<>&]/g, "").slice(0, 120); try { console.error("PayPal error", err); } catch (e) {} $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. Please try again, or WhatsApp us and we will send you a secure PayPal invoice.</p>`; },
           }).render("[data-pp-box]"); } catch { invoiceDone(); } };
         document.head.appendChild(s2);
         return;
@@ -999,7 +999,7 @@
       if (eta) { eta.hidden = false;
         if (h && t) { const a = addB(new Date(), h[0] + t[0]), b = addB(new Date(), h[1] + t[1]); eta.textContent = `🚚 Ships in ${h[0]}–${h[1]} days · Delivery to ${cname} est. ${fmt(a)} – ${fmt(b)}${mk.c ? " · " + mk.c : ""}`; }
         else if (h) eta.textContent = `📦 Ships from Jaipur in ${h[0]}–${h[1]} working days`;
-        else eta.textContent = ccNow === "IN" ? "" : `🌍 Delivery time to ${cname}: ask us on WhatsApp`; if (!eta.textContent) eta.hidden = true; }
+        else if (ccNow !== "IN" && window.BK && BK.ship) { const a = addB(new Date(), 2 + (BK.ship.intlMin || 5)), b = addB(new Date(), 7 + (BK.ship.intlMax || 10)); eta.textContent = `🚚 Free duties-paid delivery to ${cname} · est. ${fmt(a)} – ${fmt(b)}`; } else eta.textContent = ccNow === "IN" ? "" : `🌍 Delivery time to ${cname}: ask us on WhatsApp`; if (!eta.textContent) eta.hidden = true; }
       const rl = $("[data-retline]", prodEl), ov = prodEl.dataset.ret;
       if (rl) { const txt = ov && ov !== "Default" ? ov : mk?.r || ""; rl.hidden = !txt; rl.textContent = txt ? `↩️ ${txt}` : ""; }
       const mm = $("[data-mkmsg]", prodEl); if (mm && mk && (mk.m || mk.d)) { mm.hidden = false; mm.textContent = [mk.m, mk.d].filter(Boolean).join(" · "); }

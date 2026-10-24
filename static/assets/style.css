@@ -1232,3 +1232,5 @@ body{background:#fff}
 .brand-intro p{margin:0 auto;max-width:560px;color:#6b6259;font-size:.95rem;line-height:1.5}
 
 .grid.scroller .card{content-visibility:visible;contain-intrinsic-block-size:none}
+
+.ddp-badges{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 6px}.ddp-badges span{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);font-size:.82rem;line-height:1.25;color:#0e5b59}.ddp-badges b{font-weight:600}.ddp-line{margin:2px 0 8px;font-size:.85rem;color:#0e5b59}.co-assure{list-style:none;margin:14px 0 0;padding:12px 14px;border-radius:12px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);display:grid;gap:6px;font-size:.85rem;color:#0e5b59}
