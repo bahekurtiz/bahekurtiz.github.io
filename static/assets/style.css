@@ -1234,3 +1234,38 @@ body{background:#fff}
 .grid.scroller .card{content-visibility:visible;contain-intrinsic-block-size:none}
 
 .ddp-badges{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 6px}.ddp-badges span{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);font-size:.82rem;line-height:1.25;color:#0e5b59}.ddp-badges b{font-weight:600}.ddp-line{margin:2px 0 8px;font-size:.85rem;color:#0e5b59}.co-assure{list-style:none;margin:14px 0 0;padding:12px 14px;border-radius:12px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);display:grid;gap:6px;font-size:.85rem;color:#0e5b59}
+
+/* product cards: same 2:3 frame for studio and outdoor photos, faces stay in view */
+.card-img img{object-position:top center}
+.card-body h3{min-height:2.6em}
+/* /collections/ */
+.coll-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.coll-tile{display:flex;flex-direction:column;gap:4px;color:inherit;text-decoration:none}
+.coll-tile .card-img{display:block;border-radius:var(--r,4px)}
+.coll-tile .coll-name{font-family:var(--serif);font-size:1.1rem;margin-top:8px;color:var(--accent)}
+.coll-tile small{color:var(--muted);font-size:.8rem}
+@media (max-width:600px){.coll-grid{grid-template-columns:repeat(2,1fr);gap:20px 14px}}
+/* checkout: card / PayPal reassurance */
+.co-cards{display:block!important;margin:12px 0 0;padding:12px 14px;border-radius:12px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);text-align:center;color:#0e5b59;font-size:.86rem}
+.co-cards p{margin:0 0 6px}.co-cards p:last-child{margin:0}.co-cards svg{vertical-align:-3px}
+.co-pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.co-pills .pay-pill{border:1px solid #d9d4cc}
+.co-cards a{color:#0e5b59;text-decoration:underline}
+.pp-cards{margin:10px 0 4px;font-weight:600;color:#0e5b59;font-size:.9rem}
+.co-foot .cur-inr,.co-foot .cur-usd{display:inline}
+/* policy pages: note for buyers outside India */
+.intl-note.cur-usd{display:block;margin:0 0 18px;padding:12px 16px;border-radius:10px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);color:#0e5b59;font-size:.92rem}
+.intl-note a{color:#0e5b59;font-weight:600;text-decoration:underline}
+.rev-note{margin:4px 0 10px}
+/* footer: Bahe VIP email sign-up */
+.foot-vip{background:#0e5b59;color:#f6f1e9;border-bottom:1px solid rgba(212,178,106,.25)}
+.foot-vip-in{display:grid;grid-template-columns:1.2fr 1fr;gap:20px 40px;align-items:center;padding-block:34px}
+.foot-vip .eyebrow{color:#d4b26a;margin-bottom:6px}
+.foot-vip h2{color:#f6f1e9;font-size:clamp(20px,2.6vw,28px);line-height:1.25;margin:0}
+.vip-form{margin:0}
+.vip-row{display:flex;gap:8px}
+.vip-row input{flex:1;min-width:0;padding:13px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.35);background:#fff;color:#1a1a1a;font:inherit;font-size:16px}
+.vip-row input:focus{outline:2px solid #d4b26a;outline-offset:1px}
+.vip-row .btn{white-space:nowrap;padding-inline:24px}
+.vip-msg{margin:8px 0 0;font-size:.88rem;min-height:1.2em}.vip-msg.ok{color:#f3d9b1}.vip-msg.err{color:#ffd2cc}
+.vip-fine{margin:4px 0 0;font-size:.75rem;opacity:.75}.vip-fine a{color:inherit;text-decoration:underline}
+@media (max-width:760px){.foot-vip-in{grid-template-columns:1fr;padding-block:28px}}
