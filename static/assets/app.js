@@ -7,6 +7,15 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const usd = (n) => "$" + (Math.round(n * 100) % 100 ? (Math.round(n * 100) / 100).toFixed(2) : String(Math.round(n)));
   const isUSD = () => document.documentElement.classList.contains("usd");
+  // first-visit country guess: time zone first (catches UAE / Australia / UK browsers set to en-US), then the browser region
+  const TZC = { "Asia/Dubai": "AE", "Asia/Muscat": "OM", "Asia/Qatar": "QA", "Asia/Riyadh": "SA", "Asia/Kuwait": "KW", "Asia/Bahrain": "BH", "Europe/London": "GB", "Europe/Dublin": "IE", "Asia/Singapore": "SG", "Pacific/Auckland": "NZ", "Asia/Tokyo": "JP", "Asia/Kathmandu": "NP", "Asia/Hong_Kong": "HK", "Asia/Kuala_Lumpur": "MY", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Madrid": "ES", "Europe/Amsterdam": "NL", "Europe/Zurich": "CH", "Africa/Johannesburg": "ZA" };
+  const guessCC = () => { let z = ""; try { z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
+    if (/Calcutta|Kolkata/.test(z)) return "IN";
+    const t = TZC[z] || (/^America\/(Toronto|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Montreal|Moncton|Whitehorse|Yellowknife|Iqaluit|Glace_Bay|Goose_Bay|Swift_Current|Dawson_Creek)$/.test(z) ? "CA" : /^(America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit|Boise|Juneau|Adak|Sitka|Nome|Menominee|Indiana\/.+|Kentucky\/.+|North_Dakota\/.+)|Pacific\/Honolulu)$/.test(z) ? "US" : /^Australia\//.test(z) ? "AU" : "");
+    if (t) return t;
+    const m = (navigator.language || "").match(/-([A-Z]{2})$/i), r = m ? m[1].toUpperCase() : "";
+    if (r && (r !== "IN" || !z)) return r; // en-IN browser outside India keeps USD pricing (matches the head currency script)
+    return isUSD() ? "US" : "IN"; };
   const money = (n) => (isUSD() ? usd(n) : inr(n));
   const unit = (p) => (isUSD() ? p.price_usd : p.price);
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
@@ -150,10 +159,15 @@
     $$("[data-buy]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; if (!bag.some((i) => i.slug === slug && i.size === size)) addItem(slug, size); location.href = url("checkout/"); }));
     // gallery: swipe on mobile, dots + thumbs
     const slides = $("[data-slides]"), dots = $$("[data-dots] button"), thumbs = $$(".thumb");
-    const go = (i) => slides.scrollTo({ left: slides.clientWidth * i, behavior: "smooth" });
+    const rtl = () => document.documentElement.dir === "rtl"; // RTL (Arabic): scrollLeft runs negative
+    const go = (i) => slides.scrollTo({ left: (rtl() ? -1 : 1) * slides.clientWidth * i, behavior: "smooth" });
     dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
     thumbs.forEach((t) => t.addEventListener("click", () => go(+t.dataset.go)));
-    slides?.addEventListener("scroll", () => { const i = Math.round(slides.scrollLeft / slides.clientWidth); dots.forEach((d, k) => d.classList.toggle("on", k === i)); thumbs.forEach((t, k) => t.classList.toggle("on", k === i)); }, { passive: true });
+    // gallery photos 2+ load only when they come near view (a swipe carousel otherwise downloads every photo at once)
+    const galImgs = slides ? [...slides.querySelectorAll("img[data-gal][data-src]")] : [];
+    const galLoad = (im) => { if (!im.dataset.src) return; if (im.dataset.srcset) { im.srcset = im.dataset.srcset; im.removeAttribute("data-srcset"); } im.src = im.dataset.src; im.removeAttribute("data-src"); };
+    if (galImgs.length) { if ("IntersectionObserver" in window) { const sc = getComputedStyle(slides).overflowX !== "visible"; const gio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { galLoad(e.target); gio.unobserve(e.target); } }), { root: sc ? slides : null, rootMargin: sc ? "0px 60% 0px 60%" : "300px 0px" }); galImgs.forEach((im) => gio.observe(im)); } else galImgs.forEach(galLoad); }
+    slides?.addEventListener("scroll", () => { const i = Math.round(Math.abs(slides.scrollLeft) / slides.clientWidth); dots.forEach((d, k) => d.classList.toggle("on", k === i)); thumbs.forEach((t, k) => t.classList.toggle("on", k === i)); }, { passive: true });
     // sticky bar when main buttons scroll out of view
     const sticky = $("[data-sticky]"), main = $(".buy-row");
     if (sticky && main && "IntersectionObserver" in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting && e.boundingClientRect.top < 0; sticky.classList.toggle("show", on); document.body.classList.toggle("sticky-on", on); }).observe(main);
@@ -242,12 +256,14 @@
     if (intl && q("country") && !q("country").value) { // prefill from saved details or the country picked / detected on the site
       let n = String(getUser()?.country || "").trim(); const CLx = BK.countries || [];
       if (!n || /^(india|in)$/i.test(n)) { n = ""; try { const k = JSON.parse(localStorage.getItem("bk_country") || "null"); if (k && k.c && k.c !== "IN") n = k.n; } catch {}
-        if (!n) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i), r = m && CLx.find((x) => x[0] === m[1].toUpperCase() && x[0] !== "IN"); if (r) n = r[1]; } }
+        if (!n) { const g = guessCC(), r = CLx.find((x) => x[0] === g && x[0] !== "IN"); if (r) n = r[1]; } }
       if (n) q("country").value = n;
     }
     if (intl) {
       method = "paypal";
-      $("[data-pay-opts]").innerHTML = `<label class="pay"><input type="radio" name="pay" value="paypal" checked><span><strong>PayPal or debit / credit card</strong><small>Pay securely in USD on the next step – no PayPal account needed. Duties &amp; taxes included.</small></span></label>`;
+      const ccP = (() => { try { const k = JSON.parse(localStorage.getItem("bk_country") || "null"); if (k && k.c && k.c !== "IN") return k; } catch {} const g = guessCC(), r = (BK.countries || []).find((x) => x[0] === g); return r && r[0] !== "IN" ? { c: r[0], n: r[1], cur: r[2] } : null; })();
+      const fx = ccP && ccP.cur && ccP.cur !== "USD" ? `<span class="pay-fx">💱 You pay in US $ – your bank converts it to ${esc(ccP.cur)}${ccP.n ? ` (${esc(ccP.n)})` : ""}. No extra fees from us.</span>` : ccP && ccP.c === "US" ? `<span class="pay-fx">PayPal may also offer Venmo or Pay Later at the next step, if you are eligible.</span>` : "";
+      $("[data-pay-opts]").innerHTML = `<label class="pay"><input type="radio" name="pay" value="paypal" checked><span><strong>PayPal or debit / credit card</strong><small>Pay securely in USD on the next step – no PayPal account needed. Duties &amp; taxes included.</small>${fx}</span></label>`;
       const sec = $("[data-secure]"); if (sec) sec.hidden = true;
       await renderCheckout(); btn.disabled = false; return;
     }
@@ -304,7 +320,7 @@
         const ppItems = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
         showDone(`<div class="done-box"><h1>Pay ${usd(t.total)} USD</h1><p>Order <strong>${ref}</strong>. Pay securely with PayPal or any debit / credit card.</p><div data-pp-box class="pp-box"><p class="muted">Loading secure payment…</p></div><p class="pp-cards">Pay with PayPal or any debit/credit card – no PayPal account needed</p><p class="muted small">Import duties &amp; taxes are included – nothing to pay on delivery. <button type="button" class="link" data-pp-invoice>Prefer an invoice? WhatsApp us</button></p></div>`);
         $("[data-pp-invoice]")?.addEventListener("click", invoiceDone);
-        const s2 = document.createElement("script"); s2.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cid)}&currency=USD&intent=capture`;
+        const s2 = document.createElement("script"); s2.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cid)}&currency=USD&intent=capture&enable-funding=venmo,paylater,card`;
         s2.onerror = invoiceDone;
         s2.onload = () => { try { $("[data-pp-box]").innerHTML = "";
           window.paypal.Buttons({ style: { layout: "vertical", shape: "rect", label: "pay" },
@@ -400,8 +416,7 @@
   let cc = getCC();
   try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } } catch {}
   if (!cc && CL.length) { // first visit: guess from browser
-    let code = ""; try { const z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; if (/Calcutta|Kolkata/.test(z)) code = "IN"; } catch {}
-    if (!code) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i); code = m ? m[1].toUpperCase() : (isUSD() ? "US" : "IN"); }
+    const code = guessCC();
     const row = CL.find((r) => r[0] === code); cc = row ? { c: row[0], n: row[1], cur: row[2] } : null;
   }
   let rates = { USD: 1, ...(BK.rates || {}) };
@@ -655,7 +670,11 @@
     const sl = $$(".hero-slide", hero), hd = $$("[data-hero-go]", hero); let hi = 0, ht;
     const track = $("[data-hero-track]", hero);
     const grid = () => sl.length > 1 && innerWidth > 900; // laptop: all banners side by side (same cards as phone)
-    const show = (i) => { hi = (i + sl.length) % sl.length; if (grid()) { if (track) track.style.transform = ""; sl.forEach((x) => { x.classList.add("on"); x.removeAttribute("aria-hidden"); x.inert = false; }); return; } if (track) track.style.transform = `translateX(-${hi * 100}%)`; sl.forEach((x, k) => { x.classList.toggle("on", k === hi); x.setAttribute("aria-hidden", k !== hi); x.inert = k !== hi; }); hd.forEach((d, k) => d.classList.toggle("on", k === hi)); };
+    // banners 2+ load only when shown (or a few seconds after the page has loaded), so banner 1 gets the bandwidth
+    const hLoad = (x) => x && x.querySelectorAll("img[data-gal][data-src]").forEach((im) => { if (im.dataset.srcset) { im.srcset = im.dataset.srcset; im.removeAttribute("data-srcset"); } im.src = im.dataset.src; im.removeAttribute("data-src"); });
+    const hLater = () => setTimeout(() => sl.forEach(hLoad), 3000);
+    if (document.readyState === "complete") hLater(); else addEventListener("load", hLater, { once: true });
+    const show = (i) => { hi = (i + sl.length) % sl.length; if (grid()) sl.forEach(hLoad); else hLoad(sl[hi]); if (grid()) { if (track) track.style.transform = ""; sl.forEach((x) => { x.classList.add("on"); x.removeAttribute("aria-hidden"); x.inert = false; }); return; } if (track) track.style.transform = `translateX(-${hi * 100}%)`; sl.forEach((x, k) => { x.classList.toggle("on", k === hi); x.setAttribute("aria-hidden", k !== hi); x.inert = k !== hi; }); hd.forEach((d, k) => d.classList.toggle("on", k === hi)); };
     addEventListener("resize", () => { show(hi); auto(); });
     const auto = () => { clearInterval(ht); if (grid()) return; if (sl.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) ht = setInterval(() => show(hi + 1), 5000); };
     $$("[data-hero-step]", hero).forEach((b) => b.addEventListener("click", () => { show(hi + +b.dataset.heroStep); auto(); }));
@@ -721,6 +740,11 @@
       if (sent) return; const ph = form.phone.value.replace(/\D/g, ""); if (ph.length < 7 || !form.name.value.trim()) return; sent = true;
       const cat = await catalog().catch(() => null);
       sendSheet({ type: "checkout_started", name: form.name.value.trim(), phone: form.phone.value.trim(), email: (form.email?.value || "").trim(), city: (form.city?.value || "").trim(), consent: $("[data-co-consent]")?.checked ? "yes" : "no", items: cat ? bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") : "" });
+    });
+    form?.email?.addEventListener("blur", async () => {
+      if (sent || !isUSD() || !bag.length) return; const em = form.email.value.trim(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em)) return; sent = true;
+      const cat = await catalog().catch(() => null);
+      sendSheet({ type: "checkout_started", name: form.name.value.trim(), phone: form.phone.value.trim(), email: em, city: (form.city?.value || "").trim(), country: (form.country?.value || "").trim(), consent: $("[data-co-consent]")?.checked ? "yes" : "no", source: "checkout_email", items: cat ? bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") : "" });
     });
   }
   paintUser();
@@ -998,7 +1022,7 @@
     cb.addEventListener("click", (e) => { const b = e.target.closest("[data-cs]"); if (!b) return; const ok = b.dataset.cs === "yes"; try { localStorage.setItem("bk_consent", ok ? "yes" : "no"); } catch {} if (ok) { const g = "granted"; try { window.gtag?.("consent", "update", { ad_storage: g, ad_user_data: g, ad_personalization: g, analytics_storage: g }); window.fbq?.("consent", "grant"); } catch {} } cb.remove(); }); } } catch {}
   // ---------- market rules: delivery promise, return rule, pauses (all from admin settings; nothing invented) ----------
   (() => {
-    const ccNow = (() => { try { return (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || (isUSD() ? "US" : "IN"); } catch { return "IN"; } })();
+    const ccNow = (() => { try { return (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || (isUSD() ? ((g) => (g === "IN" ? "US" : g))(guessCC()) : "IN"); } catch { return "IN"; } })();
     const mk = ccNow === "IN" ? BK.inr || {} : (BK.mk || {})[ccNow], cname = (BK.countries || []).find((r) => r[0] === ccNow)?.[1] || ccNow;
     const blocked = ccNow !== "IN" && mk && mk.s && mk.s !== "Live";
     const stop = BK.mm || BK.cp || blocked, prodEl = $("[data-product]"), why = blocked ? `Orders to ${cname} are paused right now. WhatsApp us and we will help.` : BK.pm;
@@ -1036,7 +1060,9 @@
 
   // ---------- language (EN / HI / FR / DE / ES / IT / JA / AR) – separate from country; loads only when chosen ----------
   if (BK.langs) {
-    let lang = "en"; try { lang = localStorage.getItem("bk_lang") || "en"; } catch {}
+    let lang = "en", manual = ""; try { manual = localStorage.getItem("bk_lang") || ""; } catch {}
+    if (manual && BK.langs[manual]) lang = manual;
+    else { const base = String((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase().split("-")[0]; if (base !== "en" && BK.langs[base]) lang = base; }
     let dict = null, tt = 0;
     const SKIP = /^(SCRIPT|STYLE|TEXTAREA|CODE|PRE)$/;
     // dictionary keys are matched with collapsed spaces; "__p" holds patterns like "Showing {0} of {1} styles"
@@ -1082,11 +1108,11 @@
 
   // ---------- image zoom (tap a product photo) ----------
   $$(".gallery img").forEach((im) => im.addEventListener("click", () => { let d = $("[data-zoom]"); if (!d) { d = document.createElement("dialog"); d.className = "zoom-dlg"; d.dataset.zoom = ""; d.innerHTML = `<button type="button" class="icon-btn zoom-x" aria-label="Close">✕</button><div class="zoom-wrap"><img alt=""></div>`; document.body.appendChild(d); d.addEventListener("click", (e) => { if (e.target.closest(".zoom-x") || e.target === d) d.close(); }); $(".zoom-wrap img", d).addEventListener("click", (e) => e.currentTarget.classList.toggle("big")); }
-    const z = $(".zoom-wrap img", d); z.classList.remove("big"); z.src = im.currentSrc || im.src; z.alt = im.alt; d.showModal(); }));
+    const z = $(".zoom-wrap img", d); z.classList.remove("big"); z.src = (im.srcset ? im.srcset.split(",").pop().trim().split(" ")[0] : "") || im.currentSrc || im.src; z.alt = im.alt; d.showModal(); }));
 
   // ---------- speed: Instagram reels load only on tap; hover photo only on mouse devices ----------
   $$("[data-ig]").forEach((b) => b.addEventListener("click", () => { const d = document.createElement("div"); d.className = "reel reel-ig"; d.innerHTML = `<iframe src="${b.dataset.ig}" title="Instagram reel" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`; b.replaceWith(d); }));
-  if (matchMedia("(hover: hover)").matches) document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".card"); const im = c && c.querySelector("img.alt[data-src]"); if (im) { im.src = im.dataset.src; im.removeAttribute("data-src"); } }, { passive: true });
+  if (matchMedia("(hover: hover)").matches) document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".card"); const im = c && c.querySelector("img.alt[data-src]"); if (im) { if (im.dataset.srcset) { im.srcset = im.dataset.srcset; im.removeAttribute("data-srcset"); } im.src = im.dataset.src; im.removeAttribute("data-src"); } }, { passive: true });
 
   // ---------- Mirror 3.0 (on-device AI: pose + clothes segmentation) ----------
   const mir = $("[data-mirror]");
