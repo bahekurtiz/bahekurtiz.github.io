@@ -94,6 +94,8 @@ const products = [...jsonFiles.map((f) => [f, JSON.parse(fs.readFileSync(path.jo
   p.ships_abroad = p.ships_abroad !== false;
   p.bestseller = p.bestseller === true;
   p.sold_out = (Array.isArray(p.sold_out_sizes) ? p.sold_out_sizes : []).map((x) => String(x).trim()).filter(Boolean);
+  // real per-product reviews added by the owner in the CMS (never invented); shown first on the product page + Review schema
+  p.reviews = (Array.isArray(p.reviews) ? p.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), country: String(r?.country || "").trim(), rating: Math.min(5, Math.max(1, Math.round(num(r?.rating) || 5))), text: String(r?.text || "").trim(), photo: String(r?.photo || "").trim(), date: String(r?.date || "").trim().slice(0, 10) })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
   p.occasion = (Array.isArray(p.occasion) ? p.occasion : p.occasion ? [p.occasion] : []).map((x) => String(x).trim()).filter(Boolean);
   p.intl = p.ships_abroad && p.price_usd !== null;
   p.fabric = String(p.fabric || "").trim().replace(/\b([a-z])/g, (m) => m.toUpperCase());
@@ -280,6 +282,10 @@ const I = {
   play: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>',
 };
 const star = (n) => `<span class="stars" aria-label="${n} out of 5 stars">${"★".repeat(Math.max(0, Math.min(5, Math.round(n))))}${"☆".repeat(5 - Math.max(0, Math.min(5, Math.round(n))))}</span>`;
+// "How your order is made" – 4 steps (facts only: own Jaipur unit, free custom fit, photos before shipping, DDP abroad)
+const howSteps = (extra = "") => { const both = (a, b) => (intlOn ? `<span class="cur-inr">${a}</span><span class="cur-usd">${b}</span>` : a);
+  const st = [["🛍️", "You order", "Pick your style and size – or send your measurements."], ["📏", "Free custom fit", "Standard sizes or stitched to your measurements at no extra cost."], ["✂️", "Hand-made · photos sent", both("Made in our own Jaipur unit. Questions? We reply on WhatsApp.", "Made in our own Jaipur unit. We send you photos of your piece before it ships.")], [intlOn ? "✈️" : "🚚", both("Delivered to you", "Duties-paid delivery"), both("Tracked delivery to your door across India.", "Free DDP express shipping – no customs bills. 5–10 business days after dispatch.")]];
+  return `<section class="wrap section how4${extra}" aria-label="How your order is made"><div class="section-head center"><p class="eyebrow">Real orders from our Jaipur studio</p><h2>How your order is made</h2></div><ol class="how4-list">${st.map(([ic, h, t], k) => `<li><span class="how4-ic" aria-hidden="true">${ic}</span><b><small>${k + 1}</small> ${h}</b><span>${t}</span></li>`).join("")}</ol></section>`; };
 
 // ---------- structured data ----------
 // social + marketplace links come from editable lists in admin (old single fields still work)
@@ -307,7 +313,7 @@ const orgLd = {
   "@context": "https://schema.org", "@type": "ClothingStore", "@id": SITE_URL + "/#store", name: brand, alternateName: ["Bahe Kurti", "Bahe Kurtis", "BaheKurtiz", "Bahe Kurtiz Jaipur", "बाहे कुर्तीज़"], url: SITE_URL + "/", founder: { "@type": "Person", "@id": SITE_URL + "/founder/#person", name: S.founder_name || "Suresh Kumar Choudhary", url: SITE_URL + "/founder/" }, foundingDate: "2020", foundingLocation: { "@type": "Place", name: "Jaipur, Rajasthan, India" },
   logo: abs(logoImg || favImg || "favicon.svg"), image: abs(S.hero_image || "images/site/hero.jpg"), description: S.tagline,
   address: { "@type": "PostalAddress", addressLocality: "Jaipur", addressRegion: "Rajasthan", addressCountry: "IN", streetAddress: S.address || undefined },
-  telephone: waNumber ? "+" + waNumber : undefined, email: S.email || undefined, sameAs, priceRange: intlOn ? "$$" : "₹₹", legalName: S.legal_name || undefined,
+  telephone: waNumber ? "+" + waNumber : undefined, email: S.email || undefined, sameAs, contactPoint: waNumber ? [{ "@type": "ContactPoint", contactType: "customer service", telephone: "+" + waNumber, url: "https://wa.me/" + waNumber, email: S.email || undefined, areaServed: "Worldwide", availableLanguage: ["English", "Hindi"] }] : undefined, priceRange: intlOn ? "$$" : "₹₹", legalName: S.legal_name || undefined,
   hasMerchantReturnPolicy: num(S.return_days) ? { "@type": "MerchantReturnPolicy", applicableCountry: "IN", returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow", merchantReturnDays: num(S.return_days), returnMethod: "https://schema.org/ReturnByMail", returnFees: "https://schema.org/ReturnFeesCustomerResponsibility", url: SITE_URL + "/returns/" } : undefined,
 };
 
@@ -569,7 +575,7 @@ const card = (p, i = 9) => {
   return `<article class="card" data-cat="${esc(p.catSlug)}" data-slug="${esc(p.slug)}" data-fabric="${esc(p.fabric)}" data-print="${esc(p.print_work.join("|"))}" data-sizes="${esc(p.sizes.join("|"))}" data-out="${esc(p.sold_out.join("|"))}" data-color="${esc(p.color || "")}" data-occ="${esc(p.occasion.join("|"))}" data-neck="${esc(p.neckline)}" data-sleeve="${esc(p.sleeve)}" data-len="${esc(p.length_type)}" data-stock="${p.in_stock ? 1 : 0}" data-intl="${p.intl ? 1 : 0}"${intlOn && !p.intl ? " data-india-only" : ""}>
   <a href="${u(p.url)}" class="card-link">
     <div class="card-img${b ? " has-alt" : ""}">
-      ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1800" ${i < 2 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">` : ""}
+      ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : i < 2 ? "" : 'loading="lazy"'} decoding="async">` : ""}
       ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="${esc(p.title)} – alternate view" width="1200" height="1800" decoding="async">` : ""}
       <div class="tags">${p.bestseller ? `<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale${p.intl ? " cur-inr" : ""}">-${off}%</span>` : ""}${p.intl && p.mrp_usd > p.price_usd ? `<span class="tag tag-sale cur-usd">-${Math.round((1 - p.price_usd / p.mrp_usd) * 100)}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
@@ -596,24 +602,49 @@ const circles = (active = "") => categories.length ? `<nav class="circles" aria-
 const reviews = (Array.isArray(S.reviews) ? S.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), city: String(r?.city || "").trim(), text: String(r?.text || "").trim(), rating: num(r?.rating) || 5, photo: String(r?.photo || "").trim(), source: String(r?.source || "").trim(), product: String(r?.product || "").trim() })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
 const pages = [];
 // ---------- fast images: small copies (made by the GitHub "thumbs" robot) are used automatically when they exist ----------
-const RS = [480, 960];
+const RS = [480, 960, 1400];
 const decU = (v) => { try { return decodeURI(v); } catch { return v; } };
 // file names with spaces ("WhatsApp Image … (1).webp"): look up the real file, emit %20-encoded URLs (a raw space breaks srcset)
 const encU = (v) => encodeURI(decU(v)).replace(/,/g, "%2C");
 const rsPath = (src, w) => { const m = decU(String(src || "")).match(/^\/?(images\/(?!_r\/).+)\.(jpe?g|png|webp)$/i); return m ? `/images/_r/${m[1].slice(7)}-${w}.webp` : ""; };
-const rsHas = (src) => { const v = rsPath(src, RS[0]); return !!v && fs.existsSync(path.join(ROOT, "static", v)); };
+const rsHasW = (src, w) => { const v = rsPath(src, w); return !!v && fs.existsSync(path.join(ROOT, "static", v)); };
+const rsHas = (src) => rsHasW(src, RS[0]);
 const small = (src) => (rsHas(src) ? rsPath(src, RS[0]) : src);
+// best ready-made copy for a big photo: 1400 → 960 → original
+const rsBig = (src) => { const local = BASE && String(src).startsWith(BASE) ? "/" + String(src).slice(BASE.length) : String(src); for (const w of [1400, 960]) if (rsHasW(local, w)) return u(rsPath(local, w)); return src; };
+const imgSizes = (tag) => { const wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
+  return /data-rs="big"|class="post-cover"/.test(tag) ? "(max-width: 900px) 92vw, 50vw" : /class="logo-img"/.test(tag) ? "170px" : wd && wd <= 120 ? "120px" : wd && wd <= 160 ? "80px" : "(max-width: 720px) 46vw, 25vw"; };
+const srcsetFor = (local, raw) => { const ws = RS.filter((w) => rsHasW(local, w)); return ws.map((w) => `${esc(encU(u(rsPath(local, w))))} ${w}w`).join(", ") + (ws.includes(1400) ? "" : `, ${esc(encU(raw))} 1200w`); };
 const withSrcset = (html) => html.replace(/<img\b[^>]*>/g, (tag) => {
-  if (/\ssrcset=/.test(tag)) return tag; const m = tag.match(/\ssrc="([^"]+)"/); if (!m) return tag;
+  if (!/\sdecoding=/.test(tag)) tag = tag.replace(/^<img\b/, '<img decoding="async"');
+  if (/\ssrcset=/.test(tag)) return tag;
+  const m = tag.match(/\ssrc="([^"]+)"/);
+  if (!m) { // hover/alternate photos load later from data-src: give them small copies too
+    const d = tag.match(/\sdata-src="([^"]+)"/); if (!d) return tag;
+    const rawD = d[1].replace(/&amp;/g, "&"), localD = BASE && rawD.startsWith(BASE) ? "/" + rawD.slice(BASE.length) : rawD;
+    if (!rsHas(localD)) return /\s/.test(rawD) ? tag.replace(/\sdata-src="[^"]+"/, () => ` data-src="${esc(encU(rawD))}"`) : tag;
+    return tag.replace(/\sdata-src="[^"]+"/, () => ` data-src="${esc(encU(u(rsPath(localD, rsHasW(localD, 960) ? 960 : 480))))}" data-srcset="${srcsetFor(localD, rawD)}" sizes="${imgSizes(tag)}"`);
+  }
   const raw = m[1].replace(/&amp;/g, "&"), local = BASE && raw.startsWith(BASE) ? "/" + raw.slice(BASE.length) : raw;
   const srcFixed = /\s/.test(raw) && raw.startsWith("/") ? esc(encU(raw)) : m[1];
   if (srcFixed !== m[1]) tag = tag.replace(/\ssrc="[^"]+"/, () => ` src="${srcFixed}"`);
   if (!rsHas(local)) return tag;
-  const big = /data-rs="big"|class="post-cover"/.test(tag), wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
-  const sizes = big ? "(max-width: 900px) 82vw, 50vw" : wd && wd <= 120 ? "120px" : "(max-width: 720px) 46vw, 25vw";
-  return tag.replace(/\ssrc="/, () => ` srcset="${RS.map((w) => `${esc(encU(u(rsPath(local, w))))} ${w}w`).join(", ")}, ${esc(encU(raw))} 1200w" sizes="${sizes}" src="`); });
+  const big = /data-rs="big"|class="post-cover"/.test(tag);
+  // big photos (gallery / hero / blog cover): fallback src is the 1400 (or 960) copy, not the heavy original
+  if (big) tag = tag.replace(/\ssrc="[^"]+"/, () => ` src="${esc(encU(rsBig(local)))}"`);
+  return tag.replace(/\ssrc="/, () => ` srcset="${srcsetFor(local, raw)}" sizes="${imgSizes(tag)}" src="`); });
+// LCP: keep fetchpriority="high" on the first such image only and preload it (with the same srcset/sizes) from <head>
+const lcpPreload = (html) => {
+  let first = null;
+  html = html.replace(/<img\b[^>]*\sfetchpriority="high"[^>]*>/g, (tag) => { if (!first) { first = tag; return tag; } return tag.replace(/\sfetchpriority="high"/, ""); });
+  if (!first || !/<\/head>/.test(html)) return html;
+  const at = (n) => (first.match(new RegExp(`\\s${n}="([^"]*)"`)) || [])[1];
+  const src = at("src"); if (!src || src.startsWith("data:")) return html;
+  const link = `<link rel="preload" as="image" href="${src}"${at("srcset") ? ` imagesrcset="${at("srcset")}" imagesizes="${at("sizes") || "100vw"}"` : ""} fetchpriority="high">`;
+  return html.replace(/<link rel="stylesheet" href="[^"]*assets\/style\.css/, (x) => link + "\n" + x);
+};
 const REMOVED = new Set(["mirror/index.html", "studio/index.html", "print-kundli/index.html"]); // features switched off
-const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, withSrcset(html)]); };
+const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, lcpPreload(withSrcset(html))]); };
 
 // ---------- home ----------
 {
@@ -641,7 +672,7 @@ ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-do
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
 ${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.clean ? " hero-clean" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
-  <div class="hero-media" style="--hb:url('${esc(u(sl.image))}')"><img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></div>
+  <div class="hero-media" style="--hb:url('${esc(encU(u(small(sl.image))))}')">${i === 0 ? `<img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" fetchpriority="high">` : `<img decoding="async" data-rs="big" data-gal data-src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800"><noscript><img src="${esc(u(sl.image))}" alt="" width="1200" height="1800"></noscript>`}</div>
   <div class="hero-text">
     <p class="eyebrow">${esc(sl.eyebrow || "New collection · Made in Jaipur")}</p>
     <h2 class="h1">${esc(sl.title || brand)}</h2>
@@ -662,6 +693,7 @@ ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}"
     <div>${I.shield}<span><strong>100% secure prepaid</strong><span class="cur-inr">UPI · Cards · Netbanking</span>${intlOn ? `<span class="cur-usd">PayPal · International cards</span>` : ""}</span></div>
     <div>${I.box}<span><strong>Wholesale & private label</strong><a href="${u("wholesale/")}">Bulk orders for boutiques →</a></span></div>
   </div>
+  ${intlOn ? `<ul class="wrap trust-strip cur-usd" aria-label="Our promises"><li><span aria-hidden="true">✂️</span>Handmade in Jaipur</li><li><span aria-hidden="true">✈️</span>Free DDP shipping · duties paid</li><li><span aria-hidden="true">📏</span>Free custom fit</li><li><span aria-hidden="true">💚</span><a href="${u("international-returns/")}">Fit Promise</a></li><li><span aria-hidden="true">🔒</span>Secure PayPal · cards</li></ul>` : ""}
 </section>
 ${live.on && live.url ? `<section class="wrap section live" id="live"><div class="section-head"><div><p class="eyebrow"><span class="live-dot"></span> Live now</p><h2>${esc(live.title)}</h2></div><a class="link" href="${esc(live.url)}" target="_blank" rel="noopener">Open on YouTube →</a></div>${live.id ? `<div class="live-frame"><button type="button" class="yt-facade" data-yt="${esc(live.id)}" aria-label="Play live: ${esc(live.title)}"><img src="https://i.ytimg.com/vi/${esc(live.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async"><span class="yt-play">▶</span></button></div>` : ""}<p class="muted">Like something in the live? ${waNumber ? `<a class="link" href="${esc(waLink("Hi " + brand + "! I saw this in your live: "))}" target="_blank" rel="noopener">Order it on WhatsApp</a>` : ""} or search it on the site.</p></section>` : ""}
 <section class="wrap section foryou" data-foryou hidden><div class="section-head"><div><p class="eyebrow">Based on what you viewed</p><h2>Picked for you</h2></div></div><div class="grid scroller" data-foryou-grid></div></section>
@@ -688,6 +720,7 @@ ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class=
     <ul class="b2b-list"><li>${I.box}<span><strong>Wholesale</strong>Kurtis, sets, dresses & co-ords in bulk</span></li><li>${I.tag}<span><strong>Private label</strong>Your brand name, tags & packaging</span></li><li>${I.globe}<span><strong>Export</strong>Buyers in every country, worldwide</span></li></ul>
   </div>
 </section>
+${howSteps()}
 ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="section-head center"><p class="eyebrow">Loved by our customers worldwide</p><h2>Reviews</h2>${(() => { const n0 = reviews.length, avg0 = reviews.reduce((a, r) => a + r.rating, 0) / n0, ovr = num(S.review_overall_rating), ovc = num(S.review_overall_count), avg = ovr || avg0, n = ovc || n0, et = (Array.isArray(S.marketplace_links) ? S.marketplace_links : []).find((x) => /etsy/i.test(x?.name || x?.url || "")); return `<p class="rev-sum">${star(5)} Verified customer reviews${et && et.url ? ` · <a href="${esc(et.url)}" target="_blank" rel="noopener">See all on Etsy ↗</a>` : ""}</p>`; })()}</div><div class="rev-row">${reviews.map((r) => `<figure class="rev">${r.photo ? `<img decoding="async" src="${esc(u(r.photo))}" alt="Customer photo from ${esc(r.name)}" width="400" height="500" loading="lazy">` : ""}<blockquote>${star(r.rating)}<p>${esc(r.text)}</p></blockquote><figcaption>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? `<span class="rev-src">✓ Verified on ${esc(r.source)}</span>` : ""}</figcaption></figure>`).join("")}</div></section>` : ""}
 <section class="vip-band"><div class="wrap vip-in"><p class="eyebrow">Bahe VIP</p><h2>Limited drops. Hand block printed.<br>You hear first.</h2><p>Every month we print a small batch of new designs in Jaipur – some sell out in days. Join the VIP list for early access, new prints and a free handmade potli with your first order.</p><button class="btn btn-gold" type="button" data-open-login>Join the VIP list</button><p class="vip-small">No spam · WhatsApp or email · leave anytime</p></div></section>
 <section class="wrap section recent" data-recent hidden><div class="section-head"><div><p class="eyebrow">Picked up where you left</p><h2>Recently viewed</h2></div></div><div class="grid" data-recent-grid></div></section>
@@ -706,7 +739,7 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
     title: `${brand} | Hand Block Printed Kurta Sets, Made to Measure in Jaipur`,
     description: clip(intlOn ? `${brand}: hand block printed kurta sets & Anarkalis from Jaipur, stitched to your size. Free shipping to the USA, UK, Canada, UAE & Australia.` : `Hand block printed kurtis, kurta sets and dresses from Jaipur by ${brand}. Secure prepaid payment and pan-India delivery.`),
     pathname: "", body: `` + body, bodyClass: "home",
-    ld: [{ "@context": "https://schema.org", "@type": "WebSite", name: brand, alternateName: ["Bahe Kurti", "Bahe Kurtis", "BaheKurtiz", "Bahe Kurtiz Jaipur", "बाहे कुर्तीज़"], url: SITE_URL + "/" }],
+    ld: [{ "@context": "https://schema.org", "@type": "WebSite", "@id": SITE_URL + "/#website", name: brand, alternateName: ["Bahe Kurti", "Bahe Kurtis", "BaheKurtiz", "Bahe Kurtiz Jaipur", "बाहे कुर्तीज़"], url: SITE_URL + "/", publisher: { "@id": SITE_URL + "/#store" }, inLanguage: "en", potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: SITE_URL + "/shop/?q={search_term_string}" }, "query-input": "required name=search_term_string" } }],
   }));
 }
 
@@ -809,7 +842,8 @@ for (const c of allCats.filter((x) => x.empty)) {
 // ---------- product pages ----------
 for (const p of products) {
   const look = p.match.map((m) => products.find((x) => x.slug === m)).filter((x) => x && x.slug !== p.slug).slice(0, 4);
-  const related = products.filter((x) => x.slug !== p.slug && !look.includes(x)).sort((a, b) => (b.category === p.category) - (a.category === p.category)).slice(0, 4);
+  const relScore = (x) => (x.category === p.category ? 4 : 0) + x.occasion.filter((o) => p.occasion.includes(o)).length + (x.price !== null ? 0.5 : 0) + (x.fabric && x.fabric === p.fabric ? 1 : 0);
+  const related = products.filter((x) => x.slug !== p.slug && !look.includes(x)).map((x, i) => [x, relScore(x), i]).sort((a, b) => b[1] - a[1] || a[2] - b[2]).map(([x]) => x).slice(0, 4);
   const firstLine = String(p.description || "").split(/\n/)[0];
   const desc = clip(p.seo_description || `${p.title}${p.color ? " in " + p.color : ""}${p.fabric ? ", " + p.fabric : ""}. ${firstLine}`);
   const cat = categories.find((c) => c.name === p.category);
@@ -824,7 +858,7 @@ for (const p of products) {
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
         ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
-        : `<figure class="slide"><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></figure>`).join("")}
+        : (i === 0 ? `<figure class="slide"><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1800"></noscript></figure>`)).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
     <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="${esc(p.title)} – ${m.video ? "video" : "view " + (i + 1)}" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
@@ -833,12 +867,13 @@ for (const p of products) {
     <p class="eyebrow">${esc(p.category)}${p.color ? " · " + esc(p.color) : ""}</p>
     <div class="title-row"><h1>${esc(p.title)}</h1><button class="wish wish-lg" type="button" data-wish="${esc(p.slug)}" aria-label="Save to wishlist" aria-pressed="false">${I.heart}</button></div>
     <div class="pdp-price">${priceHtml(p)}</div>
+    ${p.price !== null ? `<p class="eta-top" data-eta hidden></p>` : ""}${intlOn && p.intl ? `<p class="mto-note cur-usd">✂️ Made to order in our Jaipur studio · ships in 2–7 working days</p>` : ""}
     ${p.model_height || p.model_size || p.fit ? `<p class="fit-line">${[p.model_height ? `Model is ${esc(p.model_height)}` : "", p.model_size ? `wearing ${esc(p.model_size)}` : "", p.fit ? `${esc(p.fit)} fit` : ""].filter(Boolean).join(" · ")}</p>` : ""}
     ${p.price !== null ? `<p class="tax cur-inr">Inclusive of all taxes${disc ? ` · <strong>Extra ${disc}% off</strong> on online payment` : ""}</p>` : ""}
     ${intlOn && p.intl ? `<p class="tax cur-usd">${esc(S.intl_duty_note || "Prices exclude import duties and taxes of your country.")}</p>` : ""}
     ${p.sizes.length ? `<div class="sizes"><div class="label">Select size <span data-size-error role="alert" hidden>Please select a size</span><button class="size-guide" type="button" data-fit-open>✨ Find my size</button><button class="size-guide" type="button" data-open-size>${I.ruler} Size chart</button></div><div class="size-row" role="group" aria-label="Select size">${p.sizes.map((s) => `<button class="size${p.sold_out.includes(s) ? " out" : ""}" type="button" data-size="${esc(s)}" aria-pressed="false"${p.sold_out.includes(s) ? ' data-out="1" aria-label="' + esc(s) + ' – sold out, notify me"' : ""}>${esc(s)}</button>`).join("")}</div><p class="fit-note" data-fit-note hidden></p></div>` : ""}
     ${p.sale_paused ? `<p class="paused-note" role="status">⛔ This style is not available to order right now.</p>` : ""}
-    ${p.price !== null ? `<div class="buy-row"><button class="btn btn-block" data-add>Add to Bag</button><button class="btn btn-dark btn-block" data-buy>Buy Now</button></div><ul class="promise"><li data-eta hidden></li><li data-retline hidden></li><li data-mkmsg hidden></li></ul>`
+    ${p.price !== null ? `<div class="buy-row"><button class="btn btn-block" data-add>Add to Bag</button><button class="btn btn-dark btn-block" data-buy>Buy Now</button></div><ul class="promise"><li data-retline hidden></li><li data-mkmsg hidden></li></ul>`
       : `<a class="btn btn-wa btn-block" href="${esc(waAsk)}" target="_blank" rel="noopener">${I.wa} Ask price on WhatsApp</a>`}
     ${intlOn && !p.intl && waNumber ? `<div class="intl-ask cur-usd"><p>${p.ships_abroad ? "International price for this style is shared on request." : "This style currently ships within India only."} Message us for availability and similar styles that ship to your country.</p><a class="btn btn-wa btn-block" href="${esc(waLink(`Hi ${brand}! I am outside India. Can you ship this to my country?\n${p.title}\n${SITE_URL}/${p.url}`))}" target="_blank" rel="noopener">${I.wa} Ask on WhatsApp</a></div>` : ""}
     ${waAsk && p.price !== null ? `<a class="ask-wa" href="${esc(waAsk)}" target="_blank" rel="noopener">${I.wa} Questions? Chat with us on WhatsApp</a>` : ""}
@@ -847,7 +882,7 @@ for (const p of products) {
     <div class="share-row"><button class="share-btn" type="button" data-share>${I.wa} Ask family</button><a class="share-btn" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(SITE_URL + "/" + p.url)}&media=${encodeURIComponent(abs(p.images[0] || ""))}&description=${encodeURIComponent(p.title + " – " + brand)}" target="_blank" rel="noopener">${socialIcon("pinterest")} Save</a><button class="share-btn" type="button" data-copy-link>${I.tag} Copy link</button><button class="share-btn status-btn" type="button" data-status>✨ Make WhatsApp Status</button></div>
     <ul class="perks"><li>${I.truck}${esc(S.dispatch_note || "Ships from Jaipur")}</li>${p.ships_abroad && intlOn ? `<li>${I.globe}Ships worldwide · <a href="${u(S.intl_shipping_policy ? "international-shipping/" : "shipping/")}">delivery times</a></li>` : ""}<li>${I.shield}Secure prepaid payment</li><li>${I.swap}<a href="${u("returns/")}">Easy exchange policy</a></li></ul>
     <details open><summary>Description</summary><div>${paras(p.description) || "<p>Handcrafted in Jaipur.</p>"}</div></details>
-    ${(() => { const mine = reviews.filter((r) => r.product === p.slug), list = (mine.length ? mine : reviews).slice(0, 4); return list.length ? `<details open class="pdp-revs"><summary>${mine.length ? "Reviews for this style" : (list.every((r) => /etsy/i.test(r.source)) ? "Reviews from our Etsy shop" : "Shop reviews")} (${list.length})</summary><div>${mine.length ? "" : `<p class="muted small rev-note">Shop reviews from past customers – not specific to this style.</p>`}${list.map((r) => `<blockquote class="pdp-rev">${star(r.rating)}<p>${esc(r.text)}</p><cite>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.source ? ` · ✓ ${esc(r.source)}` : ""}</cite></blockquote>`).join("")}</div></details>` : ""; })()}
+    ${(() => { const own = p.reviews.map((r) => ({ ...r, city: r.country, source: "" })), mine = [...own, ...reviews.filter((r) => r.product === p.slug)], list = (mine.length ? mine : reviews).slice(0, mine.length ? 6 : 4), avgO = own.length ? own.reduce((x, r) => x + r.rating, 0) / own.length : 0; return list.length ? `<details open class="pdp-revs" id="reviews"><summary>${mine.length ? "Reviews for this style" : (list.every((r) => /etsy/i.test(r.source)) ? "Reviews from our Etsy shop" : "Shop reviews")} (${mine.length ? mine.length : list.length})</summary><div>${own.length ? `<p class="rev-avg">${star(avgO)} <b>${avgO.toFixed(1)}</b> · ${own.length} review${own.length === 1 ? "" : "s"} of this style</p>` : ""}${mine.length ? "" : `<p class="muted small rev-note">Shop reviews from past customers – not specific to this style.</p>`}${list.map((r) => `<blockquote class="pdp-rev">${star(r.rating)}<p>${esc(r.text)}</p>${r.photo ? `<img class="rev-photo" src="${esc(u(r.photo))}" alt="Customer photo from ${esc(r.name)}" width="160" height="200" loading="lazy" decoding="async">` : ""}<cite>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.date ? ` · ${esc(r.date)}` : ""}${r.source ? ` · ✓ ${esc(r.source)}` : ""}</cite></blockquote>`).join("")}</div></details>` : ""; })()}
     <details><summary>Product details</summary><dl class="specs">
       ${p.color ? `<dt>Colour</dt><dd>${esc(p.color)}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${craftLink("fabric", p.fabric)}</dd>` : ""}${p.print_work.length ? `<dt>Print / work</dt><dd>${p.print_work.map((n) => craftLink("print", n)).join(", ")}</dd>` : ""}
       ${p.sizes.length ? `<dt>Sizes</dt><dd>${esc(p.sizes.join(", "))}</dd>` : ""}${p.neckline ? `<dt>Neckline</dt><dd>${esc(p.neckline)}</dd>` : ""}${p.sleeve ? `<dt>Sleeves</dt><dd>${esc(p.sleeve)}</dd>` : ""}${p.length_type ? `<dt>Length</dt><dd>${esc(p.length_type)}</dd>` : ""}${p.set_items.length ? `<dt>In this set</dt><dd>${esc(p.set_items.join(" + "))}</dd>` : ""}${p.garment_length ? `<dt>Length</dt><dd>${cm(num(p.garment_length))}</dd>` : ""}${p.sku ? `<dt>SKU</dt><dd>${esc(p.sku)}</dd>` : ""}<dt>Care</dt><dd>${esc(p.care || (CRAFT.fabric[p.fabric]?.[2]) || "Gentle cold hand wash, dry in shade.")}</dd><dt>Country of origin</dt><dd>India (made in Jaipur)</dd><dt>Status</dt><dd>${p.in_stock ? "In stock" : "Made to order"}</dd>
@@ -858,7 +893,8 @@ for (const p of products) {
     <details><summary>Shipping & returns</summary><div>${paras(String(S.shipping_policy || "").split(/\n\s*\n/)[1] || S.dispatch_note)}<p><a href="${u("shipping/")}">Shipping (India)</a> · <a href="${u("returns/")}">Returns (India)</a>${S.intl_shipping_policy ? ` · <a href="${u("international-shipping/")}">International shipping</a>` : ""}${S.intl_return_policy ? ` · <a href="${u("international-returns/")}">International returns</a>` : ""}</p></div></details>
   </div>
 </section>
-${p.price !== null ? `<div class="sticky-buy" data-sticky><div><strong>${intlOn ? `<span class="cur-inr">${inr(p.price)}</span><span class="cur-usd">${p.intl ? usd(p.price_usd) : ""}</span>` : inr(p.price)}</strong><span>${esc(p.title)}</span></div><button class="btn" data-add>Add to Bag</button></div>` : ""}
+${p.price !== null ? `<div class="sticky-buy" data-sticky><div><strong>${esc(p.title)}</strong><span>${p.sizes.length ? "Pick your size · free custom fit" : "Handmade in Jaipur"}</span></div><button class="btn" data-add><span>Add to Bag</span> · ${intlOn ? `<span class="cur-inr">${inr(p.price)}</span><span class="cur-usd">${p.intl ? usd(p.price_usd) : ""}</span>` : inr(p.price)}</button></div>` : ""}
+${howSteps(" how4-pdp")}
 ${look.length ? `<section class="wrap section look"><div class="section-head"><div><p class="eyebrow">Shop the look</p><h2>Complete the look</h2></div>${look.some((x) => x.price !== null) ? `<button class="btn btn-ghost" type="button" data-add-look="${esc([p.slug, ...look.filter((x) => x.price !== null).map((x) => x.slug)].join(","))}">Add complete look</button>` : ""}</div><div class="grid">${look.map((p) => card(p)).join("")}</div></section>` : ""}
 ${p.sizes.length ? sizeDialog : ""}
 ${related.length ? `<section class="wrap section"><div class="section-head"><h2>You may also like</h2></div><div class="grid">${related.map((p) => card(p)).join("")}</div></section>` : ""}
@@ -878,7 +914,7 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
   const C5 = ["US", "GB", "CA", "AU", "AE"];
   const ld = {
     "@context": "https://schema.org", "@type": "Product", name: p.title, image: p.images.map(abs), description: String(p.description || "").replace(/\s+/g, " ").trim() || p.title,
-    sku: p.slug, brand: { "@type": "Brand", name: brand }, category: p.category, color: p.color || undefined, material: p.fabric || undefined, audience: { "@type": "PeopleAudience", suggestedGender: "female" }, size: p.sizes.length ? p.sizes : undefined, pattern: p.print_work[0] || undefined, countryOfOrigin: "IN", additionalProperty: [["Neckline", p.neckline], ["Sleeves", p.sleeve], ["Length", p.length_type], ["Occasion", p.occasion.join(", ")], ["Craft", p.print_work.join(", ")]].filter(([, v]) => v).map(([n, v]) => ({ "@type": "PropertyValue", name: n, value: v })),
+    "@id": SITE_URL + "/" + p.url + "#product", sku: p.slug, mpn: p.sku || p.slug, brand: { "@type": "Brand", name: brand }, manufacturer: { "@id": SITE_URL + "/#store" }, url: SITE_URL + "/" + p.url, category: p.category, color: p.color || undefined, material: p.fabric || undefined, audience: { "@type": "PeopleAudience", suggestedGender: "female", suggestedMinAge: 13 }, size: p.sizes.length ? { "@type": "SizeSpecification", name: p.sizes.join(", "), sizeSystem: "https://schema.org/WearableSizeSystemIN", sizeGroup: "https://schema.org/WearableSizeGroupRegular" } : undefined, pattern: p.print_work[0] || undefined, countryOfOrigin: "IN", additionalProperty: [["Neckline", p.neckline], ["Sleeves", p.sleeve], ["Length", p.length_type], ["Occasion", p.occasion.join(", ")], ["Craft", p.print_work.join(", ")]].filter(([, v]) => v).map(([n, v]) => ({ "@type": "PropertyValue", name: n, value: v })),
     ...(p.price !== null ? { offers: p.intl ? [{ "@type": "Offer", url: SITE_URL + "/" + p.url, priceCurrency: "USD", price: p.price_usd.toFixed(2), availability: p.in_stock ? "https://schema.org/InStock" : "https://schema.org/PreOrder", itemCondition: "https://schema.org/NewCondition", seller: { "@id": SITE_URL + "/#store" }, priceValidUntil: `${year + 1}-12-31`, eligibleRegion: C5.map((c) => ({ "@type": "Country", name: c })),
       shippingDetails: C5.map((c) => ({ "@type": "OfferShippingDetails", shippingRate: { "@type": "MonetaryAmount", value: String(p.price_usd >= (num(S.intl_free_shipping_above_usd) || Infinity) ? 0 : num(S.intl_shipping_charge_usd) || 0), currency: "USD" }, shippingDestination: { "@type": "DefinedRegion", addressCountry: c }, deliveryTime: { "@type": "ShippingDeliveryTime", handlingTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 7, unitCode: "DAY" }, transitTime: { "@type": "QuantitativeValue", minValue: num(S.intl_eta_min) || 5, maxValue: num(S.intl_eta_max) || 10, unitCode: "DAY" } } })),
       hasMerchantReturnPolicy: { "@type": "MerchantReturnPolicy", applicableCountry: C5, returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow", merchantReturnDays: 7, returnMethod: "https://schema.org/ReturnByMail", returnFees: "https://schema.org/ReturnFeesCustomerResponsibility" } }, { ...{ "@type": "Offer", url: SITE_URL + "/" + p.url, priceCurrency: "INR", price: String(p.price), availability: p.in_stock ? "https://schema.org/InStock" : "https://schema.org/PreOrder", itemCondition: "https://schema.org/NewCondition", seller: { "@id": SITE_URL + "/#store" }, priceValidUntil: `${year + 1}-12-31`,
@@ -889,6 +925,9 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
         deliveryTime: { "@type": "ShippingDeliveryTime", handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: num(S.dispatch_days) || 3, unitCode: "DAY" }, transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: num(S.transit_days_max) || 7, unitCode: "DAY" } } },
       hasMerchantReturnPolicy: !num(S.return_days) ? undefined : { "@type": "MerchantReturnPolicy", applicableCountry: "IN", returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow", merchantReturnDays: num(S.return_days), returnMethod: "https://schema.org/ReturnByMail", returnFees: "https://schema.org/ReturnFeesCustomerResponsibility" } } } : {}),
   };
+  if (p.reviews.length) { const avgR = p.reviews.reduce((x, r) => x + r.rating, 0) / p.reviews.length;
+    ld.aggregateRating = { "@type": "AggregateRating", ratingValue: avgR.toFixed(1), reviewCount: p.reviews.length, bestRating: 5, worstRating: 1 };
+    ld.review = p.reviews.slice(0, 10).map((r) => ({ "@type": "Review", author: { "@type": "Person", name: r.name }, reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 }, reviewBody: r.text, ...(r.date ? { datePublished: r.date } : {}) })); }
   const crumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL + "/" },
     { "@type": "ListItem", position: 2, name: cat.plural, item: SITE_URL + "/" + cat.url },
@@ -912,7 +951,7 @@ add("checkout/index.html", page({
         <label>Full name<input name="name" autocomplete="name" required maxlength="80"></label>
         <label><span class="cur-inr">Mobile number</span><span class="cur-usd">Phone / WhatsApp (with country code)</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="18" placeholder="10-digit mobile" data-phone></label>
       </div>
-      <label>Email (for order updates<span class="cur-usd">&nbsp;and your payment receipt</span>)<input name="email" type="email" autocomplete="email" maxlength="100" data-email></label>
+      <label>Email (for order updates<span class="cur-usd">&nbsp;and your payment receipt</span>)<input name="email" type="email" autocomplete="email" maxlength="100" data-email aria-describedby="email-why"><small class="field-why" id="email-why">🔒 We only use this for order updates.</small></label>
       ${intlOn ? `<label class="cur-usd">Country<input name="country" autocomplete="country-name" maxlength="60" list="countries" data-country></label>
       <datalist id="countries">${allCountries.map((c) => `<option value="${c}">`).join("")}</datalist>` : ""}
       <div class="f3">
@@ -1236,37 +1275,73 @@ if (S.auto_guides !== false) for (const c of categories.filter((x) => x.items.le
   posts.push({ slug, url: `blog/${slug}/`, title: `${c.plural} Buying Guide: Fabrics, Prints & Sizes`, excerpt: `How to pick ${c.plural.toLowerCase()} – fabrics, block prints, sizes and care, from our Jaipur workshop.`, date: today, tags: ["Guide"], related: c.items.slice(0, 4), body: lines.join("\n\n"), cover: c.items[0]?.images[0] || "", auto: true });
 }
 const niceDate = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+// blog extras: author (E-E-A-T), reading time, table of contents, tag pages, pagination
+const FOUNDER = S.founder_name || "Suresh Kumar Choudhary";
+const authorLd = { "@type": "Person", "@id": SITE_URL + "/founder/#person", name: FOUNDER, url: SITE_URL + "/founder/", jobTitle: `Founder, ${brand}` };
+const publisherLd = { "@type": "Organization", "@id": SITE_URL + "/#store", name: brand, url: SITE_URL + "/", logo: { "@type": "ImageObject", url: abs(logoImg || favImg || "favicon.svg") } };
+const tagOk = (t) => String(t).length <= 40;
+const tagSlug = (t) => slugify(t).replace(/^-+|-+$/g, "");
+const tagName = new Map(); // one display name per tag slug ("Wedding guest" + "wedding guest" → one page)
+for (const b of posts) { b.updated = String(b.updated || b.date).slice(0, 10); if (b.updated < b.date || b.updated > today) b.updated = b.date;
+  b.tagSlugs = uniq(b.tags.filter(tagOk).map(tagSlug)); for (const t of b.tags.filter(tagOk)) if (!tagName.has(tagSlug(t))) tagName.set(tagSlug(t), t);
+  b.words = String(b.body || "").replace(/[#>*_`!\[\]()-]/g, " ").split(/\s+/).filter(Boolean).length; b.mins = Math.max(1, Math.round(b.words / 200)); }
+const tagPages = [...tagName.keys()].map((slug) => ({ slug, name: tagName.get(slug), url: `blog/tag/${slug}/`, items: posts.filter((b) => b.tagSlugs.includes(slug)) })).filter((t) => t.slug && t.items.length >= 2).sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name));
+const tagLink = (t) => { const tp = tagPages.find((x) => x.slug === tagSlug(t)); return tp ? `<a href="${u(tp.url)}">${esc(t)}</a>` : esc(t); };
 const postCard = (b) => `<article class="post-card"><a href="${u(b.url)}">
   ${b.cover ? `<div class="post-img"><img decoding="async" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" loading="lazy"></div>` : ""}
-  <p class="eyebrow">${esc(niceDate(b.date))}${b.tags[0] ? " · " + esc(b.tags[0]) : ""}</p><h3>${esc(b.title)}</h3><p class="muted">${esc(b.excerpt || "")}</p></a></article>`;
-
-add("blog/index.html", page({
-  title: `Style Journal – Kurti Styling Tips & Jaipur Fashion | ${brand}`,
-  description: `Kurti styling tips, fabric and care guides, festive outfit ideas and stories from our studio in Jaipur, by ${brand}.`,
-  pathname: "blog/",
-  body: `<section class="wrap section"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <span>Blog</span></nav>
-  <div class="list-head"><p class="eyebrow">Style Journal</p><h1>The ${esc(brand)} Blog</h1><p class="muted">Styling tips, fabric guides and stories from Jaipur.</p></div>
-  ${posts.length ? `<div class="posts">${posts.map(postCard).join("")}</div>` : `<p class="center muted">New posts coming soon.</p>`}</section>`,
-  ld: [{ "@context": "https://schema.org", "@type": "Blog", name: `${brand} Blog`, url: SITE_URL + "/blog/", blogPost: posts.map((b) => ({ "@type": "BlogPosting", headline: b.title, url: SITE_URL + "/" + b.url, datePublished: b.date })) }],
-}));
+  <p class="eyebrow">${esc(niceDate(b.date))}${b.tags.filter(tagOk)[0] ? " · " + esc(b.tags.filter(tagOk)[0]) : ""} · ${b.mins} min read</p><h3>${esc(b.title)}</h3><p class="muted">${esc(b.excerpt || "")}</p></a></article>`;
+const tagNav = (on = "") => tagPages.length ? `<nav class="blog-tags" aria-label="Blog topics"><a class="pill${on ? "" : " on"}" href="${u("blog/")}"${on ? "" : ' aria-current="page"'}>All posts</a>${tagPages.map((t) => `<a class="pill${on === t.slug ? " on" : ""}" href="${u(t.url)}"${on === t.slug ? ' aria-current="page"' : ""}>${esc(t.name)} <small>${t.items.length}</small></a>`).join("")}</nav>` : "";
+const PER = 12;
+const blogList = ({ items, base, h1, intro, title, description, on, crumbs }) => {
+  const pagesN = Math.max(1, Math.ceil(items.length / PER));
+  for (let n = 1; n <= pagesN; n++) {
+    const pathname = n === 1 ? base : `${base}page/${n}/`, slice = items.slice((n - 1) * PER, n * PER);
+    const pager = pagesN > 1 ? `<nav class="pager" aria-label="Blog pages">${n > 1 ? `<a rel="prev" href="${u(n === 2 ? base : `${base}page/${n - 1}/`)}">← Newer</a>` : ""}${Array.from({ length: pagesN }, (_, k) => k + 1).map((k) => k === n ? `<span aria-current="page">${k}</span>` : `<a href="${u(k === 1 ? base : `${base}page/${k}/`)}">${k}</a>`).join("")}${n < pagesN ? `<a rel="next" href="${u(`${base}page/${n + 1}/`)}">Older →</a>` : ""}</nav>` : "";
+    add(pathname + "index.html", page({
+      title: n === 1 ? title : `${title.replace(/ \|.*$/, "")} – Page ${n} | ${brand}`, description: n === 1 ? description : clip(`${description} Page ${n}.`), pathname,
+      body: `<section class="wrap section"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / ${crumbs.map(([nm, pth]) => pth ? `<a href="${u(pth)}">${esc(nm)}</a> / ` : "").join("")}<span>${esc(crumbs.at(-1)[0])}${n > 1 ? ` – page ${n}` : ""}</span></nav>
+  <div class="list-head"><p class="eyebrow">Style Journal</p><h1>${esc(h1)}</h1><p class="muted">${esc(intro)}</p></div>
+  ${tagNav(on)}
+  ${slice.length ? `<div class="posts">${slice.map(postCard).join("")}</div>` : `<p class="center muted">New posts coming soon.</p>`}${pager}</section>`,
+      ld: [{ "@context": "https://schema.org", "@type": on ? "CollectionPage" : "Blog", name: h1, url: SITE_URL + "/" + pathname, ...(on ? { mainEntity: { "@type": "ItemList", itemListElement: slice.map((b, i) => ({ "@type": "ListItem", position: i + 1, url: SITE_URL + "/" + b.url, name: b.title })) } } : { publisher: { "@id": SITE_URL + "/#store" }, blogPost: slice.map((b) => ({ "@type": "BlogPosting", headline: b.title, url: SITE_URL + "/" + b.url, datePublished: b.date, dateModified: b.updated, author: { "@id": SITE_URL + "/founder/#person" } })) }) },
+        crumbLd(crumbs.map(([nm, pth], i) => [nm, pth || (i === crumbs.length - 1 ? pathname : "")]))],
+    }));
+  }
+};
+blogList({ items: posts, base: "blog/", h1: `The ${brand} Blog`, intro: "Styling tips, fabric guides and stories from Jaipur.", title: `Style Journal – Kurti Styling Tips & Jaipur Fashion | ${brand}`, description: `Kurti styling tips, fabric and care guides, festive outfit ideas and stories from our studio in Jaipur, by ${brand}.`, on: "", crumbs: [["Blog", ""]] });
+for (const t of tagPages) blogList({ items: t.items, base: t.url, h1: `${t.name} – ${brand} Blog`, intro: `${t.items.length} posts about ${t.name.toLowerCase()} from our Jaipur studio.`, title: `${t.name} – Blog | ${brand}`, description: clip(`${t.name}: ${t.items.length} articles from the ${brand} blog – styling tips, fabric guides and outfit ideas from Jaipur.`), on: t.slug, crumbs: [["Blog", "blog/"], [t.name, ""]] });
+// headings get ids; posts with 4+ sections get a table of contents
+const withToc = (html) => {
+  const seen = new Set(), toc = [];
+  html = html.replace(/<h2>([\s\S]*?)<\/h2>/g, (_, inner) => { const text = inner.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&#39;|&quot;/g, ""); let id = slugify(text).replace(/^-+|-+$/g, "").slice(0, 60) || "section"; while (seen.has(id)) id += "-2"; seen.add(id); toc.push([id, inner.replace(/<a\b[^>]*>|<\/a>/g, "")]); return `<h2 id="${id}">${inner}</h2>`; });
+  return toc.length >= 4 ? `<details class="toc" open><summary>In this article</summary><ol>${toc.map(([id, t]) => `<li><a href="#${id}">${t}</a></li>`).join("")}</ol></details>\n${html}` : html;
+};
 for (const b of posts) {
-  const more = posts.filter((x) => x.slug !== b.slug).slice(0, 3);
+  const score = (x) => x.tagSlugs.filter((t) => b.tagSlugs.includes(t)).length;
+  const more = posts.filter((x) => x.slug !== b.slug).map((x, i) => [x, score(x), i]).sort((a, c) => c[1] - a[1] || a[2] - c[2]).slice(0, 3).map(([x]) => x);
   const shareText = encodeURIComponent(`${b.title} ${SITE_URL}/${b.url}`);
+  const rel = b.related.length ? b.related : [];
+  const authorBox = `<aside class="author-box" aria-label="About the author"><span class="author-av" aria-hidden="true">${esc(FOUNDER.split(/\s+/).map((w) => w[0]).slice(0, 2).join(""))}</span><div><p class="author-by">Written by <a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a></p><p>Founder of ${esc(brand)}, Jaipur – working with Indian clothing since 2018.</p><a class="link" href="${u("founder/")}">Read ${esc(FOUNDER.split(/\s+/)[0])}'s story →</a></div></aside>`;
   const body = `
 <article class="wrap section post">
-  <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("blog/")}">Blog</a> / <span>${esc(b.title)}</span></nav>
-  <header class="post-head"><p class="eyebrow">${esc(niceDate(b.date))}${b.tags.length ? " · " + b.tags.map(esc).join(", ") : ""}</p><h1>${esc(b.title)}</h1>${b.excerpt ? `<p class="lead">${esc(b.excerpt)}</p>` : ""}</header>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("blog/")}">Blog</a>${b.tagSlugs[0] && tagPages.some((t) => t.slug === b.tagSlugs[0]) ? ` / <a href="${u("blog/tag/" + b.tagSlugs[0] + "/")}">${esc(tagName.get(b.tagSlugs[0]))}</a>` : ""} / <span>${esc(b.title)}</span></nav>
+  <header class="post-head"><p class="eyebrow">${b.tags.filter(tagOk).map(tagLink).join(", ") || "Style Journal"}</p><h1>${esc(b.title)}</h1>${b.excerpt ? `<p class="lead">${esc(b.excerpt)}</p>` : ""}
+  <p class="post-meta">By <a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a> · <time datetime="${b.date}">${esc(niceDate(b.date))}</time>${b.updated > b.date ? ` · Updated <time datetime="${b.updated}">${esc(niceDate(b.updated))}</time>` : ""} · ${b.mins} min read</p></header>
   ${b.cover ? `<img decoding="async" class="post-cover" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" fetchpriority="high">` : ""}
-  <div class="post-body prose">${md(b.body)}</div>
+  <div class="post-body prose">${withToc(md(b.body))}</div>
+  ${authorBox}
   <p class="share">Share: <a href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener">WhatsApp</a> · <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL + "/" + b.url)}" target="_blank" rel="noopener">Facebook</a> · <a href="https://pinterest.com/pin/create/button/?url=${encodeURIComponent(SITE_URL + "/" + b.url)}&description=${encodeURIComponent(b.title)}" target="_blank" rel="noopener">Pinterest</a></p>
 </article>
-${b.related.length ? `<section class="wrap section"><div class="section-head"><h2>Shop this story</h2></div><div class="grid">${b.related.slice(0, b.related.length >= 4 ? 4 : Math.min(2, b.related.length)).map((p) => card(p)).join("")}</div></section>` : ""}
-${more.length ? `<section class="wrap section"><div class="section-head"><h2>More from the blog</h2><a class="link" href="${u("blog/")}">All posts →</a></div><div class="posts">${more.map(postCard).join("")}</div></section>` : ""}`;
+${rel.length ? `<section class="wrap section"><div class="section-head"><h2>Shop this story</h2></div><div class="grid">${rel.slice(0, rel.length >= 4 ? 4 : Math.min(2, rel.length)).map((p) => card(p)).join("")}</div></section>` : ""}
+${more.length ? `<section class="wrap section related-posts"><div class="section-head"><h2>Related posts</h2><a class="link" href="${u("blog/")}">All posts →</a></div><div class="posts">${more.map(postCard).join("")}</div></section>` : ""}`;
+  const img = b.cover || rel[0]?.images[0] || S.hero_image || "images/site/hero.jpg";
   add(b.url + "index.html", page({
-    title: b.seo_title || `${b.title} | ${brand}`, description: clip(b.seo_description || b.excerpt || b.title), pathname: b.url, image: b.cover, type: "article", body,
-    ld: [{ "@context": "https://schema.org", "@type": "BlogPosting", headline: b.title, description: b.excerpt || undefined, image: b.cover ? [abs(b.cover)] : undefined,
-      datePublished: b.date, dateModified: b.date, author: { "@type": "Organization", name: brand }, publisher: { "@id": SITE_URL + "/#store" }, mainEntityOfPage: SITE_URL + "/" + b.url, keywords: b.tags.join(", ") || undefined },
-      { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE_URL + "/" }, { "@type": "ListItem", position: 2, name: "Blog", item: SITE_URL + "/blog/" }, { "@type": "ListItem", position: 3, name: b.title, item: SITE_URL + "/" + b.url }] }],
+    title: b.seo_title || `${b.title} | ${brand}`, description: clip(b.seo_description || b.excerpt || b.title), pathname: b.url, image: img, type: "article", body,
+    og: `<meta property="article:published_time" content="${b.date}"><meta property="article:modified_time" content="${b.updated}"><meta property="article:author" content="${SITE_URL}/founder/">`,
+    ld: [{ "@context": "https://schema.org", "@type": "BlogPosting", "@id": SITE_URL + "/" + b.url + "#article", headline: clip(b.title, 110), description: b.excerpt || undefined, image: [abs(img)],
+      datePublished: b.date + "T09:00:00+05:30", dateModified: b.updated + "T09:00:00+05:30", author: authorLd, publisher: publisherLd, mainEntityOfPage: { "@type": "WebPage", "@id": SITE_URL + "/" + b.url }, isPartOf: { "@type": "Blog", "@id": SITE_URL + "/blog/" }, inLanguage: "en", wordCount: b.words, timeRequired: `PT${b.mins}M`, keywords: b.tags.filter(tagOk).join(", ") || undefined, articleSection: b.tags.filter(tagOk)[0] || undefined,
+      ...(rel.length ? { mentions: rel.slice(0, 4).map((p) => ({ "@type": "Product", name: p.title, url: SITE_URL + "/" + p.url })) } : {}) },
+      crumbLd([["Blog", "blog/"], ...(b.tagSlugs[0] && tagPages.some((t) => t.slug === b.tagSlugs[0]) ? [[tagName.get(b.tagSlugs[0]), "blog/tag/" + b.tagSlugs[0] + "/"]] : []), [b.title, b.url]])],
   }));
 }
 
@@ -1660,11 +1735,11 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x); return `<url><loc>${SITE_URL}/${x}</loc>${bp ? `<lastmod>${bp.date}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
+${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x), tp = tagPages.find((q) => q.url === x); const lm = bp ? bp.updated : tp ? tp.items.map((q) => q.updated).sort().at(-1) : x === "blog/" && posts.length ? posts.map((q) => q.updated).sort().at(-1) : ""; return `<url><loc>${SITE_URL}/${x}</loc>${lm ? `<lastmod>${lm}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
 </urlset>`);
 fs.writeFileSync(path.join(OUT, "blog/feed.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>${esc(brand)} Blog</title><link>${SITE_URL}/blog/</link><description>${esc(S.tagline || "")}</description><atom:link href="${SITE_URL}/blog/feed.xml" rel="self" type="application/rss+xml"/><lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
