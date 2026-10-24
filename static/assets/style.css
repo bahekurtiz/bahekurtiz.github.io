@@ -1269,3 +1269,50 @@ body{background:#fff}
 .vip-msg{margin:8px 0 0;font-size:.88rem;min-height:1.2em}.vip-msg.ok{color:#f3d9b1}.vip-msg.err{color:#ffd2cc}
 .vip-fine{margin:4px 0 0;font-size:.75rem;opacity:.75}.vip-fine a{color:inherit;text-decoration:underline}
 @media (max-width:760px){.foot-vip-in{grid-template-columns:1fr;padding-block:28px}}
+/* v49 CRO: ETA near price, made-to-order note, sticky price button, trust strip, 4-step "how it's made", product reviews, checkout microcopy */
+.eta-top{margin:6px 0 2px;font-size:.86rem;color:var(--accent);font-weight:500}
+.mto-note{margin:2px 0 6px;font-size:.82rem;color:var(--muted)}
+.sizes .size-guide{font-weight:600;font-size:.86rem}
+.sticky-buy .btn span{color:inherit;overflow:visible;white-space:nowrap}
+.sticky-buy div strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.trust-strip{list-style:none;margin:0 auto;padding:4px 16px 14px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 10px;font-size:.8rem}
+.trust-strip li{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);color:var(--accent)}
+.trust-strip a{color:inherit}
+.how4-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:none}
+.how4-list li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px;font-size:.86rem;color:var(--muted);position:relative}
+.how4-list b{color:var(--ink);font-family:var(--serif);font-size:1rem;font-weight:600}
+.how4-list b small{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font:600 .7rem/1 var(--sans);margin-right:4px;vertical-align:2px}
+.how4-ic{font-size:1.5rem;line-height:1}
+@media (max-width:860px){.how4-list{grid-template-columns:1fr 1fr;gap:10px}.how4-list li{padding:12px;font-size:.8rem}}
+.rev-avg{margin:0 0 8px;font-size:.9rem}
+.rev-photo{display:block;width:96px;height:120px;object-fit:cover;border-radius:8px;margin:6px 0}
+.field-why{display:block;margin-top:4px;font-size:.76rem;color:var(--muted);font-weight:400}
+.pay-fx{display:block;margin-top:4px;font-size:.78rem;color:var(--accent)}
+[dir=rtl] .how4-list b small{margin:0 0 0 4px}
+
+/* ===== v49: blog E-E-A-T (author, TOC, topics, pager) + accessibility quick wins ===== */
+.post-meta{font-size:.88rem;color:var(--muted);margin:10px 0 0}.post-meta a{color:var(--accent)}
+.post-head .eyebrow a{color:inherit;text-decoration:none}.post-head .eyebrow a:hover{text-decoration:underline}
+.toc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:0 0 28px;font-size:.95rem;line-height:1.5}
+.toc summary{cursor:pointer;font-weight:600;letter-spacing:.04em}
+.toc ol{margin:10px 0 0;padding-left:1.3em}.toc li{margin:6px 0}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}
+.post-body h2[id]{scroll-margin-top:90px}
+.author-box{display:flex;gap:16px;align-items:flex-start;background:var(--sand);border-radius:12px;padding:18px 20px;margin:36px 0 0}
+.author-box p{margin:0 0 6px}.author-by{font-weight:600}.author-box a{color:var(--accent)}
+.author-av{flex:0 0 56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font:600 1.2rem/1 var(--serif);letter-spacing:.04em}
+.blog-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 28px}
+.blog-tags .pill{text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:.85rem}
+.blog-tags .pill.on{background:var(--accent);border-color:var(--accent);color:#fff}.blog-tags small{opacity:.75}
+.pager{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:36px 0 0}
+.pager a,.pager span{min-width:44px;min-height:44px;display:inline-grid;place-items:center;padding:0 12px;border:1px solid var(--line);border-radius:8px;text-decoration:none;background:var(--surface)}
+.pager span{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+/* visible focus on light and dark backgrounds (teal ring + white halo) */
+a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px;box-shadow:0 0 0 4px #fff}
+.co-form input:focus-visible,.co-form textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.search-bar:focus-within{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+/* gold small text on cream: use the darker gold (5.5:1) instead of #a8812f (3.4:1) */
+.logo small,.mega h4{color:var(--gold-text)}
+.site-footer .logo small{color:#e6c37a}
+.stars span{color:#8a6a26}
+.btn-gold,.vip-band .btn-gold,.bb-page .btn-gold{background:#8f6d25!important;border-color:#8f6d25!important}
+.btn-gold:hover,.vip-band .btn-gold:hover,.bb-page .btn-gold:hover{background:#7f5f1c!important;border-color:#7f5f1c!important}
