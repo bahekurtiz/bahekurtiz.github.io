@@ -13,9 +13,13 @@
 
   // ---------- Meta Pixel events (only if pixel is on) ----------
   const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
+  // shopper's 2-letter country: typed checkout country → chosen country (bk_country) → ₹/$ mode
+  const userCC = (u) => { const n = String((u && u.country) || "").trim(); if (n) { if (/^[A-Z]{2}$/i.test(n)) return n.toUpperCase(); if (/^(india|bharat)$/i.test(n)) return "IN"; const r = (BK.countries || []).find((x) => x[1].toLowerCase() === n.toLowerCase()); if (r) return r[0]; }
+    try { const k = JSON.parse(localStorage.getItem("bk_country") || "null"); if (k && k.c) return k.c; } catch {} return isUSD() ? "" : "IN"; };
   // every event gets an id; the same id goes to the Pixel (browser) and to /api/capi (server) so Meta counts it once
   const capi = (ev, id, data) => { try { if (!BK.px) return; if (window.BKeu && localStorage.getItem("bk_consent") !== "yes") return; let u = {}; try { u = JSON.parse(localStorage.getItem("bk_user_v1")) || {}; } catch {}
-    const body = JSON.stringify({ event_name: ev, event_id: id, url: location.href, data, fbclid: new URLSearchParams(location.search).get("fbclid") || undefined, user: { em: u.email, ph: u.phone, fn: u.name, ct: u.city, zp: u.pincode, country: (u.country || "").slice(0, 2) || undefined, id: u.phone } });
+    const c2 = userCC(u), ph0 = String(u.phone || "").replace(/\D/g, ""), ph = ph0 && ph0.length === 10 && c2 === "IN" ? "91" + ph0 : ph0 || undefined;
+    const body = JSON.stringify({ event_name: ev, event_id: id, url: location.href, data, fbclid: new URLSearchParams(location.search).get("fbclid") || undefined, user: { em: u.email, ph, fn: u.name, ct: u.city, zp: u.pincode, country: c2 ? c2.toLowerCase() : undefined, id: u.phone } });
     (navigator.sendBeacon && navigator.sendBeacon(url("api/capi"), new Blob([body], { type: "text/plain" }))) || fetch(url("api/capi"), { method: "POST", body, keepalive: true }).catch(() => {}); } catch {} };
   const track = (ev, data = {}, id) => { id = id || `${ev}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`; capi(ev, id, data); try { window.fbq && window.fbq("track", ev, data, { eventID: id }); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
 
@@ -37,7 +41,7 @@
   const UK = "bk_user_v1";
   const getUser = () => { try { return JSON.parse(localStorage.getItem(UK)) || null; } catch { return null; } };
   const setUser = (x) => { try { x ? localStorage.setItem(UK, JSON.stringify(x)) : localStorage.removeItem(UK); } catch {} paintUser(); };
-  const sendSheet = (data) => { try { if (data && data.email && /^(signup|google|follow|checkout_started|paid)$/.test(data.type)) fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: data.type, email: data.email, name: data.name || "", consent: data.consent || "" }), keepalive: true }).catch(() => {}); } catch {} if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
+  const sendSheet = (data) => { try { if (data && data.email && /^(signup|google|follow|checkout_started|paid)$/.test(data.type)) fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: data.type, email: data.email, name: data.name || "", consent: data.consent || "", source: data.source || undefined }), keepalive: true }).catch(() => {}); } catch {} if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
   function saveCustomer(f, type, extra = {}) {
     const coc = document.querySelector("[data-co-consent]"); const consent = coc ? coc.checked : !!getUser()?.consent;
     const u0 = getUser() || {};
@@ -91,7 +95,7 @@
     let sub = 0;
     const items = bag.filter((i) => cat.products[i.slug]);
     box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
-      return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
+      return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
       <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : money(pr * i.qty)}</strong></div>`; }).join("");
     $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false;
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
@@ -199,7 +203,7 @@
     bag = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
     const itemsBox = $("[data-co-items]");
     if (!bag.length) { co.innerHTML = `<h1>Checkout</h1><p class="empty">${skipped.length ? "The styles in your bag ship within India only. " : ""}Your bag is empty. <a class="link" href="${url("shop/")}">Shop the collection →</a></p>`; return; }
-    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i, n) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) : ""}</small><div class="qty"><button type="button" data-cq="${n}" data-cd="-1" aria-label="Less">−</button><span>${i.qty}</span><button type="button" data-cq="${n}" data-cd="1" aria-label="More">+</button><button type="button" class="rm" data-crm="${n}">Remove</button></div></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i, n) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) : ""}</small><div class="qty"><button type="button" data-cq="${n}" data-cd="-1" aria-label="Less">−</button><span>${i.qty}</span><button type="button" data-cq="${n}" data-cd="1" aria-label="More">+</button><button type="button" class="rm" data-crm="${n}">Remove</button></div></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
     $$("[data-cq]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })), it = b2[+b.dataset.cq]; it.qty = Math.max(0, Math.min(10, it.qty + +b.dataset.cd)); setBag(b2); });
     $$("[data-crm]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })); b2.splice(+b.dataset.crm, 1); setBag(b2); });
     const t = totals(cat, method);
@@ -207,7 +211,7 @@
       ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${money(t.couponOff)}</span></div>` : ""}
       <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>${isUSD() ? `<div class="row save"><span>Import duties &amp; taxes</span><span>Included</span></div>` : ""}
       <div class="row total"><span>Total</span><span>${money(t.total)}${isUSD() ? " USD" : ""}</span></div>`;
-    $("[data-place]").textContent = method === "paypal" ? `Place order · ${usd(t.total)} (PayPal invoice)` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
+    $("[data-place]").textContent = method === "paypal" ? `Continue to secure payment · ${usd(t.total)}` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
   }
   function loadRazorpay() {
     return new Promise((res, rej) => {
@@ -229,15 +233,21 @@
     let s = {};
     try { s = (await catalog()).settings; } catch {}
     // form fields differ for India and international
-    const intl = isUSD(), q = (k) => $(`[data-${k}]`);
+    const intl = isUSD(), q = (k) => (k === "country" ? $("input[data-country]") : $(`[data-${k}]`));
     if (q("country")) q("country").required = intl;
     if (q("state")) q("state").required = !intl;
     if (q("email")) q("email").required = intl;
     if (q("phone")) { q("phone").placeholder = intl ? "+1 555 123 4567" : "10-digit mobile"; q("phone").inputMode = intl ? "tel" : "numeric"; }
     if (q("pin")) q("pin").inputMode = intl ? "text" : "numeric";
+    if (intl && q("country") && !q("country").value) { // prefill from saved details or the country picked / detected on the site
+      let n = String(getUser()?.country || "").trim(); const CLx = BK.countries || [];
+      if (!n || /^(india|in)$/i.test(n)) { n = ""; try { const k = JSON.parse(localStorage.getItem("bk_country") || "null"); if (k && k.c && k.c !== "IN") n = k.n; } catch {}
+        if (!n) { const m = (navigator.language || "").match(/-([A-Z]{2})$/i), r = m && CLx.find((x) => x[0] === m[1].toUpperCase() && x[0] !== "IN"); if (r) n = r[1]; } }
+      if (n) q("country").value = n;
+    }
     if (intl) {
       method = "paypal";
-      $("[data-pay-opts]").innerHTML = `<label class="pay"><input type="radio" name="pay" value="paypal" checked><span><strong>PayPal / international card</strong><small>We send a secure PayPal invoice in USD to your email. Your order ships after payment.</small></span></label>`;
+      $("[data-pay-opts]").innerHTML = `<label class="pay"><input type="radio" name="pay" value="paypal" checked><span><strong>PayPal or debit / credit card</strong><small>Pay securely in USD on the next step – no PayPal account needed. Duties &amp; taxes included.</small></span></label>`;
       const sec = $("[data-secure]"); if (sec) sec.hidden = true;
       await renderCheckout(); btn.disabled = false; return;
     }
@@ -269,13 +279,16 @@
     setupPayOptions().catch(() => { $("[data-place]").disabled = false; });
     const form = $("[data-co-form]"), err = $("[data-co-error]"), btn = $("[data-place]");
     const fail = (m, extra = "") => { err.innerHTML = esc(m) + extra; err.hidden = false; btn.disabled = false; };
-    track("InitiateCheckout", { num_items: count(), currency: isUSD() ? "USD" : "INR" });
+    catalog().then((cat) => { const cU = isUSD(), its = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
+      const value = Math.round(its.reduce((s0, i) => s0 + unit(cat.products[i.slug]) * i.qty, 0) * 100) / 100;
+      track("InitiateCheckout", { value: value || undefined, currency: cU ? "USD" : "INR", content_ids: its.map((i) => i.slug), contents: its.map((i) => ({ id: i.slug, quantity: i.qty, item_price: unit(cat.products[i.slug]) })), content_type: "product", num_items: its.reduce((s0, i) => s0 + i.qty, 0) }); })
+      .catch(() => track("InitiateCheckout", { num_items: count(), currency: isUSD() ? "USD" : "INR" }));
     form.addEventListener("submit", async (e) => {
       e.preventDefault(); if (btn.disabled) return; err.hidden = true;
       const f = Object.fromEntries(new FormData(form)); for (const k in f) f[k] = String(f[k]).trim();
       if (method === "paypal") {
         const ph = f.phone.replace(/[^\d+]/g, "");
-        if (!form.checkValidity() || ph.replace(/\D/g, "").length < 7 || !f.country || !/^\S+@\S+\.\S+$/.test(f.email || "")) { form.reportValidity(); return fail("Please fill all delivery details, your country, phone with country code and email (for the PayPal invoice)."); }
+        if (!form.checkValidity() || ph.replace(/\D/g, "").length < 7 || !f.country || !/^\S+@\S+\.\S+$/.test(f.email || "")) { form.reportValidity(); return fail("Please fill all delivery details, your country, phone with country code and email (for your order confirmation)."); }
         btn.disabled = true;
         let cat; try { cat = await catalog(); } catch { return fail("Could not load prices. Check your internet and try again."); }
         const t = totals(cat, "paypal"); const ref = orderRef();
@@ -284,12 +297,12 @@
         const txt = `New INTERNATIONAL order ${ref}\n\n${lines}\n\nShipping: ${t.shipping ? usd(t.shipping) : "Free"}\nTotal: ${usd(t.total)} USD\nPayment: Please send PayPal invoice\n\nName: ${f.name}\nPhone: ${ph}\nEmail: ${f.email}\nAddress: ${f.address}, ${f.city}${f.state ? ", " + f.state : ""} ${f.pincode}, ${f.country}${giftText(f)}${refText()}${aiText()}${gcText()}`;
         track("Lead", { value: t.total, currency: "USD" });
         const mail = cat.settings.email ? `mailto:${cat.settings.email}?subject=${encodeURIComponent("Order " + ref)}&body=${encodeURIComponent(txt)}` : "";
-        const invoiceDone = () => showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${usd(t.total)} USD</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties and taxes of your country are paid by you on delivery.</p></div>`);
+        const invoiceDone = () => showDone(`<div class="done-box"><div class="tick">✓</div><h1>Almost done!</h1><p>Send your order <strong>${ref}</strong> to us. We will email a secure <strong>PayPal invoice for ${usd(t.total)} USD</strong> to ${esc(f.email)}. Your order ships after payment.</p>${BK.wa ? `<a class="btn btn-wa btn-lg" data-clear-bag href="${waUrl(txt)}" target="_blank" rel="noopener">Send order on WhatsApp</a>` : ""}${mail ? `<p><a class="btn btn-ghost" data-clear-bag href="${esc(mail)}">Send by email instead</a></p>` : ""}<p class="muted">Import duties &amp; taxes are included – nothing to pay on delivery.</p></div>`);
         // Direct card / PayPal payment worldwide when the owner has added a PayPal client ID; otherwise the invoice flow above.
         const cid = cat.settings.paypal_client_id;
         if (!cid) { invoiceDone(); return; }
         const ppItems = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
-        showDone(`<div class="done-box"><h1>Pay ${usd(t.total)} USD</h1><p>Order <strong>${ref}</strong>. Pay securely with PayPal or any debit / credit card.</p><div data-pp-box class="pp-box"><p class="muted">Loading secure payment…</p></div><p class="muted small">Import duties and taxes of your country are paid by you on delivery. <button type="button" class="link" data-pp-invoice>Prefer a PayPal invoice instead?</button></p></div>`);
+        showDone(`<div class="done-box"><h1>Pay ${usd(t.total)} USD</h1><p>Order <strong>${ref}</strong>. Pay securely with PayPal or any debit / credit card.</p><div data-pp-box class="pp-box"><p class="muted">Loading secure payment…</p></div><p class="pp-cards">Pay with PayPal or any debit/credit card – no PayPal account needed</p><p class="muted small">Import duties &amp; taxes are included – nothing to pay on delivery. <button type="button" class="link" data-pp-invoice>Prefer an invoice? WhatsApp us</button></p></div>`);
         $("[data-pp-invoice]")?.addEventListener("click", invoiceDone);
         const s2 = document.createElement("script"); s2.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cid)}&currency=USD&intent=capture`;
         s2.onerror = invoiceDone;
@@ -300,7 +313,7 @@
               sendSheet({ type: "paid", name: f.name, phone: ph, email: f.email, country: f.country, city: f.city, pincode: f.pincode, address: String(f.address || "").slice(0, 300), ref_order: ref, total: t.total, currency: "USD", payment: "PayPal " + cap + " (check in PayPal)", items: ppItems.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") });
               track("Purchase", { value: t.total, currency: "USD", content_ids: ppItems.map((i) => i.slug), content_type: "product" }, ref); setBag([]);
               showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">PayPal reference: ${esc(cap)}</p><p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p></div>`); }),
-            onError: (err) => { const raw = String((err && (err.message || err)) || ""); const iss = (raw.match(/"issue":"[A-Z_]+"/g) || []).map((x) => x.slice(9, -1)).join(", "); const m = (iss ? "Issue: " + iss + " · " : "") + raw.replace(/[<>&]/g, "").slice(0, 120); try { console.error("PayPal error", err); } catch (e) {} $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. Please try again, or WhatsApp us and we will send you a secure PayPal invoice.</p>`; },
+            onError: (err) => { const raw = String((err && (err.message || err)) || ""); const iss = (raw.match(/"issue":"[A-Z_]+"/g) || []).map((x) => x.slice(9, -1)).join(", "); const m = (iss ? "Issue: " + iss + " · " : "") + raw.replace(/[<>&]/g, "").slice(0, 120); try { console.error("PayPal error", err); } catch (e) {} $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. Please try again. <button type="button" class="link" data-pp-invoice2>Prefer an invoice? WhatsApp us</button></p>`; $("[data-pp-invoice2]")?.addEventListener("click", invoiceDone); },
           }).render("[data-pp-box]"); } catch { invoiceDone(); } };
         document.head.appendChild(s2);
         return;
@@ -357,7 +370,7 @@
 
   // product view
   const pv = $("[data-product]");
-  if (pv) track("ViewContent", { content_ids: [pv.dataset.product], content_type: "product", value: Number(pv.dataset.price) || undefined, currency: "INR" });
+  if (pv) { const vU = isUSD(); track("ViewContent", { content_ids: [pv.dataset.product], content_type: "product", value: (vU ? Number(pv.dataset.usd) : Number(pv.dataset.price)) || undefined, currency: vU ? "USD" : "INR" }); }
 
   // product video: muted autoplay; pause when off screen
   const pv2 = $$("video[data-pvideo]");
@@ -427,7 +440,7 @@
     const u2 = p.price_usd == null ? `<span class="price ask">India only</span>` : `<span class="price" data-usdv="${p.price_usd}">${usd(p.price_usd)}</span>${off(p.price_usd, p.mrp_usd) ? `<s class="mrp" data-usdv="${p.mrp_usd}">${usd(p.mrp_usd)}</s>` : ""}`;
     return `<span class="cur-inr">${i}</span><span class="cur-usd">${u2}</span>`;
   };
-  const miniCard = (slug, p) => `<article class="card" data-slug="${esc(slug)}"><a class="card-link" href="${url(p.url)}"><div class="card-img${p.image2 ? " has-alt" : ""}"><img src="${esc(url(p.thumb || p.image))}" decoding="async" alt="${esc(p.title)}" width="1200" height="1800" loading="lazy">${p.image2 ? `<img class="alt" src="${esc(url(p.image2))}" alt="" width="1200" height="1800" loading="lazy">` : ""}</div><div class="card-body"><h3>${esc(p.title)}</h3><div class="card-price">${priceBoth(p)}</div></div></a><button class="wish" type="button" data-wish="${esc(slug)}" aria-label="Save to wishlist" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.2-9.3C1.7 7.4 4 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.1 0 5.4 2.9 4.3 6.2C19.5 15.4 12 20 12 20z"/></svg></button></article>`;
+  const miniCard = (slug, p) => `<article class="card" data-slug="${esc(slug)}"><a class="card-link" href="${url(p.url)}"><div class="card-img${p.image2 ? " has-alt" : ""}"><img src="${esc(url(p.thumb || p.image))}" decoding="async" alt="${esc(p.title)}" width="1200" height="1800" loading="lazy">${p.image2 ? `<img class="alt" src="${esc(url(p.image2))}" alt="${esc(p.title)} – alternate view" width="1200" height="1800" loading="lazy">` : ""}</div><div class="card-body"><h3>${esc(p.title)}</h3><div class="card-price">${priceBoth(p)}</div></div></a><button class="wish" type="button" data-wish="${esc(slug)}" aria-label="Save to wishlist" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.2-9.3C1.7 7.4 4 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.1 0 5.4 2.9 4.3 6.2C19.5 15.4 12 20 12 20z"/></svg></button></article>`;
 
   // ---------- wishlist ----------
   const WK = "bk_wish_v1";
@@ -1349,4 +1362,12 @@
     });
     $("[data-mirror-wish]").addEventListener("click", () => { if (!liked.length) { toast("Pehle kuch dress par 💚 Haan karo"); return; } const w = getW(); liked.forEach((l) => { if (!w.includes(l.k)) w.push(l.k); }); setW(w); toast(`${liked.length} dress wishlist mein ♡`); });
   }
+  // ---------- footer: Bahe VIP email sign-up (Brevo "Bahe VIP" list via /api/subscribe + Google Sheet) ----------
+  $$("[data-vip-form]").forEach((vf) => vf.addEventListener("submit", (e) => {
+    e.preventDefault(); const inp = vf.email, msg = $("[data-vip-msg]", vf), em = String(inp.value || "").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { msg.textContent = "Please enter a valid email address."; msg.className = "vip-msg err"; inp.focus(); return; }
+    sendSheet({ type: "signup", email: em, name: getUser()?.name || "", consent: "yes", source: "footer" });
+    track("Lead", { content_name: "footer_vip" });
+    vf.querySelector(".vip-row").hidden = true; msg.textContent = "💚 You're on the VIP list! Watch your inbox for early access – your free gift comes with your first order."; msg.className = "vip-msg ok";
+  }));
 })();
