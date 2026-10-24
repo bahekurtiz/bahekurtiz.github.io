@@ -307,6 +307,21 @@ collections:
       - { name: video, label: "छोटी रील / वीडियो (optional, mp4)", widget: file, required: false, media_folder: /static/media/products, public_folder: /media/products, hint: "10-15 सेकंड, 8 MB से कम। फ़ोटो के साथ अपने-आप चलती रहेगी (बिना आवाज़)।" }
       - { name: match_products, label: "Shop the Look – साथ में मैच होने वाले प्रोडक्ट (optional)", widget: relation, collection: products, value_field: "{{slug}}", search_fields: [title], display_fields: [title], multiple: true, required: false, hint: "जैसे कुर्ती के साथ पलाज़ो / दुपट्टा। प्रोडक्ट पेज पर 'Complete the look' में दिखेंगे" }
       - { name: tryon_png, label: "Mirror के लिए कटआउट फ़ोटो (पारदर्शी PNG, सिर्फ़ कपड़ा) – optional", widget: image, required: false, hint: "बैकग्राउंड हटाकर सिर्फ़ ड्रेस वाली PNG डालोगे तो Mirror में ड्रेस ग्राहक की फ़ोटो पर ज़्यादा असली लगेगी" }
+      - name: reviews
+        label: "⭐ इस प्रोडक्ट के असली रिव्यू (Real customer reviews – optional)"
+        label_singular: "रिव्यू"
+        widget: list
+        required: false
+        collapsed: true
+        summary: "{{fields.rating}}★ · {{fields.name}} · {{fields.country}}"
+        hint: "सिर्फ़ असली ग्राहक का रिव्यू डालो (WhatsApp / Etsy / email से)। 1 भी रिव्यू होगा तो प्रोडक्ट पेज पर सबसे ऊपर दिखेगा और Google में स्टार आ सकते हैं।"
+        fields:
+          - { name: name, label: "ग्राहक का नाम (जैसे Sarah K.)", widget: string }
+          - { name: country, label: "देश / शहर (जैसे USA या London, UK)", widget: string, required: false }
+          - { name: rating, label: "स्टार (1-5)", widget: number, value_type: int, min: 1, max: 5, default: 5 }
+          - { name: text, label: "रिव्यू (ग्राहक के शब्दों में)", widget: text }
+          - { name: photo, label: "ग्राहक की फ़ोटो (optional)", widget: image, required: false }
+          - { name: date, label: "तारीख (optional)", widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, required: false }
       - { name: sku, label: "SKU / Product ID (optional)", widget: string, required: false }
       - { name: old_url, label: "🔗 पुराना लिंक (Shopify वाला, optional)", widget: string, required: false, hint: "Google पर इस product का पुराना link हो तो यहाँ paste करो (जैसे bahekurtiz.com/products/purana-naam)। वो link अब सीधे इस product पर आएगा, ranking नहीं जाएगी।" }
       - { name: set_items, label: "सेट में क्या-क्या है? (जैसे: Kurta, Pant, Dupatta) – optional", widget: list, required: false, field: { name: item, label: "चीज़", widget: string } }
@@ -338,6 +353,7 @@ collections:
     fields:
       - { name: title, label: "टाइटल", widget: string, hint: "अंग्रेज़ी/Hinglish में लिखो (इसी से लिंक बनेगा), जैसे: 5 Best Cotton Kurtis for Office" }
       - { name: date, label: "तारीख़", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", default: "{{now}}" }
+      - { name: updated, label: "अपडेट की तारीख़ (Updated – अगर लेख में बड़ा बदलाव किया)", widget: datetime, time_format: false, date_format: "YYYY-MM-DD", format: "YYYY-MM-DD", required: false, hint: "खाली छोड़ो तो ऊपर वाली तारीख़ ही चलेगी।" }
       - { name: cover, label: "कवर फ़ोटो", widget: image, required: false }
       - { name: excerpt, label: "छोटा सार (1-2 लाइन)", widget: text, required: false }
       - { name: tags, label: "टैग", widget: list, required: false }
