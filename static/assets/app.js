@@ -50,7 +50,7 @@
   const UK = "bk_user_v1";
   const getUser = () => { try { return JSON.parse(localStorage.getItem(UK)) || null; } catch { return null; } };
   const setUser = (x) => { try { x ? localStorage.setItem(UK, JSON.stringify(x)) : localStorage.removeItem(UK); } catch {} paintUser(); };
-  const sendSheet = (data) => { try { if (data && data.email && /^(signup|google|follow|checkout_started|paid)$/.test(data.type)) fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: data.type, email: data.email, name: data.name || "", consent: data.consent || "", source: data.source || undefined }), keepalive: true }).catch(() => {}); } catch {} if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
+  const sendSheet = (data) => { try { if (data && data.type === "paid") localStorage.setItem("bk_bought", "1"); if (data && /^(signup|google|follow)$/.test(data.type) && data.email) localStorage.setItem("bk_vip", "1"); } catch {} try { if (data && data.email && /^(signup|google|follow|checkout_started|paid)$/.test(data.type)) fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: data.type, email: data.email, name: data.name || "", consent: data.consent || "", source: data.source || undefined }), keepalive: true }).catch(() => {}); } catch {} if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
   function saveCustomer(f, type, extra = {}) {
     const coc = document.querySelector("[data-co-consent]"); const consent = coc ? coc.checked : !!getUser()?.consent;
     const u0 = getUser() || {};
@@ -106,7 +106,7 @@
     box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
       return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
       <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : money(pr * i.qty)}</strong></div>`; }).join("");
-    $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false;
+    $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false; try { cartPerks(); } catch {}
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
     if (bar) { bar.hidden = !lim; if (lim) { const left = lim - sub; $("[data-ship-text]").innerHTML = left > 0 ? `Add <strong>${money(left)}</strong> more for <strong>FREE shipping</strong>` : `🎉 You have unlocked <strong>FREE shipping</strong>`; $("[data-ship-fill]").style.width = Math.min(100, (sub / lim) * 100) + "%"; } }
     $$("[data-q]", box).forEach((b) => b.onclick = () => { const b2 = [...items]; b2[b.dataset.q].qty = Math.max(0, Math.min(10, b2[b.dataset.q].qty + +b.dataset.d)); setBag(b2); });
@@ -691,7 +691,7 @@
   const openLogin = () => {
     if (!lm?.showModal) return; const u0 = getUser();
     lf.hidden = !!u0; ld.hidden = !u0; if (u0) $("[data-login-name]").textContent = (u0.name || "").split(" ")[0];
-    if (!lm.open) { lm.showModal(); document.documentElement.classList.add("locked"); }
+    if (!lm.open) { lm.showModal(); document.documentElement.classList.add("locked"); try { sessionStorage.setItem("bk_lp", "1"); } catch {} }
     if (!u0) loadGoogle();
   };
   $$("[data-open-login]").forEach((b) => b.addEventListener("click", () => { closeAll(); openLogin(); }));
@@ -728,7 +728,7 @@
     if (!BK.popup || getUser() || co || !lm || document.body.classList.contains("mirror-page") || document.body.classList.contains("feed-page") || document.body.classList.contains("dash-page")) return;
     let last = 0; try { last = +localStorage.getItem("bk_invite") || 0; } catch {}
     if (Date.now() - last < 14 * 864e5) return;
-    const tryInvite = () => { if (document.querySelector("dialog[open]") || document.documentElement.classList.contains("locked")) return setTimeout(tryInvite, 15000); try { localStorage.setItem("bk_invite", Date.now()); } catch {} openLogin(); };
+    const tryInvite = () => { try { if (sessionStorage.getItem("bk_xs")) return; } catch {} if (window.BKxo && window.BKxo()) return setTimeout(tryInvite, 15000); if (document.querySelector("dialog[open]") || document.documentElement.classList.contains("locked")) return setTimeout(tryInvite, 15000); try { localStorage.setItem("bk_invite", Date.now()); } catch {} openLogin(); };
     setTimeout(tryInvite, 25000);
   })();
   // checkout: fill saved details + note an unfinished checkout once
@@ -1396,4 +1396,96 @@
     track("Lead", { content_name: "footer_vip" });
     vf.querySelector(".vip-row").hidden = true; msg.textContent = "💚 You're on the VIP list! Watch your inbox for early access – your free gift comes with your first order."; msg.className = "vip-msg ok";
   }));
+  // ---------- CRO: bag drawer perks (USD) – free potli line + "order today → est. delivery" from the same BK.ship / market rules as the product page ----------
+  function cartPerks() {
+    const box = document.querySelector("[data-cart-perks]"); let bought = false; try { bought = localStorage.getItem("bk_bought") === "1"; } catch {}
+    document.querySelectorAll("[data-potli]").forEach((el) => (el.hidden = bought));
+    const eta = box && box.querySelector("[data-cart-eta]"); if (!eta) return; const r = intlEta(); eta.hidden = !r; if (r) eta.innerHTML = `🚚 Order today → est. delivery <b>${r}</b>`;
+  }
+  function intlEta() {
+    if (!isUSD()) return ""; let cc = ""; try { cc = (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || ""; } catch {} if (!cc) cc = guessCC(); if (!cc || cc === "IN") cc = "US";
+    const mk = (BK.mk || {})[cc], ok = (a) => Array.isArray(a) && a.length > 1;
+    const addB = (n) => { const x = new Date(); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 0) n--; } return x; }, fmt = (d) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    let lo, hi; if (mk && ok(mk.h) && ok(mk.t)) { lo = mk.h[0] + mk.t[0]; hi = mk.h[1] + mk.t[1]; } else if (BK.ship) { lo = 2 + (BK.ship.intlMin || 5); hi = 7 + (BK.ship.intlMax || 10); } else return "";
+    return `${fmt(addB(lo))} – ${fmt(addB(hi))}`;
+  }
+  try { cartPerks(); } catch {}
+  (() => {
+    const sg = (k) => { try { return sessionStorage.getItem(k); } catch { return null; } }, sset = (k, v) => { try { sessionStorage.setItem(k, v); } catch {} };
+    const lg = (k) => { try { return localStorage.getItem(k); } catch { return null; } }, lset = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+    const bc = document.body.classList, offPage = !!co || location.pathname.indexOf("/admin") > -1 || ["checkout-page", "dash-page", "mirror-page", "feed-page", "tags-page"].some((c) => bc.contains(c));
+    const fresh = !sg("bk_s"); sset("bk_s", "1");
+    // session product views (for the mobile leave-attempt trigger)
+    const here = $("[data-product]")?.dataset.product; let pvs = []; try { pvs = JSON.parse(sg("bk_pvs") || "[]"); } catch {} if (here && !pvs.includes(here)) { pvs.push(here); sset("bk_pvs", JSON.stringify(pvs.slice(-20))); }
+    const thumbs = async (n) => { try { const cat = await catalog(); return bag.filter((i) => cat.products[i.slug]).slice(0, n).map((i) => ({ ...i, p: cat.products[i.slug] })); } catch { return []; } };
+
+    // 1) returning visitor with items in the bag → small dismissible banner, once per session
+    if (fresh && bag.length && !offPage && !sg("bk_bn")) setTimeout(async () => {
+      if (!bag.length) return; sset("bk_bn", "1");
+      const items = await thumbs(1), it = items[0];
+      const el = document.createElement("div"); el.className = "bag-nudge"; el.setAttribute("role", "region"); el.setAttribute("aria-label", "Items saved in your bag");
+      el.innerHTML = `${it ? `<img src="${esc(url(it.p.thumb || it.p.image))}" alt="" width="40" height="60" decoding="async">` : ""}<p><b>You left something beautiful in your bag 💛</b><span>${isUSD() ? "Free custom fit · Duties paid" : "Hand-finished in our Jaipur unit"}</span></p><button class="btn btn-sm" type="button" data-bn-view>View bag</button><button class="bn-x" type="button" aria-label="Dismiss" data-bn-x>×</button>`;
+      document.body.appendChild(el); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("show")));
+      const bye = () => { el.classList.remove("show"); setTimeout(() => el.remove(), 400); };
+      $("[data-bn-x]", el).onclick = bye; $("[data-bn-view]", el).onclick = () => { bye(); openCart(); };
+      setTimeout(bye, 15000);
+    }, 1200);
+
+    // 2) leave-attempt VIP offer – international (USD) shoppers only; never on checkout/admin, max once in 7 days, never after sign-up or the sign-in popup
+    const u0 = getUser();
+    const eligible = () => isUSD() && !offPage && !(u0 && (u0.phone || u0.email)) && !lg("bk_vip") && !sg("bk_lp") && !sg("bk_xs") && Date.now() - (+lg("bk_exit") || 0) > 7 * 864e5
+      && !document.querySelector("dialog[open]") && !document.documentElement.classList.contains("locked");
+    if (!eligible()) return;
+    const t0 = Date.now(); let shown = false;
+    const show = async (why) => {
+      if (shown || !eligible()) return; shown = true; sset("bk_xs", "1"); lset("bk_exit", String(Date.now()));
+      const items = bag.length ? await thumbs(3) : [];
+      const d = document.createElement("dialog"); d.className = "exit-modal"; d.setAttribute("aria-labelledby", "exit-h"); d.setAttribute("aria-describedby", "exit-d");
+      d.innerHTML = `<form class="exit-box" method="dialog" novalidate data-exit-form><button class="icon-btn login-x" type="button" data-exit-x aria-label="Close">×</button>
+        <p class="eyebrow">Bahe VIP · made in Jaipur</p><h2 id="exit-h">Before you go – get a free handmade potli with your first order</h2>
+        <p class="muted small" id="exit-d">Join Bahe VIP for early access to new drops. No code needed – the potli is packed with your first order.</p>
+        ${items.length ? `<div class="exit-bag"><p>Still in your bag</p><div>${items.map((i) => `<img src="${esc(url(i.p.thumb || i.p.image))}" alt="${esc(i.p.title)}${i.size ? " – size " + esc(i.size) : ""}" width="56" height="84" decoding="async">`).join("")}</div></div>` : ""}
+        <label>Email<input type="email" name="email" required autofocus maxlength="120" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+        <label><span>WhatsApp <span class="muted">(optional)</span></span><input type="tel" name="phone" maxlength="18" autocomplete="tel" placeholder="+1 555 123 4567"></label>
+        <p class="exit-msg" data-exit-msg role="status" aria-live="polite"></p>
+        <button class="btn btn-block" type="submit">Get my free potli</button>
+        ${items.length ? `<button class="btn btn-ghost btn-block" type="button" data-exit-bag>View my bag</button>` : ""}
+        <p class="muted tiny">No spam · leave anytime · <a href="${url("privacy/")}">Privacy</a></p></form>`;
+      document.body.appendChild(d); d.showModal();
+      const f = $("[data-exit-form]", d), msg = $("[data-exit-msg]", d);
+      $("[data-exit-x]", d).onclick = () => d.close(); d.addEventListener("click", (e) => { if (e.target === d) d.close(); }); d.addEventListener("close", () => setTimeout(() => d.remove(), 50));
+      $("[data-exit-bag]", d)?.addEventListener("click", () => { d.close(); openCart(); });
+      f.addEventListener("submit", async (e) => { e.preventDefault(); const em = String(f.email.value || "").trim().toLowerCase(), ph = String(f.phone.value || "").trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { msg.textContent = "Please enter a valid email address."; msg.className = "exit-msg err"; f.email.focus(); return; }
+        const cat = bag.length ? await catalog().catch(() => null) : null;
+        sendSheet({ type: "signup", email: em, phone: ph, name: getUser()?.name || "", consent: "yes", source: "exit_offer", items: cat ? bag.map((i) => `${cat.products[i.slug]?.title || i.slug} ${i.size || ""} x${i.qty}`).join("; ") : "" });
+        track("Lead", { content_name: "exit_offer" }); lset("bk_vip", "1");
+        f.innerHTML = `<button class="icon-btn login-x" type="button" data-exit-x2 aria-label="Close">×</button><h2 id="exit-h">💛 You're on the list!</h2><p>Check your inbox for a welcome note from Jaipur. Your free handmade potli comes with your first order.</p>${bag.length ? `<button class="btn btn-block" type="button" data-exit-bag2>Complete my order</button>` : `<button class="btn btn-block" type="button" data-exit-x3>Keep shopping</button>`}`;
+        $("[data-exit-x2]", f).onclick = () => d.close(); $("[data-exit-x3]", f)?.addEventListener("click", () => d.close()); $("[data-exit-bag2]", f)?.addEventListener("click", () => { d.close(); openCart(); }); });
+    };
+    const coarse = matchMedia("(pointer: coarse)").matches;
+    if (!coarse) document.addEventListener("mouseout", (e) => { if (!e.relatedTarget && e.clientY <= 0 && Date.now() - t0 > 4000) show("mouse"); });
+    else {
+      const engaged = () => pvs.length >= 2 || bag.length > 0;
+      window.BKxo = () => !shown && engaged() && eligible(); // the sign-in invite waits while this offer is armed (never two popups)
+      let last = Date.now(), hist = [];
+      const act = () => { last = Date.now(); };
+      ["touchstart", "pointerdown", "keydown", "input"].forEach((ev) => addEventListener(ev, act, { passive: true }));
+      // fast flick back up to the top after real browsing (heading for the address bar / back) – no history tricks
+      addEventListener("scroll", () => { act(); const now = Date.now(), y = scrollY; hist.push([now, y]); hist = hist.filter(([t]) => now - t < 700);
+        if (y < 150 && Math.max(...hist.map((h) => h[1])) - y > innerHeight * 0.6 && engaged() && now - t0 > 10000) show("scrollup"); }, { passive: true });
+      const iv = setInterval(() => { if (shown) return clearInterval(iv); if (document.visibilityState === "visible" && engaged() && Date.now() - last >= 25000) show("idle"); }, 1000);
+    }
+  })();
+
+  // ---------- weekly drops: countdown + "notify me" on coming-soon products (→ Bahe VIP list, source drop:<slug>) ----------
+  $$("[data-drop-cd]").forEach((el) => { const T = Date.parse(el.dataset.dropCd + "T00:00:00+05:30"); if (isNaN(T)) return;
+    const tick = () => { const ms = T - Date.now(); if (ms <= 0) { el.textContent = "Launching today – check back soon"; return; } const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60; el.textContent = `Launches in ${d ? d + "d " : ""}${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m`; setTimeout(tick, 30000); };
+    el.hidden = false; tick(); });
+  $$("[data-drop-form]").forEach((f) => f.addEventListener("submit", (e) => { e.preventDefault();
+    const slug = f.closest("[data-drop]")?.dataset.drop || "", em = String(f.email.value || "").trim().toLowerCase(), msg = $("[data-drop-msg]", f);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { msg.textContent = "Please enter a valid email address."; msg.className = "drop-msg err"; f.email.focus(); return; }
+    sendSheet({ type: "signup", email: em, name: getUser()?.name || "", consent: "yes", source: "drop:" + slug, items: "Notify on launch: " + slug });
+    track("Lead", { content_name: "drop_notify", content_ids: [slug] });
+    f.querySelector(".pin-row").hidden = true; msg.textContent = "💚 You're on the list for this drop. We'll email you when it's live."; msg.className = "drop-msg ok"; }));
 })();
