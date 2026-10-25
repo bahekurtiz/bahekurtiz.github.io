@@ -333,6 +333,7 @@ collections:
       - { name: in_stock, label: "स्टॉक में है? (In stock)", widget: boolean, default: true, hint: "बंद करोगे तो 'Made to order' दिखेगा" }
       - { name: featured, label: "होमपेज पर दिखाओ (Show on homepage)", widget: boolean, default: true }
       - { name: bestseller, label: "⭐ Bestseller (होमपेज के Bestsellers में + बैज)", widget: boolean, default: false }
+      - { name: launch_date, label: "🚀 Launch date (Weekly drop – optional)", widget: datetime, required: false, hint: "Aage ki date daaloge to product 'Coming soon' dikhega aur us din apne aap live ho jayega (roz subah ~7 baje site update hoti hai). Live hone ke baad 7 din 'New this week' badge dikhega. Khaali chhodo = abhi live." }
       - { name: sort_order, label: "क्रम (Order – छोटा नंबर पहले)", widget: number, value_type: int, default: 50 }
       - { name: seo_title, label: "SEO टाइटल (optional)", widget: string, required: false, hint: "खाली छोड़ दो तो नाम से अपने-आप बनेगा" }
       - { name: seo_description, label: "SEO डिस्क्रिप्शन (optional, 150 अक्षर)", widget: string, required: false }
