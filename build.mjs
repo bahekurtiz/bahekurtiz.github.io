@@ -107,6 +107,19 @@ const products = [...jsonFiles.map((f) => [f, JSON.parse(fs.readFileSync(path.jo
   return p;
 }).filter((p) => p.title && p.draft !== true)
   .sort((a, b) => (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999) || a.title.localeCompare(b.title));
+// ---------- weekly drops: optional launch_date (admin). Future launch day (India date) = "Coming soon" page only:
+// kept out of listings, cart catalog, feeds and sitemap. The daily publish rebuild makes it live on that day,
+// then it carries a "New this week" badge for 7 days.
+const istDay = (t) => new Date(t + 5.5 * 36e5).toISOString().slice(0, 10);
+const launchTs = (v) => { v = String(v || "").trim(); if (!v) return null; if (/^\d{4}-\d{2}-\d{2}$/.test(v)) v += "T00:00:00+05:30"; else if (/^\d{4}-\d{2}-\d{2}[T ]\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(v)) v = v.replace(" ", "T") + "+05:30"; const t = Date.parse(v); return isNaN(t) ? null : t; };
+const NOW_TS = Date.now(), TODAY_IST = istDay(NOW_TS);
+const dropDate = (p) => new Date(p.launchDay + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short", timeZone: "UTC" });
+const upcoming = [];
+for (let i = products.length - 1; i >= 0; i--) { const p = products[i], t = launchTs(p.launch_date); p.launchDay = t === null ? "" : istDay(t);
+  p.coming = !!p.launchDay && p.launchDay > TODAY_IST;
+  p.isNew = !!p.launchDay && !p.coming && NOW_TS - Date.parse(p.launchDay + "T00:00:00+05:30") < 7 * 864e5;
+  if (p.coming) { upcoming.unshift(p); products.splice(i, 1); } }
+upcoming.sort((a, b) => a.launchDay.localeCompare(b.launchDay) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999));
 const intlOn = products.some((p) => p.intl);
 const usd = (n) => (num(n) === null ? "" : "$" + (Number(n) % 1 ? Number(n).toFixed(2) : String(Number(n))));
 const offUsd = (p) => (p.price_usd && p.mrp_usd && p.mrp_usd > p.price_usd ? Math.round((1 - p.price_usd / p.mrp_usd) * 100) : 0);
@@ -485,6 +498,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
     <div class="row"><span>Subtotal</span><strong data-cart-subtotal>₹0</strong></div>
     ${num(S.prepaid_discount_percent) ? `<p class="hint cur-inr">Extra ${num(S.prepaid_discount_percent)}% off on online payment at checkout</p>` : ""}
     ${intlOn && S.intl_duty_note ? `<p class="hint cur-usd">${esc(S.intl_duty_note)}</p>` : ""}
+    ${intlOn ? `<div class="cart-perks cur-usd" data-cart-perks><p data-potli>🎁 Free handmade potli with your first order</p><p data-cart-eta hidden></p></div>` : ""}
     <a class="btn btn-block" href="${u("checkout/")}">Checkout</a>
   </div>
 </aside>
@@ -577,7 +591,7 @@ const card = (p, i = 9) => {
     <div class="card-img${b ? " has-alt" : ""}">
       ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : i < 2 ? "" : 'loading="lazy"'} decoding="async">` : ""}
       ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="${esc(p.title)} – alternate view" width="1200" height="1800" decoding="async">` : ""}
-      <div class="tags">${p.bestseller ? `<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale${p.intl ? " cur-inr" : ""}">-${off}%</span>` : ""}${p.intl && p.mrp_usd > p.price_usd ? `<span class="tag tag-sale cur-usd">-${Math.round((1 - p.price_usd / p.mrp_usd) * 100)}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
+      <div class="tags">${p.coming ? `<span class="tag tag-drop">Coming ${esc(dropDate(p).replace(/^\w+,? /, ""))}</span>` : p.isNew ? `<span class="tag tag-new">New this week</span>` : ""}${p.bestseller ?`<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale${p.intl ? " cur-inr" : ""}">-${off}%</span>` : ""}${p.intl && p.mrp_usd > p.price_usd ? `<span class="tag tag-sale cur-usd">-${Math.round((1 - p.price_usd / p.mrp_usd) * 100)}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
     <div class="card-body">
       <h3>${esc(p.title)}</h3>
@@ -703,6 +717,7 @@ ${(() => { const best = products.filter((p) => p.bestseller).slice(0, 8); return
   <div class="section-head"><div><p class="eyebrow">Just in</p><h2>New Arrivals</h2></div><a class="link" href="${u("shop/")}">View all →</a></div>
   <div class="grid scroller">${list.map((p) => card(p)).join("")}</div>
 </section>
+${upcoming.length ? `<section class="wrap section drop-sec" data-drop-sec><div class="section-head"><div><p class="eyebrow">Next drop · Made in our Jaipur unit</p><h2>Launching ${esc(dropDate(upcoming[0]))}</h2><p class="drop-cd" data-drop-cd="${esc(upcoming[0].launchDay)}" hidden></p></div></div><div class="grid scroller">${upcoming.slice(0, 8).map((p) => card(p)).join("")}</div></section>` : ""}
 ${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Easy cotton favourites</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
 ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class="shopby"><div class="wrap">
   ${occasions.length ? `<div class="shopby-row"><p class="eyebrow">Shop by occasion</p><div class="pills">${occasions.map((o) => `<a class="pill" href="${u("occasion/" + slugify(o) + "/")}">${esc(o)}</a>`).join("")}</div></div>` : ""}
@@ -840,13 +855,13 @@ for (const c of allCats.filter((x) => x.empty)) {
 }
 
 // ---------- product pages ----------
-for (const p of products) {
+for (const p of [...products, ...upcoming]) {
   const look = p.match.map((m) => products.find((x) => x.slug === m)).filter((x) => x && x.slug !== p.slug).slice(0, 4);
   const relScore = (x) => (x.category === p.category ? 4 : 0) + x.occasion.filter((o) => p.occasion.includes(o)).length + (x.price !== null ? 0.5 : 0) + (x.fabric && x.fabric === p.fabric ? 1 : 0);
   const related = products.filter((x) => x.slug !== p.slug && !look.includes(x)).map((x, i) => [x, relScore(x), i]).sort((a, b) => b[1] - a[1] || a[2] - b[2]).map(([x]) => x).slice(0, 4);
   const firstLine = String(p.description || "").split(/\n/)[0];
   const desc = clip(p.seo_description || `${p.title}${p.color ? " in " + p.color : ""}${p.fabric ? ", " + p.fabric : ""}. ${firstLine}`);
-  const cat = categories.find((c) => c.name === p.category);
+  const cat = categories.find((c) => c.name === p.category) || { url: "shop/", plural: "Shop" };
   const waAsk = waLink(`Hi ${brand}! I have a question about: ${p.title}\n${SITE_URL}/${p.url}`);
   const disc = num(S.prepaid_discount_percent);
   const gal = p.images.map((img) => ({ img }));
@@ -867,13 +882,14 @@ for (const p of products) {
     <p class="eyebrow">${esc(p.category)}${p.color ? " · " + esc(p.color) : ""}</p>
     <div class="title-row"><h1>${esc(p.title)}</h1><button class="wish wish-lg" type="button" data-wish="${esc(p.slug)}" aria-label="Save to wishlist" aria-pressed="false">${I.heart}</button></div>
     <div class="pdp-price">${priceHtml(p)}</div>
-    ${p.price !== null ? `<p class="eta-top" data-eta hidden></p>` : ""}${intlOn && p.intl ? `<p class="mto-note cur-usd">✂️ Made to order in our Jaipur studio · ships in 2–7 working days</p>` : ""}
+    ${p.price !== null && !p.coming ? `<p class="eta-top" data-eta hidden></p>` : ""}${intlOn && p.intl ? `<p class="mto-note cur-usd">✂️ Made to order in our Jaipur studio · ships in 2–7 working days</p>` : ""}
     ${p.model_height || p.model_size || p.fit ? `<p class="fit-line">${[p.model_height ? `Model is ${esc(p.model_height)}` : "", p.model_size ? `wearing ${esc(p.model_size)}` : "", p.fit ? `${esc(p.fit)} fit` : ""].filter(Boolean).join(" · ")}</p>` : ""}
     ${p.price !== null ? `<p class="tax cur-inr">Inclusive of all taxes${disc ? ` · <strong>Extra ${disc}% off</strong> on online payment` : ""}</p>` : ""}
     ${intlOn && p.intl ? `<p class="tax cur-usd">${esc(S.intl_duty_note || "Prices exclude import duties and taxes of your country.")}</p>` : ""}
     ${p.sizes.length ? `<div class="sizes"><div class="label">Select size <span data-size-error role="alert" hidden>Please select a size</span><button class="size-guide" type="button" data-fit-open>✨ Find my size</button><button class="size-guide" type="button" data-open-size>${I.ruler} Size chart</button></div><div class="size-row" role="group" aria-label="Select size">${p.sizes.map((s) => `<button class="size${p.sold_out.includes(s) ? " out" : ""}" type="button" data-size="${esc(s)}" aria-pressed="false"${p.sold_out.includes(s) ? ' data-out="1" aria-label="' + esc(s) + ' – sold out, notify me"' : ""}>${esc(s)}</button>`).join("")}</div><p class="fit-note" data-fit-note hidden></p></div>` : ""}
     ${p.sale_paused ? `<p class="paused-note" role="status">⛔ This style is not available to order right now.</p>` : ""}
-    ${p.price !== null ? `<div class="buy-row"><button class="btn btn-block" data-add>Add to Bag</button><button class="btn btn-dark btn-block" data-buy>Buy Now</button></div><ul class="promise"><li data-retline hidden></li><li data-mkmsg hidden></li></ul>`
+    ${p.coming ? `<div class="drop-box" data-drop="${esc(p.slug)}"><p class="drop-h">🚀 Coming ${esc(dropDate(p))}</p><p class="drop-cd" data-drop-cd="${esc(p.launchDay)}" hidden></p><p class="drop-t">This piece is not live yet. Get an email the day it launches – new drops are made in small batches in our Jaipur unit.</p><form class="drop-form" data-drop-form novalidate><label class="sr-only" for="drop-${esc(p.slug)}">Email address</label><div class="pin-row"><input id="drop-${esc(p.slug)}" type="email" name="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Your email address"><button class="btn" type="submit">Notify me</button></div><p class="drop-msg" data-drop-msg role="status" aria-live="polite"></p></form></div>`
+      : p.price !== null ? `<div class="buy-row"><button class="btn btn-block" data-add>Add to Bag</button><button class="btn btn-dark btn-block" data-buy>Buy Now</button></div>${intlOn && p.intl ? `<p class="potli-note cur-usd" data-potli>🎁 Free handmade potli with your first order</p>` : ""}<ul class="promise"><li data-retline hidden></li><li data-mkmsg hidden></li></ul>`
       : `<a class="btn btn-wa btn-block" href="${esc(waAsk)}" target="_blank" rel="noopener">${I.wa} Ask price on WhatsApp</a>`}
     ${intlOn && !p.intl && waNumber ? `<div class="intl-ask cur-usd"><p>${p.ships_abroad ? "International price for this style is shared on request." : "This style currently ships within India only."} Message us for availability and similar styles that ship to your country.</p><a class="btn btn-wa btn-block" href="${esc(waLink(`Hi ${brand}! I am outside India. Can you ship this to my country?\n${p.title}\n${SITE_URL}/${p.url}`))}" target="_blank" rel="noopener">${I.wa} Ask on WhatsApp</a></div>` : ""}
     ${waAsk && p.price !== null ? `<a class="ask-wa" href="${esc(waAsk)}" target="_blank" rel="noopener">${I.wa} Questions? Chat with us on WhatsApp</a>` : ""}
@@ -885,7 +901,7 @@ for (const p of products) {
     ${(() => { const own = p.reviews.map((r) => ({ ...r, city: r.country, source: "" })), mine = [...own, ...reviews.filter((r) => r.product === p.slug)], list = (mine.length ? mine : reviews).slice(0, mine.length ? 6 : 4), avgO = own.length ? own.reduce((x, r) => x + r.rating, 0) / own.length : 0; return list.length ? `<details open class="pdp-revs" id="reviews"><summary>${mine.length ? "Reviews for this style" : (list.every((r) => /etsy/i.test(r.source)) ? "Reviews from our Etsy shop" : "Shop reviews")} (${mine.length ? mine.length : list.length})</summary><div>${own.length ? `<p class="rev-avg">${star(avgO)} <b>${avgO.toFixed(1)}</b> · ${own.length} review${own.length === 1 ? "" : "s"} of this style</p>` : ""}${mine.length ? "" : `<p class="muted small rev-note">Shop reviews from past customers – not specific to this style.</p>`}${list.map((r) => `<blockquote class="pdp-rev">${star(r.rating)}<p>${esc(r.text)}</p>${r.photo ? `<img class="rev-photo" src="${esc(u(r.photo))}" alt="Customer photo from ${esc(r.name)}" width="160" height="200" loading="lazy" decoding="async">` : ""}<cite>${esc(r.name)}${r.city ? ` · ${esc(r.city)}` : ""}${r.date ? ` · ${esc(r.date)}` : ""}${r.source ? ` · ✓ ${esc(r.source)}` : ""}</cite></blockquote>`).join("")}</div></details>` : ""; })()}
     <details><summary>Product details</summary><dl class="specs">
       ${p.color ? `<dt>Colour</dt><dd>${esc(p.color)}</dd>` : ""}${p.fabric ? `<dt>Fabric</dt><dd>${craftLink("fabric", p.fabric)}</dd>` : ""}${p.print_work.length ? `<dt>Print / work</dt><dd>${p.print_work.map((n) => craftLink("print", n)).join(", ")}</dd>` : ""}
-      ${p.sizes.length ? `<dt>Sizes</dt><dd>${esc(p.sizes.join(", "))}</dd>` : ""}${p.neckline ? `<dt>Neckline</dt><dd>${esc(p.neckline)}</dd>` : ""}${p.sleeve ? `<dt>Sleeves</dt><dd>${esc(p.sleeve)}</dd>` : ""}${p.length_type ? `<dt>Length</dt><dd>${esc(p.length_type)}</dd>` : ""}${p.set_items.length ? `<dt>In this set</dt><dd>${esc(p.set_items.join(" + "))}</dd>` : ""}${p.garment_length ? `<dt>Length</dt><dd>${cm(num(p.garment_length))}</dd>` : ""}${p.sku ? `<dt>SKU</dt><dd>${esc(p.sku)}</dd>` : ""}<dt>Care</dt><dd>${esc(p.care || (CRAFT.fabric[p.fabric]?.[2]) || "Gentle cold hand wash, dry in shade.")}</dd><dt>Country of origin</dt><dd>India (made in Jaipur)</dd><dt>Status</dt><dd>${p.in_stock ? "In stock" : "Made to order"}</dd>
+      ${p.sizes.length ? `<dt>Sizes</dt><dd>${esc(p.sizes.join(", "))}</dd>` : ""}${p.neckline ? `<dt>Neckline</dt><dd>${esc(p.neckline)}</dd>` : ""}${p.sleeve ? `<dt>Sleeves</dt><dd>${esc(p.sleeve)}</dd>` : ""}${p.length_type ? `<dt>Length</dt><dd>${esc(p.length_type)}</dd>` : ""}${p.set_items.length ? `<dt>In this set</dt><dd>${esc(p.set_items.join(" + "))}</dd>` : ""}${p.garment_length ? `<dt>Length</dt><dd>${cm(num(p.garment_length))}</dd>` : ""}${p.sku ? `<dt>SKU</dt><dd>${esc(p.sku)}</dd>` : ""}<dt>Care</dt><dd>${esc(p.care || (CRAFT.fabric[p.fabric]?.[2]) || "Gentle cold hand wash, dry in shade.")}</dd><dt>Country of origin</dt><dd>India (made in Jaipur)</dd><dt>Status</dt><dd>${p.coming ? "Coming " + esc(dropDate(p)) : p.in_stock ? "In stock" : "Made to order"}</dd>
     </dl></details>
     ${(() => { const mine = reels.map((r, i) => [r, i]).filter(([r]) => r.product === p.slug); return mine.length ? `<div class="seen-on"><p class="label">📹 Isko pehne dekho${mine.some(([r]) => r.creator) ? " – influencers" : ""}</p><div class="reel-row seen-row">${mine.map(([r, i]) => `<div class="reel-item">${reelItem(r, i, true)}</div>`).join("")}</div></div>` : ""; })()}
     ${(() => { const rows = [...p.print_work.map((n) => ["print", n]), ...(p.fabric ? [["fabric", p.fabric]] : [])].map(([t, n]) => [n, craftInfo(t, n)]).filter(([, c]) => c); return rows.length ? `<details><summary>About the fabric & print</summary><div class="craft-about">${rows.map(([n, c]) => `<p><b>${esc(n)}</b>${c[0] ? ` <small class="muted">· ${esc(c[0])}</small>` : ""}<br>${esc(c[1])}<br><small>🧺 Care: ${esc(c[2])}</small></p>`).join("")}<p><a class="link" href="${u("craft/")}">Fabric & print guide →</a></p></div></details>` : ""; })()}
@@ -893,7 +909,7 @@ for (const p of products) {
     <details><summary>Shipping & returns</summary><div>${paras(String(S.shipping_policy || "").split(/\n\s*\n/)[1] || S.dispatch_note)}<p><a href="${u("shipping/")}">Shipping (India)</a> · <a href="${u("returns/")}">Returns (India)</a>${S.intl_shipping_policy ? ` · <a href="${u("international-shipping/")}">International shipping</a>` : ""}${S.intl_return_policy ? ` · <a href="${u("international-returns/")}">International returns</a>` : ""}</p></div></details>
   </div>
 </section>
-${p.price !== null ? `<div class="sticky-buy" data-sticky><div><strong>${esc(p.title)}</strong><span>${p.sizes.length ? "Pick your size · free custom fit" : "Handmade in Jaipur"}</span></div><button class="btn" data-add><span>Add to Bag</span> · ${intlOn ? `<span class="cur-inr">${inr(p.price)}</span><span class="cur-usd">${p.intl ? usd(p.price_usd) : ""}</span>` : inr(p.price)}</button></div>` : ""}
+${p.price !== null && !p.coming ? `<div class="sticky-buy" data-sticky><div><strong>${esc(p.title)}</strong><span>${p.sizes.length ? "Pick your size · free custom fit" : "Handmade in Jaipur"}</span></div><button class="btn" data-add><span>Add to Bag</span> · ${intlOn ? `<span class="cur-inr">${inr(p.price)}</span><span class="cur-usd">${p.intl ? usd(p.price_usd) : ""}</span>` : inr(p.price)}</button></div>` : ""}
 ${howSteps(" how4-pdp")}
 ${look.length ? `<section class="wrap section look"><div class="section-head"><div><p class="eyebrow">Shop the look</p><h2>Complete the look</h2></div>${look.some((x) => x.price !== null) ? `<button class="btn btn-ghost" type="button" data-add-look="${esc([p.slug, ...look.filter((x) => x.price !== null).map((x) => x.slug)].join(","))}">Add complete look</button>` : ""}</div><div class="grid">${look.map((p) => card(p)).join("")}</div></section>` : ""}
 ${p.sizes.length ? sizeDialog : ""}
@@ -935,7 +951,7 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
   const myReel = reels.find((r) => r.product === p.slug && r.video);
   const pmini = myReel || p.video ? { video: u(myReel ? myReel.video : p.video), cover: myReel?.cover ? u(myReel.cover) : u(p.images[0] || ""), caption: myReel?.caption || "See it on", product: { title: p.title, url: u(p.url), image: u(p.images[0] || ""), price: priceHtml(p) } } : defaultMini();
   const ogP = p.price !== null ? `<meta property="product:price:amount" content="${p.price}"><meta property="product:price:currency" content="INR"><meta property="product:availability" content="${p.in_stock ? "in stock" : "preorder"}"><meta property="product:brand" content="${esc(brand)}">` : "";
-  add(p.url + "index.html", page({ og: ogP, mini: pmini, title: p.seo_title || `${p.title} | ${brand}`, description: desc, pathname: p.url, image: p.images[0], body: body.replace('<section class="wrap section recent"', faqHtml + '<section class="wrap section recent"'), ld: p.price !== null ? [ld, crumbs, faqLd] : [crumbs, faqLd], type: "product", bodyClass: "pdp" }));
+  add(p.url + "index.html", page({ og: p.coming ? "" : ogP, noindex: p.coming, mini: pmini, title: p.seo_title || `${p.title} | ${brand}`, description: desc, pathname: p.url, image: p.images[0], body: body.replace('<section class="wrap section recent"', faqHtml + '<section class="wrap section recent"'), ld: p.price !== null && !p.coming ? [ld, crumbs, faqLd] : [crumbs, faqLd], type: "product", bodyClass: "pdp" }));
 }
 
 // ---------- checkout ----------
