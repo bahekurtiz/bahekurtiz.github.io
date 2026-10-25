@@ -1316,3 +1316,43 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visi
 .stars span{color:#8a6a26}
 .btn-gold,.vip-band .btn-gold,.bb-page .btn-gold{background:#8f6d25!important;border-color:#8f6d25!important}
 .btn-gold:hover,.vip-band .btn-gold:hover,.bb-page .btn-gold:hover{background:#7f5f1c!important;border-color:#7f5f1c!important}
+/* ---------- CRO: returning-bag banner, leave-attempt VIP offer, bag perks, weekly drops ---------- */
+.bag-nudge{position:fixed;left:50%;top:10px;z-index:80;width:min(520px,calc(100% - 20px));display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;box-shadow:0 10px 30px rgba(35,24,21,.18);padding:10px 8px 10px 12px;transform:translate(-50%,-140%);transition:transform .35s ease;font-size:.85rem}
+.bag-nudge.show{transform:translate(-50%,0)}
+.bag-nudge img{width:40px;height:60px;object-fit:cover;border-radius:6px;flex:none}
+.bag-nudge p{margin:0;flex:1;min-width:0;display:grid;gap:2px;line-height:1.3}
+.bag-nudge p span{color:var(--muted);font-size:.78rem}
+.bag-nudge .btn{flex:none;white-space:nowrap}
+.bn-x{flex:none;background:none;border:0;width:32px;height:32px;font-size:1.3rem;line-height:1;cursor:pointer;color:var(--muted);border-radius:50%}
+.bn-x:focus-visible,.bag-nudge .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.bag-nudge{transition:none}}
+.exit-modal{border:0;padding:0;border-radius:16px;width:min(420px,94vw);max-height:92vh;background:var(--bg);color:var(--ink)}
+.exit-modal::backdrop{background:rgba(10,25,25,.55)}
+.exit-box{position:relative;padding:28px 24px 20px;display:grid;gap:11px}
+.exit-box .eyebrow{color:var(--gold-text,#7f5f1c);margin:0}
+.exit-box h2{font-size:1.55rem;line-height:1.2;margin:0;color:var(--accent);padding-right:28px}
+.exit-box p{margin:0}
+.exit-box label{display:grid;gap:5px;font-size:.84rem;font-weight:500}
+.exit-box input{font:inherit;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);width:100%}
+.exit-box input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.exit-bag{background:var(--sand);border-radius:10px;padding:10px 12px}
+.exit-bag p{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.exit-bag div{display:flex;gap:8px}
+.exit-bag img{width:56px;height:84px;object-fit:cover;border-radius:6px}
+.exit-msg:empty,.drop-msg:empty{display:none}
+.exit-msg.err,.drop-msg.err{color:var(--sale)}
+.drop-msg.ok{color:var(--accent);font-weight:500}
+.cart-perks{display:grid!important;gap:4px;margin:0 0 12px;padding:10px 12px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);border-radius:10px;font-size:.84rem;color:var(--accent)}
+.cart-perks p{margin:0}
+.potli-note{display:block!important;margin:10px 0 0;font-size:.88rem;color:var(--gold-text,#7f5f1c);font-weight:500}
+html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
+.cart-perks [hidden],.potli-note[hidden]{display:none!important}
+.drop-box{background:var(--sand);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:8px;margin:6px 0 12px}
+.drop-box p{margin:0}
+.drop-h{font-family:var(--serif);font-size:1.35rem;color:var(--accent);font-weight:600}
+.drop-t{font-size:.88rem;color:var(--muted)}
+.drop-cd{font-size:.86rem;font-weight:600;color:var(--gold-text,#7f5f1c);letter-spacing:.02em;margin:4px 0 0}
+.drop-form .pin-row{display:flex;gap:8px}
+.drop-form input{flex:1;min-width:0;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.tag.tag-drop{background:var(--accent);color:#fff}
+.tag.tag-new{background:var(--gold-text,#7f5f1c);color:#fff}
