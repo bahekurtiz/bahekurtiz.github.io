@@ -476,8 +476,8 @@ collections:
           - { name: maintenance_mode, label: "🛠️ Maintenance mode (वेबसाइट दिखेगी, पर ऑर्डर बंद)", widget: boolean, default: false, required: false }
           - { name: checkout_pause, label: "⏸️ Checkout pause (नए ऑर्डर अस्थायी बंद)", widget: boolean, default: false, required: false }
           - { name: pause_message, label: "ऑर्डर बंद होने पर ग्राहक को मैसेज", widget: string, required: false, default: "We are updating our store. Orders will open again shortly – WhatsApp us for help." }
-          - { name: india_handling_days, label: "🇮🇳 India: पैक होने में दिन (जैसे 1-3)", widget: string, required: false, default: "1-3" }
-          - { name: india_transit_days, label: "🇮🇳 India: कूरियर में दिन (जैसे 3-7)", widget: string, required: false, default: "3-7" }
+          - { name: india_handling_days, label: "🇮🇳 India: (पुराना – अब ऊपर वाले Ready size दिन इस्तेमाल होते हैं)", widget: string, required: false, default: "2-4" }
+          - { name: india_transit_days, label: "🇮🇳 India: (पुराना – अब भारत डिलीवरी दिन इस्तेमाल होते हैं)", widget: string, required: false, default: "3-5" }
           - { name: india_return_rule, label: "🇮🇳 India: Return / exchange नियम (ग्राहक को दिखेगा)", widget: string, required: false }
           - name: markets
             label: "🌍 देश-वार नियम (Market Control) – हर देश के लिए एक"
@@ -539,12 +539,16 @@ collections:
           - { name: intl_shipping_charge_usd, label: "विदेश: शिपिंग चार्ज $ (हर ऑर्डर)", widget: number, value_type: float, required: false }
           - { name: intl_free_shipping_above_usd, label: "विदेश: इतने $ से ऊपर फ़्री शिपिंग (0 = लागू नहीं)", widget: number, value_type: float, required: false }
           - { name: intl_duty_note, label: "विदेश: ड्यूटी/टैक्स की लाइन (चेकआउट और प्रोडक्ट पेज पर)", widget: string, required: false, default: "Prices exclude import duties and taxes of your country, which are paid by the buyer on delivery." }
-          - { name: dispatch_days, label: "डिस्पैच में कितने दिन लगते हैं", widget: number, value_type: int, required: false, default: 3 }
+          - { name: dispatch_days, label: "(पुराना – अब इस्तेमाल नहीं) डिस्पैच दिन", widget: number, value_type: int, required: false, default: 3 }
+          - { name: dispatch_min, label: "Ready size – डिस्पैच कम से कम (working days)", widget: number, value_type: int, required: false, default: 2 }
+          - { name: dispatch_max, label: "Ready size – डिस्पैच ज़्यादा से ज़्यादा (working days)", widget: number, value_type: int, required: false, default: 4 }
+          - { name: custom_dispatch_min, label: "Custom fit – डिस्पैच कम से कम (working days)", widget: number, value_type: int, required: false, default: 5 }
+          - { name: custom_dispatch_max, label: "Custom fit – डिस्पैच ज़्यादा से ज़्यादा (working days)", widget: number, value_type: int, required: false, default: 7 }
           - { name: transit_days_local, label: "राजस्थान में डिलीवरी (ज़्यादा से ज़्यादा दिन)", widget: number, value_type: int, required: false, default: 2 }
-          - { name: transit_days_min, label: "बाकी भारत – कम से कम दिन", widget: number, value_type: int, required: false, default: 3 }
-          - { name: transit_days_max, label: "बाकी भारत – ज़्यादा से ज़्यादा दिन", widget: number, value_type: int, required: false, default: 7 }
-          - { name: intl_eta_min, label: "विदेश – कम से कम दिन (डिस्पैच के बाद)", widget: number, value_type: int, required: false, default: 7 }
-          - { name: intl_eta_max, label: "विदेश – ज़्यादा से ज़्यादा दिन (डिस्पैच के बाद)", widget: number, value_type: int, required: false, default: 12 }
+          - { name: transit_days_min, label: "भारत – डिलीवरी कम से कम (डिस्पैच के बाद, working days)", widget: number, value_type: int, required: false, default: 3 }
+          - { name: transit_days_max, label: "भारत – डिलीवरी ज़्यादा से ज़्यादा (डिस्पैच के बाद, working days)", widget: number, value_type: int, required: false, default: 5 }
+          - { name: intl_eta_min, label: "विदेश – कम से कम दिन (डिस्पैच के बाद)", widget: number, value_type: int, required: false, default: 5 }
+          - { name: intl_eta_max, label: "विदेश – ज़्यादा से ज़्यादा दिन (डिस्पैच के बाद)", widget: number, value_type: int, required: false, default: 10 }
           - name: festivals
             label: "त्योहार काउंटडाउन (होमपेज पर 'इस तारीख तक ऑर्डर करो')"
             widget: list
