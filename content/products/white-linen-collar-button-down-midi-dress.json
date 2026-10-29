@@ -35,7 +35,7 @@
   "print_work": [
     "Solid"
   ],
-  "description": "Crisp, cool and effortlessly elegant – a pure linen midi dress made for sunny days, holidays and long lunches. A sharp shirt collar opens into a soft V-neck, a full row of buttons runs down the front, and the A-line skirt falls to a graceful midi length with a front slit for easy movement. Side pockets make it as practical as it is pretty.\n\n✦ The Details\n• Sleeveless A-line midi dress with a shirt collar and V-neckline\n• Full front button placket with pearl-finish buttons\n• Front slit at the hem for easy movement\n• Side pockets\n• Midi length\n\n✦ Fabric & Craft\nMade from pure linen with a soft cotton lining, so it stays breathable and comfortable while never feeling see-through. Linen softens beautifully with every wash and naturally creases a little – that relaxed texture is part of its charm. Stitched in our own Jaipur unit.\n\n✦ Fit & Size\nFitted through the bodice with an easy A-line skirt. Choose your usual size or use our Fit Finder. Between sizes? Size up – or send us your bust, waist and hip and we will stitch it to your measurements.\n\n✦ How to Style It\nSunglasses, a rattan bag and clear heels for brunch or a vacation day. Add a denim jacket or a camel trench in cooler weather. For an evening out, pearl drop earrings and strappy sandals.\n\n✦ The Bahe Promise\n• Made in Jaipur – we send you photos of your piece before it ships\n• Free custom fit on request – share your measurements\n• Free worldwide shipping to the USA, UK, Canada, UAE & Australia – duties & taxes included\n• Real people on WhatsApp to help with size and styling\n\nThe colour may look slightly different on your screen.",
+  "description": "Crisp, cool and effortlessly elegant – a pure linen midi dress made for sunny days, holidays and long lunches. A sharp shirt collar opens into a soft V-neck, a full row of buttons runs down the front, and the A-line skirt falls to a graceful midi length with a front slit for easy movement. Side pockets make it as practical as it is pretty.\n\n✦ The Details\n• Sleeveless A-line midi dress with a shirt collar and V-neckline\n• Full front button placket with pearl-finish buttons\n• Front slit at the hem for easy movement\n• Side pockets\n• Midi length\n\n✦ Fabric & Craft\nMade from pure linen with a soft cotton lining, so it stays breathable and comfortable while never feeling see-through. Linen softens beautifully with every wash and naturally creases a little – that relaxed texture is part of its charm. Stitched in our own Jaipur unit.\n\n✦ Fit & Size\nFitted through the bodice with an easy A-line skirt. Choose your usual size or use our Fit Finder. Between sizes? Size up – or send us your bust, waist and hip and we will stitch it to your measurements.\n\n✦ How to Style It\nSunglasses, a rattan bag and clear heels for brunch or a vacation day. Add a denim jacket or a camel trench in cooler weather. For an evening out, pearl drop earrings and strappy sandals.\n\n✦ Shade Card – Choose Your Colour\nShown in white. Pick White, Ivory, Beige, Sage Green, Sky Blue, Blush Pink or Black from the shade card and we will stitch this exact dress in your colour – same price. Colours other than white are made to order and dispatch in 5–7 working days.\n\n✦ The Bahe Promise\n• Made in Jaipur – we send you photos of your piece before it ships\n• Free custom fit on request – share your measurements\n• Free worldwide shipping to the USA, UK, Canada, UAE & Australia – duties & taxes included\n• Real people on WhatsApp to help with size and styling\n\nThe colour may look slightly different on your screen.",
   "images": [
     "/images/products/white-linen-collar-button-down-midi-dress-1.webp",
     "/images/products/white-linen-collar-button-down-midi-dress-2.webp",
@@ -47,7 +47,10 @@
     "/images/products/white-linen-collar-button-down-midi-dress-8.webp"
   ],
   "video": "",
-  "match_products": [],
+  "match_products": [
+    "white-linen-sleeveless-v-neck-button-front-pleated-midi-dress",
+    "white-linen-square-neck-button-front-midi-sundress"
+  ],
   "tryon_png": "/images/products/white-linen-collar-button-down-midi-dress-1.webp",
   "sku": "bahe30",
   "old_url": "",
@@ -64,5 +67,14 @@
   "bestseller": false,
   "sort_order": 12.5,
   "seo_title": "White Linen Midi Dress, Button Front | Bahe Kurtiz",
-  "seo_description": "Pure linen white midi dress with cotton lining, shirt collar, button front, pockets & front slit. Stitched in Jaipur, ships worldwide duties paid."
+  "seo_description": "Pure linen white midi dress with cotton lining, shirt collar, button front, pockets & front slit. Stitched in Jaipur, ships worldwide duties paid.",
+  "color_options": [
+    "White",
+    "Ivory",
+    "Beige",
+    "Sage Green",
+    "Sky Blue",
+    "Blush Pink",
+    "Black"
+  ]
 }
