@@ -20,7 +20,12 @@
     "3XL"
   ],
   "sold_out_sizes": [],
-  "occasion": [],
+  "occasion": [
+    "Daily",
+    "Vacation",
+    "College",
+    "Office"
+  ],
   "model_height": "5.6",
   "model_size": "5",
   "fit": "Relaxed",
