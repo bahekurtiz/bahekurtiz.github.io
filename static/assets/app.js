@@ -22,7 +22,7 @@
   // ---------- delivery estimate: ONE function for product page, bag and checkout (numbers = BK.ship from settings) ----------
   // today + dispatch (ready 2–4 / custom fit 5–7 working days) + transit (India 3–5 working / international 5–10 business days); Sundays skipped
   const SH = Object.assign({ dMin: 2, dMax: 4, cMin: 5, cMax: 7, inMin: 3, inMax: 5, intlMin: 5, intlMax: 10 }, BK.ship || {});
-  const CUSTOM = "Custom Fit", isCustom = (sz) => String(sz || "").toLowerCase() === "custom fit";
+  const CUSTOM = "Custom Fit", isCustom = (sz) => /^custom fit/i.test(String(sz || "").trim());
   const etaCC = () => { if (!isUSD()) return "IN"; let c = ""; try { c = (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || ""; } catch {} if (!c || c === "IN") c = guessCC(); return !c || c === "IN" ? "US" : c; };
   const addWorkD = (n) => { const d = new Date(); let k = 0; while (k < n) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0) k++; } return d; };
   const fmtEta = (d) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
@@ -136,6 +136,9 @@
   const prod = $("[data-product]");
   if (prod) {
     const slug = prod.dataset.product; let size = "";
+    const shadeBtns = $$(".shade", prod); let shade = shadeBtns[0]?.dataset.shade || "";
+    shadeBtns.forEach((b) => b.addEventListener("click", () => { shade = b.dataset.shade; shadeBtns.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const n = $("[data-shade-name]", prod); if (n) n.textContent = shade; }));
+    const fullSize = () => (shadeBtns.length && shade && shade !== shadeBtns[0].dataset.shade ? `${size} · ${shade}` : size);
     const sizes = $$(".size", prod); let wantCustom = false;
     const pick = (b) => { size = b ? b.dataset.size : ""; sizes.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const e = $("[data-size-error]"); if (e && b) e.hidden = true; if (b && !isCustom(size) && /Custom Fit/.test(fitNote?.innerHTML || "")) paintFit(false); document.dispatchEvent(new CustomEvent("bk:size", { detail: size })); };
     sizes.forEach((b) => b.addEventListener("click", () => { if (b.dataset.out) { openNotify(slug, b.dataset.size); return; }
@@ -178,8 +181,8 @@
     sizes.forEach((b) => b.addEventListener("click", () => { if (!getFit() && fitNote && !isCustom(b.dataset.size)) { fitNote.hidden = !intlLine(b.dataset.size.toUpperCase()); fitNote.innerHTML = intlLine(b.dataset.size.toUpperCase()); } }));
     paintFit(true);
     const need = () => { if (sizes.length && !size) { const e = $("[data-size-error]"); if (e) e.hidden = false; $(".sizes")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast("Please select a size"); return false; } return true; };
-    $$("[data-add]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); openCart(); }));
-    $$("[data-buy]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; if (!bag.some((i) => i.slug === slug && i.size === size)) addItem(slug, size); location.href = url("checkout/"); }));
+    $$("[data-add]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, fullSize()); openCart(); }));
+    $$("[data-buy]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; if (!bag.some((i) => i.slug === slug && i.size === fullSize())) addItem(slug, fullSize()); location.href = url("checkout/"); }));
     // gallery: swipe on mobile, dots + thumbs
     const slides = $("[data-slides]"), dots = $$("[data-dots] button"), thumbs = $$(".thumb");
     const rtl = () => document.documentElement.dir === "rtl"; // RTL (Arabic): scrollLeft runs negative
