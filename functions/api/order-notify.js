@@ -31,7 +31,7 @@ export function normalizeOrder(b, cat) {
   const items = (Array.isArray(b.items) ? b.items : []).slice(0, 30).map((i) => {
     const slug = clip(i.slug, 120).replace(/[^\w-]/g, ""), p = P[slug] || null, qty = Math.max(1, Math.min(50, parseInt(i.qty, 10) || 1));
     const price = p ? num(cur === "USD" ? p.price_usd : p.price) || num(i.price) : num(i.price);
-    return { slug, title: clip(p?.title || i.title || slug, 140), size: clip(i.size, 20), qty, price, line: Math.round(price * qty * 100) / 100,
+    return { slug, title: clip(p?.title || i.title || slug, 140), size: clip(i.size, 40), qty, price, line: Math.round(price * qty * 100) / 100,
       url: p?.url ? abs(p.url) : slug ? `${SITE}/products/${slug}/` : "", image: abs(p?.thumb || p?.image || (/^\/(images|media)\//.test(String(i.image || "")) ? i.image : "")) };
   });
   const sub = items.reduce((s, i) => s + i.line, 0);
