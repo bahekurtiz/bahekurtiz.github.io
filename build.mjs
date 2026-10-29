@@ -763,7 +763,7 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
       <p class="eyebrow">Our story</p>
       <h2>${esc(S.about_title || "About us")}</h2>
       ${paras(S.about_text)}
-      <a class="btn btn-ghost" href="${u("about/")}">Read more</a>
+      <a class="btn btn-ghost" href="${u("about/")}">Read our story</a>
     </div>
   </div>
 </section>`;
