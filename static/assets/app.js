@@ -19,6 +19,21 @@
   const money = (n) => (isUSD() ? usd(n) : inr(n));
   const unit = (p) => (isUSD() ? p.price_usd : p.price);
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
+  // ---------- delivery estimate: ONE function for product page, bag and checkout (numbers = BK.ship from settings) ----------
+  // today + dispatch (ready 2–4 / custom fit 5–7 working days) + transit (India 3–5 working / international 5–10 business days); Sundays skipped
+  const SH = Object.assign({ dMin: 2, dMax: 4, cMin: 5, cMax: 7, inMin: 3, inMax: 5, intlMin: 5, intlMax: 10 }, BK.ship || {});
+  const CUSTOM = "Custom Fit", isCustom = (sz) => String(sz || "").toLowerCase() === "custom fit";
+  const etaCC = () => { if (!isUSD()) return "IN"; let c = ""; try { c = (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || ""; } catch {} if (!c || c === "IN") c = guessCC(); return !c || c === "IN" ? "US" : c; };
+  const addWorkD = (n) => { const d = new Date(); let k = 0; while (k < n) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0) k++; } return d; };
+  const fmtEta = (d) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  function bkEta(custom, proc) {
+    const intl = isUSD(), cc = etaCC(), mk = intl ? (BK.mk || {})[cc] : null;
+    const d = custom ? [SH.cMin, SH.cMax] : proc && proc.length ? [proc[0], proc[1] || proc[0]] : [SH.dMin, SH.dMax];
+    const t = mk && Array.isArray(mk.t) && mk.t.length > 1 ? mk.t : intl ? [SH.intlMin, SH.intlMax] : [SH.inMin, SH.inMax];
+    return { intl, cc, d, t, range: `${fmtEta(addWorkD(d[0] + t[0]))} – ${fmtEta(addWorkD(d[1] + t[1]))}`, name: cc === "IN" ? "India" : (BK.countries || []).find((r) => r[0] === cc)?.[1] || cc };
+  }
+  const etaHtml = (custom) => { const e = bkEta(custom); return `🚚 Order today → est. delivery <b>${e.range}</b>${custom ? " <small>(custom fit)</small>" : ""}`; };
+  function paintBagEta() { const custom = bag.some((i) => isCustom(i.size)); $$("[data-cart-eta],[data-co-eta]").forEach((el) => { el.hidden = !bag.length; if (bag.length) el.innerHTML = etaHtml(custom); }); }
 
   // ---------- Meta Pixel events (only if pixel is on) ----------
   const GA = { ViewContent: "view_item", AddToCart: "add_to_cart", InitiateCheckout: "begin_checkout", Purchase: "purchase", AddToWishlist: "add_to_wishlist", Search: "search", Lead: "generate_lead", CompleteRegistration: "sign_up", Subscribe: "join_group" }, PIN = { ViewContent: "pagevisit", AddToCart: "addtocart", Purchase: "checkout", Search: "search", Lead: "lead", CompleteRegistration: "signup" };
@@ -30,7 +45,9 @@
     const c2 = userCC(u), ph0 = String(u.phone || "").replace(/\D/g, ""), ph = ph0 && ph0.length === 10 && c2 === "IN" ? "91" + ph0 : ph0 || undefined;
     const body = JSON.stringify({ event_name: ev, event_id: id, url: location.href, data, fbclid: new URLSearchParams(location.search).get("fbclid") || undefined, user: { em: u.email, ph, fn: u.name, ct: u.city, zp: u.pincode, country: c2 ? c2.toLowerCase() : undefined, id: u.phone } });
     (navigator.sendBeacon && navigator.sendBeacon(url("api/capi"), new Blob([body], { type: "text/plain" }))) || fetch(url("api/capi"), { method: "POST", body, keepalive: true }).catch(() => {}); } catch {} };
-  const track = (ev, data = {}, id) => { id = id || `${ev}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`; capi(ev, id, data); try { window.fbq && window.fbq("track", ev, data, { eventID: id }); } catch {} try { window.gtag && GA[ev] && window.gtag("event", GA[ev], { value: data.value, currency: data.currency, transaction_id: id, items: (data.content_ids || []).map((x) => ({ item_id: x })) }); } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
+  // GA4 item list from bag-style lines [{slug,size,qty}] + catalog
+  const gaItems = (cat, lines) => lines.filter((i) => cat.products[i.slug]).map((i) => { const p = cat.products[i.slug]; return { item_id: i.slug, item_name: p.title, item_brand: BK.brand, item_variant: i.size || undefined, price: unit(p) || undefined, quantity: i.qty || 1 }; });
+  const track = (ev, data = {}, id, gx) => { id = id || `${ev}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`; capi(ev, id, data); try { window.fbq && window.fbq("track", ev, data, { eventID: id }); } catch {} try { if (window.gtag && GA[ev]) { const gp = { value: data.value, currency: data.currency, items: (data.content_ids || []).map((x) => ({ item_id: x })), ...(gx || {}) }; if (ev === "Purchase") gp.transaction_id = id; window.gtag("event", GA[ev], gp); } } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
 
   if (window.BKpv) capi("PageView", window.BKpv, {});
   // ---------- storage (safe) ----------
@@ -95,7 +112,8 @@
     setBag(b);
     const pr = Number($("[data-product]")?.dataset.price) || undefined;
     const prU = Number($("[data-product]")?.dataset.usd) || undefined;
-    track("AddToCart", { content_ids: [slug], content_type: "product", value: isUSD() ? prU : pr, currency: isUSD() ? "USD" : "INR" });
+    const pv0 = isUSD() ? prU : pr;
+    track("AddToCart", { content_ids: [slug], content_type: "product", value: pv0, currency: isUSD() ? "USD" : "INR" }, undefined, { value: pv0 ? pv0 * qty : undefined, items: [{ item_id: slug, item_name: $("h1")?.textContent?.trim() || slug, item_brand: BK.brand, item_variant: size || undefined, price: pv0, quantity: qty }] });
   }
   async function renderCart() {
     const box = $("[data-cart-items]"); if (!box) return;
@@ -104,7 +122,7 @@
     let sub = 0;
     const items = bag.filter((i) => cat.products[i.slug]);
     box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
-      return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
+      return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${isCustom(i.size) ? "✂️ Custom Fit – stitched to your measurements" : i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
       <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : money(pr * i.qty)}</strong></div>`; }).join("");
     $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false; try { cartPerks(); } catch {}
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
@@ -118,8 +136,10 @@
   const prod = $("[data-product]");
   if (prod) {
     const slug = prod.dataset.product; let size = "";
-    const sizes = $$(".size", prod);
-    sizes.forEach((b) => b.addEventListener("click", () => { if (b.dataset.out) { openNotify(slug, b.dataset.size); return; } size = b.dataset.size; sizes.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const e = $("[data-size-error]"); if (e) e.hidden = true; }));
+    const sizes = $$(".size", prod); let wantCustom = false;
+    const pick = (b) => { size = b ? b.dataset.size : ""; sizes.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const e = $("[data-size-error]"); if (e && b) e.hidden = true; if (b && !isCustom(size) && /Custom Fit/.test(fitNote?.innerHTML || "")) paintFit(false); document.dispatchEvent(new CustomEvent("bk:size", { detail: size })); };
+    sizes.forEach((b) => b.addEventListener("click", () => { if (b.dataset.out) { openNotify(slug, b.dataset.size); return; }
+      if (isCustom(b.dataset.size) && !(getFit() || {}).bust) { wantCustom = true; openFit(); return; } pick(b); if (isCustom(b.dataset.size)) paintCustom(); }));
     // ---------- Mera Size: remembered fit -> suggested size (on this phone only) ----------
     const ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"], INTL = { XS: "US 2 · UK 6 · EU 34", S: "US 4 · UK 8 · EU 36", M: "US 6–8 · UK 10–12 · EU 38–40", L: "US 10 · UK 14 · EU 42", XL: "US 12 · UK 16 · EU 44", XXL: "US 14 · UK 18 · EU 46", "3XL": "US 16 · UK 20 · EU 48", "4XL": "US 18 · UK 22 · EU 50", "5XL": "US 20 · UK 24 · EU 52" };
     const fitNote = $("[data-fit-note]"), chart = (() => { try { return JSON.parse(prod.dataset.chart || "[]"); } catch { return []; } })(), pfit = prod.dataset.fit || "";
@@ -130,6 +150,7 @@
       else if (f.usual) { const i = ORDER.indexOf(f.usual) + (f.pref === "Loose" ? 1 : 0) + (/fitted/i.test(pfit) && f.pref !== "Snug" ? 1 : 0); r = ORDER[Math.min(ORDER.length - 1, Math.max(0, i))]; }
       r = String(r).toUpperCase(); if (avail.includes(r)) return r; const up = ORDER.slice(ORDER.indexOf(r)).find((s) => avail.includes(s)); return up || ""; };
     const waFit = (f) => { if (!BK.wa) return ""; const t = `Hi Bahe Kurtiz! I'd like a custom fit for "${document.querySelector("h1")?.textContent?.trim() || "this outfit"}".${f && f.bust ? ` My measurements (inches): bust ${f.bust}${f.waist ? ", waist " + f.waist : ""}${f.hip ? ", hip " + f.hip : ""}${f.height ? ", height " + f.height : ""}.` : ""} ${location.href}`; return `https://wa.me/${String(BK.wa).replace(/\D/g, "").replace(/^(?!91)(\d{10})$/, "91$1")}?text=${encodeURIComponent(t)}`; };
+    const paintCustom = () => { if (!fitNote) return; const f = getFit() || {}; fitNote.hidden = false; fitNote.innerHTML = `✂️ <b>Custom Fit</b> – stitched to your measurements${f.bust ? ` (bust ${f.bust}"${f.waist ? ", waist " + f.waist + '"' : ""}${f.hip ? ", hip " + f.hip + '"' : ""})` : ""} · dispatched in ${SH.cMin}–${SH.cMax} working days · <button type="button" class="link" data-fit-open>Edit measurements</button>`; $("[data-fit-open]", fitNote)?.addEventListener("click", openFit); };
     const intlLine = (s) => (document.documentElement.classList.contains("usd") && INTL[s] ? ` <small class="muted">(${s} ≈ ${INTL[s]})</small>` : "");
     const paintFit = (auto) => { if (!fitNote) return; const f = getFit(), r = recSize(f); if (!f || !r) { fitNote.hidden = !size; fitNote.innerHTML = size ? intlLine(size.toUpperCase()) : ""; return; }
       const btn = sizes.find((b) => b.dataset.size.toUpperCase() === r); fitNote.hidden = false;
@@ -146,13 +167,15 @@
         <p class="label">How do you like it to fit?</p><div class="fit-chips">${["Snug", "Regular", "Loose"].map((s) => `<label><input type="radio" name="pref" value="${s}"${(f.pref || "Regular") === s ? " checked" : ""}><span>${s === "Snug" ? "Fitted" : s === "Loose" ? "Relaxed" : "Regular"}</span></label>`).join("")}</div>
         <p class="fit-tip">✂️ Between sizes? We can stitch it to your exact measurements at no extra cost.</p>
         <div class="fit-b"><button class="btn" value="save">Show my size</button><button class="btn btn-ghost" value="cancel" formnovalidate>Cancel</button></div></form>`;
-      d.onclose = () => { if (d.returnValue !== "save") return; const fd = new FormData($("form", d)); const k = fd.get("unit") === "cm" ? 1 / 2.54 : 1; const m = (x) => { const v = +fd.get(x) || 0; return v ? Math.round(v * k * 2) / 2 : 0; };
+      d.onclose = () => { if (d.returnValue !== "save") { wantCustom = false; return; } const fd = new FormData($("form", d)); const k = fd.get("unit") === "cm" ? 1 / 2.54 : 1; const m = (x) => { const v = +fd.get(x) || 0; return v ? Math.round(v * k * 2) / 2 : 0; };
         const nf = { usual: fd.get("usual") || "", bust: m("bust"), waist: m("waist"), hip: m("hip"), height: String(fd.get("height") || "").trim(), unit: fd.get("unit") || "in", pref: fd.get("pref") || "Regular" };
-        if (!nf.usual && !nf.bust) { toast("Enter your bust or pick your usual size"); return; } try { localStorage.setItem("bk_fit", JSON.stringify(nf)); } catch {} size = ""; sizes.forEach((x) => x.classList.remove("on")); paintFit(true); const r = recSize(nf); if (r) toast(`Your size: ${r}`); };
+        if (wantCustom && !nf.bust) { toast("Enter your bust (and waist / hip) for Custom Fit"); wantCustom = false; return; }
+        if (!nf.usual && !nf.bust) { toast("Enter your bust or pick your usual size"); return; } try { localStorage.setItem("bk_fit", JSON.stringify(nf)); } catch {}
+        if (wantCustom || isCustom(size)) { wantCustom = false; pick(sizes.find((x) => isCustom(x.dataset.size))); paintCustom(); toast("Measurements saved – we will stitch it to your size"); return; } size = ""; sizes.forEach((x) => x.classList.remove("on")); paintFit(true); const r = recSize(nf); if (r) toast(`Your size: ${r}`); };
       d.showModal();
     }
     $$("[data-fit-open]", prod).forEach((b) => b.addEventListener("click", openFit));
-    sizes.forEach((b) => b.addEventListener("click", () => { if (!getFit() && fitNote) { fitNote.hidden = !intlLine(b.dataset.size.toUpperCase()); fitNote.innerHTML = intlLine(b.dataset.size.toUpperCase()); } }));
+    sizes.forEach((b) => b.addEventListener("click", () => { if (!getFit() && fitNote && !isCustom(b.dataset.size)) { fitNote.hidden = !intlLine(b.dataset.size.toUpperCase()); fitNote.innerHTML = intlLine(b.dataset.size.toUpperCase()); } }));
     paintFit(true);
     const need = () => { if (sizes.length && !size) { const e = $("[data-size-error]"); if (e) e.hidden = false; $(".sizes")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast("Please select a size"); return false; } return true; };
     $$("[data-add]").forEach((b) => b.addEventListener("click", () => { if (!need()) return; addItem(slug, size); openCart(); }));
@@ -217,7 +240,7 @@
     bag = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
     const itemsBox = $("[data-co-items]");
     if (!bag.length) { co.innerHTML = `<h1>Checkout</h1><p class="empty">${skipped.length ? "The styles in your bag ship within India only. " : ""}Your bag is empty. <a class="link" href="${url("shop/")}">Shop the collection →</a></p>`; return; }
-    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i, n) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${i.size ? "Size " + esc(i.size) : ""}</small><div class="qty"><button type="button" data-cq="${n}" data-cd="-1" aria-label="Less">−</button><span>${i.qty}</span><button type="button" data-cq="${n}" data-cd="1" aria-label="More">+</button><button type="button" class="rm" data-crm="${n}">Remove</button></div></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i, n) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${isCustom(i.size) ? "✂️ Custom Fit – stitched to your measurements" : i.size ? "Size " + esc(i.size) : ""}</small><div class="qty"><button type="button" data-cq="${n}" data-cd="-1" aria-label="Less">−</button><span>${i.qty}</span><button type="button" data-cq="${n}" data-cd="1" aria-label="More">+</button><button type="button" class="rm" data-crm="${n}">Remove</button></div></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
     $$("[data-cq]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })), it = b2[+b.dataset.cq]; it.qty = Math.max(0, Math.min(10, it.qty + +b.dataset.cd)); setBag(b2); });
     $$("[data-crm]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })); b2.splice(+b.dataset.crm, 1); setBag(b2); });
     const t = totals(cat, method);
@@ -225,6 +248,7 @@
       ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${money(t.couponOff)}</span></div>` : ""}
       <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>${isUSD() ? `<div class="row save"><span>Import duties &amp; taxes</span><span>Included</span></div>` : ""}
       <div class="row total"><span>Total</span><span>${money(t.total)}${isUSD() ? " USD" : ""}</span></div>`;
+    try { paintBagEta(); } catch {}
     $("[data-place]").textContent = method === "paypal" ? `Continue to secure payment · ${usd(t.total)}` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
   }
   function loadRazorpay() {
@@ -308,7 +332,7 @@
     const fail = (m, extra = "") => { err.innerHTML = esc(m) + extra; err.hidden = false; btn.disabled = false; };
     catalog().then((cat) => { const cU = isUSD(), its = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
       const value = Math.round(its.reduce((s0, i) => s0 + unit(cat.products[i.slug]) * i.qty, 0) * 100) / 100;
-      track("InitiateCheckout", { value: value || undefined, currency: cU ? "USD" : "INR", content_ids: its.map((i) => i.slug), contents: its.map((i) => ({ id: i.slug, quantity: i.qty, item_price: unit(cat.products[i.slug]) })), content_type: "product", num_items: its.reduce((s0, i) => s0 + i.qty, 0) }); })
+      track("InitiateCheckout", { value: value || undefined, currency: cU ? "USD" : "INR", content_ids: its.map((i) => i.slug), contents: its.map((i) => ({ id: i.slug, quantity: i.qty, item_price: unit(cat.products[i.slug]) })), content_type: "product", num_items: its.reduce((s0, i) => s0 + i.qty, 0) }, undefined, { items: gaItems(cat, its) }); })
       .catch(() => track("InitiateCheckout", { num_items: count(), currency: isUSD() ? "USD" : "INR" }));
     form.addEventListener("submit", async (e) => {
       e.preventDefault(); if (btn.disabled) return; err.hidden = true;
@@ -339,7 +363,7 @@
             onApprove: (d, actions) => actions.order.capture().then((res) => { const cap = res?.purchase_units?.[0]?.payments?.captures?.[0]?.id || d.orderID;
               sendSheet({ type: "paid", name: f.name, phone: ph, email: f.email, country: f.country, city: f.city, state: f.state || "", pincode: f.pincode, address: String(f.address || "").slice(0, 300), ref_order: ref, total: t.total, currency: "USD", payment: "PayPal " + cap + " (check in PayPal)", items: ppItems.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") + (t.coupon ? " | coupon " + t.coupon : ""), skus: ppItems.map((i) => `${i.slug}|${i.size || ""}|${i.qty}`).join(";") });
               notifyOrder(cat, f, ref, t, "USD", { method: "PayPal", id: cap, paypal_order: d.orderID, total: t.total, phone: ph }, ppItems);
-              track("Purchase", { value: t.total, currency: "USD", content_ids: ppItems.map((i) => i.slug), content_type: "product" }, ref); setBag([]);
+              track("Purchase", { value: t.total, currency: "USD", content_ids: ppItems.map((i) => i.slug), content_type: "product" }, ref, { shipping: t.shipping || 0, coupon: t.coupon || undefined, items: gaItems(cat, ppItems) }); setBag([]);
               showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p class="muted">PayPal reference: ${esc(cap)}</p><p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p></div>`); }),
             onError: (err) => { const raw = String((err && (err.message || err)) || ""); const iss = (raw.match(/"issue":"[A-Z_]+"/g) || []).map((x) => x.slice(9, -1)).join(", "); const m = (iss ? "Issue: " + iss + " · " : "") + raw.replace(/[<>&]/g, "").slice(0, 120); try { console.error("PayPal error", err); } catch (e) {} $("[data-pp-box]").innerHTML = `<p class="warn">Payment did not go through. Please try again. <button type="button" class="link" data-pp-invoice2>Prefer an invoice? WhatsApp us</button></p>`; $("[data-pp-invoice2]")?.addEventListener("click", invoiceDone); },
           }).render("[data-pp-box]"); } catch { invoiceDone(); } };
@@ -370,7 +394,7 @@
               if (ok) {
                 sendSheet({ type: "paid", name: f.name, phone: f.phone, email: f.email || "", city: f.city || "", state: f.state || "", pincode: f.pincode || "", country: "India", address: String(f.address || "").slice(0, 300), ref_order: ref, total: o.amount / 100, currency: "INR", payment: "Razorpay " + resp.razorpay_payment_id, items: bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") + (t.coupon ? " | coupon " + t.coupon : ""), skus: bag.map((i) => `${i.slug}|${i.size || ""}|${i.qty}`).join(";") });
                 notifyOrder(cat, f, ref, t, "INR", { method: "Razorpay", id: resp.razorpay_payment_id, rzp_order: resp.razorpay_order_id, rzp_sig: resp.razorpay_signature, total: o.amount / 100 }, bag);
-                track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" }, ref);
+                track("Purchase", { value: o.amount / 100, currency: "INR", content_ids: items.map((i) => i.slug), content_type: "product" }, ref, { shipping: t.shipping || 0, coupon: t.coupon || undefined, items: gaItems(cat, items) });
                 setBag([]);
                 showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed.</p><p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p><p class="muted">Payment ID: ${esc(resp.razorpay_payment_id)}</p>${BK.wa ? `<a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener">Get updates on WhatsApp</a>` : ""}<p><a class="link" href="${url("shop/")}">Continue shopping →</a></p></div>`);
               } else {
@@ -399,7 +423,7 @@
 
   // product view
   const pv = $("[data-product]");
-  if (pv) { const vU = isUSD(); track("ViewContent", { content_ids: [pv.dataset.product], content_type: "product", value: (vU ? Number(pv.dataset.usd) : Number(pv.dataset.price)) || undefined, currency: vU ? "USD" : "INR" }); }
+  if (pv) { const vU = isUSD(), vv = (vU ? Number(pv.dataset.usd) : Number(pv.dataset.price)) || undefined; track("ViewContent", { content_ids: [pv.dataset.product], content_type: "product", value: vv, currency: vU ? "USD" : "INR" }, undefined, { items: [{ item_id: pv.dataset.product, item_name: $("h1", pv)?.textContent?.trim() || pv.dataset.product, item_brand: BK.brand, price: vv, quantity: 1 }] }); }
 
   // product video: muted autoplay; pause when off screen
   const pv2 = $$("video[data-pvideo]");
@@ -446,7 +470,7 @@
     cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
     const wasUSD = isUSD(), toUSD = cc.c !== "IN"; document.documentElement.classList.toggle("usd", toUSD);
     if (!silent) { toast(cc.c === "IN" ? "Showing prices in ₹ for India" : `Prices for ${cc.n}${cc.cur !== "USD" ? " (approx. " + cc.cur + ", charged in US $)" : " in US $"}`); if (co && wasUSD !== toUSD) return location.reload(); }
-    ensureRates().then(applyLocal); renderCart().catch(() => {});
+    ensureRates().then(applyLocal); renderCart().catch(() => {}); try { paintPdpEta(); paintBagEta(); } catch {}
   }
   let ratesP;
   const ensureRates = () => { const cur = cc?.cur; if (!cur || cur === "USD" || cur === "INR" || rates[cur]) return Promise.resolve(); return (ratesP ||= (async () => { try { const c = JSON.parse(localStorage.getItem("bk_rates") || "null"); if (c && Date.now() - c.t < 12 * 36e5) { rates = { ...c.r, ...(BK.rates || {}), USD: 1 }; return; } } catch {} try { const r = await fetch("https://open.er-api.com/v6/latest/USD"); const j = await r.json(); if (j && j.rates) { rates = { ...j.rates, ...(BK.rates || {}), USD: 1 }; try { localStorage.setItem("bk_rates", JSON.stringify({ t: Date.now(), r: j.rates })); } catch {} } } catch {} })()); };
@@ -762,23 +786,21 @@
   }
   paintUser();
 
-  // ---------- delivery date estimate (pincode / international) ----------
-  const fmtD = (d) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
-  const addWork = (n) => { const d = new Date(); let k = 0; while (k < n) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0) k++; } return d; };
+  // ---------- delivery date estimate on the product page: ONE line, from bkEta() (same numbers as bag + checkout) ----------
   const pf = $("[data-pin-form]"), pin = $("[data-pin]"), pout = $("[data-deliv-out]");
-  const showEta = () => {
-    const sh = BK.ship || { dispatch: 3, min: 3, max: 7, local: 2, intlMin: 7, intlMax: 12 };
-    if (isUSD()) { pout.innerHTML = `Ships from Jaipur in ${sh.dispatch} days · arrives in about <b>${sh.intlMin}–${sh.intlMax} days</b> after dispatch (estimate).`; return; }
-    const v = (pin.value || "").replace(/\D/g, ""); if (!/^[1-9]\d{5}$/.test(v)) { pout.textContent = "Enter a valid 6-digit pincode."; return; }
-    const raj = /^3[0-4]/.test(v), lo = sh.dispatch + (raj ? 1 : sh.min), hi = sh.dispatch + (raj ? sh.local : sh.max);
-    pout.innerHTML = `Estimated delivery: <b>${fmtD(addWork(lo))} – ${fmtD(addWork(hi))}</b> <span class="muted">(prepaid, not guaranteed)</span>`;
-    try { localStorage.setItem("bk_pin", v); } catch {}
-  };
-  if (pf) {
-    try { const sv = localStorage.getItem("bk_pin"); if (sv) { pin.value = sv; showEta(); } } catch {}
-    if (isUSD()) { pin.closest(".pin-row").hidden = true; showEta(); }
-    pf.addEventListener("submit", (e) => { e.preventDefault(); showEta(); });
+  const etaEl = $("[data-eta]"), prodE = $("[data-product]");
+  function paintPdpEta() {
+    if (!etaEl || !prodE) return;
+    if (isUSD() && prodE.dataset.intl !== "1") { etaEl.hidden = true; return; }
+    const proc = ((prodE.dataset.proc || "").match(/(\d+)\D*(\d+)?/) || []).slice(1).filter(Boolean).map(Number);
+    const custom = !!$(".size.on", prodE) && isCustom($(".size.on", prodE).dataset.size);
+    const e = bkEta(custom, proc); let where = e.name;
+    if (!e.intl) { try { const v = localStorage.getItem("bk_pin"); if (v && /^[1-9]\d{5}$/.test(v)) where = v; } catch {} }
+    etaEl.hidden = false; etaEl.innerHTML = `🚚 Delivery to ${esc(where)}: <b>est. ${e.range}</b>${custom ? " <small>(custom fit)</small>" : ""}`;
   }
+  if (pf) pf.addEventListener("submit", (e) => { e.preventDefault(); const v = (pin.value || "").replace(/\D/g, ""); if (!/^[1-9]\d{5}$/.test(v)) { pout.textContent = "Enter a valid 6-digit pincode."; return; } pout.textContent = ""; try { localStorage.setItem("bk_pin", v); } catch {} paintPdpEta(); });
+  try { const sv = localStorage.getItem("bk_pin"); if (sv && pin) pin.value = sv; } catch {}
+  document.addEventListener("bk:size", () => { try { paintPdpEta(); } catch {} });
   // ---------- checkout: type the pincode → city + state fill themselves (India) ----------
   if (co) { const f3 = $("[data-co-form]");
     if (f3?.pincode) {
@@ -1042,14 +1064,7 @@
     const lock = (msg) => $$("[data-add],[data-buy],[data-sticky] button").forEach((b) => { b.disabled = true; b.title = msg; });
     if (prodEl && (stop || prodEl.hasAttribute("data-paused"))) lock(stop ? why : "Not available right now"); if (prodEl && stop) $("[data-buy]", prodEl)?.closest(".buy-row")?.insertAdjacentHTML("beforebegin", `<p class="paused-note" role="status">⏸ ${esc(why)}</p>`);
     if (prodEl) {
-      const addB = (d, n) => { const x = new Date(d); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 0) n--; } return x; };
-      const fmt = (d) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-      const proc = (prodEl.dataset.proc.match(/(\d+)\D*(\d+)?/) || []).slice(1).filter(Boolean).map(Number);
-      const h = proc.length ? [proc[0], proc[1] || proc[0]] : mk?.h, t = mk?.t, eta = $("[data-eta]", prodEl);
-      if (eta) { eta.hidden = false;
-        if (h && t) { const a = addB(new Date(), h[0] + t[0]), b = addB(new Date(), h[1] + t[1]); eta.textContent = `🚚 Ships in ${h[0]}–${h[1]} days · Delivery to ${cname} est. ${fmt(a)} – ${fmt(b)}${mk.c ? " · " + mk.c : ""}`; }
-        else if (h) eta.textContent = `📦 Ships from Jaipur in ${h[0]}–${h[1]} working days`;
-        else if (ccNow !== "IN" && window.BK && BK.ship) { const a = addB(new Date(), 2 + (BK.ship.intlMin || 5)), b = addB(new Date(), 7 + (BK.ship.intlMax || 10)); eta.textContent = `🚚 Free duties-paid delivery to ${cname} · est. ${fmt(a)} – ${fmt(b)}`; } else eta.textContent = ccNow === "IN" ? "" : `🌍 Delivery time to ${cname}: ask us on WhatsApp`; if (!eta.textContent) eta.hidden = true; }
+      try { paintPdpEta(); } catch {}
       const rl = $("[data-retline]", prodEl), ov = prodEl.dataset.ret;
       if (rl) { const txt = ov && ov !== "Default" ? ov : mk?.r || ""; rl.hidden = !txt; rl.textContent = txt ? `↩️ ${txt}` : ""; }
       const mm = $("[data-mkmsg]", prodEl); if (mm && mk && (mk.m || mk.d)) { mm.hidden = false; mm.textContent = [mk.m, mk.d].filter(Boolean).join(" · "); }
@@ -1411,16 +1426,9 @@
   }));
   // ---------- CRO: bag drawer perks (USD) – free potli line + "order today → est. delivery" from the same BK.ship / market rules as the product page ----------
   function cartPerks() {
-    const box = document.querySelector("[data-cart-perks]"); let bought = false; try { bought = localStorage.getItem("bk_bought") === "1"; } catch {}
+    let bought = false; try { bought = localStorage.getItem("bk_bought") === "1"; } catch {}
     document.querySelectorAll("[data-potli]").forEach((el) => (el.hidden = bought));
-    const eta = box && box.querySelector("[data-cart-eta]"); if (!eta) return; const r = intlEta(); eta.hidden = !r; if (r) eta.innerHTML = `🚚 Order today → est. delivery <b>${r}</b>`;
-  }
-  function intlEta() {
-    if (!isUSD()) return ""; let cc = ""; try { cc = (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || ""; } catch {} if (!cc) cc = guessCC(); if (!cc || cc === "IN") cc = "US";
-    const mk = (BK.mk || {})[cc], ok = (a) => Array.isArray(a) && a.length > 1;
-    const addB = (n) => { const x = new Date(); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 0) n--; } return x; }, fmt = (d) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-    let lo, hi; if (mk && ok(mk.h) && ok(mk.t)) { lo = mk.h[0] + mk.t[0]; hi = mk.h[1] + mk.t[1]; } else if (BK.ship) { lo = 2 + (BK.ship.intlMin || 5); hi = 7 + (BK.ship.intlMax || 10); } else return "";
-    return `${fmt(addB(lo))} – ${fmt(addB(hi))}`;
+    paintBagEta();
   }
   try { cartPerks(); } catch {}
   (() => {
