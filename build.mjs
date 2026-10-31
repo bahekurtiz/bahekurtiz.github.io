@@ -1060,8 +1060,9 @@ infoPage("about/index.html", "about/", `Our Story – ${brand}, Jaipur`, S.about
 // Founder page
 {
   const FN = S.founder_name || "Suresh Kumar Choudhary";
+  const FPHOTO = S.founder_photo ? String(S.founder_photo).replace(/^\/+/, "") : (() => { try { const d = path.join(ROOT, "static/images/site"); const f = fs.readdirSync(d).find((x) => /^(founder|suresh)[^/]*\.(webp|jpe?g|png)$/i.test(x)); return f ? "images/site/" + f : ""; } catch { return ""; } })();
   const fimg = (products.find((p) => p.slug === "indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set") || products[0])?.images[0] || "";
-  const person = { "@context": "https://schema.org", "@type": "Person", "@id": SITE_URL + "/founder/#person", name: FN, gender: "https://schema.org/Male", jobTitle: "Founder", worksFor: { "@id": SITE_URL + "/#store" }, homeLocation: { "@type": "Place", name: "Jaipur, Rajasthan, India" }, url: SITE_URL + "/founder/", knowsAbout: ["Hand block printing", "Kota doria", "Indian ethnic wear", "Kurta sets", "Anarkali suits"] };
+  const person = { "@context": "https://schema.org", "@type": "Person", "@id": SITE_URL + "/founder/#person", name: FN, gender: "https://schema.org/Male", ...(FPHOTO ? { image: SITE_URL + "/" + FPHOTO } : {}), jobTitle: "Founder", worksFor: { "@id": SITE_URL + "/#store" }, homeLocation: { "@type": "Place", name: "Jaipur, Rajasthan, India" }, url: SITE_URL + "/founder/", knowsAbout: ["Hand block printing", "Kota doria", "Indian ethnic wear", "Kurta sets", "Anarkali suits"] };
   const prof = { "@context": "https://schema.org", "@type": "ProfilePage", name: `${FN} – Founder of ${brand}`, url: SITE_URL + "/founder/", mainEntity: { "@id": SITE_URL + "/founder/#person" } };
   const body = `<section class="wrap section prose founder">
 <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("about/")}">Our Story</a> / <span>Meet the Founder</span></nav>
@@ -1069,6 +1070,8 @@ infoPage("about/index.html", "about/", `Our Story – ${brand}, Jaipur`, S.about
 <h1>${esc(FN)}</h1>
 <p class="lead"><em>Founder, ${esc(brand)} · Jaipur</em></p>
 <p class="lead">A Jaipur man with one stubborn idea: real Indian craft should not cost a fortune – and should never fall apart.</p>
+${FPHOTO ? `<figure class="founder-photo"><img src="${esc(u(FPHOTO))}" alt="${esc(FN)}, founder of ${esc(brand)}, Jaipur" width="600" height="750" decoding="async" style="max-width:340px;height:auto;border-radius:12px"><figcaption>${esc(FN)}, founder of ${esc(brand)}</figcaption></figure>` : ""}
+<figure><img src="${u("images/site/bahe-unit-jaipur-1.webp")}" alt="Inside the ${esc(brand)} unit in Jaipur – fabrics and cutting table" width="760" height="507" decoding="async"><figcaption>Inside our unit in Jaipur.</figcaption></figure>
 <h2>Where it began</h2>
 <p>${esc(FN)} started working with clothes in 2018. No shortcuts, no big investors – just a young man in Jaipur learning the trade the hard way: sourcing fabric, sitting with printers, standing next to tailors, packing parcels late into the night, and listening to what women actually want to wear.</p>
 <p>"Every mistake taught me something," he says. "Wrong fabric, wrong fit, late delivery – I made all of them once, and never twice."</p>
