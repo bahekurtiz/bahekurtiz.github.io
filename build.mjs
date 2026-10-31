@@ -1061,31 +1061,34 @@ infoPage("about/index.html", "about/", `Our Story – ${brand}, Jaipur`, S.about
 {
   const FN = S.founder_name || "Suresh Kumar Choudhary";
   const fimg = (products.find((p) => p.slug === "indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set") || products[0])?.images[0] || "";
-  const person = { "@context": "https://schema.org", "@type": "Person", "@id": SITE_URL + "/founder/#person", name: FN, jobTitle: "Founder", worksFor: { "@id": SITE_URL + "/#store" }, homeLocation: { "@type": "Place", name: "Jaipur, Rajasthan, India" }, url: SITE_URL + "/founder/", knowsAbout: ["Hand block printing", "Kota doria", "Indian ethnic wear", "Kurta sets", "Anarkali suits"] };
+  const person = { "@context": "https://schema.org", "@type": "Person", "@id": SITE_URL + "/founder/#person", name: FN, gender: "https://schema.org/Male", jobTitle: "Founder", worksFor: { "@id": SITE_URL + "/#store" }, homeLocation: { "@type": "Place", name: "Jaipur, Rajasthan, India" }, url: SITE_URL + "/founder/", knowsAbout: ["Hand block printing", "Kota doria", "Indian ethnic wear", "Kurta sets", "Anarkali suits"] };
   const prof = { "@context": "https://schema.org", "@type": "ProfilePage", name: `${FN} – Founder of ${brand}`, url: SITE_URL + "/founder/", mainEntity: { "@id": SITE_URL + "/founder/#person" } };
   const body = `<section class="wrap section prose founder">
 <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("about/")}">Our Story</a> / <span>Meet the Founder</span></nav>
 <p class="eyebrow">Meet the founder</p>
 <h1>${esc(FN)}</h1>
 <p class="lead"><em>Founder, ${esc(brand)} · Jaipur</em></p>
-<figure><img src="${u("images/site/bahe-unit-jaipur-1.webp")}" alt="Inside the ${esc(brand)} unit in Jaipur – fabrics and cutting table" width="760" height="507" decoding="async"><figcaption>Inside our unit in Jaipur.</figcaption></figure>
+<p class="lead">A Jaipur man with one stubborn idea: real Indian craft should not cost a fortune – and should never fall apart.</p>
 <h2>Where it began</h2>
-<p>I have been working with clothes since 2018. In the beginning I learned everything the slow way – fabrics, prints, stitching, packing, and above all, what women really want to wear. It was hard work, long days and a lot of learning.</p>
-<p>Then came the lockdown. The world stopped, but I kept thinking about one question: why should beautiful, handmade Indian clothing be either very expensive or poorly made? That question became a brand. I named it <strong>${esc(brand)}</strong>, and that is where my real journey started.</p>
-<h2>What we make, and why</h2>
-<p>Jaipur is my home, and its crafts are in everything we do – hand block printing, kota doria, gota work, embroidery done by hand. We work with karigars who carry these skills in their hands, and we make our pieces in our own unit in Jaipur.</p>
-<p>My promise is simple: <strong>good fabric, real craft and the best designs, at a fair price.</strong> Not fast fashion that falls apart, and not luxury that only a few can afford. Kurta sets you can wear to the office, Anarkalis for weddings and festivals, easy cotton pieces for every day – each one made with care.</p>
+<p>${esc(FN)} started working with clothes in 2018. No shortcuts, no big investors – just a young man in Jaipur learning the trade the hard way: sourcing fabric, sitting with printers, standing next to tailors, packing parcels late into the night, and listening to what women actually want to wear.</p>
+<p>"Every mistake taught me something," he says. "Wrong fabric, wrong fit, late delivery – I made all of them once, and never twice."</p>
+<h2>The lockdown turning point</h2>
+<p>When the lockdown froze the world in 2020, he refused to stand still. One question kept him awake: <em>why is beautiful handmade Indian clothing either too expensive or too poorly made?</em> He decided to answer it himself – and that answer became <strong>${esc(brand)}</strong>.</p>
+<p>"I am a son of Jaipur," he says. "Block printing, kota doria, gota work – I grew up around this craft. I wanted the world to wear it."</p>
+<h2>What he builds, and why</h2>
+<p>Every ${esc(brand)} piece is designed by him and made in Jaipur with karigars who carry these skills in their hands – hand block printing, kota doria, gota work and hand embroidery.</p>
+<p>His promise is simple: <strong>good fabric, real craft and the best designs, at a fair price.</strong> Not fast fashion that falls apart, and not luxury that only a few can afford – kurta sets for the office, Anarkalis for weddings and festivals, easy cotton for every day.</p>
 <div class="founder-gal" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0">
 ${[["2","Fabrics sorted and cut on our long cutting tables"],["3","Cutting by hand with our own paper patterns"],["4","Stitching in our Jaipur unit"],["5","Final pressing before every piece is packed"]].map(([n, c]) => `<figure style="margin:0"><img src="${u("images/site/bahe-unit-jaipur-" + n + ".webp")}" alt="${esc(c)} – ${esc(brand)}, Jaipur" width="760" height="507" loading="lazy" decoding="async" style="width:100%;height:auto;border-radius:8px"><figcaption class="small muted">${esc(c)}</figcaption></figure>`).join("")}
 </div>
 <h2>From Jaipur to the world</h2>
-<p>Today women order from us in India and abroad – the USA, the UK, Canada, the UAE and Australia. Many of them are Indian women living far from home, who miss the feel of a soft cotton kurta or a festive Anarkali that actually fits. For them we offer free custom stitching to their measurements, photos of their piece before it ships, and free worldwide shipping.</p>
-<p>Our indigo hand block print kota doria set became one of our top-selling designs on Myntra – proof that women everywhere love real craft at an honest price. Every repeat order tells me we are on the right path.</p>
+<p>Today women order from ${esc(brand)} in India and across the world – the USA, the UK, Canada, the UAE and Australia. Many are Indian women living far from home who miss a soft cotton kurta or a festive Anarkali that actually fits. For them he offers free custom stitching to their measurements, photos of their piece before it ships, and free duties-paid shipping.</p>
+<p>The indigo hand block print kota doria set became one of the brand's top-selling designs on Myntra. "Every repeat order tells me I am on the right path," he says.</p>
 ${fimg ? `<figure><img src="${esc(u(fimg))}" alt="Indigo hand block print kota doria kurta set by ${esc(brand)}" width="1080" height="1440" loading="lazy" decoding="async" style="max-width:320px"><figcaption>Our indigo hand block print kota doria set.</figcaption></figure>` : ""}
-<h2>My dream</h2>
-<p>My dream is to make ${esc(brand)} a top international brand from India – a name women around the world trust for their weddings, their festivals and their everyday moments. I want the world to see what Jaipur's karigars can do, and I want every woman, wherever she lives, to be able to wear it.</p>
-<p>We are just getting started. Thank you for being part of this journey.</p>
-<p><strong>– ${esc(FN)}</strong><br><span class="muted">Founder, ${esc(brand)}</span></p>
+<h2>His dream</h2>
+<p>His goal is bold: to make ${esc(brand)} a top international brand from India – a name women trust for their weddings, their festivals and their everyday moments.</p>
+<p>"I want the world to see what Jaipur's karigars can do," he says. "And I want every woman, wherever she lives, to be able to wear it. We are just getting started."</p>
+<p><strong>– ${esc(FN)}</strong><br><span class="muted">Founder, ${esc(brand)} · Jaipur</span></p>
 <p><a class="btn" href="${u("shop/")}">Shop the collection</a> <a class="btn btn-ghost" href="${u("custom-stitched-indian-suits-made-to-measure/")}">Free custom fit</a></p>
 ${waNumber ? `<p class="muted">Want to talk to us? <a class="link" href="https://wa.me/${waNumber}">WhatsApp us</a> – a real person from our Jaipur team will reply.</p>` : ""}
 </section>`;
