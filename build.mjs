@@ -1374,7 +1374,7 @@ ${more.length ? `<section class="wrap section related-posts"><div class="section
     og: `<meta property="article:published_time" content="${b.date}"><meta property="article:modified_time" content="${b.updated}"><meta property="article:author" content="${SITE_URL}/founder/">`,
     ld: [{ "@context": "https://schema.org", "@type": "BlogPosting", "@id": SITE_URL + "/" + b.url + "#article", headline: clip(b.title, 110), description: b.excerpt || undefined, image: [abs(img)],
       datePublished: b.date + "T09:00:00+05:30", dateModified: b.updated + "T09:00:00+05:30", author: authorLd, publisher: publisherLd, mainEntityOfPage: { "@type": "WebPage", "@id": SITE_URL + "/" + b.url }, isPartOf: { "@type": "Blog", "@id": SITE_URL + "/blog/" }, inLanguage: "en", wordCount: b.words, timeRequired: `PT${b.mins}M`, keywords: b.tags.filter(tagOk).join(", ") || undefined, articleSection: b.tags.filter(tagOk)[0] || undefined,
-      ...(rel.length ? { mentions: rel.slice(0, 4).map((p) => ({ "@type": "Product", name: p.title, url: SITE_URL + "/" + p.url })) } : {}) },
+      ...(rel.length ? { mentions: rel.slice(0, 4).map((p) => ({ "@type": "Thing", name: p.title, url: SITE_URL + "/" + p.url })) } : {}) },
       crumbLd([["Blog", "blog/"], ...(b.tagSlugs[0] && tagPages.some((t) => t.slug === b.tagSlugs[0]) ? [[tagName.get(b.tagSlugs[0]), "blog/tag/" + b.tagSlugs[0] + "/"]] : []), [b.title, b.url]])],
   }));
 }
