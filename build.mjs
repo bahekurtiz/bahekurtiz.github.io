@@ -1943,6 +1943,9 @@ fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
   fs.mkdirSync(path.join(OUT, "feeds"), { recursive: true });
   fs.writeFileSync(path.join(OUT, "feeds/meta-catalog.csv"), [head.join(","), ...feedItems.map((p) => row(p, "INR"))].join("\n"));
   const intlItems = feedItems.filter((p) => p.intl);
+  // ChatGPT shopping (OpenAI product feed, JSONL – USD, international items)
+  { const gptItems = feedItems.filter((p) => p.intl && p.price_usd != null);
+    if (gptItems.length) fs.writeFileSync(path.join(OUT, "feeds/chatgpt.jsonl"), gptItems.map((p) => JSON.stringify({ item_id: p.slug, title: p.title, description: plain(p), url: `${SITE_URL}/${p.url}`, brand, seller_name: brand, image_url: abs(p.images[0]), additional_image_urls: p.images.slice(1, 10).map(abs), availability: p.in_stock ? "in_stock" : "preorder", price: `${Number(p.mrp_usd && p.mrp_usd > p.price_usd ? p.mrp_usd : p.price_usd).toFixed(2)} USD`, ...(p.mrp_usd && p.mrp_usd > p.price_usd ? { sale_price: `${Number(p.price_usd).toFixed(2)} USD` } : {}), condition: "new", product_category: gcat(p.category), material: p.fabric || undefined, color: p.color || undefined, gender: "female", age_group: "adult", shipping: "US:::0.00 USD", seller_url: SITE_URL + "/", return_policy: SITE_URL + "/international-returns/" })).join("\n")); }
   if (intlItems.length) fs.writeFileSync(path.join(OUT, "feeds/meta-catalog-usd.csv"), [head.join(","), ...intlItems.map((p) => row(p, "USD"))].join("\n"));
   const x = (v) => esc(String(v ?? ""));
 const gid = (s) => { if (s.length <= 50) return s; let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return s.slice(0, 42).replace(/-+$/, "") + "-" + h.toString(36).slice(0, 6); };
