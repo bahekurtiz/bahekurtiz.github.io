@@ -1612,6 +1612,14 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
 
 // ---------- blog ----------
 // Small, safe markdown → HTML (headings, bold, italic, links, images, lists, quotes)
+// blog FAQ → FAQPage schema (questions written as **Q?** or ### Q? under a "Frequently asked questions" heading)
+function blogFaqLd(b) {
+  const parts = String(b.body || "").split(/^## (?:Frequently asked questions|FAQs?)\b.*$/im); if (parts.length < 2) return [];
+  const sec = parts[1].split(/^## /m)[0], strip = (t) => String(t).replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[*_`>#]/g, "").replace(/\s+/g, " ").trim();
+  const qa = []; const re = /^(?:\*\*(.+?\?)\*\*|###\s+(.+?\?))[ \t]*\n+((?:(?!\*\*.+?\?\*\*|###\s).+\n?)+)/gm; let m;
+  while ((m = re.exec(sec))) { const q = strip(m[1] || m[2]), a = strip(m[3]); if (q && a) qa.push([q, a]); }
+  return qa.length >= 2 ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: qa.slice(0, 12).map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }] : [];
+}
 function md(src = "") {
   const safeUrl = (x) => (/^(https?:\/\/|\/|#|mailto:)/i.test(x.trim()) ? x.trim() : "#");
   const inline = (t) => esc(t)
@@ -1730,6 +1738,7 @@ ${more.length ? `<section class="wrap section related-posts"><div class="section
     ld: [{ "@context": "https://schema.org", "@type": "BlogPosting", "@id": SITE_URL + "/" + b.url + "#article", headline: clip(b.title, 110), description: b.excerpt || undefined, image: [abs(img)],
       datePublished: b.date + "T09:00:00+05:30", dateModified: b.updated + "T09:00:00+05:30", author: authorLd, publisher: publisherLd, mainEntityOfPage: { "@type": "WebPage", "@id": SITE_URL + "/" + b.url }, isPartOf: { "@type": "Blog", "@id": SITE_URL + "/blog/" }, inLanguage: "en", wordCount: b.words, timeRequired: `PT${b.mins}M`, keywords: b.tags.filter(tagOk).join(", ") || undefined, articleSection: b.tags.filter(tagOk)[0] || undefined,
       ...(rel.length ? { mentions: rel.slice(0, 4).map((p) => ({ "@type": "Thing", name: p.title, url: SITE_URL + "/" + p.url })) } : {}) },
+      ...blogFaqLd(b),
       crumbLd([["Blog", "blog/"], ...(b.tagSlugs[0] && tagPages.some((t) => t.slug === b.tagSlugs[0]) ? [[tagName.get(b.tagSlugs[0]), "blog/tag/" + b.tagSlugs[0] + "/"]] : []), [b.title, b.url]])],
   }));
 }
