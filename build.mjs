@@ -1743,6 +1743,42 @@ ${more.length ? `<section class="wrap section related-posts"><div class="section
   }));
 }
 
+// ---------- Google Web Stories (AMP) – one swipeable story per guide; shown in Google Search and Discover ----------
+// Built automatically from each published guide, so every new guide also "travels" into Discover/Search story surfaces.
+const STORY_URLS = [];
+{
+  const AMP_BP = `<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>`;
+  const CSS = `<style amp-custom>amp-story{font-family:Georgia,'Times New Roman',serif;color:#fff}amp-story-page{background:#2b1a1f}.shade{background:linear-gradient(to top,rgba(20,10,12,.92) 0%,rgba(20,10,12,.55) 45%,rgba(20,10,12,0) 75%)}.txt{align-content:end;padding:28px 24px 64px}.eyebrow{font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#f2c879;margin:0 0 10px}h1{font-size:32px;line-height:1.15;margin:0 0 12px;font-weight:normal}h2{font-size:26px;line-height:1.2;margin:0 0 10px;font-weight:normal}p{font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:1.45;margin:0}.price{font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#f2c879;margin-top:8px}.brand{font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:2px;opacity:.85;margin-top:14px}</style>`;
+  const plainS = (t) => String(t || "").replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[*_`>#|]/g, "").replace(/\s+/g, " ").trim();
+  const clipS = (t, n) => { t = plainS(t); if (t.length <= n) return t; const s = t.slice(0, n); const dot = s.lastIndexOf(". "); return (dot > n * 0.5 ? s.slice(0, dot + 1) : s.replace(/\s+\S*$/, "") + "…"); };
+  const img = (src) => esc(encodeURI(decodeURI(abs(src))));
+  const logo = favImg0 ? abs(favImg0) : abs("images/site/favicon.png");
+  for (const b of posts) {
+    const rel = (b.related_products || []).map((s) => products.find((p) => p.slug === s)).filter((p) => p && p.images[0]);
+    const cover = b.cover || rel[0]?.images[0]; if (!cover || rel.length < 2) continue;
+    const body = String(b.body || "");
+    const qa = (body.match(/## Quick answer\s+([\s\S]*?)(?:\n\n\*By |\n## )/) || [])[1] || b.excerpt || "";
+    const secs = [...body.matchAll(/^## (.+)\n+([^\n#|>-][^\n]*)/gm)].map((m) => [m[1].trim(), m[2]]).filter(([h]) => !/quick answer|frequently asked|our pick/i.test(h)).slice(0, 4);
+    if (secs.length < 2) continue;
+    const pool = []; for (let i = 0; i < 6; i++) for (const p of rel) if (p.images[i]) pool.push(p.images[i]);
+    const pick = (i) => pool[i % pool.length];
+    const url = `${SITE_URL}/stories/${b.slug}/`;
+    const page = (id, src, inner, out) => `<amp-story-page id="${id}"><amp-story-grid-layer template="fill"><amp-img src="${img(src)}" layout="fill" object-fit="cover" alt=""></amp-img></amp-story-grid-layer><amp-story-grid-layer template="fill" class="shade"></amp-story-grid-layer><amp-story-grid-layer template="vertical" class="txt">${inner}</amp-story-grid-layer>${out ? `<amp-story-page-outlink layout="nodisplay"><a href="${out[0]}">${esc(out[1])}</a></amp-story-page-outlink>` : ""}</amp-story-page>`;
+    const spages = [
+      page("cover", cover, `<p class="eyebrow">${esc(brand)} · Style guide</p><h1>${esc(clipS(b.title, 90))}</h1><p class="brand">SWIPE →</p>`),
+      page("answer", pick(0), `<p class="eyebrow">Quick answer</p><p>${esc(clipS(qa, 230))}</p>`),
+      ...secs.map(([h, t], i) => page("s" + i, pick(i + 1), `<h2>${esc(clipS(h, 70))}</h2><p>${esc(clipS(t, 190))}</p>`)),
+      ...rel.slice(0, 2).map((p, i) => page("shop" + i, p.images[0], `<p class="eyebrow">Shop this look</p><h2>${esc(clipS(p.title, 80))}</h2>${p.intl && p.price_usd ? `<p class="price">$${p.price_usd} · Free custom fit · Duties paid</p>` : ""}`, [`${SITE_URL}/${p.url}`, "Shop now"])),
+      page("end", pick(secs.length + 2), `<p class="eyebrow">Made in Jaipur</p><h2>Read the full guide</h2><p>${esc(clipS(b.excerpt || qa, 150))}</p><p class="brand">${esc(brand.toUpperCase())}</p>`, [`${SITE_URL}/${b.url}`, "Read the guide"]),
+    ];
+    const ld = { "@context": "https://schema.org", "@type": "Article", headline: clipS(b.title, 110), image: [abs(cover)], datePublished: b.date + "T09:00:00+05:30", dateModified: b.updated + "T09:00:00+05:30", author: { "@type": "Organization", name: brand, url: SITE_URL + "/" }, publisher: { "@type": "Organization", name: brand, logo: { "@type": "ImageObject", url: logo } }, mainEntityOfPage: url };
+    const html = `<!doctype html><html ⚡ lang="en"><head><meta charset="utf-8"><title>${esc(clipS(b.title, 90))}</title><link rel="canonical" href="${url}"><meta name="viewport" content="width=device-width"><meta name="description" content="${esc(clipS(b.seo_description || b.excerpt || b.title, 160))}"><meta name="robots" content="index,follow,max-image-preview:large">${AMP_BP}<script async src="https://cdn.ampproject.org/v0.js"></script><script async custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js"></script>${CSS}<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script></head><body><amp-story standalone title="${esc(clipS(b.title, 90))}" publisher="${esc(brand)}" publisher-logo-src="${esc(logo)}" poster-portrait-src="${img(cover)}">${spages.join("")}</amp-story></body></html>`;
+    pages.push([`stories/${b.slug}/index.html`, html]); // raw AMP – not passed through add() transforms
+    STORY_URLS.push({ path: `stories/${b.slug}/`, title: b.title, cover });
+  }
+  if (STORY_URLS.length) add("stories/index.html", page({ title: `Style Stories | ${brand}`, description: "Swipeable style stories from Jaipur: Indian wedding guest outfits, festival looks and block-print guides.", pathname: "stories/", image: STORY_URLS[0].cover, body: `<section class="wrap section"><h1>Style Stories</h1><p class="lead">Quick, swipeable guides – tap one to start.</p><div class="posts">${STORY_URLS.map((s) => `<a class="post-card" href="${u(s.path)}"><img src="${esc(u(s.cover))}" alt="" loading="lazy" width="300" height="450" style="width:100%;height:auto;aspect-ratio:2/3;object-fit:cover;border-radius:10px"><h3>${esc(s.title)}</h3></a>`).join("")}</div></section>` }));
+}
+
 // ---------- SEO landing pages (content/landing/*.json) – rank for "manufacturer / wholesale" searches ----------
 for (const l of landings) {
   const words = String(l.match || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
@@ -2217,7 +2253,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
