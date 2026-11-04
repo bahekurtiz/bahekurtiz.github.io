@@ -2223,6 +2223,31 @@ fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="U
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x), tp = tagPages.find((q) => q.url === x); const lm = bp ? bp.updated : tp ? tp.items.map((q) => q.updated).sort().at(-1) : x === "blog/" && posts.length ? posts.map((q) => q.updated).sort().at(-1) : ""; return `<url><loc>${SITE_URL}/${x}</loc>${lm ? `<lastmod>${lm}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
 </urlset>`);
+// ---------- Pinterest auto-publish RSS feeds (Settings → Bulk create Pins → Auto-publish; one board per feed) ----------
+// Every new product / guide added to the site becomes a Pin automatically (Pinterest checks the feed and publishes new items within ~24h).
+{
+  const rssEsc = (v) => esc(String(v ?? "").replace(/\s+/g, " ").trim());
+  const plainTxt = (t) => String(t || "").replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[*_`>#|]/g, "").replace(/\s+/g, " ").trim();
+  const cut = (t, n) => (t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, "") + "…");
+  const mime = (u) => (/\.png$/i.test(u) ? "image/png" : /\.jpe?g$/i.test(u) ? "image/jpeg" : "image/webp");
+  const rss = (title, link, desc, items) => `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>${rssEsc(title)}</title><link>${link}</link><description>${rssEsc(desc)}</description><language>en</language>
+${items.join("\n")}
+</channel></rss>`;
+  const item = ({ title, url, desc, img, date }) => `<item><title>${rssEsc(cut(title, 100))}</title><link>${url}</link><guid isPermaLink="true">${url}</guid><description>${rssEsc(cut(desc, 490))}</description><pubDate>${new Date((date || TODAY_IST) + "T09:00:00+05:30").toUTCString()}</pubDate><enclosure url="${rssEsc(encodeURI(decodeURI(abs(img))))}" type="${mime(img)}" length="0"/><media:content url="${rssEsc(encodeURI(decodeURI(abs(img))))}" medium="image" type="${mime(img)}"/></item>`;
+  const pinProducts = products.filter((p) => !p.coming && p.images[0] && p.intl).map((p) => {
+    const craft = p.print_work.filter((w) => w !== "Solid").join(" & ");
+    const desc = `${plainTxt(p.description) || p.title}${craft ? ` ${craft}${p.fabric ? " on " + p.fabric.toLowerCase() : ""}.` : ""} Free custom fit, made in Jaipur, India. Free duties-paid shipping to the USA, UK, Canada, UAE & Australia.${p.price_usd ? ` $${p.price_usd}.` : ""}`;
+    return item({ title: `${p.title}${p.color && !p.title.toLowerCase().includes(String(p.color_base || "").toLowerCase()) ? " – " + (p.color_base || p.color) : ""}`, url: `${SITE_URL}/${p.url}`, desc, img: p.images[0], date: p.launchDay || "" });
+  });
+  fs.writeFileSync(path.join(OUT, "feeds/pinterest-products.xml"), rss(`${brand} – New arrivals`, SITE_URL + "/shop/", "Hand block print kurta sets, Anarkalis and co-ords from Jaipur", pinProducts));
+  const pinGuides = posts.filter((b) => b.cover || (b.related_products || []).length).map((b) => {
+    const rp = products.find((p) => (b.related_products || []).includes(p.slug));
+    const img = b.cover || rp?.images[0]; if (!img) return "";
+    return item({ title: b.seo_title || b.title, url: `${SITE_URL}/${b.url}`, desc: b.seo_description || b.excerpt || b.title, img, date: b.date });
+  }).filter(Boolean);
+  fs.writeFileSync(path.join(OUT, "feeds/pinterest-guides.xml"), rss(`${brand} – Style guides`, SITE_URL + "/blog/", "Indian wedding guest outfit guides and Jaipur craft guides", pinGuides));
+}
 fs.writeFileSync(path.join(OUT, "blog/feed.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>${esc(brand)} Blog</title><link>${SITE_URL}/blog/</link><description>${esc(S.tagline || "")}</description><atom:link href="${SITE_URL}/blog/feed.xml" rel="self" type="application/rss+xml"/><lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
 ${posts.map((b) => `<item><title>${esc(b.title)}</title><link>${SITE_URL}/${b.url}</link><guid>${SITE_URL}/${b.url}</guid><pubDate>${new Date(b.date + "T09:00:00+05:30").toUTCString()}</pubDate><description>${esc(b.excerpt || "")}</description></item>`).join("\n")}
