@@ -7,6 +7,17 @@ import { fileURLToPath } from "node:url";
 
 const SHADE_HEX = { "White": "#ffffff", "Ivory": "#f5efe0", "Beige": "#d8c4a2", "Sage Green": "#a3b18a", "Sky Blue": "#9ec5e2", "Blush Pink": "#e9b7bb", "Lilac": "#c3b1d9", "Mustard": "#d9a93b", "Black": "#1f1f1f", "Navy": "#26344f", "Olive": "#7b7f4a", "Rust": "#b5563a" };
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
+// mobile-upload safety: GitHub sometimes saves files into "products." (folder name with a trailing dot).
+// Before building, copy anything from such folders into the real folder (e.g. static/images/products./x.webp -> static/images/products/x.webp).
+(function fixDotDirs(dir) { let list; try { list = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+  for (const d of list) { if (!d.isDirectory() || d.name === "node_modules" || d.name === ".git" || d.name === "_site") continue;
+    const full = path.join(dir, d.name);
+    if (/\.+$/.test(d.name) && d.name.replace(/\.+$/, "")) { const real = path.join(dir, d.name.replace(/\.+$/, ""));
+      fs.mkdirSync(real, { recursive: true });
+      for (const f of fs.readdirSync(full)) { const src = path.join(full, f), dst = path.join(real, f); if (fs.statSync(src).isFile() && !fs.existsSync(dst)) fs.copyFileSync(src, dst); }
+      fs.rmSync(full, { recursive: true, force: true }); continue; }
+    fixDotDirs(full); } })(path.join(ROOT, "static"));
+for (const sub of ["content"]) { const base = path.join(ROOT, sub); try { for (const d of fs.readdirSync(base, { withFileTypes: true })) { if (d.isDirectory() && /\.+$/.test(d.name)) { const full = path.join(base, d.name), real = path.join(base, d.name.replace(/\.+$/, "")); fs.mkdirSync(real, { recursive: true }); for (const f of fs.readdirSync(full)) { const src = path.join(full, f), dst = path.join(real, f); if (fs.statSync(src).isFile() && !fs.existsSync(dst)) fs.copyFileSync(src, dst); } } } } catch {} }
 const OUT = path.join(ROOT, "_site");
 const S = JSON.parse(fs.readFileSync(path.join(ROOT, "content/settings.json"), "utf8"));
 
@@ -1747,6 +1758,7 @@ for (const b of posts) {
   <p class="post-meta">By <a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a> · <time datetime="${b.date}">${esc(niceDate(b.date))}</time>${b.updated > b.date ? ` · Updated <time datetime="${b.updated}">${esc(niceDate(b.updated))}</time>` : ""} · ${b.mins} min read</p></header>
   ${b.cover ? `<img decoding="async" class="post-cover" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" fetchpriority="high">` : ""}
   <div class="post-body prose">${withToc(md(b.body))}</div>
+  ${/wedding|sangeet|mehndi|mehendi|haldi|nikah|walima|anand karaj|reception/i.test(b.title + " " + b.tags.join(" ")) ? `<aside class="dc-promo" style="margin:28px 0;padding:18px 20px;border:1px solid #eadfe2;border-left:4px solid #6d1a36;border-radius:10px;background:#fbf5ea"><p style="margin:0 0 6px;font-weight:600">💌 Planning your own Indian wedding?</p><p style="margin:0 0 10px">Make a free dress code card for your guests – what to wear to the haldi, mehendi, sangeet, wedding and reception, with colours to wear and avoid. Share one link on Zola, The Knot, WithJoy or WhatsApp.</p><a class="btn" href="${u("tools/wedding-dress-code-card/")}">Make your free dress code card →</a></aside>` : ""}
   ${authorBox}
   <p class="share">Share: <a href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener">WhatsApp</a> · <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL + "/" + b.url)}" target="_blank" rel="noopener">Facebook</a> · <a href="https://pinterest.com/pin/create/button/?url=${encodeURIComponent(SITE_URL + "/" + b.url)}&description=${encodeURIComponent(b.title)}" target="_blank" rel="noopener">Pinterest</a></p>
 </article>
