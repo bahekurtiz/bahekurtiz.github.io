@@ -30,6 +30,9 @@ const abs = (p) => (/^https?:/.test(p) ? p : SITE_URL + "/" + String(p).replace(
 // ---------- helpers ----------
 // <title>: Google shows ~60-65 characters; when a title is longer and ends with the brand, drop the brand (it is in og:site_name and schema)
 const fitTitle = (t) => { t = String(t || ""); const m = t.match(/^(.*\S)\s+[|–-]\s+Bahe Kurtiz$/); return t.length > 65 && m ? m[1] : t; };
+// soft placeholder while a photo loads: its own top/middle/bottom colours (content/image-colors.json, made by the thumbs robot)
+const PH = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/image-colors.json"), "utf8")); } catch { return {}; } })();
+const phStyle = (src) => { let k = String(src || ""); try { k = decodeURI(k); } catch {} const c = PH[k.replace(/^https?:\/\/[^/]+/, "")]; return c ? ` style="background:linear-gradient(${c})"` : ""; };
 const esc = (s = "") => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const paras = (t = "") => String(t || "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
 const clip = (t, n = 155) => { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n - 1); return c.slice(0, Math.max(c.lastIndexOf(" "), 60)).replace(/[\s,;:–-]+$/, "") + "…"; };
@@ -621,8 +624,8 @@ const card = (p, i = 9) => {
   const off = offPct(p);
   return `<article class="card" data-cat="${esc(p.catSlug)}" data-slug="${esc(p.slug)}" data-fabric="${esc(p.fabric)}" data-print="${esc(p.print_work.join("|"))}" data-sizes="${esc(p.sizes.join("|"))}" data-out="${esc(p.sold_out.join("|"))}" data-color="${esc(p.color || "")}" data-occ="${esc(p.occasion.join("|"))}" data-neck="${esc(p.neckline)}" data-sleeve="${esc(p.sleeve)}" data-len="${esc(p.length_type)}" data-stock="${p.in_stock ? 1 : 0}" data-intl="${p.intl ? 1 : 0}"${intlOn && !p.intl ? " data-india-only" : ""}>
   <a href="${u(p.url)}" class="card-link">
-    <div class="card-img${b ? " has-alt" : ""}">
-      ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1600" ${i === 0 ? 'fetchpriority="high"' : i < 2 ? "" : 'loading="lazy"'} decoding="async">` : ""}
+    <div class="card-img${b ? " has-alt" : ""}"${phStyle(a)}>
+      ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1600" ${i === 0 ? 'fetchpriority="high"' : i < 6 ? "" : 'loading="lazy"'} decoding="async">` : ""}
       ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="${esc(p.title)} – alternate view" width="1200" height="1600" decoding="async">` : ""}
       <div class="tags">${p.coming ? `<span class="tag tag-drop">Coming ${esc(dropDate(p).replace(/^\w+,? /, ""))}</span>` : p.isNew ? `<span class="tag tag-new">New this week</span>` : ""}${p.bestseller ?`<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale${p.intl ? " cur-inr" : ""}">-${off}%</span>` : ""}${p.intl && p.mrp_usd > p.price_usd ? `<span class="tag tag-sale cur-usd">-${Math.round((1 - p.price_usd / p.mrp_usd) * 100)}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
@@ -767,7 +770,7 @@ const AUTO = (() => {
 })();
 const trendStrip = () => {
   if (!AUTO || (!AUTO.chips.length && !AUTO.prods.length && !AUTO.guides.length)) return "";
-  const item = (href, img, alt, tag, title, cls = "") => `<a class="trend-item${cls}" href="${u(href)}"><span class="trend-img">${img ? `<img src="${esc(u(img))}" alt="${esc(alt)}" width="160" height="240" loading="lazy" decoding="async">` : ""}<em class="trend-tag">${esc(tag)}</em></span><b>${esc(title)}</b></a>`;
+  const item = (href, img, alt, tag, title, cls = "") => `<a class="trend-item${cls}" href="${u(href)}"><span class="trend-img"${phStyle(img)}>${img ? `<img src="${esc(u(img))}" alt="${esc(alt)}" width="160" height="240" loading="lazy" decoding="async">` : ""}<em class="trend-tag">${esc(tag)}</em></span><b>${esc(title)}</b></a>`;
   return `<section class="trend-strip" aria-labelledby="trend-h"><div class="wrap">
 <div class="trend-head"><h2 id="trend-h">Trending this week</h2><span class="trend-week">${esc(AUTO.name)} · ${esc(AUTO.week)}</span></div>
 ${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a class="trend-chip" href="${u(c.href)}">${esc(c.text)}</a>`).join("")}</div>` : ""}
@@ -991,7 +994,7 @@ for (const p of [...products, ...upcoming]) {
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
         ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
-        : (i === 0 ? `<figure class="slide"><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
+        : (i === 0 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
     <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="${esc(p.title)} – ${m.video ? "video" : "view " + (i + 1)}" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
@@ -2509,7 +2512,7 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
   ...oldLinks,
   extraRedirects.trim(),
 ].filter(Boolean).join("\n") + "\n");
-fs.writeFileSync(path.join(OUT, "_headers"), `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Strict-Transport-Security: max-age=31536000\n  Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(self)\n  Cross-Origin-Opener-Policy: same-origin-allow-popups\n/track/*\n  X-Robots-Tag: noindex\n/checkout/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=2592000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n/embed/*\n  ! X-Frame-Options\n  Content-Security-Policy: frame-ancestors *\n  X-Robots-Tag: noindex\n/widget.js\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=3600\n  Content-Type: application/javascript; charset=utf-8\n`);
+fs.writeFileSync(path.join(OUT, "_headers"), `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Strict-Transport-Security: max-age=31536000\n  Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(self)\n  Cross-Origin-Opener-Policy: same-origin-allow-popups\n/track/*\n  X-Robots-Tag: noindex\n/checkout/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=2592000, stale-while-revalidate=31536000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n/embed/*\n  ! X-Frame-Options\n  Content-Security-Policy: frame-ancestors *\n  X-Robots-Tag: noindex\n/widget.js\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=3600\n  Content-Type: application/javascript; charset=utf-8\n`);
 console.log(`Built ${pages.length} pages, ${products.length} products, ${categories.length} categories → _site (url ${SITE_URL})`);
 
 // ---------- IndexNow: tell Bing, Yandex, Seznam & Naver (and ChatGPT search, which uses Bing) about every page, on each live deploy ----------

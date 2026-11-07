@@ -51,10 +51,12 @@ jobs:
                           print("skip", p, e)
           print("made", made)
           PY
+      - name: Placeholder colours (shown while a photo loads)
+        run: python3 .github/scripts/image_colors.py
       - run: |
           git config user.name "bahe-bot"
           git config user.email "bot@bahekurtiz.com"
-          git add static/images/_r
+          git add static/images/_r content/image-colors.json
           git commit -m "Small image copies" || exit 0
           for i in 1 2 3 4 5; do git pull --rebase -X theirs origin main && git push && exit 0; sleep 10; done
           exit 1
