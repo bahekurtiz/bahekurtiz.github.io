@@ -30,7 +30,7 @@
   "print_work": [
     "Embroidered"
   ],
-  "description": "A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
+  "description": "A deep bottle green kurti in light georgette, knee length with a round neck. A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
   "images": [
     "/images/products/green-1.jpg",
     "/images/products/green-2.jpg",
@@ -43,8 +43,10 @@
   "tryon_png": "",
   "sku": "",
   "old_url": "",
-  "set_items": [],
-  "care": "",
+  "set_items": [
+    "Kurti (georgette, embroidered)"
+  ],
+  "care": "Gentle hand wash or dry clean.",
   "processing_days": "",
   "return_override": "Default",
   "garment_length": null,
@@ -53,6 +55,6 @@
   "featured": true,
   "bestseller": false,
   "sort_order": 25,
-  "seo_title": "",
-  "seo_description": ""
+  "seo_title": "Bottle Green Embroidered Kurti with Tie-Up | Bahe Kurtiz",
+  "seo_description": "Bottle green georgette kurti with white thread embroidery, sheer lower panel, side tie-up cords with tassels and keyhole back. Made in Jaipur."
 }

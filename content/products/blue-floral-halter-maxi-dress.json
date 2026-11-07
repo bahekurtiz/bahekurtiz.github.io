@@ -44,8 +44,10 @@
   "tryon_png": "",
   "sku": "",
   "old_url": "",
-  "set_items": [],
-  "care": "",
+  "set_items": [
+    "Maxi Dress (pure cotton, hand block print)"
+  ],
+  "care": "Cold wash, dry in shade.",
   "processing_days": "",
   "return_override": "Default",
   "garment_length": null,
@@ -54,6 +56,6 @@
   "featured": true,
   "bestseller": false,
   "sort_order": 13,
-  "seo_title": "",
-  "seo_description": ""
+  "seo_title": "Blue Floral Halter Neck Maxi Dress | Bahe Kurtiz",
+  "seo_description": "Blue and grey floral hand block print pure cotton maxi dress with halter neck, lace-up open back and ruffle hem. Made in Jaipur, ships worldwide."
 }

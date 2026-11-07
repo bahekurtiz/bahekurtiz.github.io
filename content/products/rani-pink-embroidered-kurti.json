@@ -33,7 +33,7 @@
   "print_work": [
     "Embroidered"
   ],
-  "description": "A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
+  "description": "A bright rani pink kurti in light georgette, knee length with a round neck and elbow sleeves. A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
   "images": [
     "/images/products/pink-1.jpg",
     "/images/products/pink-2.jpg",
@@ -48,8 +48,10 @@
   "tryon_png": "",
   "sku": "",
   "old_url": "",
-  "set_items": [],
-  "care": "",
+  "set_items": [
+    "Kurti (georgette, embroidered)"
+  ],
+  "care": "Gentle hand wash or dry clean.",
   "processing_days": "",
   "return_override": "Default",
   "garment_length": 46,
@@ -58,6 +60,6 @@
   "featured": true,
   "bestseller": false,
   "sort_order": 23,
-  "seo_title": "",
-  "seo_description": ""
+  "seo_title": "Rani Pink Embroidered Kurti with Tie-Up | Bahe Kurtiz",
+  "seo_description": "Rani pink georgette kurti with white thread embroidery, elbow sleeves, side tie-up cords with tassels and keyhole back. Made in Jaipur."
 }
