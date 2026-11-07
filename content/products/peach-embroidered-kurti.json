@@ -32,7 +32,7 @@
   "print_work": [
     "Embroidered"
   ],
-  "description": "A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
+  "description": "A soft peach kurti in light georgette, with a round neck and elbow sleeves. A breezy straight kurti with delicate white thread embroidery scattered all over. The lined bodice sits above a sheer lower panel, with side tie-up cords and tassels that let you adjust the fit, and a keyhole back with a button closure.\n\nStyle it with jeans for college or office, or with palazzos for festive days. Made in Jaipur.",
   "images": [
     "/images/products/peach-1.jpg",
     "/images/products/peach-2.jpg",
@@ -47,8 +47,10 @@
   "tryon_png": "",
   "sku": "bahe02",
   "old_url": "",
-  "set_items": [],
-  "care": "",
+  "set_items": [
+    "Kurti (georgette, embroidered)"
+  ],
+  "care": "Gentle hand wash or dry clean.",
   "processing_days": "",
   "return_override": "Default",
   "garment_length": 46,
@@ -57,6 +59,6 @@
   "featured": true,
   "bestseller": false,
   "sort_order": 24,
-  "seo_title": "",
-  "seo_description": ""
+  "seo_title": "Peach Embroidered Kurti with Side Tie-Up | Bahe Kurtiz",
+  "seo_description": "Peach georgette kurti with white thread embroidery, elbow sleeves, side tie-up cords with tassels and keyhole back. Made in Jaipur."
 }

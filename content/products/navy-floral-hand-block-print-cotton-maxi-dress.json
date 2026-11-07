@@ -45,7 +45,7 @@
     "/images/products/navy-floral-4.jpg",
     "/images/products/navy-floral-5.jpg",
     "/images/products/navy-floral-6.jpg",
-    "/images/products/navy-floral-7.jpg",
+    "/images/products/4-navy-floral-7.jpg",
     "/images/products/navy-floral-8.jpg"
   ],
   "video": "/media/products/WhatsApp Video 2026-10-16 at 15.21.59.mp4",
@@ -55,8 +55,10 @@
   "tryon_png": "",
   "sku": "bahe01",
   "old_url": "",
-  "set_items": [],
-  "care": "",
+  "set_items": [
+    "Maxi Dress (cotton, hand block print)"
+  ],
+  "care": "Gentle hand wash in cold water, dry in shade.",
   "processing_days": "",
   "return_override": "Exchange only",
   "garment_length": 48,
@@ -65,6 +67,6 @@
   "featured": true,
   "bestseller": false,
   "sort_order": 14,
-  "seo_title": "Navy Floral Hand Block Print Cotton Maxi Dress | Bahe Kurtiz Jaipur",
+  "seo_title": "Navy Floral Block Print Cotton Maxi Dress | Bahe Kurtiz",
   "seo_description": "Navy blue hand block print cotton maxi dress with keyhole tie-up neck and tiered flare. Made in Jaipur. ₹999, ships worldwide."
 }
