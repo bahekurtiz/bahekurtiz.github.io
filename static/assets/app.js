@@ -192,7 +192,14 @@
     // gallery photos 2+ load only when they come near view (a swipe carousel otherwise downloads every photo at once)
     const galImgs = slides ? [...slides.querySelectorAll("img[data-gal][data-src]")] : [];
     const galLoad = (im) => { if (!im.dataset.src) return; if (im.dataset.srcset) { im.srcset = im.dataset.srcset; im.removeAttribute("data-srcset"); } im.src = im.dataset.src; im.removeAttribute("data-src"); };
-    if (galImgs.length) { if ("IntersectionObserver" in window) { const sc = getComputedStyle(slides).overflowX !== "visible"; const gio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { galLoad(e.target); gio.unobserve(e.target); } }), { root: sc ? slides : null, rootMargin: sc ? "0px 60% 0px 60%" : "300px 0px" }); galImgs.forEach((im) => gio.observe(im)); } else galImgs.forEach(galLoad); }
+    // preload the gallery one photo at a time, in order: photo 2 starts when photo 1 has arrived, then 3, and so on,
+    // so on a slow phone the next photo is ready before the swipe and the bandwidth is never split
+    { const queue = galImgs.slice(); let busy = false;
+      const step = () => { if (busy) return; const im = queue.find((x) => x.dataset.src); if (!im) return; busy = true;
+        const done = () => { busy = false; setTimeout(step, 0); }; im.addEventListener("load", done, { once: true }); im.addEventListener("error", done, { once: true }); galLoad(im); };
+      const first = slides?.querySelector("img:not([data-src])");
+      if (!first || (first.complete && first.naturalWidth)) step(); else { first.addEventListener("load", step, { once: true }); first.addEventListener("error", step, { once: true }); setTimeout(step, 3000); } }
+    if (galImgs.length) { if ("IntersectionObserver" in window) { const sc = getComputedStyle(slides).overflowX !== "visible"; const gio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { galLoad(e.target); gio.unobserve(e.target); } }), { root: sc ? slides : null, rootMargin: sc ? "0px 100% 0px 100%" : "300px 0px" }); galImgs.forEach((im) => gio.observe(im)); } else galImgs.forEach(galLoad); }
     slides?.addEventListener("scroll", () => { const i = Math.round(Math.abs(slides.scrollLeft) / slides.clientWidth); dots.forEach((d, k) => d.classList.toggle("on", k === i)); thumbs.forEach((t, k) => t.classList.toggle("on", k === i)); }, { passive: true });
     // sticky bar when main buttons scroll out of view
     const sticky = $("[data-sticky]"), main = $(".buy-row");
@@ -859,6 +866,16 @@
   if (fest) { const d = new Date((isUSD() ? fest.dataset.us : fest.dataset.in) + "T23:59:59"); const left = Math.ceil((d - new Date()) / 864e5); const el = $("[data-fest-left]", fest); if (left < 0) fest.remove(); else if (el) el.textContent = left === 0 ? "· last day!" : `· ${left} day${left > 1 ? "s" : ""} left`; }
 
   // ---------- installable app ----------
+  // ---------- photos ahead of the scroll ----------
+  // native lazy-loading starts late (very late in Safari), so photos about one screen ahead switch to eager loading;
+  // horizontal rows (new arrivals, trending…) load all their photos once the row comes near
+  if ("IntersectionObserver" in window) {
+    const eager = (root) => root.querySelectorAll('img[loading="lazy"]').forEach((im) => { im.loading = "eager"; });
+    const aio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.tagName === "IMG" ? (e.target.loading = "eager") : eager(e.target); aio.unobserve(e.target); } }), { rootMargin: "120% 0px 120% 0px" });
+    $$(".scroller, .trend-row, .stories-row, .circles-row").forEach((r) => aio.observe(r));
+    $$('img[loading="lazy"]').forEach((im) => { if (!im.closest(".scroller, .trend-row, .stories-row, .circles-row")) aio.observe(im); });
+  }
+
   if ("serviceWorker" in navigator && location.protocol === "https:") { const swReg = () => navigator.serviceWorker.register(url("sw.js")).catch(() => {}); if (document.readyState === "complete") swReg(); else addEventListener("load", swReg, { once: true }); }
 
   // ---------- QR codes (craft passport + printable tags) ----------
