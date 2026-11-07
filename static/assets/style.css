@@ -1461,3 +1461,8 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 
 /* readable QR caption in the craft passport */
 .passport-qr small{font-size:.78rem;line-height:1.35}
+
+/* craft guides on /craft/<slug>/ */
+.craft-guide{max-width:860px;margin:44px auto 0;padding-top:28px;border-top:1px solid var(--line)}
+.craft-guide h2{font-size:1.6rem;margin:0 0 14px}.craft-guide h3{font-size:1.15rem;margin:22px 0 8px}
+.craft-guide p,.craft-guide li{line-height:1.7}.craft-guide ul{padding-left:1.2em}.craft-faq{margin-top:26px}

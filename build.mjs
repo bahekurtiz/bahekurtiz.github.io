@@ -879,9 +879,14 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
 }
 
 // ---------- listing pages ----------
+// craft guides (content/craft/<slug>.json): real craft info + FAQ shown under the products on /craft/<slug>/
+const CRAFT_GUIDE = (() => { const d = path.join(ROOT, "content/craft"), o = {}; try { for (const f of fs.readdirSync(d)) if (f.endsWith(".json")) o[f.replace(/\.json$/, "")] = JSON.parse(fs.readFileSync(path.join(d, f), "utf8")); } catch {} return o; })();
+const guideWords = (g) => !g ? 0 : [g.heading, ...(g.sections || []).flatMap((x) => [x.h, ...(x.p || []), ...(x.list || [])]), ...(g.faq || []).flat()].join(" ").split(/\s+/).filter(Boolean).length;
+const guideHtml = (g) => !g ? "" : `<section class="craft-guide prose"><h2>${esc(g.heading || "")}</h2>${(g.sections || []).map((x) => `<h3>${esc(x.h)}</h3>${(x.p || []).map((t) => `<p>${esc(t)}</p>`).join("")}${x.list ? `<ul>${x.list.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}`).join("")}${(g.faq || []).length ? `<div class="pfaq craft-faq"><h3>Frequently asked questions</h3>${g.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>` : ""}</section>`;
+const guideLd = (g) => (g && (g.faq || []).length ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: g.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }] : []);
 const THIN = new Set();
-function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [] }) {
-  const thin = /^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4; if (thin) THIN.add(pathname);
+function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [], guide = null }) {
+  const thin = /^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4 && !(guide && guideWords(guide) >= 250); if (thin) THIN.add(pathname);
   const body = `
 <section class="wrap section">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / ${crumbs}</nav>
@@ -901,11 +906,12 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   <h2 class="sr-only">Products</h2>
   <div class="grid" data-grid>${items.map((p, i) => card(p, i).replace('<article class="card"', `<article class="card" data-price="${p.price ?? ""}" data-usd="${p.intl ? p.price_usd : ""}" data-i="${i}"`)).join("")}</div>
   <div class="center" data-more-wrap hidden><button class="btn btn-ghost" type="button" data-more>Load more</button></div>
+  ${guideHtml(guide)}
   ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
 </section>`;
   add(file, page({
     title, description, pathname, body, image: items[0]?.images[0], noindex: thin,
-    ld: [crumbLd([[h1, pathname]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: h1, url: SITE_URL + "/" + pathname,
+    ld: [...guideLd(guide), crumbLd([[h1, pathname]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: h1, url: SITE_URL + "/" + pathname,
       mainEntity: { "@type": "ItemList", itemListElement: items.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: SITE_URL + "/" + p.url, name: p.feed_title })) } }],
   }));
 }
@@ -932,7 +938,7 @@ ${bp.length ? `<section class="wrap section" id="bb-shop"><div class="section-he
   add("craft/index.html", page({ title: `Fabric & Print Guide – Bagru, Sanganeri, Ajrakh, Chanderi | ${brand}`, description: clip(`A simple guide to Indian hand block prints and fabrics – Sanganeri, Bagru, Dabu, Ajrakh, Kalamkari, Chanderi, Mul Cotton, Rayon and more – with care tips, from ${brand}, Jaipur.`), pathname: "craft/",
     body: `<section class="refer-hero"><div class="wrap"><p class="eyebrow">Craft guide</p><h1>Fabric & Print Guide</h1><p class="lead">Every print has a place, a community and a story. Here is what each one means, where it comes from, and how to care for it.</p></div></section>${sec("print", "Prints & handwork")}${sec("fabric", "Fabrics")}` }));
   for (const [type, names] of [["print", prints], ["fabric", fabrics]]) for (const n of names) { const items = products.filter((p) => (type === "fabric" ? p.fabric === n : p.print_work.includes(n))); if (!items.length) continue; const c = craftInfo(type, n);
-    listing({ file: `${craftUrl(n)}index.html`, pathname: craftUrl(n), h1: `${n} ${type === "fabric" ? "Kurtis & Dresses" : "Kurtis & Dresses"}`, intro: `${items.length} ${items.length === 1 ? "style" : "styles"}${c?.[0] ? " · " + c[0] : ""}`, items, crumbs: `<a href="${u("craft/")}">Fabric & print guide</a> / <span>${esc(n)}</span>`, title: `${n} Kurtis & Dresses Online – Made in Jaipur | ${brand}`, description: clip(`Shop ${n} kurtis, kurta sets and dresses by ${brand}, Jaipur. ${c ? c[1] : "Made in our own Jaipur unit, with free custom fit."}`), seo: c ? `${c[1]}\n\nCare: ${c[2]}` : "" }); } }
+    listing({ guide: CRAFT_GUIDE[slugify(n)] || null, file: `${craftUrl(n)}index.html`, pathname: craftUrl(n), h1: `${n} ${type === "fabric" ? "Kurtis & Dresses" : "Kurtis & Dresses"}`, intro: `${items.length} ${items.length === 1 ? "style" : "styles"}${c?.[0] ? " · " + c[0] : ""}`, items, crumbs: `<a href="${u("craft/")}">Fabric & print guide</a> / <span>${esc(n)}</span>`, title: `${n} Kurtis & Dresses Online – Made in Jaipur | ${brand}`, description: clip(`Shop ${n} kurtis, kurta sets and dresses by ${brand}, Jaipur. ${c ? c[1] : "Made in our own Jaipur unit, with free custom fit."}`), seo: c ? `${c[1]}\n\nCare: ${c[2]}` : "" }); } }
 for (const o of occasions) { const items = products.filter((p) => p.occasion.includes(o)); const slug = slugify(o); listing({ file: `occasion/${slug}/index.html`, pathname: `occasion/${slug}/`, h1: `${o} Wear`, intro: `${items.length} styles for ${o.toLowerCase()}, made in Jaipur`, items, crumbs: `<span>${esc(o)}</span>`, title: `${o} Kurtis & Dresses – Hand Block Print | ${brand}`, description: `Shop ${o.toLowerCase()} kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints, secure prepaid payment.` }); }
 const catSeo = Object.fromEntries((Array.isArray(S.category_seo) ? S.category_seo : []).map((x) => [String(x?.category || "").trim(), String(x?.text || "").trim()]));
 // ---------- AUTO SEO pages: "Pink Kurtis", "Cotton Dresses", "Bagru Print Kurtis", "Festive Kurtis"… made by themselves from your listings ----------
