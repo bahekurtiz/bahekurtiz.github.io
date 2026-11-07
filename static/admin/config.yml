@@ -47,6 +47,7 @@ collections:
     preview_path: "products/{{slug}}/"
     fields:
       - { name: title, label: "नाम (Product name)", widget: string, hint: "अंग्रेज़ी में लिखो, जैसे: Rani Pink Embroidered Kurti. नाम में रंग + कपड़ा + स्टाइल लिखो, Google पर इसी से मिलेगा" }
+      - { name: style_name, label: "स्टाइल का नाम (Style name)", widget: string, required: false, hint: "एक सुंदर भारतीय नाम, जैसे: Nira, Meera. वेबसाइट पर 'Nira – Product name' दिखेगा। हर प्रोडक्ट का नाम अलग रखो।" }
       - name: category
         label: "कैटेगरी (Category)"
         widget: select

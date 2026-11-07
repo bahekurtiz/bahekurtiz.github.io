@@ -32,7 +32,7 @@
   "print_work": [
     "Hand Block Print"
   ],
-  "description": "A flowy floral maxi dress in soft blue and grey tones. A halter neck with a lace-up open back, a fitted bodice and a full, gathered skirt with a ruffle hem that twirls beautifully.\n\nPerfect for brunches, holidays and summer evenings. Made in Jaipur.",
+  "description": "Leher means “wave” – a light, twirling dress made for holidays and sunny days.\n\nA flowy floral maxi dress in soft blue and grey tones. A halter neck with a lace-up open back, a fitted bodice and a full, gathered skirt with a ruffle hem that twirls beautifully.\n\nPerfect for brunches, holidays and summer evenings. Made in Jaipur.",
   "images": [
     "/images/products/v2/blue-floral-halter-maxi-dress-1.webp",
     "/images/products/v2/blue-floral-halter-maxi-dress-2.webp",
@@ -56,6 +56,7 @@
   "featured": true,
   "bestseller": false,
   "sort_order": 13,
-  "seo_title": "Blue Floral Halter Neck Maxi Dress | Bahe Kurtiz",
-  "seo_description": "Blue and grey floral hand block print pure cotton maxi dress with halter neck, lace-up open back and ruffle hem. Made in Jaipur, ships worldwide."
+  "seo_title": "Blue Floral Halter Neck Maxi Dress – Leher | Bahe Kurtiz",
+  "seo_description": "Blue and grey floral hand block print pure cotton maxi dress with halter neck, lace-up open back and ruffle hem. Made in Jaipur, ships worldwide.",
+  "style_name": "Leher"
 }
