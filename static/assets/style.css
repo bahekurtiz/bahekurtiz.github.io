@@ -1455,4 +1455,4 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 @media (min-width:901px){.trend-row{grid-auto-columns:150px;gap:16px}.trend-head h2{font-size:1.4rem}}
 
 /* speed: below-the-fold homepage blocks are laid out only when scrolled near (same look, less work before first paint) */
-.home main>section.trend-strip~section,.home main>section.trend-strip~div,.site-footer{content-visibility:auto;contain-intrinsic-size:auto 700px}
+.home main>section.trend-strip~section,.home main>section.trend-strip~div{content-visibility:auto;contain-intrinsic-size:auto 700px}
