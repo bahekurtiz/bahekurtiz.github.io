@@ -859,7 +859,7 @@
   if (fest) { const d = new Date((isUSD() ? fest.dataset.us : fest.dataset.in) + "T23:59:59"); const left = Math.ceil((d - new Date()) / 864e5); const el = $("[data-fest-left]", fest); if (left < 0) fest.remove(); else if (el) el.textContent = left === 0 ? "· last day!" : `· ${left} day${left > 1 ? "s" : ""} left`; }
 
   // ---------- installable app ----------
-  if ("serviceWorker" in navigator && location.protocol === "https:") addEventListener("load", () => navigator.serviceWorker.register(url("sw.js")).catch(() => {}));
+  if ("serviceWorker" in navigator && location.protocol === "https:") { const swReg = () => navigator.serviceWorker.register(url("sw.js")).catch(() => {}); if (document.readyState === "complete") swReg(); else addEventListener("load", swReg, { once: true }); }
 
   // ---------- QR codes (craft passport + printable tags) ----------
   let qrLib;
