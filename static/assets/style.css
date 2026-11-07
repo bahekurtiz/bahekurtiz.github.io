@@ -1453,3 +1453,6 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .trend-guide .trend-tag{background:#1c1310;color:#fff}
 .trend-item b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:6px;font-weight:500;font-size:.8rem;line-height:1.3}
 @media (min-width:901px){.trend-row{grid-auto-columns:150px;gap:16px}.trend-head h2{font-size:1.4rem}}
+
+/* speed: below-the-fold homepage blocks are laid out only when scrolled near (same look, less work before first paint) */
+.home main>section.trend-strip~section,.home main>section.trend-strip~div,.site-footer{content-visibility:auto;contain-intrinsic-size:auto 700px}
