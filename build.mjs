@@ -616,8 +616,8 @@ const card = (p, i = 9) => {
   return `<article class="card" data-cat="${esc(p.catSlug)}" data-slug="${esc(p.slug)}" data-fabric="${esc(p.fabric)}" data-print="${esc(p.print_work.join("|"))}" data-sizes="${esc(p.sizes.join("|"))}" data-out="${esc(p.sold_out.join("|"))}" data-color="${esc(p.color || "")}" data-occ="${esc(p.occasion.join("|"))}" data-neck="${esc(p.neckline)}" data-sleeve="${esc(p.sleeve)}" data-len="${esc(p.length_type)}" data-stock="${p.in_stock ? 1 : 0}" data-intl="${p.intl ? 1 : 0}"${intlOn && !p.intl ? " data-india-only" : ""}>
   <a href="${u(p.url)}" class="card-link">
     <div class="card-img${b ? " has-alt" : ""}">
-      ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1800" ${i === 0 ? 'fetchpriority="high"' : i < 2 ? "" : 'loading="lazy"'} decoding="async">` : ""}
-      ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="${esc(p.title)} – alternate view" width="1200" height="1800" decoding="async">` : ""}
+      ${a ? `<img src="${esc(u(a))}" alt="${esc(alt)}" width="1200" height="1600" ${i === 0 ? 'fetchpriority="high"' : i < 2 ? "" : 'loading="lazy"'} decoding="async">` : ""}
+      ${b ? `<img class="alt" data-src="${esc(u(b))}" alt="${esc(p.title)} – alternate view" width="1200" height="1600" decoding="async">` : ""}
       <div class="tags">${p.coming ? `<span class="tag tag-drop">Coming ${esc(dropDate(p).replace(/^\w+,? /, ""))}</span>` : p.isNew ? `<span class="tag tag-new">New this week</span>` : ""}${p.bestseller ?`<span class="tag tag-best">★ Bestseller</span>` : ""}${off ? `<span class="tag tag-sale${p.intl ? " cur-inr" : ""}">-${off}%</span>` : ""}${p.intl && p.mrp_usd > p.price_usd ? `<span class="tag tag-sale cur-usd">-${Math.round((1 - p.price_usd / p.mrp_usd) * 100)}%</span>` : ""}${!p.in_stock ? `<span class="tag">Made to order</span>` : ""}${p.video ? `<span class="tag tag-vid">▶ Reel</span>` : ""}</div>
     </div>
     <div class="card-body">
@@ -985,7 +985,7 @@ for (const p of [...products, ...upcoming]) {
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
         ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
-        : (i === 0 ? `<figure class="slide"><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1800" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1800"></noscript></figure>`)).join("")}
+        : (i === 0 ? `<figure class="slide"><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
     <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="${esc(p.title)} – ${m.video ? "video" : "view " + (i + 1)}" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
