@@ -689,12 +689,92 @@ const lcpPreload = (html) => {
 const REMOVED = new Set(["mirror/index.html", "studio/index.html", "print-kundli/index.html"]); // features switched off
 const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, lcpPreload(withSrcset(html))]); };
 
+// ---------- automatic weekly banner + "Trending this week" strip ----------
+// Calendar: content/banners/calendar/banner-calendar.json (themes by IST date; festival banners run 28 → 14 days before the festival). Preview another day: BANNER_DATE=2026-12-20 node build.mjs
+// Admin switch: settings "auto_banner": false turns both off. Manual banners in content/banners/ keep working (shown after the auto slide).
+const AUTO = (() => {
+  const file = path.join(ROOT, "content/banners/calendar/banner-calendar.json");
+  if (S.auto_banner === false || !fs.existsSync(file)) return null;
+  let C; try { C = JSON.parse(fs.readFileSync(file, "utf8")); } catch (e) { console.warn("banner calendar skipped (bad JSON):", e.message); return null; }
+  const day = /^\d{4}-\d\d-\d\d$/.test(String(process.env.BANNER_DATE || "")) ? process.env.BANNER_DATE : TODAY_IST;
+  const ms = (d) => Date.parse(d + "T00:00:00Z"), plus = (d, n) => new Date(ms(d) + n * 864e5).toISOString().slice(0, 10);
+  const md = day.slice(5), themes = (Array.isArray(C.themes) ? C.themes : []).filter((t) => t && t.active !== false && t.headline);
+  // festival themes: from 28 days before to 14 days before the festival (international delivery takes 2–3 weeks), so a passed festival never shows
+  const FW = C.festival_window || {}, fFrom = num(FW.from) ?? -28, fTo = num(FW.to) ?? -14;
+  const hits = [];
+  for (const t of themes) {
+    if (t.festival) { for (const fd of (C.festivals?.[t.festival] || []).filter((x) => /^\d{4}-\d\d-\d\d$/.test(x))) { const a = plus(fd, num(t.from) ?? fFrom), b = plus(fd, num(t.to) ?? fTo); if (day >= a && day <= b) hits.push({ t, year: fd.slice(0, 4), fest: fd, orderBy: b, len: ms(b) - ms(a) }); } }
+    else if (/^\d\d-\d\d$/.test(t.from) && /^\d\d-\d\d$/.test(t.to)) { const wrap = t.from > t.to;
+      if (wrap ? md >= t.from || md <= t.to : md >= t.from && md <= t.to) hits.push({ t, year: day.slice(0, 4), len: (ms("2001-" + t.to) - ms("2001-" + t.from) + (wrap ? 365 * 864e5 : 0)) }); }
+  }
+  // a festival window beats a season theme; two festival windows → the festival that comes first; seasons → highest priority, then the shorter range
+  hits.sort((a, b) => (b.fest ? 1 : 0) - (a.fest ? 1 : 0) || (a.fest && b.fest ? a.fest.localeCompare(b.fest) : 0) || (num(b.t.priority) ?? 0) - (num(a.t.priority) ?? 0) || a.len - b.len);
+  const hit = hits[0] || (themes.find((t) => t.id === C.fallback) ? { t: themes.find((t) => t.id === C.fallback), year: day.slice(0, 4) } : null);
+  if (!hit) return null;
+  const dm = (d) => new Date(ms(d)).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  const t = hit.t, Y = (s) => String(s || "").replace(/\{year\}/g, hit.year).replace(/\{date\}/g, hit.fest ? dm(hit.fest) : "").replace(/\{order_by\}/g, hit.orderBy ? dm(hit.orderBy) : "").replace(/\s*·\s*(?=·|$)/g, "").trim();
+  // links: a blog post that is not live yet (draft / future date) or an empty occasion page → fallback_link
+  const lnk = (l) => { l = String(l || "").replace(/^\/+/, ""); let m;
+    if ((m = l.match(/^blog\/([^/]+)\/?$/))) { const f = path.join(ROOT, "content/blog", m[1] + ".json"); try { const b = JSON.parse(fs.readFileSync(f, "utf8")); return b.draft !== true && String(b.date || today).slice(0, 10) <= today ? l : ""; } catch { return ""; } }
+    if ((m = l.match(/^occasion\/([^/]+)\/?$/))) return products.some((p) => p.occasion.some((o) => slugify(o) === m[1])) ? l : "";
+    return l; };
+  const link = lnk(t.link) || lnk(t.fallback_link) || "shop/";
+  // newest first: launch_date (India day), else SKU number (bahe38 > bahe37), else sort order
+  const skuN = (p) => +(String(p.sku).match(/\d+/) || [0])[0];
+  const newer = (a, b) => (b.launchDay || "").localeCompare(a.launchDay || "") || skuN(b) - skuN(a) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999);
+  const low = (a) => (Array.isArray(a) ? a : []).map((x) => String(x).toLowerCase());
+  const M = t.match || {}, mOcc = low(M.occasion), mFab = low(M.fabric), mWords = low(M.words);
+  // main colour + title count double; the detailed colour line ("blue with pink florals") counts once
+  const has = (txt, w) => new RegExp("\\b" + w.replace(/[^a-z ]/g, "") + "\\b").test(txt);
+  const score = (p) => { const main = [p.title, p.color_base, p.print_work.join(" "), p.category].join(" ").toLowerCase(), extra = String(p.color || "").toLowerCase();
+    return 2 * (p.occasion.some((o) => mOcc.includes(o.toLowerCase())) ? 1 : 0) + 2 * (mFab.includes(p.fabric.toLowerCase()) ? 1 : 0) + mWords.reduce((n, w) => n + (has(main, w) ? 2 : has(extra, w) ? 1 : 0), 0); };
+  const live = products.filter((p) => !p.coming && p.images[0] && imgOk(p.images[0])).sort(newer);
+  // photo: the newest product among the closest matches (score within 1 of the best match), so a festive theme gets a festive look
+  const top = Math.max(0, ...live.map(score)), heroP = (top ? live.filter((p) => score(p) >= Math.max(1, top - 1)) : live)[0];
+  const slide = heroP ? { image: heroP.images[0], wide: "", clean: false, auto: true, eyebrow: Y(t.eyebrow), title: Y(t.headline), subtitle: Y(t.line), button: Y(t.button), link, alt: `${heroP.title} – ${Y(t.headline)}` } : null;
+  // trending chips: search link only when the shop search would find something, else the theme page
+  const hayAll = products.map((p) => [p.title, p.category, p.fabric, p.print_work.join(" "), p.color, p.occasion.join(" ")].join(" ").toLowerCase()).join(" | ");
+  const GENERIC = new Set(["sets", "set", "tones", "tone", "colours", "colors", "colour", "color", "style", "styling", "ready", "easy", "light", "rich", "soft", "deep", "warm", "bright", "brights", "fashion", "detail", "statement", "long", "every", "custom", "made", "your", "with", "and", "the", "for"]);
+  const chips = (Array.isArray(t.trending) ? t.trending : []).slice(0, 4).map((k) => { k = String(k).trim(); const words = k.toLowerCase().replace(/[^a-z\s-]/g, " ").split(/[\s-]+/).filter((w) => w.length > 2 && !GENERIC.has(w));
+    return { text: k, href: words.some((w) => hayAll.includes(w.replace(/s$/, ""))) ? "shop/?q=" + encodeURIComponent(k) : link }; });
+  // products: new this week first, then theme matches among the newest, then newest
+  const pool = live.filter((p) => p !== heroP), recent = pool.slice(0, 10);
+  const prods = [...pool.filter((p) => p.isNew), ...recent.filter((p) => score(p) >= 4), ...pool].filter((p, i, a) => a.indexOf(p) === i).slice(0, 4);
+  // guides: "Trend Radar" tag first, then posts about this theme, then the newest posts
+  const bDir = path.join(ROOT, "content/blog"), linkSlug = (link.match(/^blog\/([^/]+)/) || [])[1];
+  const blogs = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => { try { const b = JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8")); b.slug = slugify(f.replace(/\.json$/, "")).replace(/^-+|-+$/g, ""); b.date = String(b.date || today).slice(0, 10); b.tags = (b.tags || []).filter(Boolean); return b; } catch { return null; } })
+    .filter((b) => b && b.title && b.draft !== true && b.date <= today && b.slug !== linkSlug).sort((a, b) => b.date.localeCompare(a.date));
+  const words = [t.name, ...(t.trending || []), ...mWords].join(" ").toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3 && !GENERIC.has(w));
+  const rel = (b) => { const h = (b.title + " " + b.tags.join(" ")).toLowerCase(); return words.filter((w) => h.includes(w)).length; };
+  const radar = blogs.filter((b) => b.tags.some((x) => /trend\s*radar/i.test(x)));
+  const themed = blogs.filter((b) => rel(b) > 0).sort((a, b) => rel(b) - rel(a) || b.date.localeCompare(a.date)).slice(0, 2);
+  const guides = [...radar, ...themed, ...blogs].filter((b, i, a) => a.indexOf(b) === i).slice(0, 3).map((b) => {
+    const cover = [b.cover, ...(b.related_products || []).map((s) => products.find((p) => p.slug === slugify(s))?.images[0])].find((x) => x && imgOk(x)) || "";
+    return { title: b.title, url: `blog/${b.slug}/`, cover, radar: radar.includes(b) }; });
+  // IST week (Mon–Sun) label, e.g. "9 – 15 Nov"
+  const dow = (new Date(ms(day)).getUTCDay() + 6) % 7, mon = plus(day, -dow), sun = plus(mon, 6);
+  const fmt = (d, mo) => new Date(ms(d)).toLocaleDateString("en-GB", { day: "numeric", ...(mo ? { month: "short" } : {}), timeZone: "UTC" });
+  const week = mon.slice(5, 7) === sun.slice(5, 7) ? `${fmt(mon)} – ${fmt(sun, 1)}` : `${fmt(mon, 1)} – ${fmt(sun, 1)}`;
+  console.log(`Auto banner (${day} IST): ${t.id}${hit.fest ? " (festival " + hit.fest + ", order by " + hit.orderBy + ")" : ""} · photo ${heroP ? heroP.slug : "none"} · ${prods.length} products, ${guides.length} guides`);
+  return { day, theme: t, name: Y(t.name), link, slide, chips, prods, guides, week };
+})();
+const trendStrip = () => {
+  if (!AUTO || (!AUTO.chips.length && !AUTO.prods.length && !AUTO.guides.length)) return "";
+  const item = (href, img, alt, tag, title, cls = "") => `<a class="trend-item${cls}" href="${u(href)}"><span class="trend-img">${img ? `<img src="${esc(u(img))}" alt="${esc(alt)}" width="160" height="240" loading="lazy" decoding="async">` : ""}<em class="trend-tag">${esc(tag)}</em></span><b>${esc(title)}</b></a>`;
+  return `<section class="trend-strip" aria-labelledby="trend-h"><div class="wrap">
+<div class="trend-head"><h2 id="trend-h">Trending this week</h2><span class="trend-week">${esc(AUTO.name)} · ${esc(AUTO.week)}</span></div>
+${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a class="trend-chip" href="${u(c.href)}">${esc(c.text)}</a>`).join("")}</div>` : ""}
+<div class="trend-row">${AUTO.prods.map((p) => item(p.url, p.images[0], p.title, p.isNew ? "New this week" : "Just in", p.title)).join("")}${AUTO.guides.map((g) => item(g.url, g.cover, "", g.radar ? "Trend Radar" : "Guide", g.title, " trend-guide")).join("")}</div>
+</div></section>`;
+};
+
 // ---------- home ----------
 {
   // banners: admin "बैनर (Banners)" section first, then the older settings list
   const bDir = path.join(ROOT, "content/banners");
-  const bannerFiles = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8"))).filter((b) => b && b.active !== false && (b.image || b.image_desktop) && (!b.end || String(b.end).slice(0, 10) >= today)).sort((a, b) => (num(a.order) ?? 50) - (num(b.order) ?? 50));
+  const bannerFiles = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8"))).filter((b) => b && b.active !== false && (b.image || b.image_desktop) && (!b.end || String(b.end).slice(0, 10) >= TODAY_IST)).sort((a, b) => (num(a.order) ?? 50) - (num(b.order) ?? 50));
   const slides = [...bannerFiles, ...(Array.isArray(S.hero_slides) ? S.hero_slides : [])].map((x) => ({ start: String(x?.start || "").slice(0, 10), end: String(x?.end || "").slice(0, 10), image: String(x?.image || x?.image_desktop || "").trim(), wide: String(x?.image_desktop || "").trim(), clean: !!x?.image_has_text, title: String(x?.title || "").trim(), subtitle: String(x?.subtitle || "").trim(), link: String(x?.link || "").trim(), button: String(x?.button || "").trim(), eyebrow: String(x?.eyebrow || "").trim() })).filter((x) => x.image && imgOk(x.image)).map((x) => (x.wide && !imgOk(x.wide) ? { ...x, wide: "" } : x));
+  if (AUTO?.slide) slides.unshift(AUTO.slide);
   if (!slides.length) {
     slides.push({ image: S.hero_image || "images/site/hero.jpg", wide: String(S.hero_image_desktop || "").trim() || (S.hero_image === "/images/site/hero-teal.jpg" ? siteFile("hero-wide.jpg") : ""), title: S.hero_title || brand, subtitle: S.hero_subtitle || S.tagline || "" });
     // ready-made promo banners until real ones are added in admin (Settings → होमपेज बैनर स्लाइड)
@@ -714,8 +794,8 @@ ${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="st
 ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-dot"></span> LIVE NOW · ${esc(live.title)} <b>Watch & shop →</b></a>` : liveNextText ? `<div class="live-strip next">📺 Next live shopping: <b>${esc(liveNextText)}</b>${ytChan ? ` · <a href="${esc(ytChan)}" target="_blank" rel="noopener">Subscribe on YouTube</a>` : ""}</div>` : ""}
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
-${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.clean ? " hero-clean" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
-  <div class="hero-media" style="--hb:url('${esc(encU(u(small(sl.image))))}')">${i === 0 ? `<img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" fetchpriority="high">` : `<img decoding="async" data-rs="big" data-gal data-src="${esc(u(sl.image))}" alt="${esc(sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800"><noscript><img src="${esc(u(sl.image))}" alt="" width="1200" height="1800"></noscript>`}</div>
+${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.clean ? " hero-clean" : ""}${sl.auto ? " hero-auto" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
+  <div class="hero-media" style="--hb:url('${esc(encU(u(small(sl.image))))}')">${i === 0 ? `<img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" fetchpriority="high">` : `<img decoding="async" data-rs="big" data-gal data-src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800"><noscript><img src="${esc(u(sl.image))}" alt="" width="1200" height="1800"></noscript>`}</div>
   <div class="hero-text">
     <p class="eyebrow">${esc(sl.eyebrow || "New collection · Made in Jaipur")}</p>
     <h2 class="h1">${esc(sl.title || brand)}</h2>
@@ -727,6 +807,7 @@ ${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.cle
 ${slides.length > 1 ? `<button class="hero-arrow prev" type="button" data-hero-step="-1" aria-label="Previous banner">‹</button><button class="hero-arrow next" type="button" data-hero-step="1" aria-label="Next banner">›</button>` : ""}
 ${slides.length > 1 ? `<div class="hero-dots">${slides.map((_, i) => `<button type="button" data-hero-go="${i}" aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>` : ""}
 </section>
+${trendStrip()}
 ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}" data-us="${esc(festNext.order_by_intl)}"><div class="wrap fest-row"><span class="fest-name">${esc(festNext.name)} · ${esc(festNext.dateText)}</span><span class="fest-cut"><span class="cur-inr">Order by <b>${esc(festNext.order_by_in_text)}</b> for delivery in India</span>${intlOn ? `<span class="cur-usd">Order by <b>${esc(festNext.order_by_intl_text)}</b> for delivery abroad</span>` : ""} <span class="fest-left" data-fest-left></span></span><a class="link" href="${u(festNext.link || "shop/")}">Shop →</a><button class="link fest-cal" type="button" data-ics>📅 Add festivals to my calendar</button></div></div>` : ""}
 <section class="brand-intro"><h1>${esc(brand)}</h1><p>Hand block printed kurta sets &amp; Anarkalis from Jaipur – stitched to your measurements.</p></section>
 <section class="trust" aria-label="Why shop with us">

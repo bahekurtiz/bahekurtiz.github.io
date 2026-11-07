@@ -1429,3 +1429,27 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 
 /* LCP: first banner shows instantly (no fade) */
 .hero-slide:first-child.on,.hero-track>.hero-slide:first-child{animation:none}
+
+/* ---------- auto weekly banner + "Trending this week" strip (build.mjs → AUTO) ---------- */
+.hero-same.hero-auto .hero-text{background:linear-gradient(transparent,rgba(12,8,8,.45) 28%,rgba(12,8,8,.9));padding-bottom:52px}
+.hero-auto .hero-text .h1{text-shadow:0 2px 14px rgba(0,0,0,.45);line-height:1.12}
+.hero-auto .hero-text .lead{text-shadow:0 1px 8px rgba(0,0,0,.5);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-width:900px){.hero-same.hero-auto .hero-text{padding:110px 20px 50px}.hero-wrap .hero-same.hero-auto .hero-text .h1{font-size:clamp(1.65rem,7vw,2.1rem)}.hero-auto .hero-text .lead{font-size:.92rem}}
+.trend-strip{background:var(--sand,#f6f3ef);border-bottom:1px solid var(--line,#ece6df);padding:18px 0 8px}
+.trend-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.trend-head h2{font-size:1.2rem;margin:0}
+.trend-week{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-text,#7f5f1c);white-space:nowrap}
+.trend-chips,.trend-row{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.trend-chips::-webkit-scrollbar,.trend-row::-webkit-scrollbar{display:none}
+.trend-chips{display:flex;gap:8px;margin-bottom:12px;padding-bottom:2px}
+.trend-chip{flex:0 0 auto;white-space:nowrap;padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line,#ece6df);font-size:.84rem;color:inherit;text-decoration:none}
+.trend-chip::before{content:"#";opacity:.45;margin-right:2px}
+.trend-chip:hover{border-color:currentColor}
+.trend-row{display:grid;grid-auto-flow:column;grid-auto-columns:116px;gap:12px;padding-bottom:12px;scroll-snap-type:x proximity}
+.trend-item{display:block;scroll-snap-align:start;color:inherit;text-decoration:none}
+.trend-img{position:relative;display:block;aspect-ratio:2/3;overflow:hidden;border-radius:8px;background:#ece3d8}
+.trend-img img{width:100%;height:100%;object-fit:cover;display:block}
+.trend-tag{position:absolute;left:6px;top:6px;padding:3px 7px;border-radius:999px;background:rgba(255,255,255,.94);color:#1c1310;font-style:normal;font-size:.62rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.trend-guide .trend-tag{background:#1c1310;color:#fff}
+.trend-item b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:6px;font-weight:500;font-size:.8rem;line-height:1.3}
+@media (min-width:901px){.trend-row{grid-auto-columns:150px;gap:16px}.trend-head h2{font-size:1.4rem}}
