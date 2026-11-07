@@ -1456,3 +1456,6 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 
 /* speed: below-the-fold homepage blocks are laid out only when scrolled near (same look, less work before first paint) */
 .home main>section.trend-strip~section,.home main>section.trend-strip~div{content-visibility:auto;contain-intrinsic-size:auto 700px}
+
+/* product photos are 3:4 (studio-consistent set in /images/products/v2) */
+.card-img,.slide,.slide:first-child,.slide:first-child img,.trend-img{aspect-ratio:3/4}
