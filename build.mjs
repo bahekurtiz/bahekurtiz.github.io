@@ -481,7 +481,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
     <div class="nav-icons">
       ${intlOn ? `<button class="cur-btn" type="button" data-country aria-label="Change country and currency"><span data-cc-label><span class="cur-inr">🇮🇳 ₹</span><span class="cur-usd">🌍 $</span></span></button>` : ""}
       <button class="icon-btn" type="button" data-open-search aria-label="Search">${I.search}</button>
-      ${S.languages_off ? "" : `<button class="lang-btn" type="button" data-lang aria-label="Language"><span data-lang-label>EN</span></button>`}
+      ${S.languages_off ? "" : `<button class="lang-btn" type="button" data-lang aria-label="EN – change language" title="Change language"><span data-lang-label>EN</span></button>`}
       <button class="icon-btn" type="button" data-open-login aria-label="My account">${I.user}<span class="acct-dot" data-acct-dot hidden></span></button>
       <a class="icon-btn hide-sm" href="${u("wishlist/")}" aria-label="Wishlist">${I.heart}<span class="bag-count" data-wish-count hidden>0</span></a>
       ${waHi ? `<a class="icon-btn hide-sm" href="${esc(waHi)}" target="_blank" rel="noopener" aria-label="WhatsApp">${I.wa}</a>` : ""}
@@ -646,14 +646,14 @@ const circles = (active = "") => categories.length ? `<nav class="circles" aria-
 const reviews = (Array.isArray(S.reviews) ? S.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), city: String(r?.city || "").trim(), text: String(r?.text || "").trim(), rating: num(r?.rating) || 5, photo: String(r?.photo || "").trim(), source: String(r?.source || "").trim(), product: String(r?.product || "").trim() })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
 const pages = [];
 // ---------- fast images: small copies (made by the GitHub "thumbs" robot) are used automatically when they exist ----------
-const RS = [480, 960, 1400];
+const RS = [320, 480, 960, 1400]; // 320 = phone product cards (smaller download); 480 stays the "small" copy
 const decU = (v) => { try { return decodeURI(v); } catch { return v; } };
 // file names with spaces ("WhatsApp Image … (1).webp"): look up the real file, emit %20-encoded URLs (a raw space breaks srcset)
 const encU = (v) => encodeURI(decU(v)).replace(/,/g, "%2C");
 const rsPath = (src, w) => { const m = decU(String(src || "")).match(/^\/?(images\/(?!_r\/).+)\.(jpe?g|png|webp)$/i); return m ? `/images/_r/${m[1].slice(7)}-${w}.webp` : ""; };
 const rsHasW = (src, w) => { const v = rsPath(src, w); return !!v && fs.existsSync(path.join(ROOT, "static", v)); };
-const rsHas = (src) => rsHasW(src, RS[0]);
-const small = (src) => (rsHas(src) ? rsPath(src, RS[0]) : src);
+const rsHas = (src) => rsHasW(src, 480);
+const small = (src) => (rsHas(src) ? rsPath(src, 480) : src);
 // best ready-made copy for a big photo: 1400 → 960 → original
 const rsBig = (src) => { const local = BASE && String(src).startsWith(BASE) ? "/" + String(src).slice(BASE.length) : String(src); for (const w of [1400, 960]) if (rsHasW(local, w)) return u(rsPath(local, w)); return src; };
 const imgSizes = (tag) => { const wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
@@ -889,6 +889,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   </div></div>
   <p class="filter-empty muted" data-filter-empty hidden>No styles match this filter. <button class="link" type="button" data-filter-clear>Show all</button></p>
   <p class="muted small" data-count aria-live="polite"></p>
+  <h2 class="sr-only">Products</h2>
   <div class="grid" data-grid>${items.map((p, i) => card(p, i).replace('<article class="card"', `<article class="card" data-price="${p.price ?? ""}" data-usd="${p.intl ? p.price_usd : ""}" data-i="${i}"`)).join("")}</div>
   <div class="center" data-more-wrap hidden><button class="btn btn-ghost" type="button" data-more>Load more</button></div>
   ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}

@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install pillow
-      - name: Make 480, 960 and 1400 px copies
+      - name: Make 320, 480, 960 and 1400 px copies
         run: |
           python3 - <<'PY'
           import os
@@ -35,7 +35,7 @@ jobs:
                   if rel.startswith("_r"):
                       continue
                   base = os.path.splitext(rel)[0]
-                  for w in (480, 960, 1400):
+                  for w in (320, 480, 960, 1400):
                       out = os.path.join(src, "_r", f"{base}-{w}.webp")
                       if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(p):
                           continue
