@@ -567,7 +567,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
   ${landings.some((l) => !intlOn || l.type === "shop") ? `<div class="wrap foot-seo"><h3>Popular</h3><p>${landings.filter((l) => !intlOn || l.type === "shop").map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></div>` : ""}
   <div class="wrap foot-pay"><span>Secure payments</span>${S.paypal_client_id ? `<b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b>` : ""}<b class="pay-pill cur-inr">UPI</b><b class="pay-pill cur-inr">RuPay</b><span class="pay-lock">🔒 SSL encrypted checkout</span></div>
   ${intlOn ? `<div class="wrap foot-country"><button type="button" class="foot-cc" data-country>${I.globe} Country / region: <b data-cc-name>India · ₹ INR</b> <u>Change</u></button></div>` : ""}
-  <div class="wrap copy">© ${year} ${esc(brand)}, Jaipur. All rights reserved.</div>
+  <div class="wrap copy">© ${year} ${esc(brand)}${S.legal_name ? ` (${esc(S.legal_name)})` : ""}, Jaipur. All rights reserved.</div>
 </footer>`}
 ${waHi ? `<a class="wa-float" href="${esc(waHi)}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${I.wa}</a>` : ""}
 <div class="toast" data-toast role="status" aria-live="polite"></div>
@@ -1127,6 +1127,7 @@ const contactHtml = `
     ${waNumber ? `<li><strong>WhatsApp / Call:</strong> <a href="${esc(waLink(`Hi ${brand}!`))}" target="_blank" rel="noopener">${esc(S.phone || "+" + waNumber)}</a></li>` : ""}
     ${S.email ? `<li><strong>Email:</strong> <a href="mailto:${esc(S.email)}">${esc(S.email)}</a></li>` : ""}
     <li><strong>Address:</strong> ${esc(S.address || "Jaipur, Rajasthan, India")}</li>
+    ${S.legal_name ? `<li><strong>Business name:</strong> ${esc(S.legal_name)} (brand: ${esc(brand)})</li>` : ""}
     ${[...socials, ...markets].map((x) => `<li><strong>${esc(x.name)}:</strong> <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""))}</a></li>`).join("")}
   </ul>
   ${waNumber ? `<p><a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}!`))}" target="_blank" rel="noopener">${I.wa} Chat on WhatsApp</a></p>` : ""}
