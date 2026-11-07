@@ -106,7 +106,20 @@ ${fitText(o) ? `<p style="margin:0 0 12px;font-size:14px"><b>Your measurements:<
 }
 
 // Was the payment real? Razorpay: signature check. PayPal: API check only when PAYPAL_CLIENT_ID + PAYPAL_SECRET are set.
-async function verified(o, env) {
+// USD bill recalculated on the server: catalog prices × qty, international shipping, valid coupon (same rules as the shop)
+function expectedUSD(o, cat) {
+  if (!cat || !o.items.length || o.items.some((i) => !cat.products?.[i.slug]?.price_usd)) return null;
+  const s = cat.settings || {}; const sub = o.items.reduce((t, i) => t + cat.products[i.slug].price_usd * i.qty, 0);
+  let shipping = s.intl_free_shipping_above_usd && sub >= s.intl_free_shipping_above_usd ? 0 : (s.intl_shipping_charge_usd || 0), off = 0;
+  const d = new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10);
+  const c = o.coupon && (s.coupons || []).find((x) => x.c === String(o.coupon).trim().toUpperCase());
+  if (c && c.m !== "in" && !(c.s && d < c.s) && !(c.e && d > c.e) && !(c.min && sub < c.min)) {
+    if (c.k === "Free shipping") shipping = 0; else off = c.k === "Percent" ? Math.round(sub * c.v) / 100 : Math.min(c.v, sub);
+  }
+  return Math.max(0, Math.round((sub - off + shipping) * 100) / 100);
+}
+
+async function verified(o, env, cat) {
   try {
     if (o.method === "Razorpay") { const s = env.RAZORPAY_KEY_SECRET || env.RZP_KEY_SECRET; return !!(s && o.rzp_order && o.rzp_sig && (await verifySig(s, o.rzp_order, o.payment_id, o.rzp_sig))); }
     if (o.method === "PayPal") {
@@ -114,7 +127,11 @@ async function verified(o, env) {
       const host = env.PAYPAL_ENV === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
       const tk = await (await fetch(host + "/v1/oauth2/token", { method: "POST", headers: { authorization: "Basic " + btoa(id + ":" + sec), "content-type": "application/x-www-form-urlencoded" }, body: "grant_type=client_credentials" })).json();
       const r = await (await fetch(host + "/v2/checkout/orders/" + encodeURIComponent(o.paypal_order), { headers: { authorization: "Bearer " + tk.access_token } })).json();
-      return r.status === "COMPLETED";
+      if (r.status !== "COMPLETED") return false;
+      // the amount actually paid must match the bill worked out here from the catalog (the browser could be tampered with)
+      const amt = r.purchase_units?.[0]?.payments?.captures?.[0]?.amount || r.purchase_units?.[0]?.amount || {};
+      const want = expectedUSD(o, cat);
+      return amt.currency_code === "USD" && want !== null && Number(amt.value) + 0.01 >= want;
     }
   } catch {}
   return false;
@@ -132,7 +149,7 @@ export async function onRequestPost({ request, env }) {
     const o = normalizeOrder(b, cat);
     if (!o.ref || !o.items.length) return J({ ok: false, error: "order" });
     if (seen(o.ref)) return J({ ok: true, duplicate: true });
-    const ok = await verified(o, env);
+    const ok = await verified(o, env, cat);
     const out = { ok: true, verified: ok, owner: false, customer: false };
     const owner = String(env.OWNER_EMAIL || "").trim() || FROM.email;
     out.owner = await send(key, ownerEmail(o, owner, ok));
