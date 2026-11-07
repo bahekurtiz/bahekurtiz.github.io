@@ -2301,11 +2301,17 @@ const junk = (src) => { const rel = path.relative(STATIC, src).split(path.sep).j
   if (/\.zip$/i.test(base) || rel === "build.mjs" || rel.split("/")[0] === "assetsweb.whatsapp.com") return true;
   return !/^(images|media)\//.test(rel) && /\s\(\d+\)\.(m?js|css|html?|json|ya?ml|txt|md)$/i.test(base); };
 fs.cpSync(STATIC, OUT, { recursive: true, filter: (src) => !junk(src) });
+// never ship a link to a blog post that is not live yet (future date / draft): show the words only; the link appears by itself on the publish day
+const livePaths = new Set(pages.map(([file]) => "/" + file.replace(/index\.html$/, "")));
+let unlinked = 0;
+const unlinkFuture = (html) => html.replace(/<a\b([^>]*?)\shref="(?:https?:\/\/[^"/]+)?(\/blog\/[^"#?]+?\/?)(?:[#?][^"]*)?"([^>]*)>([\s\S]*?)<\/a>/g, (m, a, href, b, inner) => {
+  const h = href.endsWith("/") ? href : href + "/"; if (livePaths.has(h)) return m; unlinked++; return inner; });
 for (const [file, html] of pages) {
   const f = path.join(OUT, file);
   fs.mkdirSync(path.dirname(f), { recursive: true });
-  fs.writeFileSync(f, html);
+  fs.writeFileSync(f, /\.html$/.test(file) ? unlinkFuture(html) : html);
 }
+if (unlinked) console.log(`Links to not-yet-published blog posts shown as plain text: ${unlinked}`);
 
 // smaller stylesheet: drop comments and extra spaces (strings and url(...) are kept exactly as written)
 { const cf = path.join(OUT, "assets/style.css"); try { const css = fs.readFileSync(cf, "utf8"); let out = "", i = 0;
