@@ -4,6 +4,7 @@
 //  2) CUSTOMER confirmation -> only if the customer gave an email and the payment could be checked
 // Needs the existing Cloudflare secret BREVO_API_KEY. Never throws – checkout must never break.
 // Product titles / prices / photos are taken from the published catalog (not trusted from the browser).
+import { paypalEnv } from "../../lib/paypal-env.js";
 import { verifySig } from "./pay-verify.js";
 
 const B = "https://api.brevo.com/v3";
@@ -123,8 +124,8 @@ async function verified(o, env, cat) {
   try {
     if (o.method === "Razorpay") { const s = env.RAZORPAY_KEY_SECRET || env.RZP_KEY_SECRET; return !!(s && o.rzp_order && o.rzp_sig && (await verifySig(s, o.rzp_order, o.payment_id, o.rzp_sig))); }
     if (o.method === "PayPal") {
-      const id = env.PAYPAL_CLIENT_ID, sec = env.PAYPAL_SECRET || env.PAYPAL_CLIENT_SECRET; if (!id || !sec || !o.paypal_order) return true; // no PayPal API keys: trust the client (owner email says to check PayPal)
-      const host = env.PAYPAL_ENV === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
+      const pp = paypalEnv(env), id = pp.id, sec = pp.secret; if (!id || !sec || !o.paypal_order) return true; // no PayPal API keys: trust the client (owner email says to check PayPal)
+      const host = pp.sandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
       const tk = await (await fetch(host + "/v1/oauth2/token", { method: "POST", headers: { authorization: "Basic " + btoa(id + ":" + sec), "content-type": "application/x-www-form-urlencoded" }, body: "grant_type=client_credentials" })).json();
       const r = await (await fetch(host + "/v2/checkout/orders/" + encodeURIComponent(o.paypal_order), { headers: { authorization: "Bearer " + tk.access_token } })).json();
       if (r.status !== "COMPLETED") return false;
