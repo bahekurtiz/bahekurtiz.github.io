@@ -646,7 +646,7 @@ const circles = (active = "") => categories.length ? `<nav class="circles" aria-
 const reviews = (Array.isArray(S.reviews) ? S.reviews : []).map((r) => ({ name: String(r?.name || "").trim(), city: String(r?.city || "").trim(), text: String(r?.text || "").trim(), rating: num(r?.rating) || 5, photo: String(r?.photo || "").trim(), source: String(r?.source || "").trim(), product: String(r?.product || "").trim() })).filter((r) => r.name && r.text && !/\b(test|sample|dummy)\b/i.test(r.name + " " + r.text));
 const pages = [];
 // ---------- fast images: small copies (made by the GitHub "thumbs" robot) are used automatically when they exist ----------
-const RS = [320, 480, 960, 1400]; // 320 = phone product cards (smaller download); 480 stays the "small" copy
+const RS = [320, 480, 720, 960, 1400]; // 320 = phone product cards, 720 = phone product gallery/hero (sharp, smaller download); 480 stays the "small" copy
 const decU = (v) => { try { return decodeURI(v); } catch { return v; } };
 // file names with spaces ("WhatsApp Image … (1).webp"): look up the real file, emit %20-encoded URLs (a raw space breaks srcset)
 const encU = (v) => encodeURI(decU(v)).replace(/,/g, "%2C");
