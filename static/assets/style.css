@@ -1459,3 +1459,6 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 
 /* product photos are 3:4 (studio-consistent set in /images/products/v2) */
 .card-img,.slide,.slide:first-child,.slide:first-child img,.trend-img{aspect-ratio:3/4}
+
+/* readable QR caption in the craft passport */
+.passport-qr small{font-size:.78rem;line-height:1.35}
