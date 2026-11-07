@@ -1,0 +1,1120 @@
+{
+  "_help": "Automatic homepage banner + 'Trending this week' strip, picked by today's India (IST) date. FESTIVALS: every festival theme starts 28 days before the festival and stops 14 days before it (\"festival_window\"), because international delivery takes 2-3 weeks; after that the next festival or the season theme shows, so a festival that has passed never shows. If two festival windows overlap, the festival that comes first wins. Each year needs its own date (Hindu/Islamic festivals move every year) – add next year's dates here; a festival with no date for the year simply does not show. SEASON themes use \"from\"/\"to\" as MM-DD (12-27 → 01-02 wraps over New Year); the highest priority wins. Photo = newest product (launch_date, else highest SKU number) that matches \"match\". Links to blog posts that are not live yet fall back to \"fallback_link\". Placeholders: {year} = festival year, {date} = festival date (e.g. 24 Nov), {order_by} = last day of the banner (order by this date for delivery abroad).",
+  "festivals": {
+    "_note": "Verified Nov 2026 from panchang/holiday calendars. Islamic dates depend on moon sighting (±1 day). Holi 2027: most calendars say 22 Mar (one says 23). Lohri 2027: 13 Jan (some say 14).",
+    "lohri": [
+      "2026-01-13",
+      "2027-01-13"
+    ],
+    "valentines": [
+      "2026-02-14",
+      "2027-02-14"
+    ],
+    "holi": [
+      "2026-03-04",
+      "2027-03-22"
+    ],
+    "eid-al-fitr": [
+      "2026-03-21",
+      "2027-03-10"
+    ],
+    "mothers-day": [
+      "2026-05-10",
+      "2027-05-09"
+    ],
+    "eid-al-adha": [
+      "2026-05-28",
+      "2027-05-17"
+    ],
+    "raksha-bandhan": [
+      "2026-08-28",
+      "2027-08-17"
+    ],
+    "navratri": [
+      "2026-10-11",
+      "2027-09-30"
+    ],
+    "karwa-chauth": [
+      "2026-10-29",
+      "2027-10-18"
+    ],
+    "diwali": [
+      "2026-11-08",
+      "2027-10-29"
+    ],
+    "bhai-dooj": [
+      "2026-11-11",
+      "2027-10-31"
+    ],
+    "gurpurab": [
+      "2026-11-24",
+      "2027-11-14"
+    ],
+    "christmas": [
+      "2026-12-25",
+      "2027-12-25"
+    ],
+    "new-year": [
+      "2027-01-01",
+      "2028-01-01"
+    ]
+  },
+  "fallback": "everyday-block-print",
+  "themes": [
+    {
+      "id": "karwa-chauth",
+      "name": "Karwa Chauth",
+      "festival": "karwa-chauth",
+      "eyebrow": "Karwa Chauth · {date} · Order by {order_by}",
+      "headline": "Red, Rani & Maroon for Karwa Chauth",
+      "line": "Festive suits and Anarkalis in shades of red, stitched to your size.",
+      "button": "Shop Karwa Chauth",
+      "link": "occasion/festive/",
+      "trending": [
+        "Red & maroon",
+        "Rani pink",
+        "Gota patti",
+        "Anarkali suits"
+      ],
+      "match": {
+        "occasion": [
+          "Festive",
+          "Diwali"
+        ],
+        "fabric": [
+          "Velvet",
+          "Georgette",
+          "Taffeta Silk"
+        ],
+        "words": [
+          "red",
+          "rani",
+          "maroon",
+          "wine"
+        ]
+      }
+    },
+    {
+      "id": "diwali",
+      "name": "Diwali",
+      "festival": "diwali",
+      "eyebrow": "Diwali {year} · {date} · Order by {order_by}",
+      "headline": "The Diwali Edit",
+      "line": "Royal Anarkalis, embroidered suits and hand block prints for every Diwali plan.",
+      "button": "Shop the Diwali Edit",
+      "link": "occasion/diwali/",
+      "trending": [
+        "Jewel tones",
+        "Velvet",
+        "Gota & zari",
+        "Plum & wine"
+      ],
+      "match": {
+        "occasion": [
+          "Diwali",
+          "Festive"
+        ],
+        "fabric": [
+          "Velvet",
+          "Georgette",
+          "Chanderi",
+          "Taffeta Silk"
+        ],
+        "words": [
+          "wine",
+          "plum",
+          "purple",
+          "royal",
+          "embroidered"
+        ]
+      }
+    },
+    {
+      "id": "bhai-dooj",
+      "name": "Bhai Dooj",
+      "festival": "bhai-dooj",
+      "eyebrow": "Bhai Dooj · {date} · Order by {order_by}",
+      "headline": "Bright & Easy for Bhai Dooj",
+      "line": "Comfortable kurta sets for the family lunch – festive, but easy to wear all day.",
+      "button": "See outfit ideas",
+      "link": "blog/bhai-dooj-outfit-ideas-for-sisters/",
+      "fallback_link": "occasion/festive/",
+      "trending": [
+        "Kurta sets",
+        "Pastels",
+        "Hand block print",
+        "Festive cotton"
+      ],
+      "match": {
+        "occasion": [
+          "Festive",
+          "Gifting"
+        ],
+        "words": [
+          "pink",
+          "peach",
+          "embroidered"
+        ]
+      }
+    },
+    {
+      "id": "wedding-guest",
+      "name": "Wedding season",
+      "from": "11-01",
+      "to": "11-18",
+      "priority": 3,
+      "eyebrow": "Wedding Season {year} · Nov – Feb",
+      "headline": "The Wedding Guest Edit",
+      "line": "Anarkalis and suits for every function – stitched to your measurements, shipped worldwide.",
+      "button": "Shop wedding guest",
+      "link": "occasion/wedding-guest/",
+      "trending": [
+        "Anarkali gowns",
+        "Jewel tones",
+        "Organza dupattas",
+        "Velvet"
+      ],
+      "match": {
+        "occasion": [
+          "Wedding Guest",
+          "Wedding"
+        ],
+        "words": [
+          "anarkali",
+          "gown",
+          "velvet"
+        ]
+      }
+    },
+    {
+      "id": "sangeet",
+      "name": "Sangeet week",
+      "from": "11-19",
+      "to": "11-25",
+      "priority": 3,
+      "eyebrow": "Wedding Season · Sangeet",
+      "headline": "Made for the Dance Floor",
+      "line": "Flared Anarkalis that twirl and stay comfortable through a long sangeet night.",
+      "button": "Sangeet outfit ideas",
+      "link": "blog/sangeet-outfit-ideas-for-guests/",
+      "fallback_link": "occasion/sangeet/",
+      "trending": [
+        "Flared Anarkalis",
+        "Mirror work",
+        "Bright pinks",
+        "Light georgette"
+      ],
+      "match": {
+        "occasion": [
+          "Sangeet",
+          "Party"
+        ],
+        "fabric": [
+          "Georgette",
+          "Chiffon"
+        ],
+        "words": [
+          "anarkali",
+          "pink",
+          "gown"
+        ]
+      }
+    },
+    {
+      "id": "gurpurab",
+      "name": "Gurpurab",
+      "festival": "gurpurab",
+      "eyebrow": "Gurpurab · {date} · Order by {order_by}",
+      "headline": "Graceful Suits for Gurpurab",
+      "line": "Soft colours, full sleeves and a dupatta to cover your head – easy for the gurdwara.",
+      "button": "See outfit ideas",
+      "link": "blog/guru-nanak-gurpurab-outfit-ideas-for-women/",
+      "fallback_link": "occasion/festive/",
+      "trending": [
+        "Pastel suits",
+        "Full sleeves",
+        "Kota Doria dupattas",
+        "Ivory & white"
+      ],
+      "match": {
+        "occasion": [
+          "Festive",
+          "Puja"
+        ],
+        "words": [
+          "white",
+          "ivory",
+          "off white",
+          "peach",
+          "dupatta"
+        ]
+      }
+    },
+    {
+      "id": "haldi-mehndi",
+      "name": "Haldi & Mehndi week",
+      "from": "11-26",
+      "to": "12-02",
+      "priority": 3,
+      "eyebrow": "Wedding Season · Haldi & Mehndi",
+      "headline": "Sunshine for Haldi & Mehndi",
+      "line": "Yellows, greens and light cottons that look fresh in day-time photos.",
+      "button": "Haldi outfit ideas",
+      "link": "blog/haldi-outfit-ideas-for-guests/",
+      "fallback_link": "occasion/haldi-mehendi/",
+      "trending": [
+        "Haldi yellow",
+        "Mehndi green",
+        "Gota patti",
+        "Kota Doria"
+      ],
+      "match": {
+        "occasion": [
+          "Haldi",
+          "Mehndi",
+          "Haldi & Mehendi"
+        ],
+        "fabric": [
+          "Kota Doria"
+        ],
+        "words": [
+          "yellow",
+          "mustard",
+          "green",
+          "mint"
+        ]
+      }
+    },
+    {
+      "id": "reception",
+      "name": "Reception week",
+      "from": "12-03",
+      "to": "12-09",
+      "priority": 3,
+      "eyebrow": "Wedding Season · Reception",
+      "headline": "Evening Glamour for the Reception",
+      "line": "Rich colours and graceful silhouettes for the biggest night of the wedding.",
+      "button": "Reception outfit ideas",
+      "link": "blog/reception-outfit-ideas-for-women/",
+      "fallback_link": "occasion/wedding-guest/",
+      "trending": [
+        "Velvet",
+        "Emerald & navy",
+        "Taffeta silk",
+        "Floor-length gowns"
+      ],
+      "match": {
+        "occasion": [
+          "Wedding Guest",
+          "Party"
+        ],
+        "fabric": [
+          "Velvet",
+          "Taffeta Silk",
+          "Taffeta"
+        ],
+        "words": [
+          "gown",
+          "royal",
+          "navy",
+          "black"
+        ]
+      }
+    },
+    {
+      "id": "winter-wedding",
+      "name": "Winter weddings",
+      "from": "12-10",
+      "to": "12-31",
+      "priority": 3,
+      "eyebrow": "Winter Weddings {year}",
+      "headline": "The Velvet Edit",
+      "line": "Warm velvet Anarkalis in jewel tones for cold-weather weddings at home and abroad.",
+      "button": "Shop velvet",
+      "link": "blog/velvet-anarkali-for-winter-weddings-how-to-choose-style-and-care/",
+      "fallback_link": "occasion/wedding-guest/",
+      "trending": [
+        "Velvet",
+        "Jewel tones",
+        "Bottle green",
+        "Wine & black"
+      ],
+      "match": {
+        "fabric": [
+          "Velvet"
+        ],
+        "occasion": [
+          "Wedding Guest"
+        ],
+        "words": [
+          "velvet",
+          "wine",
+          "bottle green",
+          "black"
+        ]
+      }
+    },
+    {
+      "id": "christmas",
+      "name": "Christmas",
+      "eyebrow": "Christmas {year} · Order by {order_by}",
+      "headline": "A Desi Christmas",
+      "line": "Red, green and velvet Indian outfits for Christmas parties – and gifts she will love.",
+      "button": "Christmas outfit ideas",
+      "link": "blog/christmas-outfit-ideas-indian-ethnic-wear-for-women/",
+      "fallback_link": "occasion/party/",
+      "trending": [
+        "Red & green",
+        "Velvet",
+        "Indo-western",
+        "Gift-ready sets"
+      ],
+      "match": {
+        "occasion": [
+          "Party",
+          "Gifting"
+        ],
+        "fabric": [
+          "Velvet"
+        ],
+        "words": [
+          "red",
+          "green",
+          "bottle green",
+          "velvet"
+        ]
+      },
+      "festival": "christmas"
+    },
+    {
+      "id": "new-year",
+      "name": "New Year",
+      "eyebrow": "New Year’s Eve · Order by {order_by}",
+      "headline": "Ring In the New Year",
+      "line": "Black, gold and velvet party looks with an Indian touch.",
+      "button": "NYE outfit ideas",
+      "link": "blog/new-years-eve-indian-party-outfit-ideas/",
+      "fallback_link": "occasion/party/",
+      "trending": [
+        "Black & gold",
+        "Velvet",
+        "Indo-western",
+        "Statement dupattas"
+      ],
+      "match": {
+        "occasion": [
+          "Party"
+        ],
+        "fabric": [
+          "Velvet",
+          "Georgette"
+        ],
+        "words": [
+          "black",
+          "gold",
+          "navy",
+          "velvet"
+        ]
+      },
+      "festival": "new-year"
+    },
+    {
+      "id": "winter-layers",
+      "name": "Winter layering",
+      "from": "01-01",
+      "to": "01-14",
+      "priority": 3,
+      "eyebrow": "Winter Edit",
+      "headline": "Layer Up, Stay Desi",
+      "line": "How to wear kurta sets with jackets, shawls and boots when it is cold outside.",
+      "button": "Winter layering guide",
+      "link": "blog/how-to-layer-indian-outfits-in-winter-abroad/",
+      "fallback_link": "shop/",
+      "trending": [
+        "Full sleeves",
+        "Velvet",
+        "Deep blues",
+        "Shawl styling"
+      ],
+      "match": {
+        "fabric": [
+          "Velvet",
+          "Cotton"
+        ],
+        "words": [
+          "navy",
+          "indigo",
+          "blue",
+          "full sleeves"
+        ]
+      }
+    },
+    {
+      "id": "lohri",
+      "name": "Lohri",
+      "eyebrow": "Lohri {year} · {date} · Order by {order_by}",
+      "headline": "Bonfire-Ready for Lohri",
+      "line": "Bright Punjabi colours with warm layers for the Lohri night.",
+      "button": "Lohri outfit ideas",
+      "link": "blog/what-to-wear-for-lohri-outfit-ideas/",
+      "fallback_link": "occasion/festive/",
+      "trending": [
+        "Phulkari colours",
+        "Mustard & red",
+        "Patiala & palazzo",
+        "Warm layers"
+      ],
+      "match": {
+        "occasion": [
+          "Festive"
+        ],
+        "words": [
+          "mustard",
+          "yellow",
+          "red",
+          "pink",
+          "rani"
+        ]
+      },
+      "festival": "lohri"
+    },
+    {
+      "id": "bridesmaid",
+      "name": "Bridesmaids",
+      "from": "01-15",
+      "to": "01-22",
+      "priority": 3,
+      "eyebrow": "Wedding Season · Bride Squad",
+      "headline": "Dressing the Bride Squad",
+      "line": "Matching and coordinated outfits for bridesmaids and sisters – made to measure for everyone.",
+      "button": "Bridesmaid ideas",
+      "link": "blog/bridesmaid-outfit-ideas-for-an-indian-wedding/",
+      "fallback_link": "occasion/wedding-guest/",
+      "trending": [
+        "Matching colours",
+        "Pastels",
+        "Anarkalis",
+        "Custom fit"
+      ],
+      "match": {
+        "occasion": [
+          "Wedding Guest",
+          "Sangeet"
+        ],
+        "words": [
+          "pink",
+          "peach",
+          "lavender",
+          "anarkali"
+        ]
+      }
+    },
+    {
+      "id": "family-of-the-bride",
+      "name": "Family of the bride",
+      "from": "01-23",
+      "to": "01-31",
+      "priority": 3,
+      "eyebrow": "Wedding Season · Family",
+      "headline": "Elegant Looks for Mum & Sisters",
+      "line": "Graceful suits for the mother and sister of the bride, in comfortable, rich fabrics.",
+      "button": "Mother of the bride ideas",
+      "link": "blog/mother-of-the-bride-outfit-ideas-indian-wedding/",
+      "fallback_link": "occasion/wedding-guest/",
+      "trending": [
+        "Chanderi",
+        "Rich jewel tones",
+        "Embroidered dupattas",
+        "Kurta pant sets"
+      ],
+      "match": {
+        "occasion": [
+          "Wedding Guest",
+          "Festive"
+        ],
+        "fabric": [
+          "Chanderi",
+          "Taffeta Silk",
+          "Kota Doria"
+        ],
+        "words": [
+          "navy",
+          "wine",
+          "coral",
+          "embroidered"
+        ]
+      }
+    },
+    {
+      "id": "destination-wedding",
+      "name": "Destination weddings",
+      "from": "02-01",
+      "to": "02-07",
+      "priority": 3,
+      "eyebrow": "Wedding Season · Destination",
+      "headline": "Goa, Udaipur & Jaipur Weddings",
+      "line": "Light, breezy outfits that travel well and look beautiful outdoors.",
+      "button": "Destination wedding guide",
+      "link": "blog/destination-wedding-outfits-goa-udaipur-jaipur/",
+      "fallback_link": "occasion/wedding-guest/",
+      "trending": [
+        "Pastels",
+        "Chiffon & georgette",
+        "Day-time florals",
+        "Easy to pack"
+      ],
+      "match": {
+        "occasion": [
+          "Wedding Guest",
+          "Vacation"
+        ],
+        "fabric": [
+          "Chiffon",
+          "Georgette"
+        ],
+        "words": [
+          "pastel",
+          "sky",
+          "mint",
+          "peach"
+        ]
+      }
+    },
+    {
+      "id": "valentines",
+      "name": "Valentine's",
+      "eyebrow": "Valentine’s Day · Order by {order_by}",
+      "headline": "Pretty in Pink",
+      "line": "Pinks, reds and soft pastels for date night – or a gift for someone special.",
+      "button": "Valentine's ideas",
+      "link": "blog/valentines-day-indian-outfit-ideas-for-women/",
+      "fallback_link": "occasion/gifting/",
+      "trending": [
+        "Baby pink",
+        "Rani pink",
+        "Red",
+        "Gift-ready sets"
+      ],
+      "match": {
+        "occasion": [
+          "Party",
+          "Gifting"
+        ],
+        "words": [
+          "pink",
+          "rani",
+          "red",
+          "rose",
+          "coral"
+        ]
+      },
+      "festival": "valentines"
+    },
+    {
+      "id": "day-weddings",
+      "name": "End of wedding season",
+      "from": "02-16",
+      "to": "02-28",
+      "priority": 3,
+      "eyebrow": "Wedding Season · Day Events",
+      "headline": "Pastels for Day Weddings",
+      "line": "Soft whites, peach and greys for day ceremonies, pujas and brunches.",
+      "button": "Shop pastels",
+      "link": "blog/pastel-kurta-sets-for-day-events-white-peach-grey/",
+      "fallback_link": "occasion/wedding-guest/",
+      "trending": [
+        "Ivory & peach",
+        "Chanderi",
+        "Thread embroidery",
+        "Light dupattas"
+      ],
+      "match": {
+        "occasion": [
+          "Wedding Guest",
+          "Festive",
+          "Puja"
+        ],
+        "words": [
+          "white",
+          "off white",
+          "peach",
+          "grey",
+          "ivory"
+        ]
+      }
+    },
+    {
+      "id": "eid-al-fitr",
+      "name": "Eid",
+      "festival": "eid-al-fitr",
+      "eyebrow": "Eid {year} · {date} · Order by {order_by}",
+      "headline": "Eid Mubarak in Style",
+      "line": "Modest Anarkalis and kurta sets with full sleeves and graceful dupattas.",
+      "button": "Eid outfit ideas",
+      "link": "blog/eid-outfit-ideas-anarkali-and-kurta-sets-abroad/",
+      "fallback_link": "occasion/festive/",
+      "trending": [
+        "Modest Anarkalis",
+        "Full sleeves",
+        "Mint & ivory",
+        "Chanderi"
+      ],
+      "match": {
+        "occasion": [
+          "Festive"
+        ],
+        "words": [
+          "anarkali",
+          "mint",
+          "ivory",
+          "white",
+          "green"
+        ]
+      }
+    },
+    {
+      "id": "spring-pastels",
+      "name": "Spring",
+      "from": "03-01",
+      "to": "03-20",
+      "priority": 1,
+      "eyebrow": "Spring Edit {year}",
+      "headline": "Hello, Spring Pastels",
+      "line": "Fresh mint, peach and powder blue hand block prints for longer, brighter days.",
+      "button": "Shop new prints",
+      "link": "occasion/office/",
+      "trending": [
+        "Mint & peach",
+        "Powder blue",
+        "Floral block print",
+        "Cotton kurta sets"
+      ],
+      "match": {
+        "fabric": [
+          "Cotton",
+          "Pure Cotton"
+        ],
+        "words": [
+          "mint",
+          "peach",
+          "powder blue",
+          "sky",
+          "floral"
+        ]
+      }
+    },
+    {
+      "id": "holi",
+      "name": "Holi",
+      "festival": "holi",
+      "eyebrow": "Holi {year} · {date} · Order by {order_by}",
+      "headline": "White, Bright & Ready for Holi",
+      "line": "Breathable white and colourful cotton outfits that love a splash of colour.",
+      "button": "Holi outfit ideas",
+      "link": "blog/holi-outfit-ideas-for-women/",
+      "fallback_link": "occasion/festive/",
+      "trending": [
+        "White kurtas",
+        "Pure cotton",
+        "Brights",
+        "Co-ord sets"
+      ],
+      "match": {
+        "fabric": [
+          "Cotton",
+          "Pure Cotton",
+          "Linen"
+        ],
+        "words": [
+          "white",
+          "off white",
+          "yellow",
+          "pink",
+          "floral"
+        ]
+      }
+    },
+    {
+      "id": "summer-cotton",
+      "name": "Summer cotton",
+      "from": "03-21",
+      "to": "04-15",
+      "priority": 1,
+      "eyebrow": "Summer {year}",
+      "headline": "The Summer Cotton Edit",
+      "line": "Pure cotton, hand block printed in Jaipur – the coolest thing to wear in the heat.",
+      "button": "Shop cotton",
+      "link": "hand-block-print-kurta-sets/",
+      "trending": [
+        "Pure cotton",
+        "Sleeveless kurtas",
+        "Floral prints",
+        "Powder blue"
+      ],
+      "match": {
+        "fabric": [
+          "Cotton",
+          "Pure Cotton"
+        ],
+        "words": [
+          "sleeveless",
+          "floral",
+          "blue",
+          "white"
+        ]
+      }
+    },
+    {
+      "id": "summer-office",
+      "name": "Summer office",
+      "from": "04-16",
+      "to": "04-30",
+      "priority": 1,
+      "eyebrow": "Work Wear Edit",
+      "headline": "Cool Cotton for the Office",
+      "line": "Easy, polished kurta sets and tunics that work from desk to dinner.",
+      "button": "Shop office wear",
+      "link": "occasion/office/",
+      "trending": [
+        "Indigo",
+        "Tunics with jeans",
+        "Straight kurtas",
+        "Breathable cotton"
+      ],
+      "match": {
+        "occasion": [
+          "Office"
+        ],
+        "words": [
+          "indigo",
+          "blue",
+          "tunic",
+          "straight"
+        ]
+      }
+    },
+    {
+      "id": "mothers-day",
+      "name": "Mother's Day",
+      "festival": "mothers-day",
+      "eyebrow": "Mother’s Day · {date} · Order by {order_by}",
+      "headline": "For the Woman Who Has Everything",
+      "line": "Handcrafted kurta sets she will actually wear – gift-wrapped and shipped worldwide.",
+      "button": "Gifts for mum",
+      "link": "blog/gifts-for-an-indian-mom-living-abroad/",
+      "fallback_link": "occasion/gifting/",
+      "trending": [
+        "Gifting",
+        "Mother-daughter sets",
+        "Soft pastels",
+        "Kota Doria"
+      ],
+      "match": {
+        "occasion": [
+          "Gifting"
+        ],
+        "fabric": [
+          "Kota Doria",
+          "Chanderi"
+        ],
+        "words": [
+          "peach",
+          "pink",
+          "coral"
+        ]
+      }
+    },
+    {
+      "id": "linen-vacation",
+      "name": "Linen & vacation",
+      "from": "05-01",
+      "to": "05-31",
+      "priority": 1,
+      "eyebrow": "Holiday Edit {year}",
+      "headline": "Linen for Long Summer Days",
+      "line": "Breezy linen dresses and cotton co-ords made for travel and holidays.",
+      "button": "Shop vacation wear",
+      "link": "occasion/vacation/",
+      "trending": [
+        "Linen dresses",
+        "White & sage",
+        "Co-ord sets",
+        "Midi sundresses"
+      ],
+      "match": {
+        "occasion": [
+          "Vacation"
+        ],
+        "fabric": [
+          "Linen"
+        ],
+        "words": [
+          "linen",
+          "white",
+          "sage",
+          "dress"
+        ]
+      }
+    },
+    {
+      "id": "eid-al-adha",
+      "name": "Eid al-Adha",
+      "festival": "eid-al-adha",
+      "eyebrow": "Eid al-Adha · {date} · Order by {order_by}",
+      "headline": "Light & Graceful for Eid",
+      "line": "Breathable Anarkalis and kurta sets for a summer Eid.",
+      "button": "Eid outfit ideas",
+      "link": "blog/eid-outfit-ideas-anarkali-and-kurta-sets-abroad/",
+      "fallback_link": "occasion/festive/",
+      "trending": [
+        "Cotton Anarkalis",
+        "Mint & white",
+        "Full sleeves",
+        "Kota Doria"
+      ],
+      "match": {
+        "occasion": [
+          "Festive"
+        ],
+        "fabric": [
+          "Cotton",
+          "Kota Doria"
+        ],
+        "words": [
+          "anarkali",
+          "white",
+          "mint"
+        ]
+      }
+    },
+    {
+      "id": "co-ords",
+      "name": "Summer co-ords",
+      "from": "06-01",
+      "to": "06-20",
+      "priority": 1,
+      "eyebrow": "Just in for Summer",
+      "headline": "Co-ords & Tunics",
+      "line": "Mix-and-match floral co-ord sets and tunic tops for everyday summer.",
+      "button": "Shop co-ords",
+      "link": "cotton-co-ord-sets-for-women/",
+      "trending": [
+        "Co-ord sets",
+        "Floral palazzo",
+        "Tunics",
+        "Sleeveless"
+      ],
+      "match": {
+        "occasion": [
+          "Daily",
+          "College",
+          "Vacation"
+        ],
+        "words": [
+          "co-ord",
+          "palazzo",
+          "tunic",
+          "floral"
+        ]
+      }
+    },
+    {
+      "id": "monsoon",
+      "name": "Monsoon",
+      "from": "06-21",
+      "to": "07-31",
+      "priority": 1,
+      "eyebrow": "Monsoon Edit",
+      "headline": "Rain-Ready Colours",
+      "line": "Quick-dry cottons in deep greens, indigo and mustard for the monsoon.",
+      "button": "Shop the edit",
+      "link": "shop/",
+      "trending": [
+        "Bottle green",
+        "Indigo",
+        "Mustard",
+        "Short kurtas"
+      ],
+      "match": {
+        "fabric": [
+          "Cotton",
+          "Cotton Flex"
+        ],
+        "words": [
+          "green",
+          "indigo",
+          "mustard",
+          "teal"
+        ]
+      }
+    },
+    {
+      "id": "raksha-bandhan",
+      "name": "Raksha Bandhan",
+      "festival": "raksha-bandhan",
+      "eyebrow": "Raksha Bandhan · {date} · Order by {order_by}",
+      "headline": "Festive Sets for Rakhi",
+      "line": "Bright, comfortable kurta sets for the family celebration – or as a gift for your sister.",
+      "button": "Shop festive",
+      "link": "occasion/festive/",
+      "trending": [
+        "Bright cottons",
+        "Kurta sets",
+        "Gifting",
+        "Gota detail"
+      ],
+      "match": {
+        "occasion": [
+          "Festive",
+          "Gifting"
+        ],
+        "words": [
+          "pink",
+          "yellow",
+          "mustard",
+          "coral"
+        ]
+      }
+    },
+    {
+      "id": "made-in-india",
+      "name": "Handmade in India",
+      "from": "08-01",
+      "to": "08-15",
+      "priority": 1,
+      "eyebrow": "Handmade in Jaipur",
+      "headline": "Proudly Handmade in India",
+      "line": "Every motif stamped by hand by our own karigars in Sanganer, Jaipur.",
+      "button": "See how it's made",
+      "link": "bahe-block/",
+      "fallback_link": "shop/",
+      "trending": [
+        "Hand block print",
+        "Indigo dabu",
+        "Sanganeri",
+        "Slow fashion"
+      ],
+      "match": {
+        "words": [
+          "block print",
+          "indigo",
+          "sanganeri"
+        ]
+      }
+    },
+    {
+      "id": "festive-preview",
+      "name": "Festive preview",
+      "from": "08-16",
+      "to": "09-25",
+      "priority": 1,
+      "eyebrow": "Festive Season {year} · Preview",
+      "headline": "The Festive Season Starts Here",
+      "line": "First looks at Anarkalis and kurta sets for Navratri, Karwa Chauth and Diwali.",
+      "button": "Shop festive",
+      "link": "occasion/festive/",
+      "trending": [
+        "Anarkalis",
+        "Bandhani",
+        "Jewel tones",
+        "Custom fit"
+      ],
+      "match": {
+        "occasion": [
+          "Festive",
+          "Navratri"
+        ],
+        "words": [
+          "anarkali",
+          "bandhani",
+          "embroidered"
+        ]
+      }
+    },
+    {
+      "id": "navratri",
+      "name": "Navratri",
+      "festival": "navratri",
+      "eyebrow": "Navratri {year} · {date} · Order by {order_by}",
+      "headline": "Nine Nights, Nine Colours",
+      "line": "Bandhani, flared Anarkalis and bright colours for garba and Durga Puja.",
+      "button": "Shop Navratri",
+      "link": "occasion/navratri/",
+      "fallback_link": "occasion/festive/",
+      "trending": [
+        "Bandhani",
+        "Flared Anarkalis",
+        "Mirror work",
+        "Navratri colours"
+      ],
+      "match": {
+        "occasion": [
+          "Navratri"
+        ],
+        "words": [
+          "bandhani",
+          "anarkali",
+          "teal",
+          "red"
+        ]
+      }
+    },
+    {
+      "id": "festive-october",
+      "name": "Festive October",
+      "from": "09-26",
+      "to": "11-03",
+      "priority": 1,
+      "eyebrow": "Festive Season {year}",
+      "headline": "Dressed for Every Celebration",
+      "line": "Anarkalis, kurta sets and suits for pujas, parties and family gatherings.",
+      "button": "Shop festive",
+      "link": "occasion/festive/",
+      "trending": [
+        "Jewel tones",
+        "Embroidered suits",
+        "Velvet",
+        "Gota patti"
+      ],
+      "match": {
+        "occasion": [
+          "Festive",
+          "Diwali"
+        ],
+        "words": [
+          "embroidered",
+          "anarkali",
+          "wine",
+          "royal"
+        ]
+      }
+    },
+    {
+      "id": "everyday-block-print",
+      "name": "Everyday",
+      "from": "01-01",
+      "to": "12-31",
+      "priority": 0,
+      "eyebrow": "New Every Week · Made in Jaipur",
+      "headline": "Hand Block Prints from Jaipur",
+      "line": "Kurta sets, Anarkalis and dresses – stitched to your measurements and shipped worldwide.",
+      "button": "Shop new arrivals",
+      "link": "shop/",
+      "trending": [
+        "Hand block print",
+        "Cotton kurta sets",
+        "Custom fit",
+        "Indigo"
+      ],
+      "match": {
+        "words": [
+          "block print"
+        ]
+      }
+    }
+  ],
+  "festival_window": {
+    "from": -28,
+    "to": -14
+  }
+}

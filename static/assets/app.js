@@ -704,7 +704,7 @@
   const hero = $("[data-hero]");
   if (hero) {
     // scheduled banners: hide slides outside their start/end dates
-    const dnow = new Date().toISOString().slice(0, 10), allS = $$(".hero-slide", hero);
+    const dnow = new Date(Date.now() + 198e5).toISOString().slice(0, 10), allS = $$(".hero-slide", hero);
     const off = allS.filter((x) => (x.dataset.start && x.dataset.start > dnow) || (x.dataset.end && x.dataset.end < dnow));
     if (off.length && off.length < allS.length) { off.forEach((x) => x.remove()); const dots = $$("[data-hero-go]", hero); dots.slice(allS.length - off.length).forEach((d) => d.remove()); $$("[data-hero-go]", hero).forEach((d, k) => (d.dataset.heroGo = k)); const first = $(".hero-slide", hero); if (first) { first.classList.add("on"); first.inert = false; first.removeAttribute("aria-hidden"); } }
     const sl = $$(".hero-slide", hero), hd = $$("[data-hero-go]", hero); let hi = 0, ht;
