@@ -3,3 +3,4 @@
 /products/bahe-kurtiz-purple-halter-neck-minimally-embroidered-a-line-kurti-set-with-palazzo-for-women /shop/ 301
 /collections/anarkali-suit-sets/ /collections/anarkali-suits/ 301
 /occasion/karwa-chauth/ /occasion/festive/ 301
+/blog/kota-doria-fabric-guide/ /blog/what-is-kota-doria-fabric-styling-and-care/ 301
