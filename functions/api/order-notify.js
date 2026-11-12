@@ -68,7 +68,7 @@ function itemsTable(o, owner) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:8px 0 16px">${rows}
 ${tr("Subtotal", money(o.sub, o.currency))}${o.discount ? tr("Discount", "−" + money(o.discount, o.currency)) : ""}${o.coupon ? tr("Coupon", esc(o.coupon)) : ""}${tr(o.currency === "USD" ? "Shipping (duties included)" : "Shipping", o.shipping ? money(o.shipping, o.currency) : "Free")}${tr("Total paid", money(o.total, o.currency) + " " + o.currency, true)}</table>`;
 }
-const notes = (o) => [o.note ? `<b>Note:</b> ${esc(o.note)}` : "", fitText(o) ? `<b>Custom measurements (inches):</b> ${esc(fitText(o))}` : "", o.gift_to || o.gift_msg ? `<b>🎁 Gift</b>${o.gift_to ? " for " + esc(o.gift_to) : ""}${o.gift_msg ? ` – card: “${esc(o.gift_msg)}”` : ""}${o.gift_hide ? " – <b>do NOT put price/invoice in parcel</b>" : ""}` : ""].filter(Boolean);
+const notes = (o) => [o.note ? `<b>Note:</b> ${esc(o.note)}` : "", /Referred by:/.test(o.note || "") ? `<b>Referral:</b> after delivery (and no return), send the referrer their thank-you code THANKYOU10 on WhatsApp.` : "", fitText(o) ? `<b>Custom measurements (inches):</b> ${esc(fitText(o))}` : "", o.gift_to || o.gift_msg ? `<b>🎁 Gift</b>${o.gift_to ? " for " + esc(o.gift_to) : ""}${o.gift_msg ? ` – card: “${esc(o.gift_msg)}”` : ""}${o.gift_hide ? " – <b>do NOT put price/invoice in parcel</b>" : ""}` : ""].filter(Boolean);
 
 export function ownerEmail(o, to, verified = true) {
   const kv = (k, v) => (v ? `<tr><td style="padding:4px 8px 4px 0;color:#7a6f66;font-size:13px;white-space:nowrap;vertical-align:top">${k}</td><td style="padding:4px 0;font-size:14px">${v}</td></tr>` : "");

@@ -218,6 +218,8 @@
   let method = "", online = false;
   // coupons (validated again on the payment server for online payments)
   let coupon = (() => { try { return sessionStorage.getItem("bk_cpn") || ""; } catch { return ""; } })();
+  let refAuto = false; // referral: friend's first-order discount, only via a referral link (30 days) and only before their first order on this device
+  if (!coupon && BK.rc) { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (r && Date.now() - r.t < 30 * 864e5 && !localStorage.getItem("bk_bought")) { coupon = BK.rc; refAuto = true; } } catch {} }
   const istToday = () => new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10);
   const findCoupon = (cat, code, sub) => { const c = (cat.settings.coupons || []).find((x) => x.c === String(code || "").trim().toUpperCase()); if (!c) return [null, "This code is not valid."];
     if ((c.m === "in" && isUSD()) || (c.m === "intl" && !isUSD())) return [null, isUSD() ? "This code is for India orders." : "This code is for international orders."];
@@ -270,7 +272,7 @@
     });
   }
   const cpIn = $("[data-coupon-in]"), cpMsg = $("[data-coupon-msg]");
-  if (cpIn) { if (coupon) cpIn.value = coupon;
+  if (cpIn) { if (coupon) cpIn.value = coupon; if (refAuto && cpMsg) { cpMsg.textContent = "🎁 Referral discount applied – 10% off your first order"; cpMsg.className = "small save"; }
     $("[data-coupon-go]")?.addEventListener("click", async () => { const cat = await catalog(); const code = cpIn.value.trim().toUpperCase();
       if (!code) { coupon = ""; try { sessionStorage.removeItem("bk_cpn"); } catch {} cpMsg.textContent = ""; renderCheckout(); return; }
       const [c, err] = findCoupon(cat, code, totals0(cat, method).sub);

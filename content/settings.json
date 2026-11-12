@@ -96,7 +96,11 @@
   "festivals": [],
   "currency_rates": [],
   "usd_rate": 85,
-  "coupons": [],
+  "coupons": [
+    { "code": "FRIEND10", "kind": "Percent", "value": 10, "market": "Both", "active": true },
+    { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true }
+  ],
+  "referral_coupon": "FRIEND10",
   "prepaid_discount_percent": 5,
   "upi_id": "",
   "dispatch_note": "Handmade in Jaipur · Ready sizes dispatched in 2–4 working days · Custom fit in 5–7 working days",
@@ -109,8 +113,8 @@
   "terms": "Last updated: 12 November 2026. bahekurtiz.com is run by Anushka Creation, Jaipur, Rajasthan, India (brand: Bahe Kurtiz). By placing an order you agree to these terms.\n\nProducts: our pieces are handmade. Hand block prints, hand embroidery and hand dyeing can show small differences in colour and pattern from the photos – this is part of the craft, not a defect. Screen colours can also look slightly different.\n\nPrices and payment: prices are shown in your selected currency. International orders are charged in USD via PayPal; Indian orders in INR including applicable taxes. An order is confirmed once payment is received, or once we confirm it with you on WhatsApp.\n\nCustom fit: for custom fit and made-to-measure pieces we confirm your measurements on WhatsApp before stitching, so please check them carefully.\n\nShipping, returns and exchanges: delivery times and return rules are explained on our Shipping, International Shipping, Returns and International Returns pages, which form part of these terms.\n\nWholesale and group orders: prices for wholesale, private label and group orders are shared on WhatsApp or email and are confirmed in writing before production.\n\nContact: for any question about an order, message us on WhatsApp or email bahekurti@gmail.com.",
   "site_url": "https://bahekurtiz.com",
   "google_site_verification": "",
-  "referral_offer": "$5 / ₹300 off your next order",
-  "referral_friend_offer": "A free handmade potli with the first order",
+  "referral_offer": "10% off your next order",
+  "referral_friend_offer": "10% off their first order",
   "referral_terms": "",
   "gift_amounts_inr": [],
   "gift_amounts_usd": [],
