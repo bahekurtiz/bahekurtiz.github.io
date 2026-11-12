@@ -101,6 +101,8 @@
     { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true }
   ],
   "referral_coupon": "FRIEND10",
+  "model_height_default": "5'8\"",
+  "exit_popup": false,
   "trust_ratings_checked": "November 2026",
   "trust_ratings": [
     { "name": "Etsy", "shop": "BaheKurtiz", "rating": 4.3, "count": "257 reviews", "url": "https://www.etsy.com/shop/BaheKurtiz" },

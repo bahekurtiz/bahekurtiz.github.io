@@ -1515,3 +1515,6 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 /* trust strip (marketplace ratings – text only) */
 .trust-strip{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:14px 0;background:#fffdf8}.trust-h{margin:0 0 4px;font-weight:600}.trust-h span{color:#c8962c}.trust-strip ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 18px}.trust-strip li a{text-decoration:none;color:inherit}.trust-strip li a:hover b{text-decoration:underline}.trust-note{margin:4px 0 0}.trust-home{max-width:860px;margin:18px auto}
 .trust-strip li{background:none!important;border:0!important;padding:0!important;margin:0!important;border-radius:0!important;font-size:.95rem}
+
+/* product page: secondary actions below the details */
+.pdp-more{margin:18px 0;padding-top:12px;border-top:1px solid var(--line)}

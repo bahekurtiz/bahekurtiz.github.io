@@ -547,7 +547,7 @@
     const PAGE = 48; let limit = PAGE;
     const psel = $('[data-filter="price"]');
     if (psel) { const usd = isUSD(), cur = usd ? "$" : "₹", f = (n) => cur + Number(n).toLocaleString("en-IN");
-      const raw = (BK.bands && BK.bands[usd ? "usd" : "inr"]) || (usd ? [[0, 25], [25, 50], [50, 80], [80, 0]] : [[0, 800], [800, 1500], [1500, 2500], [2500, 0]]);
+      const raw = (BK.bands && (BK.bands[usd ? "usd" : "inr"] || []).length ? BK.bands[usd ? "usd" : "inr"] : null) || (usd ? [[0, 25], [25, 50], [50, 80], [80, 0]] : [[0, 800], [800, 1500], [1500, 2500], [2500, 0]]);
       const bands = raw.map(([lo, hi]) => [`${lo}-${hi || ""}`, !lo ? `Under ${f(hi)}` : !hi ? `${f(lo)}+` : `${f(lo)} – ${f(hi)}`]);
       psel.insertAdjacentHTML("beforeend", bands.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")); }
     const KEYS = ["size", "color", "price", "fabric", "print", "occ", "neck", "sleeve", "len", "stock"];
@@ -1503,7 +1503,7 @@
 
     // 2) leave-attempt VIP offer – international (USD) shoppers only; never on checkout/admin, max once in 7 days, never after sign-up or the sign-in popup
     const u0 = getUser();
-    const eligible = () => isUSD() && !offPage && !(u0 && (u0.phone || u0.email)) && !lg("bk_vip") && !sg("bk_lp") && !sg("bk_xs") && Date.now() - (+lg("bk_exit") || 0) > 7 * 864e5
+    const eligible = () => BK.xp && isUSD() && !offPage && !(u0 && (u0.phone || u0.email)) && !lg("bk_vip") && !sg("bk_lp") && !sg("bk_xs") && Date.now() - (+lg("bk_exit") || 0) > 7 * 864e5
       && !document.querySelector("dialog[open]") && !document.documentElement.classList.contains("locked");
     if (!eligible()) return;
     const t0 = Date.now(); let shown = false;
