@@ -1,0 +1,22 @@
+{
+ "_help": "Data for /indian-wedding-guest-style-report/. Search figures are real Google Search Console numbers for bahekurtiz.com (sc-domain property), 28 days to 12 Nov 2026, pulled via Windsor.ai. Catalogue figures are computed by the build from content/products. Update once a year (or each season) with fresh numbers – never estimate.",
+ "year": 2026,
+ "period": "16 October – 12 November 2026 (28 days)",
+ "source": "Google Search Console for bahekurtiz.com",
+ "total_impressions": 4458,
+ "countries_count": 106,
+ "mobile_share": 76,
+ "countries": [["India", 2440], ["United States", 530], ["United Kingdom", 317], ["Canada", 193], ["Australia", 104], ["United Arab Emirates", 87], ["Bangladesh", 70], ["Nepal", 50], ["Malaysia", 42], ["Singapore", 35]],
+ "festive": [["Dhanteras outfits", 686], ["Lakshmi / Diwali puja outfits", 353], ["New Year's Eve party outfits", 108], ["Diwali outfits for plus size women", 88], ["Gurpurab outfits", 85], ["Christmas Indian outfits", 57]],
+ "weddings": [["Bengali wedding guest", 575], ["Tamil wedding guest", 197], ["Bangladeshi wedding guest", 87], ["Rajasthani wedding guest", 59], ["Sikh (Anand Karaj) wedding guest", 56], ["Punjabi wedding guest", 55], ["Kerala wedding guest", 51], ["Marathi wedding guest", 42]],
+ "styling": [["Jewellery to wear with an Anarkali", 347], ["Anarkali styles for tall women", 156], ["Best Anarkali fabric for winter weddings", 83], ["How to drape a dupatta", 59]],
+ "questions": [
+  "which anarkali suit styles suit tall women best?",
+  "what anarkali suit fabric works best for winter weddings?",
+  "what should i wear to a bengali wedding as a hijabi guest? i want something modern, not a full sari",
+  "which colour to wear on dhanteras",
+  "which colour to wear on lakshmi puja",
+  "can i wear an anarkali suit to a mehendi event?",
+  "how to choose between cotton and linen midi dresses for summer comfort?"
+ ]
+}

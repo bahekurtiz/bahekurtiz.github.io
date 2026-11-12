@@ -1083,6 +1083,51 @@ ${remindForm("Festival calendar")}
     events: CAL_EVENTS.map((e) => { const th = BANNER_THEMES.find((t) => t.id === e.theme), sh = shopOf(e); return { ...e, ...st(e), theme_ok: !!th, page_url: sh ? `${SITE_URL}/${sh}` : "", order_by: { india: orderBy(e.date, "india"), india_custom: orderBy(e.date, "india", 1), abroad: orderBy(e.date, "intl"), abroad_custom: orderBy(e.date, "intl", 1) }, products: prodsFor(e) }; }) }, null, 1);
 }
 
+// ---------- Indian Wedding Guest Style Report (linkable asset): real Search Console numbers + catalogue facts ----------
+let REPORT_URL = "";
+{
+  const RP = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/reports/style-report-2026.json"), "utf8")); } catch { return null; } })();
+  if (RP) {
+    REPORT_URL = "indian-wedding-guest-style-report/";
+    const live = products.filter((p) => !p.coming && p.price !== null);
+    const pct = (n, t) => Math.round((n / t) * 100);
+    const fam = (c) => { c = String(c || "").toLowerCase(); return /pink|rose|coral|peach|rani/.test(c) ? "Pinks & peach" : /blue|navy|indigo|aqua|teal/.test(c) ? "Blues & teal" : /green|mint|sage|olive/.test(c) ? "Greens" : /white|ivory|cream|off white/.test(c) ? "White & ivory" : /purple|plum|violet|lavender|wine|maroon/.test(c) ? "Purples & wine" : /yellow|mustard/.test(c) ? "Yellows" : /black|grey/.test(c) ? "Black & grey" : "Other"; };
+    const tally = (arr) => Object.entries(arr.reduce((o, x) => ((o[x] = (o[x] || 0) + 1), o), {})).sort((a, b) => b[1] - a[1]);
+    const colours = tally(live.map((p) => fam(p.color))).filter(([k]) => k !== "Other"), fabrics = tally(live.map((p) => p.fabric).filter((f) => f && f !== "Other")).slice(0, 7);
+    const bars = (rows, total, unit = "") => `<div class="rbars">${rows.map(([k, v]) => `<div class="rbar"><span class="rbar-l">${esc(k)}</span><span class="rbar-t"><span class="rbar-f" style="width:${Math.max(3, Math.round((v / rows[0][1]) * 100))}%"></span></span><span class="rbar-v">${v}${unit}${total ? ` <small>(${pct(v, total)}%)</small>` : ""}</span></div>`).join("")}</div>`;
+    const abroad = RP.countries.filter(([c]) => c !== "India").reduce((n, [, v]) => n + v, 0);
+    const nextF = CAL_EVENTS.filter((e) => e.kind === "festival" && e.date >= TODAY_IST).slice(0, 8);
+    const cite = `${brand} (${RP.year}). Indian Wedding Guest Style Report ${RP.year}. ${SITE_URL}/${REPORT_URL}`;
+    const qs = [["Where does this data come from?", `From Google Search Console for ${SITE_URL.replace(/^https?:\/\//, "")} (${RP.period}) and from our own ${RP.year} catalogue. It shows what people searched before landing on our site – not the whole market.`],
+      ["Can I use these numbers in my article?", "Yes – please quote them with a link to this page as the source. For more detail or a quote from our founder, contact us."],
+      ["How often is the report updated?", "Once a year, with new figures for the wedding and festive season."]];
+    const body = `<section class="wrap section prose report"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("press/")}">Press</a> / <span>Style report ${RP.year}</span></nav>
+<p class="eyebrow">Report · ${esc(RP.period)}</p>
+<h1>Indian Wedding Guest Style Report ${RP.year}</h1>
+<p class="lead">What wedding guests and festive shoppers searched for before finding ${esc(brand)} this season – which communities' weddings, which festivals and which styling questions – plus the colours and fabrics in our ${RP.year} collection. Real numbers, no estimates.</p>
+<div class="rkeys"><div><b>${RP.total_impressions.toLocaleString("en-US")}</b><span>search impressions</span></div><div><b>${RP.countries_count}</b><span>countries</span></div><div><b>${pct(abroad, RP.total_impressions)}%</b><span>from outside India (top 10 countries)</span></div><div><b>${RP.mobile_share}%</b><span>on mobile</span></div></div>
+<h2>Key findings</h2><ul>
+<li><b>${esc(RP.weddings[0][0])}</b> was the most searched wedding topic (${RP.weddings[0][1]} impressions) – more than the next three communities together.</li>
+<li><b>Festivals beat weddings in October–November:</b> ${esc(RP.festive[0][0].toLowerCase())} alone had ${RP.festive[0][1]} impressions, ahead of every single wedding topic.</li>
+<li><b>People ask practical questions:</b> what jewellery goes with an Anarkali, which Anarkali suits tall women, and which fabric keeps you warm at a winter wedding.</li>
+<li><b>The diaspora is searching:</b> the USA, UK, Canada, Australia and the UAE together made up ${pct(RP.countries.filter(([c]) => /United States|United Kingdom|Canada|Australia|Arab/.test(c)).reduce((n, [, v]) => n + v, 0), RP.total_impressions)}% of impressions.</li></ul>
+<h2>Wedding guest searches by community</h2>${bars(RP.weddings)}
+<p>Guides: ${RP.weddings.slice(0, 4).map(([k]) => k).join(", ")} – see our <a href="${u("indian-wedding-guest-outfits/")}">wedding guest guide</a> with guides for 13 communities.</p>
+<h2>Festive searches</h2>${bars(RP.festive)}
+<h2>Top styling questions</h2>${bars(RP.styling)}
+<h3>Questions people typed, word for word</h3><ul>${RP.questions.map((q) => `<li>“${esc(q)}”</li>`).join("")}</ul>
+<h2>Where the searches came from</h2>${bars(RP.countries, RP.total_impressions)}
+<h2>Colours and fabrics in our ${RP.year} collection</h2>
+<p>Share of our ${live.length} live styles, by colour family and fabric:</p>${bars(colours, live.length, "")}${bars(fabrics, live.length, "")}
+${nextF.length ? `<h2>Festival dates ahead</h2><ul>${nextF.map((e) => `<li><b>${esc(e.name)}</b> – ${dShort(e.date)} ${e.date.slice(0, 4)}</li>`).join("")}</ul><p>Last order dates for every country: <a href="${u("festival/")}">festival calendar</a>.</p>` : ""}
+<h2>Methodology</h2><p>Search figures are Google Search Console impressions for ${esc(SITE_URL.replace(/^https?:\/\//, ""))} over ${esc(RP.period)}, grouped by topic (for example, all pages and queries about Bengali weddings). Impressions count how often our pages appeared in Google results, so they reflect what people searched before finding us, not total market demand. Catalogue shares are counted from our live styles on the day this page was built.</p>
+<h2>Cite or share this report</h2><p class="small"><code>${esc(cite)}</code></p><p>Journalists and bloggers: see our <a href="${u("press/")}">press kit</a> for brand facts, photos and contact.</p>
+<h2>Frequently asked questions</h2>${qs.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}
+</section>`;
+    add(REPORT_URL + "index.html", page({ title: `Indian Wedding Guest Style Report ${RP.year} | ${brand}`, description: clip(`What wedding guests and festive shoppers searched in ${RP.year}: top communities, festivals and styling questions from real Google Search Console data, plus our collection's colours and fabrics.`), pathname: REPORT_URL, body, ld: [{ "@context": "https://schema.org", "@type": "Report", name: `Indian Wedding Guest Style Report ${RP.year}`, url: SITE_URL + "/" + REPORT_URL, datePublished: TODAY_IST, author: { "@id": SITE_URL + "/#store" }, publisher: { "@id": SITE_URL + "/#store" }, about: "Indian wedding guest fashion and festive shopping searches" }, { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: qs.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }, crumbLd([["Press & bloggers", "press/"], [`Style report ${RP.year}`, REPORT_URL]])] }));
+  }
+}
+
 // ---------- Press & bloggers kit: facts from the catalogue and settings only ----------
 {
   const live = products.filter((p) => !p.coming && p.price !== null);
@@ -1094,6 +1139,7 @@ ${remindForm("Festival calendar")}
 <h1>Press & Bloggers Kit</h1>
 <p class="lead">Writing about Indian fashion, Jaipur craft, wedding guest style or the diaspora? Here are the facts about ${esc(brand)}, story ideas and free tools you can embed. Need photos, a quote or an interview? Just ask.</p>
 <h2>Quick facts</h2><div class="tbl-scroll"><table><tbody>${facts.map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`).join("")}</tbody></table></div>
+${REPORT_URL ? `<h2>New: Indian Wedding Guest Style Report</h2><p>Real search data on which communities' weddings, festivals and styling questions people searched this season – free to quote with a link. <a class="btn btn-ghost btn-sm" href="${u(REPORT_URL)}">Read the report</a></p>` : ""}
 <h2>Story ideas</h2><ul>
 <li><b>Hand block printing in Sanganer:</b> how carved wooden blocks and dabu mud-resist printing still make everyday clothes – see our <a href="${u("craft/")}">craft guides</a>.</li>
 <li><b>Dressing for Indian weddings abroad:</b> what guests wear to Punjabi, Gujarati, Tamil, Bengali, Sikh, Muslim and Christian weddings – our <a href="${u("indian-wedding-guest-outfits/")}">wedding guest guide</a> and <a href="${u("tools/indian-wedding-colour-guide/")}">colour guide</a>.</li>
@@ -2820,7 +2866,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "gift-to-india/", "press/", "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "gift-to-india/", "press/", ...(fs.existsSync(path.join(ROOT, "content/reports/style-report-2026.json")) ? ["indian-wedding-guest-style-report/"] : []), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 // page fingerprints: a page's lastmod changes only when its content changes; IndexNow gets only new/changed pages.
 // Live builds read the manifest of the deploy that is live right now (/data/page-hashes.json) to compare.

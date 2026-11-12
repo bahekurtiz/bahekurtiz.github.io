@@ -1508,3 +1508,6 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 
 /* review request (real customers, after delivery) */
 .done-review{margin:18px 0;padding:14px 16px;border:1px solid var(--line);border-radius:10px}.review-ask{margin:14px 0}
+
+/* style report */
+.rkeys{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.rkeys div{border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}.rkeys b{display:block;font-size:1.6rem}.rkeys span{font-size:.85rem;color:var(--muted,#666)}.rbars{margin:10px 0 18px}.rbar{display:grid;grid-template-columns:minmax(120px,38%) 1fr auto;gap:8px;align-items:center;margin:6px 0;font-size:.92rem}.rbar-t{background:#f1ebe3;border-radius:6px;height:12px;overflow:hidden}.rbar-f{display:block;height:100%;background:#0e5b59;border-radius:6px}.rbar-v{white-space:nowrap}
