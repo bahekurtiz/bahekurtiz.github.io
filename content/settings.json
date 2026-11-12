@@ -25,7 +25,13 @@
   "whatsapp": "7073350886",
   "phone": "+91 70733 50886",
   "email": "bahekurti@gmail.com",
-  "address": "Jaipur, Rajasthan, India",
+  "address": "Rampura Rd, Kankha Ki Dhani, Sanganer, Jaipur, Rajasthan 302029, India",
+  "address_street": "Rampura Rd, Kankha Ki Dhani, Sanganer",
+  "address_city": "Jaipur",
+  "address_region": "Rajasthan",
+  "address_postcode": "302029",
+  "store_hours": { "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "10:00", "closes": "19:00", "text": "Mon–Sat 10:00–19:00 · Sunday closed · online store open 24/7" },
+  "google_maps_url": "",
   "social_links": [
     {
       "name": "Instagram",
