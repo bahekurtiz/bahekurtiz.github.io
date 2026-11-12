@@ -1198,6 +1198,7 @@ ${waNumber ? `<p>Questions? <a href="https://wa.me/${waNumber}?text=${encodeURIC
 
 // ---------- AUTO SEO pages: "Pink Kurtis", "Cotton Dresses", "Bagru Print Kurtis", "Festive Kurtis"… made by themselves from your listings ----------
 const AUTO_MIN = Math.max(2, num(S.auto_page_min) || 2);
+const THIN_SHOP = []; // /shop/ filter pages with fewer than 4 styles → 301 to their collection (owner decision 12 Nov 2026)
 const takenPaths = new Set(["shop/", ...allCats.map((c) => c.url)]);
 const autoPages = S.auto_pages === false ? [] : (() => { const out = [], has = (v, w) => { v = String(v || "").toLowerCase(); w = w.toLowerCase(); return v === w || new RegExp("(^|[^a-z])" + w.replace(/[^a-z0-9 ]/g, ".") + "([^a-z]|$)").test(v); };
   for (const c of categories) {
@@ -1207,6 +1208,7 @@ const autoPages = S.auto_pages === false ? [] : (() => { const out = [], has = (
       if (items.length < AUTO_MIN || items.length === c.items.length && k !== "occ" && k !== "print") continue;
       const label = k === "occ" ? `${v} ${c.plural}` : k === "fabric" ? `${tcase(v)} ${c.plural}` : `${tcase(v)} ${c.plural}`;
       const url = `shop/${slugify(label)}/`; if (takenPaths.has(url)) continue; takenPaths.add(url);
+      if (items.length < 4) { THIN_SHOP.push(`/${url} /${c.url} 301`, `/${url.replace(/\/$/, "")} /${c.url} 301`); continue; }
       out.push({ label, url, cat: c, k, v, items });
     } }
   return out; })();
@@ -1230,7 +1232,15 @@ if (categories.length) add("collections/index.html", page({ title: `All Collecti
   body: `<section class="wrap section"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <span>Collections</span></nav><div class="section-head"><div><p class="eyebrow">Shop by category</p><h1>All Collections</h1></div><a class="link" href="${u("shop/")}">Shop all styles →</a></div>
   <div class="grid coll-grid">${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="coll-tile" href="${u(c.url)}"><span class="card-img">${img ? `<img src="${esc(u(img))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy" decoding="async">` : ""}</span><span class="coll-name">${esc(c.plural)}</span><small>${c.items.length} style${c.items.length === 1 ? "" : "s"}</small></a>`; }).join("")}</div>${(() => { const r = landings.filter((l) => !/(import-kurtis|manufacturer|supplier|wholesale)/.test(l.slug)); return r.length ? `<div class="hub-links"><h2>Shopping from abroad?</h2><ul>${r.map((l) => `<li><a class="link" href="${u(l.url)}">${esc(l.h1)}</a></li>`).join("")}<li><a class="link" href="${u("group-orders/")}">Group & bridesmaid orders (5+ outfits)</a></li></ul></div>` : ""; })()}</section>` }));
 
-for (const c of allCats.filter((x) => x.empty)) {
+// (owner decision 12 Nov 2026) empty categories get no page: a 301 to the nearest live collection instead; the page comes back by itself when the category has products
+const CLEAN_REDIRECTS = [];
+{
+  const live = (u0) => categories.some((c) => c.url === u0) ? u0 : "";
+  const near = (slug) => /^kids|jewel|accessor|potli|fabric|material/.test(slug) ? "collections/" : [[/gown/, "collections/anarkali-suits/"], [/kurti|kurtis|kaftan-kurtis|tunic|tops?$|crop-tops|blouses|shirts$/, "collections/kurtis/", "collections/tunics/"], [/dress|gown|kaftan|jumpsuit|maternity/, "collections/dresses/", "collections/anarkali-suits/"], [/anarkali|lehenga|saree|sharara|gharara|wedding/, "collections/anarkali-suits/"], [/co-ord|indo-western|corset|cape|loungewear|night|dhoti-sets/, "collections/co-ord-sets/"], [/suit|salwar|churidar|patiala|pakistani|afghani|kurta|kurti-sets|palazzo|pants|skirts|dupatta|stole|scarves/, "collections/kurta-pant-dupatta-sets/", "collections/kurta-palazzo-sets/"]]
+    .filter(([re]) => re.test(slug)).flatMap(([, ...t]) => t).map(live).find(Boolean) || "collections/";
+  for (const c of allCats.filter((x) => x.empty)) CLEAN_REDIRECTS.push(`/${c.url} /${near(c.url.replace(/^collections\//, "").replace(/\/$/, ""))} 301`, `/${c.url.replace(/\/$/, "")} /${near(c.url.replace(/^collections\//, "").replace(/\/$/, ""))} 301`);
+}
+for (const c of S.keep_empty_category_pages === true ? allCats.filter((x) => x.empty) : []) {
   add(c.url + "index.html", page({ title: `${c.plural} – Coming Soon | ${brand}`, description: `${c.plural} by ${brand}, Jaipur – coming soon.`, pathname: c.url, noindex: true,
     body: `<section class="wrap section narrow center soon-page"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span></nav><h1>${esc(c.plural)}</h1><p class="muted">New designs in this category are coming soon.</p>
     <p class="soon-btns"><a class="btn" href="${u("shop/")}">See all styles</a>${waNumber ? `<a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}! Please tell me when ${c.plural} are available.`))}" target="_blank" rel="noopener">${I.wa} Notify me on WhatsApp</a>` : ""}</p></section>` }));
@@ -2974,6 +2984,8 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
   "/policies/terms-of-service /terms/ 301",
   "/cart /checkout/ 302",
   ...oldLinks,
+  "# empty categories and thin filter pages → nearest live collection (automatic)",
+  ...CLEAN_REDIRECTS, ...THIN_SHOP,
   extraRedirects.trim(),
 ].filter(Boolean).join("\n") + "\n");
 fs.writeFileSync(path.join(OUT, "_headers"), `# duplicate hosts must not be indexed – the canonical site is only https://bahekurtiz.com (www → apex 301 = Cloudflare Redirect Rule)\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex\nhttps://www.bahekurtiz.com/*\n  X-Robots-Tag: noindex\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Strict-Transport-Security: max-age=31536000\n  Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(self)\n  Cross-Origin-Opener-Policy: same-origin-allow-popups\n/track/*\n  X-Robots-Tag: noindex\n/checkout/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=2592000, stale-while-revalidate=31536000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n/embed/*\n  ! X-Frame-Options\n  Content-Security-Policy: frame-ancestors *\n  X-Robots-Tag: noindex\n/widget.js\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=3600\n  Content-Type: application/javascript; charset=utf-8\n`);
