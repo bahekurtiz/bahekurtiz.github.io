@@ -968,11 +968,15 @@ const PAGE_GUIDE = (() => { const d = path.join(ROOT, "content/page-guides"), o 
 // money pages: every related blog post and product links to the page meant to rank for the buying keyword
 const MONEY = [
   [/block[ -]?print|sanganer|bagru|dabu|indigo/i, "hand-block-print-kurta-sets/", "Jaipur hand block print kurta sets"],
+  [/mehndi|mehendi/i, "occasion/mehndi/", "Mehndi outfits"],
+  [/navratri|garba|dandiya/i, "occasion/navratri/", "Navratri outfits"],
+  [/office|work wear|workwear/i, "occasion/office/", "Office ethnic wear"],
+  [/gota/i, "craft/gota-patti/", "Gota patti Anarkalis"],
   [/anarkali/i, "collections/anarkali-suits/", "Anarkali suits & gowns"],
   [/wedding|sangeet|mehndi|mehendi|haldi|reception|bridesmaid|nikah|walima|anand karaj|pheras|jaggo/i, "indian-wedding-guest-outfits/", "Indian wedding guest outfits"],
   [/diwali|dhanteras|lakshmi|laxmi|bhai dooj|karwa/i, "diwali-outfits-for-women/", "Diwali suit sets for women"],
   [/plus[ -]size|curvy|chubby|apple shape|xxl|3xl|4xl/i, "plus-size-indian-outfits/", "Plus size Indian outfits (up to 4XL)"],
-].filter(([, url]) => fs.existsSync(path.join(ROOT, "content/landing", url.replace(/\/$/, "") + ".json")) || fs.existsSync(path.join(ROOT, "content/page-guides", url.replace(/\/$/, "").replace(/\//g, "--") + ".json")));
+].filter(([, url]) => fs.existsSync(path.join(ROOT, "content/landing", url.replace(/\/$/, "") + ".json")) || fs.existsSync(path.join(ROOT, "content/page-guides", url.replace(/\/$/, "").replace(/\//g, "--") + ".json")) || fs.existsSync(path.join(ROOT, "content/occasion-guides", url.replace(/^occasion\//, "").replace(/\/$/, "") + ".json")));
 const moneyLinks = (text, self = "", max = 3) => MONEY.filter(([re, url]) => re.test(text) && url !== self).slice(0, max);
 const moneyBox = (text, self) => { const l = moneyLinks(text, self); return l.length ? `<p class="money-links"><span class="muted small">Shop the edit:</span> ${l.map(([, url, t]) => `<a class="pill" href="${u(url)}">${esc(t)}</a>`).join(" ")}</p>` : ""; };
 function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [], guide = null, top = "" }) {
