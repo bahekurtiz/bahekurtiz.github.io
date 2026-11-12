@@ -101,6 +101,11 @@
     { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true }
   ],
   "referral_coupon": "FRIEND10",
+  "trust_ratings_checked": "November 2026",
+  "trust_ratings": [
+    { "name": "Etsy", "shop": "BaheKurtiz", "rating": 4.3, "count": "257 reviews", "url": "https://www.etsy.com/shop/BaheKurtiz" },
+    { "name": "Myntra", "shop": "Bahe Kurtiz", "rating": 4.3, "count": "1.5K+ ratings", "url": "" }
+  ],
   "prepaid_discount_percent": 5,
   "upi_id": "",
   "dispatch_note": "Handmade in Jaipur · Ready sizes dispatched in 2–4 working days · Custom fit in 5–7 working days",
