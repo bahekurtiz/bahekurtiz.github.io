@@ -567,7 +567,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
       ${socials.length ? `<p class="social">${socials.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener me">${socialIcon(x.name)}${esc(x.name)}</a>`).join("")}</p>` : ""}
     </div>
     <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
-    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a><a href="${u("tools/")}">Free Style Tools</a><a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="${u("terms/")}">Terms & Conditions</a></div>
+    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a><a href="${u("tools/")}">Free Style Tools</a>${CAL_EVENTS.length ? `<a href="${u("festival/")}">Festival Calendar & Order Dates</a>` : ""}<a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="${u("terms/")}">Terms & Conditions</a></div>
     <div><h3>Contact</h3>
       ${waHi ? `<a href="${esc(waHi)}" target="_blank" rel="noopener">WhatsApp: ${esc(S.phone || "+" + waNumber)}</a>` : ""}
       ${S.email ? `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}
@@ -710,7 +710,25 @@ const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, lcpPrelo
 // ---------- automatic weekly banner + "Trending this week" strip ----------
 // Calendar: content/banners/calendar/banner-calendar.json (themes by IST date; festival banners run 28 → 14 days before the festival). Preview another day: BANNER_DATE=2026-12-20 node build.mjs
 // Admin switch: settings "auto_banner": false turns both off. Manual banners in content/banners/ keep working (shown after the auto slide).
-const AUTO = (() => {
+// ---------- festival & wedding-season engine: content/calendar.json (verified dates, lead times, festival pages) ----------
+const CAL = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/calendar.json"), "utf8")); } catch (e) { if (fs.existsSync(path.join(ROOT, "content/calendar.json"))) console.warn("calendar.json skipped (bad JSON):", e.message); return null; } })();
+const CAL_LEAD = { intl_start: 60, intl_stop: 14, india_start: 30, india_stop: 1, ...(CAL?.lead || {}) };
+const CAL_EVENTS = (CAL?.events || []).filter((e) => e && e.id && /^\d{4}-\d\d-\d\d$/.test(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+const dPlus = (d, n) => new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+const dShort = (d) => new Date(Date.parse(d + "T00:00:00Z")).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+// safe "last order date": dispatch + slowest delivery (working days, counted as calendar days ×7/5) before the festival
+const orderBy = (date, aud, custom) => dPlus(date, -Math.ceil(((custom ? SHIP.cMax : SHIP.dMax) + (aud === "india" ? SHIP.inMax : SHIP.intlMax)) * 7 / 5));
+const BANNER_THEMES = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/banners/calendar/banner-calendar.json"), "utf8")).themes || []; } catch { return []; } })();
+const themeScorer = (M = {}) => { const low = (a) => (Array.isArray(a) ? a : []).map((x) => String(x).toLowerCase()), mOcc = low(M.occasion), mFab = low(M.fabric), mWords = low(M.words);
+  const has = (txt, w) => new RegExp("\\b" + w.replace(/[^a-z ]/g, "") + "\\b").test(txt);
+  return (p) => { const main = [p.title, p.color_base, p.print_work.join(" "), p.category].join(" ").toLowerCase(), extra = String(p.color || "").toLowerCase();
+    return 2 * (p.occasion.some((o) => mOcc.includes(o.toLowerCase())) ? 1 : 0) + 2 * (mFab.includes(String(p.fabric || "").toLowerCase()) ? 1 : 0) + mWords.reduce((n, w) => n + (has(main, w) ? 2 : has(extra, w) ? 1 : 0), 0); }; };
+// festival shop pages: only built with 4+ well-matched live products (no thin pages)
+const FEST = Object.entries(CAL?.pages || {}).map(([slug, pg]) => { const th = BANNER_THEMES.find((t) => t.id === pg.theme), sc = themeScorer(pg.match || th?.match || {});
+  const skuN = (p) => +(String(p.sku).match(/\d+/) || [0])[0];
+  const items = products.filter((p) => !p.coming && p.price !== null && p.images[0] && imgOk(p.images[0]) && sc(p) >= (num(pg.min_score) ?? 4)).sort((a, b) => sc(b) - sc(a) || (b.launchDay || "").localeCompare(a.launchDay || "") || skuN(b) - skuN(a)).slice(0, 24);
+  return { slug, pg, url: `festival/${slug}/`, items, score: sc, events: CAL_EVENTS.filter((e) => e.page === slug) }; }).filter((f) => { if (f.items.length < 4) console.log(`Festival page skipped (only ${f.items.length} matching styles): ${f.slug}`); return f.items.length >= 4; });
+const autoFor = (aud) => {
   const file = path.join(ROOT, "content/banners/calendar/banner-calendar.json");
   if (S.auto_banner === false || !fs.existsSync(file)) return null;
   let C; try { C = JSON.parse(fs.readFileSync(file, "utf8")); } catch (e) { console.warn("banner calendar skipped (bad JSON):", e.message); return null; }
@@ -721,7 +739,14 @@ const AUTO = (() => {
   const FW = C.festival_window || {}, fFrom = num(FW.from) ?? -28, fTo = num(FW.to) ?? -14;
   const hits = [];
   for (const t of themes) {
-    if (t.festival) { for (const fd of (C.festivals?.[t.festival] || []).filter((x) => /^\d{4}-\d\d-\d\d$/.test(x))) { const a = plus(fd, num(t.from) ?? fFrom), b = plus(fd, num(t.to) ?? fTo); if (day >= a && day <= b) hits.push({ t, year: fd.slice(0, 4), fest: fd, orderBy: b, len: ms(b) - ms(a) }); } }
+    if (t.festival || CAL_EVENTS.some((e) => e.theme === t.id)) {
+      // dates: calendar.json events for this theme (India / abroad lead times); older banner-calendar dates only where calendar.json has none near them
+      const evs = CAL_EVENTS.filter((e) => e.theme === t.id), near = (d) => evs.some((e) => Math.abs(ms(e.date) - ms(d)) < 40 * 864e5);
+      const dates = [...evs.map((e) => e.date), ...(C.festivals?.[t.festival] || []).filter((x) => /^\d{4}-\d\d-\d\d$/.test(x) && !near(x))];
+      for (const fd of [...new Set(dates)]) { const ev = evs.find((e) => e.date === fd);
+        if (ev && !(ev.audience === "both" || ev.audience === aud)) continue;
+        const a = ev ? plus(fd, -(aud === "intl" ? CAL_LEAD.intl_start : CAL_LEAD.india_start)) : plus(fd, num(t.from) ?? fFrom), b = ev ? plus(fd, -(aud === "intl" ? CAL_LEAD.intl_stop : CAL_LEAD.india_stop)) : plus(fd, num(t.to) ?? fTo);
+        if (day >= a && day <= b) hits.push({ t, year: fd.slice(0, 4), fest: fd, orderBy: orderBy(fd, aud), len: ms(b) - ms(a) }); } }
     else if (/^\d\d-\d\d$/.test(t.from) && /^\d\d-\d\d$/.test(t.to)) { const wrap = t.from > t.to;
       if (wrap ? md >= t.from || md <= t.to : md >= t.from && md <= t.to) hits.push({ t, year: day.slice(0, 4), len: (ms("2001-" + t.to) - ms("2001-" + t.from) + (wrap ? 365 * 864e5 : 0)) }); }
   }
@@ -730,13 +755,14 @@ const AUTO = (() => {
   const hit = hits[0] || (themes.find((t) => t.id === C.fallback) ? { t: themes.find((t) => t.id === C.fallback), year: day.slice(0, 4) } : null);
   if (!hit) return null;
   const dm = (d) => new Date(ms(d)).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
-  const t = hit.t, Y = (s) => String(s || "").replace(/\{year\}/g, hit.year).replace(/\{date\}/g, hit.fest ? dm(hit.fest) : "").replace(/\{order_by\}/g, hit.orderBy ? dm(hit.orderBy) : "").replace(/\s*·\s*(?=·|$)/g, "").trim();
+  const t = hit.t, Y = (s) => String(s || "").replace(hit.orderBy && day <= hit.orderBy ? /$^/ : /\s*·?\s*Order by \{order_by\}/gi, "").replace(/\{year\}/g, hit.year).replace(/\{date\}/g, hit.fest ? dm(hit.fest) : "").replace(/\{order_by\}/g, hit.orderBy ? dm(hit.orderBy) : "").replace(/\s*·\s*(?=·|$)/g, "").trim();
   // links: a blog post that is not live yet (draft / future date) or an empty occasion page → fallback_link
   const lnk = (l) => { l = String(l || "").replace(/^\/+/, ""); let m;
     if ((m = l.match(/^blog\/([^/]+)\/?$/))) { const f = path.join(ROOT, "content/blog", m[1] + ".json"); try { const b = JSON.parse(fs.readFileSync(f, "utf8")); return b.draft !== true && String(b.date || today).slice(0, 10) <= today ? l : ""; } catch { return ""; } }
     if ((m = l.match(/^occasion\/([^/]+)\/?$/))) return products.some((p) => p.occasion.some((o) => slugify(o) === m[1])) ? l : "";
     return l; };
-  const link = lnk(t.link) || lnk(t.fallback_link) || "shop/";
+  const fpage = FEST.find((f) => f.pg.theme === t.id);
+  const link = fpage ? fpage.url : lnk(t.link) || lnk(t.fallback_link) || "shop/";
   // newest first: launch_date (India day), else SKU number (bahe38 > bahe37), else sort order
   const skuN = (p) => +(String(p.sku).match(/\d+/) || [0])[0];
   const newer = (a, b) => (b.launchDay || "").localeCompare(a.launchDay || "") || skuN(b) - skuN(a) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999);
@@ -749,7 +775,7 @@ const AUTO = (() => {
   const live = products.filter((p) => !p.coming && p.images[0] && imgOk(p.images[0])).sort(newer);
   // photo: the newest product among the closest matches (score within 1 of the best match), so a festive theme gets a festive look
   const top = Math.max(0, ...live.map(score)), heroP = (top ? live.filter((p) => score(p) >= Math.max(1, top - 1)) : live)[0];
-  const slide = heroP ? { image: heroP.images[0], wide: "", clean: false, auto: true, eyebrow: Y(t.eyebrow), title: Y(t.headline), subtitle: Y(t.line), button: Y(t.button), link, alt: `${heroP.title} – ${Y(t.headline)}` } : null;
+  const slide = heroP ? { image: heroP.images[0], wide: "", clean: false, auto: true, eyebrow: Y(t.eyebrow), title: Y(t.headline), subtitle: Y(t.line), button: fpage ? `Shop the ${t.name} edit` : Y(t.button), link, alt: `${heroP.title} – ${Y(t.headline)}` } : null;
   // trending chips: search link only when the shop search would find something, else the theme page
   const hayAll = products.map((p) => [p.title, p.category, p.fabric, p.print_work.join(" "), p.color, p.occasion.join(" ")].join(" ").toLowerCase()).join(" | ");
   const GENERIC = new Set(["sets", "set", "tones", "tone", "colours", "colors", "colour", "color", "style", "styling", "ready", "easy", "light", "rich", "soft", "deep", "warm", "bright", "brights", "fashion", "detail", "statement", "long", "every", "custom", "made", "your", "with", "and", "the", "for"]);
@@ -773,14 +799,18 @@ const AUTO = (() => {
   const dow = (new Date(ms(day)).getUTCDay() + 6) % 7, mon = plus(day, -dow), sun = plus(mon, 6);
   const fmt = (d, mo) => new Date(ms(d)).toLocaleDateString("en-GB", { day: "numeric", ...(mo ? { month: "short" } : {}), timeZone: "UTC" });
   const week = mon.slice(5, 7) === sun.slice(5, 7) ? `${fmt(mon)} – ${fmt(sun, 1)}` : `${fmt(mon, 1)} – ${fmt(sun, 1)}`;
-  console.log(`Auto banner (${day} IST): ${t.id}${hit.fest ? " (festival " + hit.fest + ", order by " + hit.orderBy + ")" : ""} · photo ${heroP ? heroP.slug : "none"} · ${prods.length} products, ${guides.length} guides`);
-  return { day, theme: t, name: Y(t.name), link, slide, chips, prods, guides, week };
-})();
-const trendStrip = () => {
+  console.log(`Auto banner ${aud === "intl" ? "abroad" : "India"} (${day} IST): ${t.id}${hit.fest ? " (festival " + hit.fest + ", order by " + hit.orderBy + ")" : ""} · photo ${heroP ? heroP.slug : "none"} · ${prods.length} products, ${guides.length} guides`);
+  return { day, aud, theme: t, name: Y(t.name), link, slide, chips, prods, guides, week, score, fest: hit.fest || "", year: hit.year };
+};
+const AUTO = autoFor("india"), AUTO_INTL = intlOn ? autoFor("intl") : null;
+const AUD_SPLIT = !!(AUTO && AUTO_INTL && AUTO.theme.id !== AUTO_INTL.theme.id);
+// India visitors and visitors abroad (html.usd) see their own banner + trending strip when the themes differ
+const trendStrip = () => AUD_SPLIT ? `<div class="aud-in">${trendOne(AUTO, "")}</div><div class="aud-intl">${trendOne(AUTO_INTL, "-x")}</div>` : trendOne(AUTO || AUTO_INTL, "");
+const trendOne = (AUTO, sfx) => {
   if (!AUTO || (!AUTO.chips.length && !AUTO.prods.length && !AUTO.guides.length)) return "";
   const item = (href, img, alt, tag, title, cls = "") => `<a class="trend-item${cls}" href="${u(href)}"><span class="trend-img"${phStyle(img)}>${img ? `<img src="${esc(u(img))}" alt="${esc(alt)}" width="160" height="240" loading="lazy" decoding="async">` : ""}<em class="trend-tag">${esc(tag)}</em></span><b>${esc(title)}</b></a>`;
-  return `<section class="trend-strip" aria-labelledby="trend-h"><div class="wrap">
-<div class="trend-head"><h2 id="trend-h">Trending this week</h2><span class="trend-week">${esc(AUTO.name)} · ${esc(AUTO.week)}</span></div>
+  return `<section class="trend-strip" aria-labelledby="trend-h${sfx}"><div class="wrap">
+<div class="trend-head"><h2 id="trend-h${sfx}">Trending this week</h2><span class="trend-week">${esc(AUTO.name)} · ${esc(AUTO.week)}</span></div>
 ${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a class="trend-chip" href="${u(c.href)}">${esc(c.text)}</a>`).join("")}</div>` : ""}
 <div class="trend-row">${AUTO.prods.map((p) => item(p.url, p.images[0], p.title, p.isNew ? "New this week" : "Just in", p.title)).join("")}${AUTO.guides.map((g) => item(g.url, g.cover, "", g.radar ? "Trend Radar" : "Guide", g.title, " trend-guide")).join("")}</div>
 </div></section>`;
@@ -792,7 +822,8 @@ ${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a clas
   const bDir = path.join(ROOT, "content/banners");
   const bannerFiles = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8"))).filter((b) => b && b.active !== false && (b.image || b.image_desktop) && (!b.end || String(b.end).slice(0, 10) >= TODAY_IST)).sort((a, b) => (num(a.order) ?? 50) - (num(b.order) ?? 50));
   const slides = [...bannerFiles, ...(Array.isArray(S.hero_slides) ? S.hero_slides : [])].map((x) => ({ start: String(x?.start || "").slice(0, 10), end: String(x?.end || "").slice(0, 10), image: String(x?.image || x?.image_desktop || "").trim(), wide: String(x?.image_desktop || "").trim(), clean: !!x?.image_has_text, title: String(x?.title || "").trim(), subtitle: String(x?.subtitle || "").trim(), link: String(x?.link || "").trim(), button: String(x?.button || "").trim(), eyebrow: String(x?.eyebrow || "").trim() })).filter((x) => x.image && imgOk(x.image)).map((x) => (x.wide && !imgOk(x.wide) ? { ...x, wide: "" } : x));
-  if (AUTO?.slide) slides.unshift(AUTO.slide);
+  if (AUTO?.slide) slides.unshift(AUD_SPLIT && AUTO_INTL.slide ? { ...AUTO.slide, intl: AUTO_INTL.slide } : AUTO.slide); else if (AUTO_INTL?.slide) slides.unshift(AUTO_INTL.slide);
+  const dual = (a, b) => (b != null && b !== a ? `<span class="aud-in">${a}</span><span class="aud-intl">${b}</span>` : a);
   if (!slides.length) {
     slides.push({ image: S.hero_image || "images/site/hero.jpg", wide: String(S.hero_image_desktop || "").trim() || (S.hero_image === "/images/site/hero-teal.jpg" ? siteFile("hero-wide.jpg") : ""), title: S.hero_title || brand, subtitle: S.hero_subtitle || S.tagline || "" });
     // ready-made promo banners until real ones are added in admin (Settings → होमपेज बैनर स्लाइड)
@@ -815,12 +846,12 @@ ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-do
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
 ${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.clean ? " hero-clean" : ""}${sl.auto ? " hero-auto" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
-  <div class="hero-media" style="--hb:url('${esc(encU(u(small(sl.image))))}')">${i === 0 ? `<img decoding="async" data-rs="big" src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" fetchpriority="high">` : `<img decoding="async" data-rs="big" data-gal data-src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800"><noscript><img src="${esc(u(sl.image))}" alt="" width="1200" height="1800"></noscript>`}</div>
+  <div class="hero-media" style="--hb:url('${esc(encU(u(small(sl.image))))}')">${i === 0 ? `<img decoding="async" data-rs="big"${sl.intl && sl.intl.image !== sl.image ? ' class="aud-in"' : ""} src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" fetchpriority="high">${sl.intl && sl.intl.image !== sl.image ? `<img decoding="async" data-rs="big" class="aud-intl" loading="lazy" src="${esc(u(sl.intl.image))}" alt="${esc(sl.intl.alt || sl.intl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800">` : ""}` : `<img decoding="async" data-rs="big" data-gal data-src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800"><noscript><img src="${esc(u(sl.image))}" alt="" width="1200" height="1800"></noscript>`}</div>
   <div class="hero-text">
-    <p class="eyebrow">${esc(sl.eyebrow || "New collection · Made in Jaipur")}</p>
-    <h2 class="h1">${esc(sl.title || brand)}</h2>
-    <p class="lead">${esc(sl.subtitle || "")}</p>
-    <div class="hero-cta"><a class="btn" href="${u(sl.link || "shop/")}">${esc(sl.button || "Shop the collection")}</a>${i === 0 && categories[0] ? `<a class="btn btn-ghost" href="${u(categories[0].url)}">${esc(categories[0].plural)}</a>` : ""}</div>
+    <p class="eyebrow">${dual(esc(sl.eyebrow || "New collection · Made in Jaipur"), sl.intl ? esc(sl.intl.eyebrow) : null)}</p>
+    <h2 class="h1">${dual(esc(sl.title || brand), sl.intl ? esc(sl.intl.title) : null)}</h2>
+    <p class="lead">${dual(esc(sl.subtitle || ""), sl.intl ? esc(sl.intl.subtitle) : null)}</p>
+    <div class="hero-cta"><a class="btn${sl.intl ? " aud-in" : ""}" href="${u(sl.link || "shop/")}">${esc(sl.button || "Shop the collection")}</a>${sl.intl ? `<a class="btn aud-intl" href="${u(sl.intl.link || "shop/")}">${esc(sl.intl.button || "Shop the collection")}</a>` : ""}${i === 0 && categories[0] ? `<a class="btn btn-ghost" href="${u(categories[0].url)}">${esc(categories[0].plural)}</a>` : ""}</div>
   </div>
 </div>`).join("")}
 </div>
@@ -918,13 +949,13 @@ const autoCopy = (h1, items) => {
 const autoHtml = (c, h1, pathname) => !c ? "" : `<section class="craft-guide prose coll-copy"><h2>About ${esc(h1)}</h2>${c.intro.map((t) => `<p>${esc(t)}</p>`).join("")}${c.cats.length > 1 ? `<p>Shop by type: ${c.cats.map((x) => `<a class="link" href="${u(x.url)}">${esc(x.plural)}</a>`).join(" · ")}</p>` : ""}<div class="pfaq craft-faq"><h3>Frequently asked questions</h3>${c.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}${/wholesale quote/.test(a) ? ` <a class="link" href="${u("wholesale/quote/")}">Get a quote →</a>` : ""}</p></details>`).join("")}</div></section>`;
 const autoLd = (c) => c ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }] : [];
 const THIN = new Set();
-function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [], guide = null }) {
+function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [], guide = null, top = "" }) {
   const thin = /^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4 && !(guide && guideWords(guide) >= 250); if (thin) THIN.add(pathname);
   const body = `
 <section class="wrap section">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / ${crumbs}</nav>
   <div class="list-head"><h1>${esc(h1)}</h1><p class="muted">${esc(intro)}</p></div>
-  ${circles(pathname)}
+  ${top}${circles(pathname)}
   ${links.length ? `<nav class="auto-links" aria-label="Popular searches"><span class="muted small">Popular:</span> ${links.map(([t, h]) => `<a class="pill" href="${u(h)}">${esc(t)}</a>`).join("")}</nav>` : ""}
   <div class="filt"><button class="filt-btn" type="button" aria-expanded="false" onclick="var o=this.parentNode.classList.toggle('fopen');this.setAttribute('aria-expanded',o)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filter &amp; Sort</button>
   <div class="chips">
@@ -975,6 +1006,41 @@ ${bp.length ? `<section class="wrap section" id="bb-shop"><div class="section-he
     listing({ guide: CRAFT_GUIDE[slugify(n)] || null, file: `${craftUrl(n)}index.html`, pathname: craftUrl(n), h1: `${n} ${type === "fabric" ? "Kurtis & Dresses" : "Kurtis & Dresses"}`, intro: `${items.length} ${items.length === 1 ? "style" : "styles"}${c?.[0] ? " · " + c[0] : ""}`, items, crumbs: `<a href="${u("craft/")}">Fabric & print guide</a> / <span>${esc(n)}</span>`, title: `${n} Kurtis & Dresses Online – Made in Jaipur | ${brand}`, description: clip(`Shop ${n} kurtis, kurta sets and dresses by ${brand}, Jaipur. ${c ? c[1] : "Made in our own Jaipur unit, with free custom fit."}`), seo: c ? `${c[1]}\n\nCare: ${c[2]}` : "" }); } }
 for (const o of occasions) { const items = products.filter((p) => p.occasion.includes(o)); const slug = slugify(o); listing({ file: `occasion/${slug}/index.html`, pathname: `occasion/${slug}/`, h1: `${o} Wear`, intro: `${items.length} styles for ${o.toLowerCase()}, made in Jaipur`, items, crumbs: `<span>${esc(o)}</span>`, title: `${o} Kurtis & Dresses – Hand Block Print | ${brand}`, description: `Shop ${o.toLowerCase()} kurtis, kurta sets and dresses by ${brand}, Jaipur. Hand block prints, secure prepaid payment.` }); }
 const catSeo = Object.fromEntries((Array.isArray(S.category_seo) ? S.category_seo : []).map((x) => [String(x?.category || "").trim(), String(x?.text || "").trim()]));
+// ---------- festival shop pages + festival calendar (content/calendar.json) ----------
+let FEST_PLAN = "";
+const obCell = (d) => (d >= TODAY_IST ? `<b>${dShort(d)}</b>` : `<span class="muted">passed</span>`);
+const obTable = (evs) => !evs.length ? "" : `<div class="ob-box"><h2>Last order dates</h2><div class="tbl-scroll"><table class="ob-table"><thead><tr><th>Festival</th><th>India – ready size</th><th>India – custom fit</th>${intlOn ? "<th>Abroad – ready size</th><th>Abroad – custom fit</th>" : ""}</tr></thead><tbody>${evs.map((e) => `<tr><td>${esc(e.name)}<br><small>${new Date(Date.parse(e.date + "T00:00:00Z")).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}</small></td><td>${obCell(orderBy(e.date, "india"))}</td><td>${obCell(orderBy(e.date, "india", 1))}</td>${intlOn ? `<td>${obCell(orderBy(e.date, "intl"))}</td><td>${obCell(orderBy(e.date, "intl", 1))}</td>` : ""}</tr>`).join("")}</tbody></table></div>
+<p class="small muted">Order on or before these dates for delivery before the festival. They add our dispatch time (ready sizes ${SHIP.dMin}–${SHIP.dMax}, custom fit ${SHIP.cMin}–${SHIP.cMax} working days) and the slowest delivery time (India ${SHIP.inMin}–${SHIP.inMax}${intlOn ? `, abroad – USA, UK, Canada, UAE, Australia and more – ${SHIP.intlMin}–${SHIP.intlMax}` : ""} working days). Customs or courier delays are rare but possible – earlier is safer.${(() => { const n = evs.map((e) => e.note).filter(Boolean); return n.length ? " Date note: " + esc(n.join(" ")) : ""; })()}</p></div>`;
+for (const f of FEST) {
+  const evs = f.events.filter((e) => e.date >= TODAY_IST).slice(0, 2), yr = (evs[0] || f.events.at(-1) || { date: TODAY_IST }).date.slice(0, 4), YR = (t) => String(t || "").replace(/\{year\}/g, yr);
+  listing({ file: `${f.url}index.html`, pathname: f.url, h1: YR(f.pg.h1), intro: YR(f.pg.intro), items: f.items, title: YR(f.pg.title) || `${YR(f.pg.h1)} | ${brand}`, description: clip(YR(f.pg.description || f.pg.intro || f.pg.h1)), crumbs: `<a href="${u("festival/")}">Festival calendar</a> / <span>${esc(f.pg.h1)}</span>`, guide: f.pg.guide || null, top: obTable(evs) });
+}
+{
+  const up = CAL_EVENTS.filter((e) => (e.end || e.date) >= TODAY_IST && e.kind !== "public");
+  const shopOf = (e) => { const f = FEST.find((x) => x.slug === e.page); if (f) return f.url; const th = BANNER_THEMES.find((t) => t.id === e.theme); const l = e.copy?.shop || th?.link || ""; const m = l.match(/^blog\/([^/]+)/); if (m) { try { const b = JSON.parse(fs.readFileSync(path.join(ROOT, "content/blog", m[1] + ".json"), "utf8")); if (b.draft === true || String(b.date || "").slice(0, 10) > TODAY_IST) return ""; } catch { return ""; } } return l; };
+  const rows = up.map((e) => { const s = e.kind === "season", l = shopOf(e);
+    return `<tr><td>${l ? `<a class="link" href="${u(l)}">${esc(e.name)}</a>` : esc(e.name)}${e.note ? `<br><small class="muted">${esc(e.note)}</small>` : ""}</td><td>${s ? `${dShort(e.date)} – ${dShort(e.end || e.date)}` : new Date(Date.parse(e.date + "T00:00:00Z")).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}</td><td>${s || e.audience === "intl" && !intlOn ? "–" : e.audience === "intl" ? "–" : obCell(orderBy(e.date, "india"))}</td>${intlOn ? `<td>${s || e.audience === "india" ? "–" : obCell(orderBy(e.date, "intl"))}</td>` : ""}</tr>`; }).join("");
+  const qs = [["How early should I order for a festival abroad?", `For the USA, UK, Canada, UAE and Australia, order ready sizes about ${Math.ceil((SHIP.dMax + SHIP.intlMax) * 7 / 5)} days before the festival, and custom-fit pieces about ${Math.ceil((SHIP.cMax + SHIP.intlMax) * 7 / 5)} days before. Shipping is free, with duties and taxes included.`],
+    ["How early should I order within India?", `Order ready sizes about ${Math.ceil((SHIP.dMax + SHIP.inMax) * 7 / 5)} days before the festival, and custom-fit pieces about ${Math.ceil((SHIP.cMax + SHIP.inMax) * 7 / 5)} days before.`],
+    ["Why do some festival dates say ±1 day?", "Hindu festivals follow the lunar calendar and Islamic festivals depend on moon sighting, so calendars and countries can differ by a day. We list the date most Indian calendars use and note the difference."]];
+  const body = `<section class="wrap section prose"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <span>Festival calendar</span></nav>
+<h1>Festival & Wedding Calendar ${TODAY_IST.slice(0, 4)}–${(+TODAY_IST.slice(0, 4) + 1) % 100}: Last Order Dates</h1>
+<p class="lead">Every upcoming Indian festival and wedding season, with the last date to order for delivery in time – in India and abroad. Dates checked against panchang and official holiday calendars${CAL?.verified_on ? ` (last checked ${dShort(CAL.verified_on)} ${CAL.verified_on.slice(0, 4)})` : ""}.</p>
+${FEST.length ? `<p>${FEST.map((f) => `<a class="pill" href="${u(f.url)}">${esc(String(f.pg.h1).replace(/\s*\{year\}/g, ""))}</a>`).join(" ")}</p>` : ""}
+<div class="tbl-scroll"><table class="ob-table"><thead><tr><th>Festival / season</th><th>Date</th><th>Order by – India</th>${intlOn ? "<th>Order by – abroad</th>" : ""}</tr></thead><tbody>${rows}</tbody></table></div>
+<p class="small muted">Order-by dates are for ready sizes: dispatch (${SHIP.dMin}–${SHIP.dMax} working days) plus the slowest delivery time. For custom fit add about ${Math.ceil((SHIP.cMax - SHIP.dMax) * 7 / 5)} days. Need many outfits for a wedding? See <a href="${u("group-orders/")}">group & bridesmaid orders</a>.</p>
+<h2>Frequently asked questions</h2>${qs.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}
+</section>`;
+  if (up.length) add("festival/index.html", page({ title: `Indian Festival Calendar & Last Order Dates | ${brand}`, description: clip("Upcoming Indian festivals and wedding seasons with exact dates and the last day to order for delivery in India, the USA, UK, Canada, UAE and Australia."), pathname: "festival/", body, ld: [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: qs.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }, crumbLd([["Festival calendar", "festival/"]])] }));
+  // plan for scripts/festival-engine.mjs (drafts + weekly report)
+  const st = (e) => { const end = e.end || e.date, iA = dPlus(e.date, -CAL_LEAD.india_start), iB = dPlus(e.date, -CAL_LEAD.india_stop), xA = dPlus(e.date, -CAL_LEAD.intl_start), xB = dPlus(e.date, -CAL_LEAD.intl_stop), inI = e.audience !== "intl", inX = e.audience !== "india" && intlOn;
+    return { india_window: inI ? [iA, iB] : null, intl_window: inX ? [xA, xB] : null, status: end < TODAY_IST ? "finished" : e.kind === "season" && e.date <= TODAY_IST ? "active" : (inI && TODAY_IST >= iA && TODAY_IST <= iB) || (inX && TODAY_IST >= xA && TODAY_IST <= xB) ? "active" : (inX ? xA : iA) > TODAY_IST ? "upcoming" : "late" }; };
+  const prodsFor = (e) => { const f = FEST.find((x) => x.slug === e.page), th = BANNER_THEMES.find((t) => t.id === e.theme), sc = f ? f.score : th ? themeScorer(th.match) : null;
+    return sc ? products.filter((p) => !p.coming && p.price !== null && p.images[0] && sc(p) >= 4).sort((a, b) => sc(b) - sc(a)).slice(0, 6).map((p) => ({ title: p.title, url: `${SITE_URL}/${p.url}`, price: p.price, price_usd: p.intl ? p.price_usd : null, image: abs(p.images[0]) })) : []; };
+  FEST_PLAN = JSON.stringify({ today: TODAY_IST, site: SITE_URL, brand, whatsapp: waNumber || "", lead: CAL_LEAD, covers_until: CAL?.covers_until || "", verified_on: CAL?.verified_on || "", banner: { india: AUTO ? AUTO.theme.id : "", abroad: AUTO_INTL ? AUTO_INTL.theme.id : "" }, calendar_page: up.length ? `${SITE_URL}/festival/` : "",
+    events: CAL_EVENTS.map((e) => { const th = BANNER_THEMES.find((t) => t.id === e.theme), sh = shopOf(e); return { ...e, ...st(e), theme_ok: !!th, page_url: sh ? `${SITE_URL}/${sh}` : "", order_by: { india: orderBy(e.date, "india"), india_custom: orderBy(e.date, "india", 1), abroad: orderBy(e.date, "intl"), abroad_custom: orderBy(e.date, "intl", 1) }, products: prodsFor(e) }; }) }, null, 1);
+}
+
 // ---------- AUTO SEO pages: "Pink Kurtis", "Cotton Dresses", "Bagru Print Kurtis", "Festive Kurtis"… made by themselves from your listings ----------
 const AUTO_MIN = Math.max(2, num(S.auto_page_min) || 2);
 const takenPaths = new Set(["shop/", ...allCats.map((c) => c.url)]);
@@ -2476,11 +2542,16 @@ fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
   const gcat = (c) => (/set|co-ord/i.test(c) ? "Apparel & Accessories > Clothing > Outfit Sets" : /dress|gown|kaftan/i.test(c) ? "Apparel & Accessories > Clothing > Dresses" : /palazzo|pant/i.test(c) ? "Apparel & Accessories > Clothing > Pants" : /dupatta|stole/i.test(c) ? "Apparel & Accessories > Clothing Accessories > Scarves & Shawls" : /top|tunic/i.test(c) ? "Apparel & Accessories > Clothing > Shirts & Tops" : "Apparel & Accessories > Clothing > Traditional & Ceremonial Clothing");
   const plain = (p) => String(p.description || p.title).replace(/\s+/g, " ").trim().slice(0, 4900) || p.title;
   const feedItems = products.filter((p) => p.price !== null && p.images[0]);
-  const head = ["id", "title", "description", "availability", "condition", "price", "sale_price", "link", "image_link", "additional_image_link", "brand", "google_product_category", "product_type", "color", "material", "gender", "age_group"];
+  // festival labels use free slots: custom_label_2 = current campaign (India feed: India banner, USD feed: banner abroad), custom_label_3 = festival edit page (0 = occasion, 1 = category, unchanged)
+  const camp = (A) => (A ? { id: A.theme.id + (A.fest ? "-" + A.year : ""), sc: A.score } : null), CAMP_IN = camp(AUTO), CAMP_X = camp(AUTO_INTL || AUTO);
+  const lab0 = (p, cur) => { const c = cur === "USD" ? CAMP_X : CAMP_IN; return c && c.sc(p) >= 2 ? c.id : ""; };
+  const lab1 = (p) => (FEST.find((f) => f.items.includes(p) && f.events.some((e) => e.date >= TODAY_IST)) || {}).slug || "";
+  const labX = (p, cur) => [lab0(p, cur), lab1(p)].map((v, i) => (v ? `<g:custom_label_${i + 2}>${x(v)}</g:custom_label_${i + 2}>` : "")).join("");
+  const head = ["id", "title", "description", "availability", "condition", "price", "sale_price", "link", "image_link", "additional_image_link", "brand", "google_product_category", "product_type", "color", "material", "gender", "age_group", "custom_label_2", "custom_label_3"];
   const row = (p, cur) => {
     const usdMode = cur === "USD"; const pr = usdMode ? p.price_usd : p.price; const mrp = usdMode ? p.mrp_usd : p.mrp;
     const fmt = (n) => `${Number(n).toFixed(2)} ${cur}`;
-    return [p.slug, p.feed_title, plain(p), p.in_stock ? "in stock" : "preorder", "new", fmt(mrp && mrp > pr ? mrp : pr), mrp && mrp > pr ? fmt(pr) : "", `${SITE_URL}/${p.url}`, abs(p.images[0]), p.images.slice(1, 10).map(abs).join(","), brand, gcat(p.category), p.category, p.color || "", p.fabric || "", "female", "adult"].map(csv).join(",");
+    return [p.slug, p.feed_title, plain(p), p.in_stock ? "in stock" : "preorder", "new", fmt(mrp && mrp > pr ? mrp : pr), mrp && mrp > pr ? fmt(pr) : "", `${SITE_URL}/${p.url}`, abs(p.images[0]), p.images.slice(1, 10).map(abs).join(","), brand, gcat(p.category), p.category, p.color || "", p.fabric || "", "female", "adult", lab0(p, cur), lab1(p)].map(csv).join(",");
   };
   fs.mkdirSync(path.join(OUT, "feeds"), { recursive: true });
   fs.writeFileSync(path.join(OUT, "feeds/meta-catalog.csv"), [head.join(","), ...feedItems.map((p) => row(p, "INR"))].join("\n"));
@@ -2512,7 +2583,7 @@ const gid = (s) => { if (s.length <= 50) return s; let h = 0; for (const c of s)
     const ship = usdM
       ? INTL_C.map((c) => `<g:shipping><g:country>${c}</g:country><g:service>Express, duties paid</g:service><g:price>${(pr >= (num(S.intl_free_shipping_above_usd) || Infinity) ? 0 : num(S.intl_shipping_charge_usd) || 0).toFixed(2)} USD</g:price><g:min_transit_time>${SHIP.intlMin}</g:min_transit_time><g:max_transit_time>${SHIP.intlMax}</g:max_transit_time></g:shipping>`).join("")
       : `<g:shipping><g:country>IN</g:country><g:price>${(pr >= (num(S.free_shipping_above) || Infinity) ? 0 : num(S.shipping_charge) || 0).toFixed(2)} INR</g:price><g:min_transit_time>${SHIP.inMin}</g:min_transit_time><g:max_transit_time>${SHIP.inMax}</g:max_transit_time></g:shipping>`;
-    const body = `<g:title>${x(p.feed_title)}</g:title><g:description>${x(plain(p))}</g:description><g:link>${SITE_URL}/${p.url}</g:link><g:image_link>${x(abs(p.images[0]))}</g:image_link>${p.images.slice(1, 10).map((im) => `<g:additional_image_link>${x(abs(im))}</g:additional_image_link>`).join("")}<g:condition>new</g:condition>${priceX}<g:brand>${x(brand)}</g:brand>${p.sku ? `<g:mpn>${x(p.sku)}</g:mpn>` : ""}<g:identifier_exists>no</g:identifier_exists><g:google_product_category>${x(gcat(p.category))}</g:google_product_category><g:product_type>${x(ptype(p))}</g:product_type>${gcolor(p) ? `<g:color>${x(gcolor(p))}</g:color>` : ""}${p.fabric ? `<g:material>${x(p.fabric)}</g:material>` : ""}${pattern(p) ? `<g:pattern>${x(pattern(p))}</g:pattern>` : ""}<g:gender>female</g:gender><g:age_group>adult</g:age_group>${hl(p).map((h) => `<g:product_highlight>${x(h)}</g:product_highlight>`).join("")}${det(p).map(([n, v]) => `<g:product_detail><g:section_name>Details</g:section_name><g:attribute_name>${x(n)}</g:attribute_name><g:attribute_value>${x(v)}</g:attribute_value></g:product_detail>`).join("")}${p.occasion[0] ? `<g:custom_label_0>${x(p.occasion[0])}</g:custom_label_0>` : ""}<g:custom_label_1>${x(p.category)}</g:custom_label_1><g:min_handling_time>${hMin}</g:min_handling_time><g:max_handling_time>${hMax}</g:max_handling_time>${ship}`;
+    const body = `<g:title>${x(p.feed_title)}</g:title><g:description>${x(plain(p))}</g:description><g:link>${SITE_URL}/${p.url}</g:link><g:image_link>${x(abs(p.images[0]))}</g:image_link>${p.images.slice(1, 10).map((im) => `<g:additional_image_link>${x(abs(im))}</g:additional_image_link>`).join("")}<g:condition>new</g:condition>${priceX}${labX(p, cur)}<g:brand>${x(brand)}</g:brand>${p.sku ? `<g:mpn>${x(p.sku)}</g:mpn>` : ""}<g:identifier_exists>no</g:identifier_exists><g:google_product_category>${x(gcat(p.category))}</g:google_product_category><g:product_type>${x(ptype(p))}</g:product_type>${gcolor(p) ? `<g:color>${x(gcolor(p))}</g:color>` : ""}${p.fabric ? `<g:material>${x(p.fabric)}</g:material>` : ""}${pattern(p) ? `<g:pattern>${x(pattern(p))}</g:pattern>` : ""}<g:gender>female</g:gender><g:age_group>adult</g:age_group>${hl(p).map((h) => `<g:product_highlight>${x(h)}</g:product_highlight>`).join("")}${det(p).map(([n, v]) => `<g:product_detail><g:section_name>Details</g:section_name><g:attribute_name>${x(n)}</g:attribute_name><g:attribute_value>${x(v)}</g:attribute_value></g:product_detail>`).join("")}${p.occasion[0] ? `<g:custom_label_0>${x(p.occasion[0])}</g:custom_label_0>` : ""}<g:custom_label_1>${x(p.category)}</g:custom_label_1><g:min_handling_time>${hMin}</g:min_handling_time><g:max_handling_time>${hMax}</g:max_handling_time>${ship}`;
     const sizes = p.sizes.length ? p.sizes : [""];
     return sizes.map((z) => { const out = z && p.sold_out.includes(z), avail = out ? "out_of_stock" : p.in_stock ? "in_stock" : "preorder";
       return `<item><g:id>${x(z ? vid(p.slug, z) : group)}</g:id>${z ? `<g:item_group_id>${x(group)}</g:item_group_id><g:size>${x(z)}</g:size>${/^[3-9]XL$/i.test(z) ? "<g:size_type>plus</g:size_type>" : ""}` : ""}<g:availability>${avail}</g:availability>${avail === "preorder" ? `<g:availability_date>${new Date(Date.now() + 14 * 864e5).toISOString().slice(0, 10)}T00:00:00+05:30</g:availability_date>` : ""}${z ? body.replace(`<g:link>${SITE_URL}/${p.url}</g:link>`, `<g:link>${SITE_URL}/${p.url}?size=${encodeURIComponent(z)}</g:link>`) : body}</item>`; }).join("\n");
@@ -2541,7 +2612,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 // page fingerprints: a page's lastmod changes only when its content changes; IndexNow gets only new/changed pages.
 // Live builds read the manifest of the deploy that is live right now (/data/page-hashes.json) to compare.
@@ -2555,6 +2626,7 @@ const HASHES = Object.fromEntries(urls.map((x) => [x, pageHash(x)]));
 const CHANGED = urls.filter((x) => !PREV_HASH || !PREV_HASH[x] || PREV_HASH[x][0] !== HASHES[x]);
 const lastmodOf = (x, contentDate) => { const prev = PREV_HASH && PREV_HASH[x]; if (prev && prev[0] === HASHES[x] && prev[1]) return prev[1]; return contentDate && (!prev || prev[0] === HASHES[x]) ? contentDate : TODAY_IST; };
 fs.mkdirSync(path.join(OUT, "data"), { recursive: true });
+if (FEST_PLAN) fs.writeFileSync(path.join(OUT, "data/festival-plan.json"), FEST_PLAN);
 fs.writeFileSync(path.join(OUT, "data/page-hashes.json"), JSON.stringify(Object.fromEntries(urls.map((x) => [x, [HASHES[x], lastmodOf(x, (posts.find((q) => q.url === x) || {}).updated)]]))));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">

@@ -1494,3 +1494,8 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 
 /* hub link lists (collections, wholesale) */
 .hub-links{max-width:860px;margin:36px auto 0}.hub-links h2{font-size:1.35rem;text-align:center;margin-bottom:12px}.hub-links ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 22px}.hub-links li{padding:8px 0;border-bottom:1px solid var(--line)}
+
+/* festival engine: audience-specific banner text (India vs abroad) + last-order tables */
+html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!important}
+.ob-box{max-width:860px;margin:6px auto 22px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:#fffdfb}.ob-box h2{font-size:1.15rem;margin:0 0 8px}
+.tbl-scroll{overflow-x:auto}.ob-table{width:100%;border-collapse:collapse;font-size:.92rem}.ob-table th,.ob-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.ob-table th{font-weight:600;white-space:nowrap}

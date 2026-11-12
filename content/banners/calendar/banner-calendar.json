@@ -479,6 +479,35 @@
       "festival": "lohri"
     },
     {
+      "id": "pongal-sankranti",
+      "name": "Pongal & Sankranti",
+      "festival": "pongal-sankranti",
+      "eyebrow": "Pongal & Makar Sankranti · {date} · Order by {order_by}",
+      "headline": "Sunshine for Pongal & Sankranti",
+      "line": "Yellows, greens and festive cottons for the Pongal pot, kite flying and family lunches.",
+      "button": "Pongal outfit ideas",
+      "link": "occasion/festive/",
+      "trending": [
+        "Yellow & mustard",
+        "Festive cottons",
+        "Zari borders",
+        "Green & gold"
+      ],
+      "match": {
+        "occasion": [
+          "Festive",
+          "Puja"
+        ],
+        "words": [
+          "yellow",
+          "mustard",
+          "green",
+          "orange",
+          "haldi"
+        ]
+      }
+    },
+    {
       "id": "bridesmaid",
       "name": "Bridesmaids",
       "from": "01-15",

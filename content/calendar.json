@@ -1,0 +1,130 @@
+{
+  "_help": "Festival & wedding-season engine. One list of dated events for the next 12+ months. The build uses it for: homepage banners (India visitors: from lead.india_start days before until the day before; visitors abroad: from lead.intl_start until lead.intl_stop days before), festival shop pages (events with a 'page'), feed custom labels, and the 'last order date' table. scripts/festival-engine.mjs writes social/email drafts to drafts/ when an event's lead time starts. audience: india = banner for India visitors only, intl = visitors abroad only, both = both. theme = the banner theme id in content/banners/calendar/banner-calendar.json (no theme = no banner). Dates: only verified dates; 'note' says when calendars differ by a day. Extend every month (weekly routine checks covers_until).",
+  "verified_on": "2026-11-12",
+  "covers_until": "2027-11-30",
+  "lead": { "intl_start": 60, "intl_stop": 14, "india_start": 30, "india_stop": 1 },
+  "sources": {
+    "drik": "drikpanchang.com (festival date pages, New Delhi)",
+    "mom": "Ministry of Manpower Singapore – public holidays 2027 (press release 0618, 2026)",
+    "gulf": "Gulf News / Khaleej Times – expected Ramadan & Eid 2027 dates (astronomical calculation; final date by moon sighting)",
+    "mys": "Malaysia 2027 public holidays (officeholidays.com, publicholidays.com.my)",
+    "multi": "agreement of several panchang / holiday calendars (drikpanchang, dekhopanchang, hindupad, officeholidays)",
+    "fixed": "fixed civil date"
+  },
+  "events": [
+    { "id": "chhath", "name": "Chhath Puja", "date": "2026-11-15", "audience": "india", "kind": "festival", "source": "drik", "note": "Nahay Khay 13 Nov, Sandhya Arghya 15 Nov, Usha Arghya 16 Nov.", "drafts": false },
+    { "id": "gurpurab", "name": "Guru Nanak Gurpurab", "date": "2026-11-24", "audience": "both", "kind": "festival", "theme": "gurpurab", "source": "multi",
+      "copy": { "hook": "Gurpurab is on 24 November", "wear": "soft colours, full sleeves and a dupatta to cover your head in the gurdwara", "colours": ["ivory", "white", "peach", "pastel pink", "saffron accents"], "hashtags": ["Gurpurab", "GuruNanakJayanti", "Gurpurab2026", "PunjabiSuit", "SikhFestival"], "guide": "blog/guru-nanak-gurpurab-outfit-ideas-for-women/" } },
+    { "id": "india-winter-weddings", "name": "Indian wedding season (winter)", "date": "2026-11-01", "end": "2027-02-28", "audience": "both", "kind": "season", "source": "multi", "note": "Shaadi season Nov–Feb. Main muhurat dates resume after Dev Uthani Ekadashi in November; Kharmas (mid-Dec to Makar Sankranti) has few or no dates.",
+      "copy": { "hook": "Wedding season is here", "wear": "Anarkalis and suits for every function – haldi, mehendi, sangeet, wedding and reception – stitched to your measurements", "colours": ["emerald", "wine", "royal blue", "gold", "pastels for day events"], "hashtags": ["WeddingSeason", "IndianWeddingGuest", "WeddingGuestOutfit", "Anarkali", "ShaadiSeason"], "guide": "blog/indian-wedding-season-guide-november-to-february/", "shop": "occasion/wedding-guest/" } },
+    { "id": "christmas", "name": "Christmas", "date": "2026-12-25", "audience": "both", "kind": "festival", "theme": "christmas", "source": "fixed", "page": "christmas-new-year",
+      "copy": { "hook": "Christmas is on Friday, 25 December", "wear": "red, green and velvet Indian outfits for Christmas parties, church and family dinners", "colours": ["red", "bottle green", "wine", "gold", "ivory"], "hashtags": ["DesiChristmas", "ChristmasOutfit", "IndianChristmas", "VelvetAnarkali", "ChristmasParty"], "guide": "blog/christmas-outfit-ideas-indian-ethnic-wear-for-women/" } },
+    { "id": "new-year", "name": "New Year's Eve", "date": "2027-01-01", "audience": "both", "kind": "festival", "theme": "new-year", "source": "fixed", "page": "christmas-new-year", "note": "Party night is 31 Dec 2026; the date is 1 Jan.",
+      "copy": { "hook": "New Year's Eve is on Thursday, 31 December", "wear": "black, gold and velvet party looks with an Indian touch", "colours": ["black", "gold", "navy", "wine", "emerald"], "hashtags": ["NewYearsEve", "NYEOutfit", "IndoWestern", "PartyWear", "NewYear2027"], "guide": "blog/new-years-eve-indian-party-outfit-ideas/" } },
+    { "id": "lohri", "name": "Lohri", "date": "2027-01-13", "audience": "both", "kind": "festival", "theme": "lohri", "source": "drik", "page": "lohri", "note": "Drik Panchang and most calendars: 13 Jan (one calendar says 14 Jan evening).",
+      "copy": { "hook": "Lohri is on Wednesday, 13 January", "wear": "bright Punjabi colours with warm layers for the bonfire night", "colours": ["mustard", "red", "rani pink", "orange", "phulkari brights"], "hashtags": ["Lohri", "HappyLohri", "Lohri2027", "PunjabiOutfit", "LohriOutfit"], "guide": "blog/what-to-wear-for-lohri-outfit-ideas/" } },
+    { "id": "pongal-sankranti", "name": "Makar Sankranti & Pongal", "date": "2027-01-15", "audience": "both", "kind": "festival", "theme": "pongal-sankranti", "source": "drik", "page": "pongal-makar-sankranti", "note": "Sun enters Makara 14 Jan 2027, 9:14 pm IST, so India observes 15 Jan (some calendars and overseas temples list 14 Jan). Bhogi 14 Jan, Mattu Pongal 16 Jan, Kaanum Pongal 17 Jan. Also Uttarayan (Gujarat) and Magh Bihu (Assam) on 15 Jan.",
+      "copy": { "hook": "Makar Sankranti & Pongal are on Friday, 15 January", "wear": "sunny yellows, greens and festive cottons for the Pongal pot, kite flying and family lunches", "colours": ["yellow", "mustard", "green", "orange", "white with gold"], "hashtags": ["Pongal", "MakarSankranti", "Pongal2027", "Uttarayan", "SankrantiOutfit"] } },
+    { "id": "thaipusam", "name": "Thaipusam", "date": "2027-01-22", "audience": "intl", "kind": "global", "markets": ["MY", "SG"], "source": "mys", "note": "Public holiday in several Malaysian states (KL, Putrajaya, Selangor, Penang, Perak, Johor, Negeri Sembilan, Kedah). No homepage banner: it is not relevant for most visitors abroad.", "drafts": false },
+    { "id": "republic-day", "name": "Republic Day", "date": "2027-01-26", "audience": "india", "kind": "public", "source": "fixed", "drafts": false },
+    { "id": "ramadan", "name": "Ramadan begins", "date": "2027-02-08", "audience": "both", "kind": "global", "source": "gulf", "note": "Expected 8 Feb 2027 (some countries 9 Feb) – moon sighting decides.", "drafts": false },
+    { "id": "valentines", "name": "Valentine's Day", "date": "2027-02-14", "audience": "both", "kind": "festival", "theme": "valentines", "source": "fixed",
+      "copy": { "hook": "Valentine's Day is on Sunday, 14 February", "wear": "pinks, reds and soft pastels for date night – or a handmade gift for someone special", "colours": ["rani pink", "red", "blush", "lavender", "ivory"], "hashtags": ["ValentinesDay", "ValentinesOutfit", "DesiValentine", "GiftForHer", "PinkKurta"], "guide": "blog/valentines-day-indian-outfit-ideas-for-women/" } },
+    { "id": "maha-shivratri", "name": "Maha Shivratri", "date": "2027-03-06", "audience": "india", "kind": "festival", "source": "multi", "drafts": false },
+    { "id": "mothering-sunday-uk", "name": "Mothering Sunday (UK)", "date": "2027-03-07", "audience": "intl", "kind": "global", "markets": ["GB"], "source": "fixed", "note": "Three weeks before Easter Sunday (28 Mar 2027).", "drafts": false },
+    { "id": "eid-al-fitr", "name": "Eid al-Fitr", "date": "2027-03-09", "audience": "both", "kind": "festival", "theme": "eid-al-fitr", "source": "gulf", "note": "Expected 9 Mar 2027, or 10 Mar if Ramadan has 30 days – moon sighting decides.",
+      "copy": { "hook": "Eid al-Fitr is expected on 9 or 10 March", "wear": "modest Anarkalis and kurta sets with full sleeves and a graceful dupatta", "colours": ["emerald", "ivory", "pastel mint", "royal blue", "gold"], "hashtags": ["EidMubarak", "EidOutfit", "Eid2027", "EidUlFitr", "ModestFashion"], "guide": "blog/eid-outfit-ideas-anarkali-and-kurta-sets-abroad/" } },
+    { "id": "holi", "name": "Holi", "date": "2027-03-22", "audience": "both", "kind": "festival", "theme": "holi", "source": "drik", "note": "Holika Dahan 21 Mar, Rangwali Holi 22 Mar (one calendar says 23 Mar).",
+      "copy": { "hook": "Holi is on Monday, 22 March", "wear": "breathable white and colourful cotton outfits that love a splash of colour", "colours": ["white", "yellow", "pink", "turquoise", "green"], "hashtags": ["Holi", "HappyHoli", "Holi2027", "HoliOutfit", "WhiteKurta"], "guide": "blog/holi-outfit-ideas-for-women/" } },
+    { "id": "gudi-padwa-ugadi", "name": "Gudi Padwa & Ugadi", "date": "2027-04-07", "audience": "india", "kind": "festival", "source": "multi", "note": "Chaitra Navratri also begins 7 Apr 2027 (one calendar lists Ugadi on 8 Apr).", "drafts": false },
+    { "id": "india-summer-weddings", "name": "Indian wedding season (summer)", "date": "2027-04-15", "end": "2027-06-30", "audience": "india", "kind": "season", "source": "multi", "note": "Second shaadi season (Apr–Jun); light georgette, chanderi and cotton silk for the heat.", "drafts": false },
+    { "id": "baisakhi", "name": "Baisakhi / Vaisakhi", "date": "2027-04-14", "audience": "both", "kind": "festival", "source": "drik", "note": "Mesha Sankranti 14 Apr 2027. Vaisakhi parades (Surrey & Vancouver BC, Southall & Trafalgar Square London) are usually on a weekend in April – 2027 dates not announced yet.", "drafts": false },
+    { "id": "nri-summer-weddings", "name": "NRI summer wedding season (USA, UK, Canada)", "date": "2027-05-01", "end": "2027-08-31", "audience": "intl", "kind": "season", "source": "multi", "note": "Most diaspora weddings are planned in the warm months; lead time 60 days for shipping.", "drafts": false },
+    { "id": "akshaya-tritiya", "name": "Akshaya Tritiya", "date": "2027-05-09", "audience": "india", "kind": "festival", "source": "drik", "drafts": false },
+    { "id": "mothers-day", "name": "Mother's Day (USA, Canada, Australia, India)", "date": "2027-05-09", "audience": "both", "kind": "festival", "theme": "mothers-day", "source": "fixed", "note": "Second Sunday of May.", "drafts": false },
+    { "id": "eid-al-adha", "name": "Eid al-Adha", "date": "2027-05-16", "audience": "both", "kind": "festival", "theme": "eid-al-adha", "source": "gulf", "note": "Expected 16 May 2027 (or 17 May) – moon sighting decides.", "drafts": false },
+    { "id": "hariyali-teej", "name": "Hariyali Teej", "date": "2027-08-04", "audience": "india", "kind": "festival", "source": "drik", "drafts": false },
+    { "id": "independence-day", "name": "Independence Day", "date": "2027-08-15", "audience": "india", "kind": "public", "source": "fixed", "drafts": false },
+    { "id": "raksha-bandhan", "name": "Raksha Bandhan", "date": "2027-08-17", "audience": "both", "kind": "festival", "theme": "raksha-bandhan", "source": "multi", "drafts": false },
+    { "id": "janmashtami", "name": "Janmashtami", "date": "2027-08-25", "audience": "india", "kind": "festival", "source": "multi", "note": "Smarta 24 Aug, ISKCON and most holiday lists 25 Aug.", "drafts": false },
+    { "id": "ganesh-chaturthi", "name": "Ganesh Chaturthi", "date": "2027-09-04", "audience": "india", "kind": "festival", "source": "multi", "note": "Most holiday lists 4 Sep; one panchang listing shows 2–3 Sep. Re-check on drikpanchang in July.", "drafts": false },
+    { "id": "onam", "name": "Onam (Thiruvonam)", "date": "2027-09-12", "audience": "both", "kind": "festival", "source": "multi", "drafts": false },
+    { "id": "navratri", "name": "Navratri", "date": "2027-09-30", "audience": "both", "kind": "festival", "theme": "navratri", "source": "drik", "note": "Ghatasthapana 30 Sep 2027.", "drafts": false },
+    { "id": "durga-puja", "name": "Durga Puja", "date": "2027-10-05", "end": "2027-10-09", "audience": "both", "kind": "festival", "source": "multi", "note": "Ashtami 7/8 Oct (calendars differ), Vijayadashami 9 Oct.", "drafts": false },
+    { "id": "dussehra", "name": "Dussehra", "date": "2027-10-09", "audience": "india", "kind": "festival", "source": "multi", "drafts": false },
+    { "id": "karwa-chauth", "name": "Karwa Chauth", "date": "2027-10-18", "audience": "both", "kind": "festival", "theme": "karwa-chauth", "source": "multi", "drafts": false },
+    { "id": "dhanteras", "name": "Dhanteras", "date": "2027-10-27", "audience": "india", "kind": "festival", "source": "multi", "drafts": false },
+    { "id": "deepavali-my-sg", "name": "Deepavali (Singapore & Malaysia)", "date": "2027-10-28", "audience": "intl", "kind": "global", "markets": ["SG", "MY"], "source": "mom", "note": "Singapore public holiday 28 Oct 2027 (MOM). Malaysia: 28 Oct (some states 29 Oct).", "drafts": false },
+    { "id": "diwali", "name": "Diwali", "date": "2027-10-29", "audience": "both", "kind": "festival", "theme": "diwali", "source": "multi", "drafts": false },
+    { "id": "bhai-dooj", "name": "Bhai Dooj", "date": "2027-10-31", "audience": "india", "kind": "festival", "theme": "bhai-dooj", "source": "multi", "drafts": false },
+    { "id": "chhath-2027", "name": "Chhath Puja", "date": "2027-11-04", "audience": "india", "kind": "festival", "source": "multi", "drafts": false },
+    { "id": "gurpurab-2027", "name": "Guru Nanak Gurpurab", "date": "2027-11-14", "audience": "both", "kind": "festival", "theme": "gurpurab", "source": "multi", "drafts": false }
+  ],
+  "muhurat": {
+    "_note": "Shaadi muhurat dates differ between panchangs and cities. Only dates that several sources agree on are listed; drikpanchang's own list could not be read here. Use them as 'busy wedding weeks', never as a promise.",
+    "status": "tentative",
+    "2027-01": [15, 18, 19, 20, 24, 26, 27, 30, 31],
+    "2027-02": [2, 3, 9, 10, 14, 15, 25, 26, 27, 28]
+  },
+  "pages": {
+    "christmas-new-year": {
+      "h1": "Indian Outfits for Christmas & New Year's Eve",
+      "title": "Indian Christmas & New Year Outfits for Women {year}",
+      "description": "Velvet Anarkalis, red & green suits and black-and-gold party sets for Christmas and New Year's Eve – with the last order dates for the USA, UK, Canada, UAE, Australia and India.",
+      "intro": "Red, green, wine and velvet for Christmas – black, gold and jewel tones for New Year's Eve. Stitched in Jaipur, shipped with duties paid.",
+      "theme": "christmas",
+      "guide": {
+        "heading": "How to wear Indian outfits for Christmas and New Year",
+        "sections": [
+          { "h": "Christmas: church, dinner and parties", "p": ["For a church service or family lunch, pick a kurta set or an Anarkali with sleeves and a dupatta – it is warm, covered and easy to sit in for a long meal. Deep red, bottle green, wine and ivory with gold all feel festive without looking bridal.", "For a Christmas party, velvet is the easiest choice in winter: it holds colour beautifully under warm lights and keeps you warm between the car and the door."] },
+          { "h": "New Year's Eve: party looks with an Indian touch", "p": ["Black, navy, wine and emerald with gold lace or gota work photograph well at night. A flared Anarkali moves well on the dance floor; a straight suit with a statement dupatta is easier if you will be standing for hours."] },
+          { "h": "Staying warm abroad", "list": ["Wear thermal leggings under straight pants or palazzos.", "Carry a long coat or a velvet or pashmina shawl over the dupatta.", "Choose ankle boots or closed juttis for cold or wet streets."] }
+        ],
+        "faq": [
+          ["Can I wear an Indian outfit to a Christmas party?", "Yes. A velvet Anarkali or an embroidered suit in red, green or wine fits Christmas parties well, in India and abroad. Choose a lighter dupatta if the party is crowded."],
+          ["What colours are best for New Year's Eve?", "Black, gold, navy, wine and emerald are the classic party colours. Add shine with lace, gota or zari borders rather than a heavy dupatta."],
+          ["When should I order for delivery before Christmas?", "Use the last order dates on this page. They include our dispatch time and the slowest delivery time, so order a few days earlier if you can."]
+        ]
+      }
+    },
+    "lohri": {
+      "h1": "Lohri Outfits for Women",
+      "title": "Lohri Outfits for Women {year}: Suits & Kurta Sets",
+      "description": "Bright Punjabi suits, kurta sets and Anarkalis for Lohri – mustard, red and rani pink with warm layers for the bonfire. Last order dates for India, USA, UK and Canada.",
+      "intro": "Bright, happy colours for the bonfire night – with room for a warm shawl. Stitched to your size in Jaipur.",
+      "theme": "lohri",
+      "guide": {
+        "heading": "What to wear for Lohri",
+        "sections": [
+          { "h": "Colours", "p": ["Lohri is a Punjabi harvest festival celebrated around a bonfire on the night before Makar Sankranti. Bright colours suit it best: mustard, red, rani pink, orange and phulkari-style brights. Darker greens and wine also look rich in the firelight."] },
+          { "h": "Comfort near the fire", "list": ["Choose cotton, cotton-blend or velvet rather than very sheer synthetics near the bonfire.", "Keep the dupatta pinned or draped over one shoulder so it stays away from the fire.", "Straight pants or palazzos are easier than very long flares when you walk around the fire and do the bhangra."] },
+          { "h": "Lohri abroad", "p": ["In the UK, Canada and the USA, Lohri is often held indoors or in a community hall in January cold. Layer a velvet suit or a long jacket and keep a warm shawl for the outdoor bonfire."] }
+        ],
+        "faq": [
+          ["What colour should I wear for Lohri?", "Bright colours – mustard, red, rani pink and orange – are the traditional Lohri colours. Deep green and wine look good too."],
+          ["What should a new bride wear for her first Lohri?", "Many brides wear a red or rani pink suit or Anarkali with gota or embroidery, and their wedding chooda. Keep the dupatta well away from the fire."],
+          ["Is velvet good for Lohri?", "Yes – velvet is warm and rich for a January night, especially in the UK, Canada or North India."]
+        ]
+      }
+    },
+    "pongal-makar-sankranti": {
+      "h1": "Pongal & Makar Sankranti Outfits",
+      "title": "Pongal & Makar Sankranti Outfits for Women {year}",
+      "description": "Yellow, green and festive cotton kurta sets and Anarkalis for Pongal, Makar Sankranti and Uttarayan – plus last order dates for India and abroad.",
+      "intro": "Sunny yellows, fresh greens and comfortable festive cottons for the Pongal pot, kite flying and family lunches.",
+      "theme": "pongal-sankranti",
+      "guide": {
+        "heading": "What to wear for Pongal and Makar Sankranti",
+        "sections": [
+          { "h": "One festival, many names", "p": ["Makar Sankranti marks the sun's move into Capricorn. It is Pongal in Tamil Nadu, Uttarayan in Gujarat, Magh Bihu in Assam and Sankranti in Andhra Pradesh, Telangana and Karnataka. The colours change a little by region, but bright, sunny and festive is right everywhere."] },
+          { "h": "Colours and fabrics", "list": ["Pongal: yellow, green, orange and white with gold – traditionally silk sarees or pavadai, but a festive kurta set with a zari border fits a temple visit or family lunch.", "Uttarayan: bright cottons you can spend the whole day on the terrace in – kites, sun and dust.", "Choose breathable cotton or chanderi in South India; add a shawl or a velvet layer in North India and abroad."] }
+        ],
+        "faq": [
+          ["What colour is worn on Makar Sankranti?", "Yellow, orange and green are the most common festive colours. In Maharashtra many women wear black on Sankranti, as it is a winter festival."],
+          ["Can I wear a kurta set for Pongal?", "Yes. Many women wear silk sarees, but a kurta set or Anarkali in yellow, green or white with gold is a comfortable choice for a temple visit or a family lunch."],
+          ["Is Makar Sankranti on 14 or 15 January 2027?", "In 2027 the sun enters Makara on the night of 14 January (India time), so most Indian calendars observe Makar Sankranti and Pongal on Friday, 15 January. Some calendars and temples abroad list 14 January."]
+        ]
+      }
+    }
+  }
+}
