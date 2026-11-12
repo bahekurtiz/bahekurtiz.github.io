@@ -459,7 +459,7 @@ ${og}<meta property="og:url" content="${esc(canonical)}"><meta property="og:imag
 <meta name="theme-color" content="#0e5b59">
 ${favImg ? `<link rel="icon" href="${esc(u(favImg))}" type="image/png"><link rel="apple-touch-icon" href="${esc(u(fs.existsSync(path.join(ROOT, "static/images/_r/site/favicon-180.png")) && /favicon-96\.png$/.test(favImg) ? "/images/_r/site/favicon-180.png" : favImg))}">` : `<link rel="icon" href="${u("favicon.svg")}" type="image/svg+xml">`}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=optional" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=optional" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="${u("assets/style.css")}?v=${ASSET_V}">
 <link rel="manifest" href="${u("manifest.webmanifest")}">
 ${bodyClass === "pdp" && pathname.startsWith("products/") ? `<link rel="alternate" type="text/markdown" href="${u("p/" + pathname.split("/")[1] + ".md")}">` : ""}
