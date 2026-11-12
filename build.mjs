@@ -505,6 +505,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   ${menuCats.length ? `<details class="mnav-cats"><summary>Categories</summary><div class="mnav-cat-list">${menuGroups.map((g) => `${menuGroups.length > 1 ? `<p class="mnav-grp">${esc(g.name)}</p>` : ""}${g.cats.map((c) => `<a href="${u(c.url)}"${c.empty ? ' class="soon"' : ""}><span>${esc(c.plural)}</span>${c.empty ? "<small>Coming soon</small>" : `<small>${c.items.length}</small>`}</a>`).join("")}`).join("")}</div></details>` : ""}
   <a href="${u("wholesale/")}">Wholesale & Private Label</a>
   <a href="${u("group-orders/")}">Group & Bridesmaid Orders</a>
+  <a href="${u("wholesale/quote/")}">Wholesale Quote</a>
   <a href="${u("bahe-block/")}">🪵 The Bahe Block – our hand block prints</a>
   <a href="${u("custom/")}">✂️ Custom & Restyle</a>
   <a href="${u("wishlist/")}">Wishlist</a>
@@ -1701,7 +1702,7 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
   <div class="terms-box"><p><strong>Minimum order:</strong> ${esc(S.wholesale_moq || "Depends on the design and fabric. Small boutique orders are welcome. Ask us on WhatsApp.")}</p><p><strong>Payment:</strong> ${esc(S.wholesale_payment || "Advance payment only (bank transfer / UPI in India, PayPal or wire transfer for international buyers). No cash on delivery.")}</p><p><strong>Prices:</strong> Shared as a written quotation after we understand your requirement.</p></div>
 </section>
 <section class="wrap section enquiry" id="enquiry">
-  <div class="section-head center"><p class="eyebrow">Get a quotation</p><h2>Send your requirement</h2><p class="muted">Fill this and tap send. We get your enquiry at once and reply by email. WhatsApp is optional${S.email ? ` – or email us at <a class="link" href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}.</p></div>
+  <div class="section-head center"><p class="eyebrow">Get a quotation</p><h2>Send your requirement</h2><p><a class="link" href="${u("wholesale/quote/")}">Prefer WhatsApp? Pick category, quantity & country for a quick quote →</a></p><p class="muted">Fill this and tap send. We get your enquiry at once and reply by email. WhatsApp is optional${S.email ? ` – or email us at <a class="link" href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}.</p></div>
   <form class="b2b-form" data-b2b-form>
     <div class="f2"><label>Your name<input name="name" required maxlength="80" autocomplete="name"></label><label>Business / brand name<input name="business" maxlength="100" autocomplete="organization"></label></div>
     <div class="f2"><label>Email<input name="email" type="email" required maxlength="120" autocomplete="email"></label><label>WhatsApp (with country code)<input name="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="+44 7..."></label></div>
@@ -1770,6 +1771,28 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
 </section>
 <script>(function(){var f=document.querySelector("[data-group-form]");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();if(!f.reportValidity())return;var d=new FormData(f),g=function(k){return String(d.get(k)||"").trim()};
 var t="Hi ${esc(brand)}! I would like a GROUP ORDER.\\n\\nName: "+g("name")+"\\nEvent: "+g("event")+"\\nNumber of outfits: "+g("qty")+(g("date")?"\\nEvent date: "+g("date"):"")+(g("place")?"\\nCountry / city: "+g("place"):"")+"\\nSizes: "+g("sizes")+(g("styles")?"\\nStyles & colours: "+g("styles"):"")+"\\n\\nPlease share the group price.";
+window.open(${JSON.stringify(waNumber ? "https://wa.me/" + waNumber + "?text=" : "")}+encodeURIComponent(t),"_blank","noopener")})})();</script>` })); }
+// B2B quote: buyer picks category + quantity + country → WhatsApp message filled in. No prices on this page.
+{ const cats = [...categories.map((c) => c.plural), "Mixed / several categories", "Own design (private label)"];
+  const countries = ["United States", "United Kingdom", "Canada", "Australia", "United Arab Emirates", "Singapore", "Malaysia", "Germany", "France", "Netherlands", "New Zealand", "India", "Other"];
+  add("wholesale/quote/index.html", page({ title: `Wholesale Kurti Quote – B2B Enquiry on WhatsApp | ${brand}`, pathname: "wholesale/quote/",
+    description: clip(`Boutiques, online sellers and importers: pick a category, quantity and country and send your wholesale or private label enquiry on WhatsApp. Made in our own Jaipur unit.`),
+    ld: [crumbLd([["Wholesale", "wholesale/"], ["Get a quote", "wholesale/quote/"]])],
+    body: `<section class="wrap section custom-page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("wholesale/")}">Wholesale</a> / <span>Get a quote</span></nav>
+  <div class="cp-head"><p class="eyebrow">For boutiques, brands & importers</p><h1>Get a Wholesale Quote</h1><p class="lead">Tell us what you need – category, quantity and country. WhatsApp opens with your enquiry ready to send, and our team replies with pricing and timelines.</p></div>
+  <form class="cp-form" data-quote-form>
+    <div class="f2"><label>Your name<input name="name" required maxlength="80" autocomplete="name"></label><label>Business / boutique name<input name="biz" maxlength="100" autocomplete="organization"></label></div>
+    <div class="f2"><label>Category<select name="cat" required><option value="">Choose…</option>${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select></label><label>Order type<select name="type"><option>Wholesale (our designs)</option><option>Private label (your brand)</option><option>Export / bulk</option></select></label></div>
+    <div class="f2"><label>Quantity (pieces)<select name="qty" required><option value="">Choose…</option><option>15–50</option><option>50–100</option><option>100–300</option><option>300–1000</option><option>1000+</option></select></label><label>Country<select name="country" required><option value="">Choose…</option>${countries.map((c) => `<option>${esc(c)}</option>`).join("")}</select></label></div>
+    <label>Anything else? (styles, sizes, fabric, timeline – optional)<textarea name="notes" rows="3" maxlength="1000"></textarea></label>
+    <p class="muted small">Minimum order: 15–20 pieces per design. After you send, WhatsApp opens with your enquiry filled in – add photos or tech packs there if you have them.</p>
+    <button class="btn btn-block btn-lg btn-wa" type="submit">Send enquiry on WhatsApp</button>
+  </form>
+  <p class="center"><a class="link" href="${u("wholesale/")}">More about wholesale, private label & export →</a></p>
+</section>
+<script>(function(){var f=document.querySelector("[data-quote-form]");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();if(!f.reportValidity())return;var d=new FormData(f),g=function(k){return String(d.get(k)||"").trim()};
+var t="Hi ${esc(brand)}! WHOLESALE QUOTE request.\\n\\nName: "+g("name")+(g("biz")?"\\nBusiness: "+g("biz"):"")+"\\nCategory: "+g("cat")+"\\nOrder type: "+g("type")+"\\nQuantity: "+g("qty")+" pieces\\nCountry: "+g("country")+(g("notes")?"\\nNotes: "+g("notes"):"")+"\\n\\nPlease share pricing and timelines.";
 window.open(${JSON.stringify(waNumber ? "https://wa.me/" + waNumber + "?text=" : "")}+encodeURIComponent(t),"_blank","noopener")})})();</script>` })); }
 add("custom/index.html", page({ title: `Custom Size, Custom Design & Restyle | ${brand}, Jaipur`, description: clip(`Made-to-measure kurtis and dresses in your exact size, your own design made by our Jaipur karigars, and restyle or dye of your old fabric (India). Ships worldwide.`), pathname: "custom/",
     body: `<section class="wrap section custom-page">
@@ -2485,7 +2508,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
