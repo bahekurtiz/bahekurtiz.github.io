@@ -457,7 +457,7 @@ ${trackHead}
 ${og}<meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(abs(image || S.hero_image || "images/site/hero.jpg"))}">
 <meta property="og:locale" content="en_IN"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0e5b59">
-${favImg ? `<link rel="icon" href="${esc(u(favImg))}" type="image/png"><link rel="apple-touch-icon" href="${esc(u(favImg))}">` : `<link rel="icon" href="${u("favicon.svg")}" type="image/svg+xml">`}
+${favImg ? `<link rel="icon" href="${esc(u(favImg))}" type="image/png"><link rel="apple-touch-icon" href="${esc(u(fs.existsSync(path.join(ROOT, "static/images/_r/site/favicon-180.png")) && /favicon-96\.png$/.test(favImg) ? "/images/_r/site/favicon-180.png" : favImg))}">` : `<link rel="icon" href="${u("favicon.svg")}" type="image/svg+xml">`}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="${u("assets/style.css")}?v=${ASSET_V}">
@@ -1031,7 +1031,7 @@ for (const p of [...products, ...upcoming]) {
   <div class="gallery">
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
-        ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
+        ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(rsHasW(p.images[0], 720) ? rsPath(p.images[0], 720) : p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
         : (i === 0 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
@@ -1108,7 +1108,7 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
     { "@type": "ListItem", position: 2, name: cat.plural, item: SITE_URL + "/" + cat.url },
     { "@type": "ListItem", position: 3, name: p.feed_title, item: SITE_URL + "/" + p.url }] };
   const myReel = reels.find((r) => r.product === p.slug && r.video);
-  const pmini = myReel || p.video ? { video: u(myReel ? myReel.video : p.video), cover: myReel?.cover ? u(myReel.cover) : u(p.images[0] || ""), caption: myReel?.caption || "See it on", product: { title: p.title, url: u(p.url), image: u(p.images[0] || ""), price: priceHtml(p) } } : defaultMini();
+  const pmini = myReel || p.video ? { video: u(myReel ? myReel.video : p.video), cover: myReel?.cover ? u(myReel.cover) : u(p.images[0] ? (rsHasW(p.images[0], 720) ? rsPath(p.images[0], 720) : p.images[0]) : ""), caption: myReel?.caption || "See it on", product: { title: p.title, url: u(p.url), image: u(p.images[0] || ""), price: priceHtml(p) } } : defaultMini();
   const ogP = p.price !== null ? `<meta property="product:price:amount" content="${p.price}"><meta property="product:price:currency" content="INR"><meta property="product:availability" content="${p.in_stock ? "in stock" : "preorder"}"><meta property="product:brand" content="${esc(brand)}">` : "";
   add(p.url + "index.html", page({ og: p.coming ? "" : ogP, noindex: p.coming, mini: pmini, title: p.seo_title || `${p.title} | ${brand}`, description: desc, pathname: p.url, image: p.images[0], body: body.replace('<section class="wrap section recent"', faqHtml + '<section class="wrap section recent"'), ld: [...(p.price !== null && !p.coming ? [ld, crumbs, faqLd] : [crumbs, faqLd]), ...(videoLd(p) ? [videoLd(p)] : [])], type: "product", bodyClass: "pdp" }));
 }
