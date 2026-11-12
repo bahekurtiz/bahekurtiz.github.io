@@ -12,11 +12,13 @@
   "mrp_usd": 70,
   "ships_abroad": true,
   "sizes": [
+    "XS",
     "S",
     "M",
     "L",
     "XL",
     "XXL",
+    "3XL",
     "4XL"
   ],
   "sold_out_sizes": [],

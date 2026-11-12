@@ -12,6 +12,7 @@
   "mrp_usd": 104,
   "ships_abroad": true,
   "sizes": [
+    "XS",
     "S",
     "M",
     "L",
