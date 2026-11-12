@@ -1124,7 +1124,7 @@ for (const a of autoPages) {
   const kind = { color: "colour", fabric: "fabric", print: "print", occ: "occasion" }[a.k];
   const seo = `${a.label} for women by ${brand} – ${a.items.length} styles made in our own unit in Sanganer, Jaipur. ${a.k === "fabric" ? `Every piece is ${a.v.toLowerCase()}, picked for comfort in Indian weather.` : a.k === "print" ? (craftInfo("print", a.v)?.[1] || "") : a.k === "occ" ? `Easy to wear and easy to style for ${a.v.toLowerCase()}.` : `Shop ${a.v.toLowerCase()} ${a.cat.plural.toLowerCase()} in sizes ${uniq(a.items.flatMap((p) => p.sizes)).sort((x, y) => sizeRank(x) - sizeRank(y)).join(", ")}.`} Secure prepaid payment, shipping across India${intlOn ? " and worldwide" : ""}.`;
   listing({ file: a.url + "index.html", pathname: a.url, h1: a.label, intro: `${a.items.length} styles`, seo, items: a.items, crumbs: `<a href="${u("shop/")}">Shop</a> / <a href="${u(a.cat.url)}">${esc(a.cat.plural)}</a> / <span>${esc(a.label)}</span>`,
-    title: `${a.label} for Women – Made in Jaipur | ${brand}`, description: clip(`Shop ${a.label.toLowerCase()} for women by ${brand}, Jaipur. ${a.items.length} handcrafted styles by ${kind}, secure online payment${intlOn ? ", shipping worldwide" : ""}.`),
+    title: (`${a.label} for Women – Made in Jaipur`.length > 60 ? `${a.label} for Women | ${brand}` : `${a.label} for Women – Made in Jaipur | ${brand}`), description: clip(`Shop ${a.label.toLowerCase()} for women by ${brand}, Jaipur. ${a.items.length} handcrafted styles by ${kind}, secure online payment${intlOn ? ", shipping worldwide" : ""}.`),
     links: autoPages.filter((x) => x.cat === a.cat && x !== a).slice(0, 8).map((x) => [x.label, x.url]) });
 }
 for (const c of categories) {
