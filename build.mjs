@@ -2323,7 +2323,9 @@ const STORY_URLS = [];
   const clipS = (t, n) => { t = plainS(t); if (t.length <= n) return t; const s = t.slice(0, n); const dot = s.lastIndexOf(". "); return (dot > n * 0.5 ? s.slice(0, dot + 1) : s.replace(/\s+\S*$/, "") + "…"); };
   const img = (src) => esc(encodeURI(decodeURI(abs(src))));
   const logo = favImg0 ? abs(favImg0) : abs("images/site/favicon.png");
+  const STORY_ALLOW = (() => { try { return new Set(JSON.parse(fs.readFileSync(path.join(ROOT, "content/stories.json"), "utf8")).slugs || []); } catch { return null; } })(); // frozen list – new posts get no story
   for (const b of posts) {
+    if (STORY_ALLOW && !STORY_ALLOW.has(b.slug)) continue;
     const rel = (b.related_products || []).map((s) => products.find((p) => p.slug === s)).filter((p) => p && p.images[0]);
     const cover = b.cover || rel[0]?.images[0]; if (!cover || rel.length < 2) continue;
     const body = String(b.body || "");
