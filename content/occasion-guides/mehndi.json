@@ -1,0 +1,20 @@
+{
+  "_help": "Guide + matching rule for /occasion/mehndi/. Products tagged 'Mehndi' come first, then full outfits (not short tunics, dresses or co-ords) in the green family, the classic mehndi colour.",
+  "match_words": "green|mint|sage|olive|teal|aqua|pista|parrot",
+  "exclude_category": "tunic|top|dress|co-ord",
+  "h1": "Mehndi Outfits for Women",
+  "title": "Mehndi Outfits for Women: Green Suits & Anarkalis",
+  "description": "Green, mint, sage and teal kurta sets and Anarkalis for the mehndi ceremony – easy sleeves for henna, light fabrics and free custom fit. Made in Jaipur.",
+  "intro": "Greens, mint and teal for the mehndi – outfits you can sit, dance and get henna in",
+  "heading": "What to wear to a mehndi ceremony",
+  "sections": [
+    { "h": "Why green for the mehndi", "p": ["Green is the classic mehndi colour across North Indian, Punjabi, Gujarati and Muslim weddings – it echoes the henna leaves and looks fresh in daytime photos. Mint, sage, bottle green, teal and olive all work, and a touch of yellow, pink or gota keeps it festive. Every outfit here is a full set or Anarkali in the green family, chosen from our own Jaipur collection."] },
+    { "h": "Practical tips", "list": ["Sleeves: elbow or three-quarter sleeves keep your hands and wrists free while the henna dries.", "Fabric: cotton, chiffon or a light taffeta silk – you will sit for a long time, often outdoors.", "Fit: a kurta set or a flared Anarkali lets you sit cross-legged and dance at the sangeet that often follows.", "Dupatta: pin it, or keep a light one, so it does not smudge wet henna."] },
+    { "h": "Bride's family or guest?", "p": ["Close family often coordinate colours – our group & bridesmaid orders stitch matching outfits to each person's size. Guests can pick any green shade; avoid head-to-toe red, which is usually kept for the bride."] }
+  ],
+  "faq": [
+    ["What colour should I wear to a mehndi?", "Green is the traditional mehndi colour – mint, sage, bottle green, teal or olive. Yellow and bright florals also work. Avoid head-to-toe bridal red."],
+    ["What sleeves are best for a mehndi?", "Elbow-length or three-quarter sleeves, so the henna on your hands and arms can dry without smudging."],
+    ["Can I get matching mehndi outfits for the bride's sisters?", "Yes. Our group orders stitch matching outfits to each person's measurements and ship them together."]
+  ]
+}

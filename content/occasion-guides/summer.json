@@ -1,0 +1,19 @@
+{
+  "_help": "Guide + matching rule for /occasion/summer/. Products tagged 'Summer' come first, then styles in breathable fabrics (cotton, linen, mul, kota doria, chanderi, khadi, cambric, voile).",
+  "match_fabric": "cotton|linen|mul|kota|chanderi|khadi|cambric|voile",
+  "h1": "Summer Kurta Sets, Kurtis & Dresses",
+  "title": "Summer Kurta Sets & Cotton Kurtis for Women",
+  "description": "Breathable cotton, linen, kota doria and chanderi kurta sets, tunics and dresses for hot Indian summers and holidays abroad – hand block printed and stitched in Jaipur.",
+  "intro": "Breathable cotton, linen, kota doria and chanderi – made for hot days",
+  "heading": "Dressing for an Indian summer",
+  "sections": [
+    { "h": "Why these fabrics", "p": ["Every style on this page is cut from a fabric that lets air through: cotton, pure linen, kota doria, chanderi or a soft cotton blend. They feel cool in 40-degree Jaipur heat, absorb sweat instead of trapping it, and get softer with every wash."] },
+    { "h": "What to wear when", "list": ["Office and errands: a straight cotton kurta set with straight pants – easy to iron, easy to sit in all day.", "Day functions and pujas: kota doria or chanderi kurta sets with a light dupatta look festive without the weight.", "Holidays abroad: linen midi dresses and cotton co-ords pack small and look good in summer in London, Toronto or Dubai.", "Very humid cities (Mumbai, Chennai, Singapore): choose loose fits, three-quarter sleeves and lighter colours."] },
+    { "h": "Care in the heat", "p": ["Wash cotton and linen in cold water with a mild detergent, dry them in the shade to protect block-printed colours, and iron while slightly damp. Kota doria and chanderi are best hand-washed or dry-cleaned the first time."] }
+  ],
+  "faq": [
+    ["Which fabric is best for summer kurtis?", "Cotton and linen are the coolest for everyday wear. Kota doria and chanderi are light and sheer, so they are good for festive day events in summer."],
+    ["Do cotton kurta sets shrink?", "Good cotton can shrink slightly in the first hot wash. Wash in cold water and dry in the shade; if you are between sizes, free custom fit lets us add a little ease."],
+    ["Are these good for travelling abroad in summer?", "Yes – cotton co-ords and linen dresses are light, pack small and suit summer in Europe, North America and the Gulf. We ship worldwide with duties paid to the USA, UK, Canada, UAE and Australia."]
+  ]
+}
