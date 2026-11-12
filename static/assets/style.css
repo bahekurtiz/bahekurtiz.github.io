@@ -1505,3 +1505,6 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 
 /* links to money pages (blog posts, products) */
 .money-links{margin:18px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+/* review request (real customers, after delivery) */
+.done-review{margin:18px 0;padding:14px 16px;border:1px solid var(--line);border-radius:10px}.review-ask{margin:14px 0}

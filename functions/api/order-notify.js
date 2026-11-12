@@ -9,6 +9,7 @@ import { verifySig } from "./pay-verify.js";
 
 const B = "https://api.brevo.com/v3";
 const SITE = "https://bahekurtiz.com";
+const REVIEW = "https://g.page/r/CZRg9KONAiAfEBM/review"; // Google Business Profile review link (settings: google_review_url)
 const FROM = { name: "Bahe Kurtiz", email: "bahekurti@gmail.com" };
 const WA = "https://wa.me/917073350886";
 const TEAL = "#0e5b59";
@@ -101,6 +102,7 @@ ${fitText(o) ? `<p style="margin:0 0 12px;font-size:14px"><b>Your measurements:<
 <ol style="margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6">${li("We start making your piece in our own Jaipur unit – hand finished and stitched for you.")}${li("Before it ships, we send you photos of your actual piece.")}${li(intl ? "Duties-paid express delivery: usually <b>5–10 business days after dispatch</b> – no customs bills at your door." : "Tracked delivery to your door – we share the tracking link as soon as it ships.")}</ol>
 <p style="margin:0 0 22px;text-align:center"><a href="${SITE}/track/?ref=${encodeURIComponent(o.ref)}" style="background:${TEAL};color:#ffffff;text-decoration:none;padding:13px 28px;border-radius:6px;font-size:14px;letter-spacing:1px;display:inline-block">TRACK MY ORDER</a></p>
 <p style="margin:0 0 6px;font-size:14px;line-height:1.6">Questions about size or your order? <a href="${WA}" style="color:${TEAL}">WhatsApp us</a> – a real person from our Jaipur team will reply. You can also simply reply to this email.</p>
+<p style="margin:0 0 6px;font-size:14px;line-height:1.6">Once your order has arrived, we would be grateful for your honest review on Google – it helps a small Jaipur studio a lot: <a href="${REVIEW}" style="color:${TEAL}">Review us on Google</a></p>
 <p style="margin:18px 0 26px;font-size:14px">With love from Jaipur,<br>Team Bahe Kurtiz</p>`;
   return { sender: FROM, to: [{ email: o.email, name: first }], replyTo: FROM, subject: `Your Bahe Kurtiz order ${o.ref} is confirmed 💚`,
     htmlContent: wrap(inner, `Handmade in Jaipur, India · <a href="${SITE}" style="color:#7a6f66">bahekurtiz.com</a>`), tags: ["order-confirmation"] };
