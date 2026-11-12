@@ -2,7 +2,7 @@
 // Needs one Cloudflare secret: BREVO_API_KEY.  Lists are created automatically by name.
 // POST /api/subscribe  {type, email, name, country, consent}
 const B = "https://api.brevo.com/v3";
-const LISTS = { vip: "Bahe VIP", checkout: "Bahe Checkout Started", customers: "Bahe Customers", festival: "Bahe Festival Reminders" };
+const LISTS = { vip: "Bahe VIP", checkout: "Bahe Checkout Started", customers: "Bahe Customers", festival: "Bahe Festival Reminders", restock: "Bahe Restock Alerts" };
 let cache = null;
 const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
 
@@ -51,9 +51,9 @@ export async function onRequestPost({ request, env }) {
   const email = String(b.email || "").trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120) return J({ ok: false, error: "email" }, 200);
   const type = String(b.type || "");
-  const which = type === "paid" ? "customers" : type === "checkout_started" ? "checkout" : type === "festival" ? "festival" : ["signup", "google", "follow"].includes(type) ? "vip" : "";
+  const which = type === "paid" ? "customers" : type === "checkout_started" ? "checkout" : type === "festival" ? "festival" : type === "restock" ? "restock" : ["signup", "google", "follow"].includes(type) ? "vip" : "";
   if (!which) return J({ ok: false, error: "type" }, 200);
-  if (which === "festival" && b.consent !== "yes") return J({ ok: false, error: "consent" }, 200);
+  if ((which === "festival" || which === "restock") && b.consent !== "yes") return J({ ok: false, error: "consent" }, 200);
   if (which !== "customers" && b.consent === "no") return J({ ok: false, error: "consent" }, 200);
   try {
     const ids = await listIds(key);
