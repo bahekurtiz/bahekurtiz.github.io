@@ -1485,3 +1485,9 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .poll-note{margin-top:18px}.poll-own{margin-top:22px}
 .choose-modal .drawer-head{padding:16px 20px}.choose-modal .drawer-head h2{margin:0;font-size:1.5rem}
 .choose-list .link{background:none;border:0;padding:6px 2px;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;font-size:.82rem}
+
+/* group orders page */
+.group-steps{list-style:none;counter-reset:g;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;padding:0;margin:22px 0 26px}
+.group-steps li{counter-increment:g;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:.9rem;color:var(--muted)}
+.group-steps li::before{content:counter(g);display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:600;margin-bottom:8px}
+.group-steps b{display:block;color:var(--ink);margin-bottom:4px}.group-faq{margin-top:34px}.group-link{margin:6px 0 0;text-align:center}
