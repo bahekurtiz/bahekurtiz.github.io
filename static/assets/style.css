@@ -1499,3 +1499,6 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!important}
 .ob-box{max-width:860px;margin:6px auto 22px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:#fffdfb}.ob-box h2{font-size:1.15rem;margin:0 0 8px}
 .tbl-scroll{overflow-x:auto}.ob-table{width:100%;border-collapse:collapse;font-size:.92rem}.ob-table th,.ob-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.ob-table th{font-weight:600;white-space:nowrap}
+
+/* festival reminder form */
+.remind{max-width:860px;margin:0 auto 22px;padding:14px 16px;border:1px dashed var(--line);border-radius:10px}.remind-row{display:flex;gap:8px;margin:8px 0}.remind-row input{flex:1;min-width:0;padding:10px;border:1px solid #d8cdd0;border-radius:8px;font:inherit}.remind label.small{display:flex;gap:8px;align-items:flex-start}

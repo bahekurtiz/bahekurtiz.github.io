@@ -82,6 +82,8 @@ ${orderTxt}
 Reply with your size or measurements and we will help you choose.${wa ? `\n${wa}` : ""}
 
 ## Email (Brevo)
+_Send to the Brevo lists **Bahe Festival Reminders** (people who asked for a reminder on the festival pages) and **Bahe VIP**, a few days before the last order date._
+
 **Subject:** ${c.hook} – ${(c.colours || []).slice(0, 2).join(" & ")} edit from Jaipur
 **Preheader:** ${cap(c.wear)}.
 
