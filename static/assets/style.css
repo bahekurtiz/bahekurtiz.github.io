@@ -1502,3 +1502,6 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 
 /* festival reminder form */
 .remind{max-width:860px;margin:0 auto 22px;padding:14px 16px;border:1px dashed var(--line);border-radius:10px}.remind-row{display:flex;gap:8px;margin:8px 0}.remind-row input{flex:1;min-width:0;padding:10px;border:1px solid #d8cdd0;border-radius:8px;font:inherit}.remind label.small{display:flex;gap:8px;align-items:flex-start}
+
+/* links to money pages (blog posts, products) */
+.money-links{margin:18px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
