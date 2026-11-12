@@ -104,6 +104,7 @@
   "wholesale_moq": "15–20 pieces per design (sizes can be mixed)",
   "wholesale_prices": {},
   "model_height_default": "5'8\"",
+  "model_size_default": "S",
   "exit_popup": false,
   "trust_ratings_checked": "November 2026",
   "trust_ratings": [
