@@ -697,9 +697,14 @@ const withSrcset = (html) => html.replace(/<img\b[^>]*>/g, (tag) => {
 // LCP: keep fetchpriority="high" on the first such image only and preload it (with the same srcset/sizes) from <head>
 const lcpPreload = (html) => {
   let first = null;
-  html = html.replace(/<img\b[^>]*\sfetchpriority="high"[^>]*>/g, (tag) => { if (!first) { tag = tag.replace(/\sdecoding="async"/, "").replace(/\sloading="lazy"/, ""); first = tag; return tag; } return tag.replace(/\sfetchpriority="high"/, ""); });
+  html = html.replace(/<img\b[^>]*\sfetchpriority="high"[^>]*>/g, (tag) => { if (!first) { tag = tag.replace(/\sdecoding="async"/, ""); if (!/class="aud-in"/.test(tag)) tag = tag.replace(/\sloading="lazy"/, ""); first = tag; return tag; } return tag.replace(/\sfetchpriority="high"/, ""); });
   if (!first || !/<\/head>/.test(html)) return html;
-  const at = (n) => (first.match(new RegExp(`\\s${n}="([^"]*)"`)) || [])[1];
+  const at = (n, t = first) => (t.match(new RegExp(`\\s${n}="([^"]*)"`)) || [])[1];
+  // audience split (India vs abroad hero photo): preload only the photo this visitor will see (same currency rule as the head script)
+  const alt = /class="aud-in"/.test(first) && (html.match(/<img\b[^>]*class="aud-intl"[^>]*>/) || [])[0];
+  if (alt) { const A = JSON.stringify([at("src"), at("srcset") || "", at("sizes") || "100vw"]), B = JSON.stringify([at("src", alt), at("srcset", alt) || "", at("sizes", alt) || "100vw"]);
+    const js = `<script>(function(){var c;try{c=localStorage.getItem("bk_cur")}catch(e){}if(!c){var z="";try{z=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}c=/Calcutta|Kolkata/.test(z)||!z?"INR":"USD"}var a=c==="USD"?${B}:${A},l=document.createElement("link");l.rel="preload";l.as="image";l.href=a[0];if(a[1]){l.setAttribute("imagesrcset",a[1]);l.setAttribute("imagesizes",a[2])}l.setAttribute("fetchpriority","high");document.head.appendChild(l)})()</script>`;
+    return html.replace(/<link rel="stylesheet" href="[^"]*assets\/style\.css/, (x) => js + "\n" + x); }
   const src = at("src"); if (!src || src.startsWith("data:")) return html;
   const link = `<link rel="preload" as="image" href="${src}"${at("srcset") ? ` imagesrcset="${at("srcset")}" imagesizes="${at("sizes") || "100vw"}"` : ""} fetchpriority="high">`;
   return html.replace(/<link rel="stylesheet" href="[^"]*assets\/style\.css/, (x) => link + "\n" + x);
@@ -846,7 +851,7 @@ ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-do
 <section class="hero-wrap" aria-label="Featured" data-hero>
 <div class="hero-track" data-hero-track>
 ${slides.map((sl, i) => `<div class="hero hero-slide hero-full hero-same${sl.clean ? " hero-clean" : ""}${sl.auto ? " hero-auto" : ""}${i === 0 ? " on" : ""}"${sl.start ? ` data-start="${sl.start}"` : ""}${sl.end ? ` data-end="${sl.end}"` : ""}${i ? ' aria-hidden="true" inert' : ""}>
-  <div class="hero-media" style="--hb:url('${esc(encU(u(small(sl.image))))}')">${i === 0 ? `<img decoding="async" data-rs="big"${sl.intl && sl.intl.image !== sl.image ? ' class="aud-in"' : ""} src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" fetchpriority="high">${sl.intl && sl.intl.image !== sl.image ? `<img decoding="async" data-rs="big" class="aud-intl" loading="lazy" src="${esc(u(sl.intl.image))}" alt="${esc(sl.intl.alt || sl.intl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800">` : ""}` : `<img decoding="async" data-rs="big" data-gal data-src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800"><noscript><img src="${esc(u(sl.image))}" alt="" width="1200" height="1800"></noscript>`}</div>
+  <div class="hero-media" style="--hb:url('${esc(encU(u(small(sl.image))))}')">${i === 0 ? `<img decoding="async" data-rs="big"${sl.intl && sl.intl.image !== sl.image ? ' class="aud-in" loading="lazy"' : ""} src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800" fetchpriority="high">${sl.intl && sl.intl.image !== sl.image ? `<img decoding="async" data-rs="big" class="aud-intl" loading="lazy" src="${esc(u(sl.intl.image))}" alt="${esc(sl.intl.alt || sl.intl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800">` : ""}` : `<img decoding="async" data-rs="big" data-gal data-src="${esc(u(sl.image))}" alt="${esc(sl.alt || sl.title || brand)} – ${esc(brand)}, Jaipur" width="1200" height="1800"><noscript><img src="${esc(u(sl.image))}" alt="" width="1200" height="1800"></noscript>`}</div>
   <div class="hero-text">
     <p class="eyebrow">${dual(esc(sl.eyebrow || "New collection · Made in Jaipur"), sl.intl ? esc(sl.intl.eyebrow) : null)}</p>
     <h2 class="h1">${dual(esc(sl.title || brand), sl.intl ? esc(sl.intl.title) : null)}</h2>
