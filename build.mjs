@@ -1764,7 +1764,21 @@ infoPage("returns/index.html", "returns/", `Returns, Exchange & Refund Policy | 
 infoPage("privacy/index.html", "privacy/", `Privacy Policy | ${brand}`, "Privacy Policy", paras(S.privacy_policy), `Privacy policy of ${brand}: what details we collect for your order, how we use them, secure payments via Razorpay and how to delete your data.`);
 infoPage("terms/index.html", "terms/", `Terms & Conditions | ${brand}`, "Terms & Conditions", paras(S.terms), `Terms and conditions for shopping on the ${brand} website: orders, pricing, payments, cancellations and governing law.`);
 
-if (S.intl_shipping_policy) infoPage("international-shipping/index.html", "international-shipping/", `International Shipping Policy | ${brand}`, "International Shipping", paras(S.intl_shipping_policy), `International shipping policy of ${brand}, Jaipur: countries we ship to, delivery times, charges in USD and import duties.`);
+if (S.intl_shipping_policy) {
+  // country table: same countries, delivery times and duties-paid service as the Google Merchant USD feed (one source of truth)
+  const C = [["US", "🇺🇸 USA"], ["GB", "🇬🇧 United Kingdom"], ["CA", "🇨🇦 Canada"], ["AU", "🇦🇺 Australia"], ["NZ", "🇳🇿 New Zealand"], ["AE", "🇦🇪 UAE"], ["SA", "🇸🇦 Saudi Arabia"], ["QA", "🇶🇦 Qatar"], ["SG", "🇸🇬 Singapore"], ["MY", "🇲🇾 Malaysia"], ["IE", "🇮🇪 Ireland"], ["DE", "🇩🇪 Germany"], ["FR", "🇫🇷 France"], ["NL", "🇳🇱 Netherlands"], ["IT", "🇮🇹 Italy"], ["ES", "🇪🇸 Spain"], ["ZA", "🇿🇦 South Africa"]];
+  const ship = num(S.intl_shipping_charge_usd) > 0 ? `$${num(S.intl_shipping_charge_usd)}${num(S.intl_free_shipping_above_usd) ? `, free above $${num(S.intl_free_shipping_above_usd)}` : ""}` : "Free express";
+  const nextAll = CAL_EVENTS.filter((e) => e.audience !== "india" && e.kind === "festival" && e.date >= TODAY_IST && orderBy(e.date, "intl") >= TODAY_IST);
+  const nextFor = (cc) => nextAll.find((e) => !e.markets || e.markets.includes(cc));
+  const local = CAL_EVENTS.filter((e) => e.markets && e.date >= TODAY_IST);
+  const rows = C.map(([cc, n]) => { const e = nextFor(cc); return `<tr><td>${n}</td><td>${SHIP.intlMin}–${SHIP.intlMax} business days after dispatch</td><td>Included (DDP)</td><td>${ship}</td><td>${e ? `${esc(e.name)} → order by <b>${dShort(orderBy(e.date, "intl"))}</b>` : "–"}</td></tr>`; }).join("");
+  const extra = `<h2>Delivery by country</h2>
+<div class="tbl-scroll"><table class="ob-table"><thead><tr><th>Country</th><th>Delivery</th><th>Duties & taxes</th><th>Shipping</th><th>Next festival (ready size)</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p class="small muted">Dispatch first: ready sizes ${SHIP.dMin}–${SHIP.dMax} working days, custom fit ${SHIP.cMin}–${SHIP.cMax} working days. Prices are in US dollars; your card or PayPal is charged in USD and your bank converts to your currency. Shipping somewhere else? Ask us on WhatsApp.</p>
+${local.length ? `<h2>Local festivals we prepare for</h2><ul>${local.map((e) => `<li><b>${esc(e.name)}</b> – ${dShort(e.date)} ${e.date.slice(0, 4)}${e.markets ? ` (${e.markets.join(", ")})` : ""}${e.note ? `. ${esc(e.note)}` : ""}</li>`).join("")}</ul>` : ""}
+<p>Every upcoming festival with last order dates: <a href="${u("festival/")}">festival calendar</a>. Sending a gift to family in India instead? <a href="${u("gift-to-india/")}">Gift to India</a>.</p>`;
+  infoPage("international-shipping/index.html", "international-shipping/", `International Shipping: Delivery Times by Country | ${brand}`, "International Shipping", paras(S.intl_shipping_policy) + extra, `Free duties-paid express shipping from Jaipur to the USA, UK, Canada, Australia, UAE, Singapore, Malaysia and more: delivery times by country and last order dates for festivals.`);
+}
 if (S.intl_return_policy) infoPage("international-returns/index.html", "international-returns/", `International Returns & Refunds | ${brand}`, "International Returns & Refunds", paras(S.intl_return_policy), `Return and refund policy for international orders from ${brand}, Jaipur.`);
 
 // ---------- refer & earn (customer-to-customer growth) ----------
