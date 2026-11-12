@@ -243,6 +243,11 @@ const CRAFT = {
 
 const craftCount = (type, n) => products.filter((p) => (type === "fabric" ? p.fabric === n : p.print_work.includes(n))).length;
 const craftUrl = (n) => `craft/${slugify(n)}/`;
+// product videos: VideoObject schema + video sitemap. Upload date = product "video_date", else the date in the file name (WhatsApp Video 2026-10-16 …)
+const videoInfo = (p) => { const v = String(p.video || ""); if (!/\.mp4(\?|$)/i.test(v)) return null; let dec = v; try { dec = decodeURI(v); } catch {}
+  const d = String(p.video_date || (dec.match(/(20\d\d-\d\d-\d\d)/) || [])[1] || "").slice(0, 10); if (!/^\d{4}-\d\d-\d\d$/.test(d) || !p.images[0]) return null;
+  return { name: `${p.feed_title} – video`, desc: String(p.description || "").replace(/\s+/g, " ").trim().slice(0, 300) || p.feed_title, thumb: abs(p.images[0]), content: abs(encodeURI(dec)), date: d + "T12:00:00+05:30" }; };
+const videoLd = (p) => { const v = videoInfo(p); return v ? { "@context": "https://schema.org", "@type": "VideoObject", name: v.name, description: v.desc, thumbnailUrl: [v.thumb], contentUrl: v.content, uploadDate: v.date, publisher: { "@id": SITE_URL + "/#store" } } : null; };
 const craftInfo = (type, n) => CRAFT[type][n] || null;
 const craftLink = (type, n) => craftCount(type, n) ? `<a href="${u(craftUrl(n))}">${esc(n)}</a>` : esc(n);
 const OCC_TOP = ["Festive", "Wedding Guest", "Party", "Office", "Daily", "Diwali", "Karwa Chauth", "Eid", "Navratri", "Haldi & Mehendi", "Sangeet", "Wedding", "Vacation"];
@@ -886,6 +891,29 @@ const CRAFT_GUIDE = (() => { const d = path.join(ROOT, "content/craft"), o = {};
 const guideWords = (g) => !g ? 0 : [g.heading, ...(g.sections || []).flatMap((x) => [x.h, ...(x.p || []), ...(x.list || [])]), ...(g.faq || []).flat()].join(" ").split(/\s+/).filter(Boolean).length;
 const guideHtml = (g) => !g ? "" : `<section class="craft-guide prose"><h2>${esc(g.heading || "")}</h2>${(g.sections || []).map((x) => `<h3>${esc(x.h)}</h3>${(x.p || []).map((t) => `<p>${esc(t)}</p>`).join("")}${x.list ? `<ul>${x.list.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}`).join("")}${(g.faq || []).length ? `<div class="pfaq craft-faq"><h3>Frequently asked questions</h3>${g.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>` : ""}</section>`;
 const guideLd = (g) => (g && (g.faq || []).length ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: g.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }] : []);
+// collection pages without a hand-written guide get a short intro + FAQ built only from facts in the products shown
+const listFmt = (a) => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a.at(-1);
+const topVals = (arr, n = 4) => Object.entries(arr.reduce((o, x) => (x && (o[x] = (o[x] || 0) + 1), o), {})).sort((a, b) => b[1] - a[1]).slice(0, n).map((x) => x[0]);
+const autoCopy = (h1, items) => {
+  if (!items.length) return null;
+  const fab = topVals(items.map((p) => p.fabric).filter((f) => f && f !== "Other")), craft = topVals(items.flatMap((p) => p.print_work)), cols = topVals(items.map((p) => String(p.color_base || "").toLowerCase()), 5);
+  const pr = items.map((p) => p.price).filter((x) => x !== null), pu = items.map((p) => p.intl ? p.price_usd : null).filter(Boolean);
+  const sizes = [...new Set(items.flatMap((p) => p.sizes))].sort((a, b) => sizeRank(a) - sizeRank(b));
+  const cats = [...new Set(items.map((p) => p.catSlug))].map((cs) => categories.find((c) => c.url === `collections/${cs}/`)).filter(Boolean);
+  const name = h1.replace(/\s+(Wear|Kurtis & Dresses)$/, "");
+  const intro = [`${items.length} ${items.length === 1 ? "style" : "styles"} in this edit, each one made in our own Jaipur unit.${fab.length ? ` Fabrics: ${listFmt(fab)}.` : ""}${craft.length ? ` Craft: ${listFmt(craft.map((x) => x.toLowerCase()))}.` : ""}${cols.length > 1 ? ` Colours include ${listFmt(cols)}.` : ""}`,
+    `${pr.length ? `Prices start at ${inr(Math.min(...pr))}${pu.length ? ` (US$${Math.min(...pu)} for orders abroad)` : ""}. ` : ""}${sizes.length ? `Ready sizes run from ${sizes[0]} to ${sizes.at(-1)}, and every piece can be stitched to your measurements with free custom fit. ` : ""}Ready sizes are dispatched in ${SHIP.dMin}–${SHIP.dMax} working days and custom fit in ${SHIP.cMin}–${SHIP.cMax} working days.`];
+  const care = fab.map((f) => craftInfo("fabric", f)?.[2]).filter(Boolean)[0];
+  const faq = [
+    sizes.length ? [`What sizes are available in ${name}?`, `These styles come in ${sizes.join(", ")}. If you are between sizes or want a different length, choose free custom fit and we stitch the outfit to your measurements.`] : null,
+    fab.length ? [`Which fabrics are used for ${name}?`, `The styles on this page are made in ${listFmt(fab)}.${care ? ` Care tip: ${care}` : ""} Each product page lists the exact fabric and care.`] : null,
+    [`How long does delivery take?`, `Ready sizes are dispatched in ${SHIP.dMin}–${SHIP.dMax} working days and custom fit pieces in ${SHIP.cMin}–${SHIP.cMax} working days. India delivery takes ${SHIP.inMin}–${SHIP.inMax} working days after dispatch${intlOn ? `; international delivery takes ${SHIP.intlMin}–${SHIP.intlMax} business days with tracking` : ""}.`],
+    [`Can boutiques order ${name} in wholesale?`, `Yes. Boutiques and online sellers can order our designs in bulk or under their own label. The minimum is 15–20 pieces per design – send a quick enquiry from our wholesale quote page.`],
+  ].filter(Boolean);
+  return { intro, faq, cats };
+};
+const autoHtml = (c, h1, pathname) => !c ? "" : `<section class="craft-guide prose coll-copy"><h2>About ${esc(h1)}</h2>${c.intro.map((t) => `<p>${esc(t)}</p>`).join("")}${c.cats.length > 1 ? `<p>Shop by type: ${c.cats.map((x) => `<a class="link" href="${u(x.url)}">${esc(x.plural)}</a>`).join(" · ")}</p>` : ""}<div class="pfaq craft-faq"><h3>Frequently asked questions</h3>${c.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}${/wholesale quote/.test(a) ? ` <a class="link" href="${u("wholesale/quote/")}">Get a quote →</a>` : ""}</p></details>`).join("")}</div></section>`;
+const autoLd = (c) => c ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }] : [];
 const THIN = new Set();
 function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [], guide = null }) {
   const thin = /^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4 && !(guide && guideWords(guide) >= 250); if (thin) THIN.add(pathname);
@@ -909,11 +937,12 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   <div class="grid" data-grid>${items.map((p, i) => card(p, i).replace('<article class="card"', `<article class="card" data-price="${p.price ?? ""}" data-usd="${p.intl ? p.price_usd : ""}" data-i="${i}"`)).join("")}</div>
   <div class="center" data-more-wrap hidden><button class="btn btn-ghost" type="button" data-more>Load more</button></div>
   ${guideHtml(guide)}
+  ${!guide && /^(collections|occasion|craft)\/[^/]+\/$/.test(pathname) ? autoHtml(autoCopy(h1, items), h1, pathname) : ""}
   ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
 </section>`;
   add(file, page({
     title, description, pathname, body, image: items[0]?.images[0], noindex: thin,
-    ld: [...guideLd(guide), crumbLd([[h1, pathname]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: h1, url: SITE_URL + "/" + pathname,
+    ld: [...guideLd(guide), ...(!guide && /^(collections|occasion|craft)\/[^/]+\/$/.test(pathname) ? autoLd(autoCopy(h1, items)) : []), crumbLd([[h1, pathname]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: h1, url: SITE_URL + "/" + pathname,
       mainEntity: { "@type": "ItemList", itemListElement: items.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: SITE_URL + "/" + p.url, name: p.feed_title })) } }],
   }));
 }
@@ -1080,7 +1109,7 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
   const myReel = reels.find((r) => r.product === p.slug && r.video);
   const pmini = myReel || p.video ? { video: u(myReel ? myReel.video : p.video), cover: myReel?.cover ? u(myReel.cover) : u(p.images[0] || ""), caption: myReel?.caption || "See it on", product: { title: p.title, url: u(p.url), image: u(p.images[0] || ""), price: priceHtml(p) } } : defaultMini();
   const ogP = p.price !== null ? `<meta property="product:price:amount" content="${p.price}"><meta property="product:price:currency" content="INR"><meta property="product:availability" content="${p.in_stock ? "in stock" : "preorder"}"><meta property="product:brand" content="${esc(brand)}">` : "";
-  add(p.url + "index.html", page({ og: p.coming ? "" : ogP, noindex: p.coming, mini: pmini, title: p.seo_title || `${p.title} | ${brand}`, description: desc, pathname: p.url, image: p.images[0], body: body.replace('<section class="wrap section recent"', faqHtml + '<section class="wrap section recent"'), ld: p.price !== null && !p.coming ? [ld, crumbs, faqLd] : [crumbs, faqLd], type: "product", bodyClass: "pdp" }));
+  add(p.url + "index.html", page({ og: p.coming ? "" : ogP, noindex: p.coming, mini: pmini, title: p.seo_title || `${p.title} | ${brand}`, description: desc, pathname: p.url, image: p.images[0], body: body.replace('<section class="wrap section recent"', faqHtml + '<section class="wrap section recent"'), ld: [...(p.price !== null && !p.coming ? [ld, crumbs, faqLd] : [crumbs, faqLd]), ...(videoLd(p) ? [videoLd(p)] : [])], type: "product", bodyClass: "pdp" }));
 }
 
 // ---------- checkout ----------
@@ -2511,8 +2540,8 @@ if (fs.existsSync(cfgPath)) {
 const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x), tp = tagPages.find((q) => q.url === x); const lm = bp ? bp.updated : tp ? tp.items.map((q) => q.updated).sort().at(-1) : x === "blog/" && posts.length ? posts.map((q) => q.updated).sort().at(-1) : ""; return `<url><loc>${SITE_URL}/${x}</loc>${lm ? `<lastmod>${lm}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}</url>`; }).join("\n")}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x), tp = tagPages.find((q) => q.url === x); const lm = bp ? bp.updated : tp ? tp.items.map((q) => q.updated).sort().at(-1) : x === "blog/" && posts.length ? posts.map((q) => q.updated).sort().at(-1) : ""; return `<url><loc>${SITE_URL}/${x}</loc>${lm ? `<lastmod>${lm}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}${p && videoInfo(p) ? (() => { const v = videoInfo(p); return `<video:video><video:thumbnail_loc>${esc(v.thumb)}</video:thumbnail_loc><video:title>${esc(v.name)}</video:title><video:description>${esc(v.desc)}</video:description><video:content_loc>${esc(v.content)}</video:content_loc><video:publication_date>${v.date}</video:publication_date></video:video>`; })() : ""}</url>`; }).join("\n")}
 </urlset>`);
 // ---------- Pinterest auto-publish RSS feeds (Settings → Bulk create Pins → Auto-publish; one board per feed) ----------
 // Every new product / guide added to the site becomes a Pin automatically (Pinterest checks the feed and publishes new items within ~24h).
