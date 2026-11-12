@@ -866,6 +866,33 @@
   if (fest) { const d = new Date((isUSD() ? fest.dataset.us : fest.dataset.in) + "T23:59:59"); const left = Math.ceil((d - new Date()) / 864e5); const el = $("[data-fest-left]", fest); if (left < 0) fest.remove(); else if (el) el.textContent = left === 0 ? "· last day!" : `· ${left} day${left > 1 ? "s" : ""} left`; }
 
   // ---------- installable app ----------
+  // ---------- Help me choose: shortlist up to 3 outfits, friends vote from one WhatsApp link ----------
+  { const CK = "bk_choose", read = () => { try { return JSON.parse(localStorage.getItem(CK) || "[]").filter((x) => x && x.s).slice(0, 3); } catch { return []; } },
+      save = (l) => { try { localStorage.setItem(CK, JSON.stringify(l.slice(0, 3))); } catch {} }, btns = $$("[data-choose]");
+    const pollId = (l) => { const k = l.map((x) => x.s).join(","); let o = {}; try { o = JSON.parse(localStorage.getItem("bk_choose_id") || "{}"); } catch {}
+      if (o.k === k && /^[a-z0-9]{8,16}$/.test(o.id || "")) return o.id;
+      const id = Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) => (b % 36).toString(36)).join(""); try { localStorage.setItem("bk_choose_id", JSON.stringify({ k, id })); } catch {} return id; };
+    const label = () => { const l = read(); btns.forEach((b) => { const on = l.some((x) => x.s === b.dataset.choose); b.classList.toggle("on", on); const t = $("[data-choose-txt]", b); if (t) t.textContent = on ? `In your shortlist (${l.length}/3) · Ask friends` : "Help me choose – ask friends"; }); };
+    let dlg;
+    const open = () => { const l = read();
+      if (!dlg) { dlg = document.createElement("dialog"); dlg.className = "size-modal choose-modal"; document.body.appendChild(dlg);
+        dlg.addEventListener("click", (e) => { if (e.target === dlg || e.target.closest("[data-cx]")) dlg.close(); const rm = e.target.closest("[data-crm]"); if (rm) { const x = read(); x.splice(+rm.dataset.crm, 1); save(x); label(); open(); }
+          if (e.target.closest("[data-ccopy]")) { const a = $("[data-cshare]", dlg); try { navigator.clipboard.writeText(a.dataset.link); toast("Link copied"); } catch { prompt("Copy this link", a.dataset.link); } }
+          if (e.target.closest("[data-cshare]")) track("Share", { method: "WhatsApp", content_type: "shortlist", item_id: read().map((x) => x.s).join(",") }); });
+        dlg.addEventListener("close", unlockIfFree); }
+      const link = l.length >= 2 ? `${location.origin}${url("choose/")}?p=${l.map((x) => x.s).join(",")}&id=${pollId(l)}` : "";
+      const wa = "https://wa.me/?text=" + encodeURIComponent(`Help me choose! 💬 Which outfit should I pick? Tap your favourite (no login needed): ${link}`);
+      dlg.innerHTML = `<div class="size-box"><div class="drawer-head"><h2>Help me choose</h2><button class="icon-btn" type="button" data-cx aria-label="Close">✕</button></div>
+        <p class="muted">Shortlist up to 3 outfits and send one link on WhatsApp. Friends tap to vote, no login needed.</p>
+        <ul class="choose-list">${l.map((x, i) => `<li><img src="${esc(x.i)}" alt="" width="60" height="80" decoding="async"><span>${esc(x.t)}</span><button type="button" class="link" data-crm="${i}">Remove</button></li>`).join("")}</ul>
+        ${l.length < 3 ? `<p class="choose-hint muted small">${l.length < 2 ? "Add at least one more outfit: open another style and tap “Help me choose”." : "You can add one more outfit, or ask your friends now."}</p>` : ""}
+        <div class="choose-actions">${link ? `<a class="btn btn-wa btn-block" href="${esc(wa)}" target="_blank" rel="noopener" data-cshare data-link="${esc(link)}">Ask friends on WhatsApp</a><button class="btn btn-ghost btn-block" type="button" data-ccopy>Copy link</button>` : `<a class="btn btn-block" href="${url("shop/")}">Browse more styles</a>`}</div></div>`;
+      if (!dlg.open) { dlg.showModal(); document.documentElement.classList.add("locked"); } };
+    btns.forEach((b) => b.addEventListener("click", () => { const l = read(), s = b.dataset.choose;
+      if (!l.some((x) => x.s === s)) { if (l.length >= 3) { toast("Your shortlist already has 3 outfits – remove one first"); } else { l.push({ s, t: b.dataset.chooseT || "", i: b.dataset.chooseI || "" }); save(l); toast(`Added to your shortlist (${l.length}/3)`); } }
+      label(); open(); }));
+    label(); }
+
   // ---------- photos ahead of the scroll ----------
   // native lazy-loading starts late (very late in Safari), so photos about one screen ahead switch to eager loading;
   // horizontal rows (new arrivals, trending…) load all their photos once the row comes near

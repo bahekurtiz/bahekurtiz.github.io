@@ -1466,3 +1466,22 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .craft-guide{max-width:860px;margin:44px auto 0;padding-top:28px;border-top:1px solid var(--line)}
 .craft-guide h2{font-size:1.6rem;margin:0 0 14px}.craft-guide h3{font-size:1.15rem;margin:22px 0 8px}
 .craft-guide p,.craft-guide li{line-height:1.7}.craft-guide ul{padding-left:1.2em}.craft-faq{margin-top:26px}
+
+/* Help me choose (shortlist + /choose/ voting page) */
+.choose-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:10px 0 2px;padding:11px 16px;border:1px dashed var(--accent);border-radius:var(--r);background:transparent;color:var(--accent);font:inherit;font-size:.92rem;cursor:pointer}
+.choose-btn.on{border-style:solid;background:rgba(14,91,89,.06)}
+.choose-modal .size-box{padding:0 0 18px}.choose-modal .size-box>p{padding:0 20px}
+.choose-list{list-style:none;margin:8px 0;padding:0 20px}.choose-list li{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.choose-list img{width:60px;height:80px;object-fit:cover;border-radius:6px;background:var(--sand)}
+.choose-hint{padding:0 20px}.choose-actions{display:grid;gap:8px;padding:6px 20px 0}.choose-actions .btn{margin:0}
+.poll-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;max-width:900px;margin:0 auto}
+.poll-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface,#fff);display:flex;flex-direction:column}
+.poll-card.mine{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.poll-img{display:block;aspect-ratio:3/4;background:var(--sand)}.poll-img img{width:100%;height:100%;object-fit:cover;display:block}
+.poll-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}.poll-body h3{font-size:.86rem;line-height:1.3;margin:0;font-family:inherit;font-weight:500}
+.poll-price{margin:0;font-weight:600}.poll-body .btn{margin:auto 0 0;padding:11px 10px;font-size:.8rem}
+.poll-bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}.poll-bar i{display:block;height:100%;background:var(--accent);transition:width .5s}
+.poll-card.top .poll-bar i{background:var(--gold,#a8812f)}.poll-n{margin:0;font-size:.82rem}.poll-n b{color:var(--accent);font-weight:600}
+.poll-note{margin-top:18px}.poll-own{margin-top:22px}
+.choose-modal .drawer-head{padding:16px 20px}.choose-modal .drawer-head h2{margin:0;font-size:1.5rem}
+.choose-list .link{background:none;border:0;padding:6px 2px;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;font-size:.82rem}
