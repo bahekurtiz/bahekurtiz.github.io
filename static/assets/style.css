@@ -1491,3 +1491,6 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .group-steps li{counter-increment:g;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:.9rem;color:var(--muted)}
 .group-steps li::before{content:counter(g);display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:600;margin-bottom:8px}
 .group-steps b{display:block;color:var(--ink);margin-bottom:4px}.group-faq{margin-top:34px}.group-link{margin:6px 0 0;text-align:center}
+
+/* hub link lists (collections, wholesale) */
+.hub-links{max-width:860px;margin:36px auto 0}.hub-links h2{font-size:1.35rem;text-align:center;margin-bottom:12px}.hub-links ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 22px}.hub-links li{padding:8px 0;border-bottom:1px solid var(--line)}

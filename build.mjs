@@ -805,7 +805,9 @@ ${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a clas
     }
   }
   const featured = products.filter((p) => p.featured);
-  const list = (featured.length ? featured : products).slice(0, 8);
+  // "New Arrivals" = the newest live styles (launch date, else highest SKU number), so the homepage changes by itself when products are added
+  const skuNo = (p) => +(String(p.sku).match(/\d+/) || [0])[0];
+  const list = products.filter((p) => !p.coming && p.images[0]).sort((a, b) => (b.launchDay || "").localeCompare(a.launchDay || "") || skuNo(b) - skuNo(a) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999)).slice(0, 8);
   const tiles = categories.map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
   const body = `
 ${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="${esc(st.t)}" width="120" height="120" loading="lazy"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
@@ -997,7 +999,7 @@ for (const a of autoPages) {
 for (const c of categories) {
   const fb = uniq(c.items.map((p) => p.fabric)).slice(0, 4), pw = uniq(c.items.flatMap((p) => p.print_work)).slice(0, 4);
   c.seoText = catSeo[c.name] || `Shop ${c.plural.toLowerCase()} for women by ${brand}, made in our own unit in Sanganer, Jaipur${pw.length ? ` – ${pw.join(", ").toLowerCase()}` : ""}${fb.length ? ` in ${fb.join(", ").toLowerCase()}` : ""}. Secure prepaid payment, shipping across India${intlOn ? " and worldwide" : ""}. Boutiques and brands can also order ${c.plural.toLowerCase()} in wholesale or under their own private label.`;
-  listing({ file: c.url + "index.html", pathname: c.url, h1: c.plural, intro: `${c.items.length} styles`, seo: c.seoText, items: c.items, links: autoPages.filter((x) => x.cat === c).slice(0, 12).map((x) => [x.label, x.url]), crumbs: `<a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span>`,
+  listing({ file: c.url + "index.html", pathname: c.url, h1: c.plural, intro: `${c.items.length} styles`, seo: c.seoText, items: c.items, links: autoPages.filter((x) => x.cat === c).sort((a, b) => b.items.length - a.items.length).slice(0, 12).map((x) => [x.label, x.url]), crumbs: `<a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span>`,
     title: `${c.plural} for Women – Made in Jaipur | ${brand}`, description: `Shop ${c.plural.toLowerCase()} for women by ${brand}, Jaipur. Handcrafted designs, secure online payment and ${intlOn ? "worldwide shipping" : "pan-India delivery"}.` });
 }
 
@@ -1005,7 +1007,7 @@ for (const c of categories) {
 if (categories.length) add("collections/index.html", page({ title: `All Collections – Kurtis, Kurta Sets & Dresses | ${brand}`, description: clip(`Browse every ${brand} collection: ${categories.map((c) => c.plural.toLowerCase()).join(", ")}. Hand block printed in Jaipur, shipped worldwide.`), pathname: "collections/",
   ld: [crumbLd([["Collections", "collections/"]]), { "@context": "https://schema.org", "@type": "CollectionPage", name: "All Collections", url: SITE_URL + "/collections/", hasPart: categories.map((c) => ({ "@type": "CollectionPage", name: c.plural, url: SITE_URL + "/" + c.url })) }],
   body: `<section class="wrap section"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <span>Collections</span></nav><div class="section-head"><div><p class="eyebrow">Shop by category</p><h1>All Collections</h1></div><a class="link" href="${u("shop/")}">Shop all styles →</a></div>
-  <div class="grid coll-grid">${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="coll-tile" href="${u(c.url)}"><span class="card-img">${img ? `<img src="${esc(u(img))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy" decoding="async">` : ""}</span><span class="coll-name">${esc(c.plural)}</span><small>${c.items.length} style${c.items.length === 1 ? "" : "s"}</small></a>`; }).join("")}</div></section>` }));
+  <div class="grid coll-grid">${categories.map((c) => { const img = c.items.find((p) => p.images[0])?.images[0] || ""; return `<a class="coll-tile" href="${u(c.url)}"><span class="card-img">${img ? `<img src="${esc(u(img))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy" decoding="async">` : ""}</span><span class="coll-name">${esc(c.plural)}</span><small>${c.items.length} style${c.items.length === 1 ? "" : "s"}</small></a>`; }).join("")}</div>${(() => { const r = landings.filter((l) => !/(import-kurtis|manufacturer|supplier|wholesale)/.test(l.slug)); return r.length ? `<div class="hub-links"><h2>Shopping from abroad?</h2><ul>${r.map((l) => `<li><a class="link" href="${u(l.url)}">${esc(l.h1)}</a></li>`).join("")}<li><a class="link" href="${u("group-orders/")}">Group & bridesmaid orders (5+ outfits)</a></li></ul></div>` : ""; })()}</section>` }));
 
 for (const c of allCats.filter((x) => x.empty)) {
   add(c.url + "index.html", page({ title: `${c.plural} – Coming Soon | ${brand}`, description: `${c.plural} by ${brand}, Jaipur – coming soon.`, pathname: c.url, noindex: true,
@@ -1727,6 +1729,7 @@ add("wishlist/index.html", page({ title: `Wishlist | ${brand}`, description: "Yo
   <div><p class="eyebrow">What we make</p><h2>Products</h2><ul class="tick-list">${(cats.length ? cats : ["Kurtis", "Kurta sets with dupatta", "Dresses", "Co-ord sets", "Kaftans", "Tops & tunics"]).map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>
   <div><p class="eyebrow">Prints & fabrics</p><h2>Craft</h2><ul class="tick-list">${uniq([...prints, "Hand Block Print", "Sanganeri Print", "Bagru Print", "Dabu Print"]).slice(0, 10).map((c) => `<li>${esc(c)}</li>`).join("")}${fabrics.length ? `<li>Fabrics: ${esc(fabrics.slice(0, 8).join(", "))}</li>` : `<li>Cotton, rayon, linen, georgette & more</li>`}</ul></div>
 </div></section>
+${(() => { const b = landings.filter((l) => /(import-kurtis|manufacturer|supplier|wholesale)/.test(l.slug)); return b.length ? `<section class="wrap section hub-links"><div class="section-head center"><p class="eyebrow">Guides for buyers</p><h2>Import & sourcing guides</h2></div><ul>${b.map((l) => `<li><a class="link" href="${u(l.url)}">${esc(l.h1)}</a></li>`).join("")}<li><a class="link" href="${u("wholesale/quote/")}">Get a wholesale quote on WhatsApp</a></li></ul></section>` : ""; })()}
 <section class="wrap section"><div class="section-head center"><p class="eyebrow">How it works</p><h2>From enquiry to dispatch</h2></div>
   <ol class="steps">${steps.map(([a, b]) => `<li><strong>${esc(a)}</strong><span>${esc(b)}</span></li>`).join("")}</ol>
   <div class="terms-box"><p><strong>Minimum order:</strong> ${esc(S.wholesale_moq || "Depends on the design and fabric. Small boutique orders are welcome. Ask us on WhatsApp.")}</p><p><strong>Payment:</strong> ${esc(S.wholesale_payment || "Advance payment only (bank transfer / UPI in India, PayPal or wire transfer for international buyers). No cash on delivery.")}</p><p><strong>Prices:</strong> Shared as a written quotation after we understand your requirement.</p></div>
@@ -2540,9 +2543,22 @@ if (fs.existsSync(cfgPath)) {
 // sitemap, robots, redirects for old shop links, headers
 const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/"];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
+// page fingerprints: a page's lastmod changes only when its content changes; IndexNow gets only new/changed pages.
+// Live builds read the manifest of the deploy that is live right now (/data/page-hashes.json) to compare.
+const LIVE_BUILD = process.env.CF_PAGES === "1" && (!process.env.CF_PAGES_BRANCH || ["main", "master"].includes(process.env.CF_PAGES_BRANCH));
+const PREV_HASH = LIVE_BUILD && /^https:\/\//.test(SITE_URL) ? await (async () => { try { const r = await fetch(`${SITE_URL}/data/page-hashes.json`, { signal: AbortSignal.timeout(6000) }); return r.ok ? await r.json() : null; } catch { return null; } })() : null;
+const PAGE_HTML = new Map(pages.map(([f, h]) => [f, h]));
+const pageHash = (x) => { const h = PAGE_HTML.get(x ? x.replace(/\/?$/, "/") + "index.html" : "index.html"); if (!h) return "";
+  const t = h.replace(/\?v=[a-z0-9]+/g, "").replace(/<script>\(function\(\)\{var c;try\{c=localStorage[\s\S]*?<\/script>/, "");
+  let a = 2166136261; for (let i = 0; i < t.length; i++) { a ^= t.charCodeAt(i); a = Math.imul(a, 16777619) >>> 0; } return a.toString(36); };
+const HASHES = Object.fromEntries(urls.map((x) => [x, pageHash(x)]));
+const CHANGED = urls.filter((x) => !PREV_HASH || !PREV_HASH[x] || PREV_HASH[x][0] !== HASHES[x]);
+const lastmodOf = (x, contentDate) => { const prev = PREV_HASH && PREV_HASH[x]; if (prev && prev[0] === HASHES[x] && prev[1]) return prev[1]; return contentDate && (!prev || prev[0] === HASHES[x]) ? contentDate : TODAY_IST; };
+fs.mkdirSync(path.join(OUT, "data"), { recursive: true });
+fs.writeFileSync(path.join(OUT, "data/page-hashes.json"), JSON.stringify(Object.fromEntries(urls.map((x) => [x, [HASHES[x], lastmodOf(x, (posts.find((q) => q.url === x) || {}).updated)]]))));
 fs.writeFileSync(path.join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x), tp = tagPages.find((q) => q.url === x); const lm = bp ? bp.updated : tp ? tp.items.map((q) => q.updated).sort().at(-1) : x === "blog/" && posts.length ? posts.map((q) => q.updated).sort().at(-1) : ""; return `<url><loc>${SITE_URL}/${x}</loc>${lm ? `<lastmod>${lm}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}${p && videoInfo(p) ? (() => { const v = videoInfo(p); return `<video:video><video:thumbnail_loc>${esc(v.thumb)}</video:thumbnail_loc><video:title>${esc(v.name)}</video:title><video:description>${esc(v.desc)}</video:description><video:content_loc>${esc(v.content)}</video:content_loc><video:publication_date>${v.date}</video:publication_date></video:video>`; })() : ""}</url>`; }).join("\n")}
+${urls.map((x) => { const p = products.find((q) => q.url === x); const bp = posts.find((q) => q.url === x), tp = tagPages.find((q) => q.url === x); const lm = lastmodOf(x, bp ? bp.updated : tp ? tp.items.map((q) => q.updated).sort().at(-1) : x === "blog/" && posts.length ? posts.map((q) => q.updated).sort().at(-1) : ""); return `<url><loc>${SITE_URL}/${x}</loc>${lm ? `<lastmod>${lm}</lastmod>` : ""}${p ? p.images.map((im) => `<image:image><image:loc>${esc(abs(im))}</image:loc></image:image>`).join("") : ""}${p && videoInfo(p) ? (() => { const v = videoInfo(p); return `<video:video><video:thumbnail_loc>${esc(v.thumb)}</video:thumbnail_loc><video:title>${esc(v.name)}</video:title><video:description>${esc(v.desc)}</video:description><video:content_loc>${esc(v.content)}</video:content_loc><video:publication_date>${v.date}</video:publication_date></video:video>`; })() : ""}</url>`; }).join("\n")}
 </urlset>`);
 // ---------- Pinterest auto-publish RSS feeds (Settings → Bulk create Pins → Auto-publish; one board per feed) ----------
 // Every new product / guide added to the site becomes a Pin automatically (Pinterest checks the feed and publishes new items within ~24h).
@@ -2625,16 +2641,17 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
 fs.writeFileSync(path.join(OUT, "_headers"), `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Strict-Transport-Security: max-age=31536000\n  Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(self)\n  Cross-Origin-Opener-Policy: same-origin-allow-popups\n/track/*\n  X-Robots-Tag: noindex\n/checkout/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=2592000, stale-while-revalidate=31536000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n/embed/*\n  ! X-Frame-Options\n  Content-Security-Policy: frame-ancestors *\n  X-Robots-Tag: noindex\n/widget.js\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=3600\n  Content-Type: application/javascript; charset=utf-8\n`);
 console.log(`Built ${pages.length} pages, ${products.length} products, ${categories.length} categories → _site (url ${SITE_URL})`);
 
-// ---------- IndexNow: tell Bing, Yandex, Seznam & Naver (and ChatGPT search, which uses Bing) about every page, on each live deploy ----------
+// ---------- IndexNow: tell Bing, Yandex, Seznam & Naver (and ChatGPT search, which uses Bing) about new/changed pages, on each live deploy ----------
 {
   const key = [...(SITE_URL + "|bahe-indexnow")].reduce((h, c) => (h * 33 + c.charCodeAt(0)) >>> 0, 5381).toString(16).padStart(8, "0").repeat(4);
   fs.writeFileSync(path.join(OUT, key + ".txt"), key);
-  const live = process.env.CF_PAGES === "1" && (!process.env.CF_PAGES_BRANCH || ["main", "master"].includes(process.env.CF_PAGES_BRANCH));
-  if (live && S.indexnow !== false && /^https:\/\//.test(SITE_URL)) {
+  const list = PREV_HASH ? CHANGED : urls;   // only pages that are new or changed since the live deploy
+  console.log(`IndexNow: ${PREV_HASH ? `${CHANGED.length} new/changed of ${urls.length} pages` : `no previous manifest – all ${urls.length} pages`}`);
+  if (LIVE_BUILD && list.length && S.indexnow !== false && /^https:\/\//.test(SITE_URL)) {
     try {
       const host = new URL(SITE_URL).host;
-      const r = await fetch("https://api.indexnow.org/indexnow", { method: "POST", headers: { "content-type": "application/json; charset=utf-8" }, body: JSON.stringify({ host, key, keyLocation: `${SITE_URL}/${key}.txt`, urlList: urls.slice(0, 10000).map((x) => `${SITE_URL}/${x}`) }), signal: AbortSignal.timeout(8000) });
-      console.log(`IndexNow: sent ${Math.min(urls.length, 10000)} URLs → ${r.status}`);
+      const r = await fetch("https://api.indexnow.org/indexnow", { method: "POST", headers: { "content-type": "application/json; charset=utf-8" }, body: JSON.stringify({ host, key, keyLocation: `${SITE_URL}/${key}.txt`, urlList: list.slice(0, 10000).map((x) => `${SITE_URL}/${x}`) }), signal: AbortSignal.timeout(8000) });
+      console.log(`IndexNow: sent ${Math.min(list.length, 10000)} URLs → ${r.status}`);
     } catch (e) { console.log("IndexNow skipped:", e.message); }
   }
 }
