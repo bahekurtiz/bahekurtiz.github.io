@@ -1525,4 +1525,12 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 
 @media (max-width:760px){body.pdp .crumbs{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-block:4px}}
 
-.ad-land .ad-promise{font-weight:600;color:var(--accent,#11605e);margin:6px 0 10px}.ad-land .ad-cur{margin:4px 0 16px}.ad-help{display:grid;gap:24px;margin:36px 0 20px}.ad-help h2{font-size:1.3rem;margin:0 0 8px}.ad-list{list-style:none;padding:0;margin:0 0 8px}.ad-list li{padding:4px 0}.btn-wa{background:#1f8a55;border-color:#1f8a55;color:#fff}@media (min-width:860px){.ad-help{grid-template-columns:1fr 1fr}}
+.ad-land .ad-promise{font-weight:600;color:var(--accent,#11605e);margin:6px 0 10px}.ad-land .ad-cur{margin:4px 0 16px}.ad-help{display:grid;gap:24px;margin:36px 0 20px}.ad-help h2{font-size:1.3rem;margin:0 0 8px}.ad-list{list-style:none;padding:0;margin:0 0 8px}.ad-list li{padding:4px 0}@media (min-width:860px){.ad-help{grid-template-columns:1fr 1fr}}
+
+.row.co-charge{font-size:.9rem;color:var(--muted)}html:not(.local-cur) .row.co-charge{display:none}
+
+.btn-wa{background:#157347;border-color:#157347;color:#fff}.btn-wa:hover{background:#11613a}
+.sticky-buy .btn{min-height:44px}
+body.checkout-page [data-checkout]{min-height:100vh}
+@media (max-width:760px){body.pdp.sticky-on .wa-float{bottom:calc(140px + env(safe-area-inset-bottom))}}
+.checkout .line strong,.cart-drawer .line strong{white-space:nowrap}

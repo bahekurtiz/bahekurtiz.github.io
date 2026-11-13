@@ -17,6 +17,7 @@
     if (r && (r !== "IN" || !z)) return r; // en-IN browser outside India keeps USD pricing (matches the head currency script)
     return isUSD() ? "US" : "IN"; };
   const money = (n) => (isUSD() ? usd(n) : inr(n));
+  const moneyH = (n) => (isUSD() ? `<span data-usdv="${n}">${usd(n)}</span>` : inr(n));
   const unit = (p) => (isUSD() ? p.price_usd : p.price);
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
   // ---------- delivery estimate: ONE function for product page, bag and checkout (numbers = BK.ship from settings) ----------
@@ -123,8 +124,8 @@
     const items = bag.filter((i) => cat.products[i.slug]);
     box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
       return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${isCustom(i.size) ? "✂️ Custom Fit – stitched to your measurements" : i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
-      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : money(pr * i.qty)}</strong></div>`; }).join("");
-    $("[data-cart-subtotal]").textContent = money(sub); $("[data-cart-foot]").hidden = false; try { cartPerks(); } catch {}
+      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : moneyH(pr * i.qty)}</strong></div>`; }).join("");
+    $("[data-cart-subtotal]").innerHTML = moneyH(sub); $("[data-cart-foot]").hidden = false; try { cartPerks(); } catch {}
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
     if (bar) { bar.hidden = !lim; if (lim) { const left = lim - sub; $("[data-ship-text]").innerHTML = left > 0 ? `Add <strong>${money(left)}</strong> more for <strong>FREE shipping</strong>` : `🎉 You have unlocked <strong>FREE shipping</strong>`; $("[data-ship-fill]").style.width = Math.min(100, (sub / lim) * 100) + "%"; } }
     $$("[data-q]", box).forEach((b) => b.onclick = () => { const b2 = [...items]; b2[b.dataset.q].qty = Math.max(0, Math.min(10, b2[b.dataset.q].qty + +b.dataset.d)); setBag(b2); });
@@ -253,16 +254,16 @@
     bag = bag.filter((i) => cat.products[i.slug] && unit(cat.products[i.slug]));
     const itemsBox = $("[data-co-items]");
     if (!bag.length) { co.innerHTML = `<h1>Checkout</h1><p class="empty">${skipped.length ? "The styles in your bag ship within India only. " : ""}Your bag is empty. <a class="link" href="${url("shop/")}">Shop the collection →</a></p>`; return; }
-    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i, n) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${isCustom(i.size) ? "✂️ Custom Fit – stitched to your measurements" : i.size ? "Size " + esc(i.size) : ""}</small><div class="qty"><button type="button" data-cq="${n}" data-cd="-1" aria-label="Less">−</button><span>${i.qty}</span><button type="button" data-cq="${n}" data-cd="1" aria-label="More">+</button><button type="button" class="rm" data-crm="${n}">Remove</button></div></div><strong>${money(unit(p) * i.qty)}</strong></div>`; }).join("");
+    itemsBox.innerHTML = (skipped.length ? `<p class="warn">${skipped.length} style(s) in your bag ship within India only and are not included.</p>` : "") + bag.map((i, n) => { const p = cat.products[i.slug]; return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><span>${esc(p.title)}</span><small>${isCustom(i.size) ? "✂️ Custom Fit – stitched to your measurements" : i.size ? "Size " + esc(i.size) : ""}</small><div class="qty"><button type="button" data-cq="${n}" data-cd="-1" aria-label="Less">−</button><span>${i.qty}</span><button type="button" data-cq="${n}" data-cd="1" aria-label="More">+</button><button type="button" class="rm" data-crm="${n}">Remove</button></div></div><strong>${moneyH(unit(p) * i.qty)}</strong></div>`; }).join("");
     $$("[data-cq]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })), it = b2[+b.dataset.cq]; it.qty = Math.max(0, Math.min(10, it.qty + +b.dataset.cd)); setBag(b2); });
     $$("[data-crm]", itemsBox).forEach((b) => b.onclick = () => { const b2 = bag.map((x) => ({ ...x })); b2.splice(+b.dataset.crm, 1); setBag(b2); });
     const t = totals(cat, method);
-    $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div>
-      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${money(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${money(t.couponOff)}</span></div>` : ""}
-      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? money(t.shipping) : "Free"}</span></div>${isUSD() ? `<div class="row save"><span>Import duties &amp; taxes</span><span>Included</span></div>` : ""}
-      <div class="row total"><span>Total</span><span>${money(t.total)}${isUSD() ? " USD" : ""}</span></div>`;
+    $("[data-co-totals]").innerHTML = `<div class="row"><span>Subtotal</span><span>${moneyH(t.sub)}</span></div>
+      ${t.discount ? `<div class="row save"><span>Online payment discount</span><span>−${moneyH(t.discount)}</span></div>` : ""}${t.coupon ? `<div class="row save"><span>Coupon ${esc(t.coupon)}</span><span>−${moneyH(t.couponOff)}</span></div>` : ""}
+      <div class="row"><span>${isUSD() ? "International shipping" : "Shipping"}</span><span>${t.shipping ? moneyH(t.shipping) : "Free"}</span></div>${isUSD() ? `<div class="row save"><span>Import duties &amp; taxes</span><span>Included</span></div>` : ""}
+      <div class="row total"><span>Total</span><span>${isUSD() ? moneyH(t.total) : money(t.total)}</span></div>${isUSD() ? `<div class="row co-charge"><span>You pay (PayPal / card)</span><span><b>US${usd(t.total)}</b></span></div>` : ""}`;
     try { paintBagEta(); } catch {}
-    $("[data-place]").textContent = method === "paypal" ? `Continue to secure payment · ${usd(t.total)}` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
+    $("[data-place]").textContent = method === "paypal" ? `Continue to secure payment · ${cc && cc.cur !== "USD" ? "US" : ""}${usd(t.total)}` : method === "online" ? `Pay ${inr(t.total)} securely` : method === "upi" ? `Pay ${inr(t.total)} by UPI` : `Send order on WhatsApp · ${inr(t.total)}`;
   }
   function loadRazorpay() {
     return new Promise((res, rej) => {
@@ -473,18 +474,19 @@
   }
   // ad landing pages can force an approximate local currency (e.g. CA$) with a build-time fallback rate
   const FORCE_EL = document.querySelector("[data-force-cur]"), FORCE_CUR = FORCE_EL?.dataset.forceCur || "";
-  let rates = { USD: 1, ...(FORCE_CUR && +FORCE_EL.dataset.fx ? { [FORCE_CUR]: +FORCE_EL.dataset.fx } : {}), ...(BK.rates || {}) };
+  const LCM = Array.isArray(BK.lc) ? BK.lc : [];
+  let rates = { USD: 1, ...(BK.fx || {}), ...(FORCE_CUR && +FORCE_EL.dataset.fx ? { [FORCE_CUR]: +FORCE_EL.dataset.fx } : {}), ...(BK.rates || {}) }, ratesLive = false;
   const fmtLocal = (v, cur) => { try { return new Intl.NumberFormat("en", { style: "currency", currency: cur, minimumFractionDigits: 0, maximumFractionDigits: v * rates[cur] >= 10 ? 0 : 2 }).format(v * rates[cur]); } catch { return null; } };
   function applyLocal() {
     const force = FORCE_CUR && isUSD() ? FORCE_CUR : "";
     const cur = force || cc?.cur || (isUSD() ? "USD" : "INR");
-    const local = (force || !BK.noLocal) && cur !== "INR" && cur !== "USD" && rates[cur];
+    const mkt = LCM.includes(cur), local = (force || mkt || !BK.noLocal) && cur !== "INR" && cur !== "USD" && rates[cur];
     // a non-US visitor without a local rate sees "US$52" (never a bare "$52" next to a "CAD" label)
     const usPrefix = !local && isUSD() && cur !== "USD" && cur !== "INR";
     $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" || !local ? (cur === "USD" ? "$" : "US$") : cur}` : el.textContent));
     $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${local || cur === "INR" ? cur : "US$"}` : el.textContent));
     document.documentElement.classList.toggle("local-cur", !!local);
-    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? (force ? t : "≈ " + t) : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
+    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? ((force || mkt) && !co ? t : "≈ " + t) : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
   }
   function setCountry(row, silent) {
     cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
@@ -493,7 +495,7 @@
     ensureRates().then(applyLocal); renderCart().catch(() => {}); try { paintPdpEta(); paintBagEta(); } catch {}
   }
   let ratesP;
-  const ensureRates = () => { const cur = (FORCE_CUR && isUSD() ? FORCE_CUR : "") || cc?.cur; if ((BK.noLocal && !FORCE_CUR) || !cur || cur === "USD" || cur === "INR" || rates[cur]) return Promise.resolve(); return (ratesP ||= (async () => { try { const c = JSON.parse(localStorage.getItem("bk_rates") || "null"); if (c && Date.now() - c.t < 12 * 36e5) { rates = { ...c.r, ...(BK.rates || {}), USD: 1 }; return; } } catch {} try { const r = await fetch("https://open.er-api.com/v6/latest/USD"); const j = await r.json(); if (j && j.rates) { rates = { ...j.rates, ...(BK.rates || {}), USD: 1 }; try { localStorage.setItem("bk_rates", JSON.stringify({ t: Date.now(), r: j.rates })); } catch {} } } catch {} })()); };
+  const ensureRates = () => { const cur = (FORCE_CUR && isUSD() ? FORCE_CUR : "") || cc?.cur; if ((BK.noLocal && !FORCE_CUR && !LCM.includes(cur)) || !cur || cur === "USD" || cur === "INR" || ratesLive || (BK.rates || {})[cur]) return Promise.resolve(); return (ratesP ||= (async () => { try { const c = JSON.parse(localStorage.getItem("bk_rates") || "null"); if (c && Date.now() - c.t < 12 * 36e5 && c.r && c.r[cur]) { rates = { ...rates, ...c.r, ...(BK.rates || {}), USD: 1 }; ratesLive = true; return; } } catch {} try { const r = await fetch("https://open.er-api.com/v6/latest/USD"); const j = await r.json(); if (j && j.rates) { rates = { ...rates, ...j.rates, ...(BK.rates || {}), USD: 1 }; ratesLive = true; try { localStorage.setItem("bk_rates", JSON.stringify({ t: Date.now(), r: j.rates })); } catch {} } } catch {} })()); };
   const cm = $("[data-country-modal]"), cq = $("[data-country-q]"), clist = $("[data-country-list]");
   const renderCL = () => { const q = (cq.value || "").trim().toLowerCase(); const rows = CL.filter((r) => !q || r[1].toLowerCase().includes(q) || r[0].toLowerCase() === q || r[2].toLowerCase() === q); const top = q ? rows : [...CL.filter((r) => ["IN", "US", "GB", "AE", "CA", "AU"].includes(r[0])), ...rows]; clist.innerHTML = [...new Map(top.map((r) => [r[0], r])).values()].slice(0, 260).map((r) => `<button type="button" data-cc="${r[0]}"${cc?.c === r[0] ? ' class="on"' : ""}><span>${flag(r[0])} ${esc(r[1])}</span><small>${r[0] === "IN" ? "₹ INR" : r[2]}</small></button>`).join(""); };
   $$("[data-country]").filter((b) => b.tagName !== "INPUT").forEach((b) => b.addEventListener("click", () => { if (!cm?.showModal) return; closeAll(); cq.value = ""; renderCL(); cm.showModal(); document.documentElement.classList.add("locked"); setTimeout(() => cq.focus(), 50); }));

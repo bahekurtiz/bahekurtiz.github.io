@@ -7,6 +7,8 @@
   "emergency_note": "",
   "languages_off": false,
   "local_currency_display": false,
+  "local_currency_markets": ["CAD", "GBP"],
+  "local_currency_fallback": {"CAD": 1.4, "GBP": 0.78},
   "maintenance_mode": false,
   "checkout_pause": false,
   "pause_message": "We are updating our store. Orders will open again shortly – WhatsApp us for help.",
