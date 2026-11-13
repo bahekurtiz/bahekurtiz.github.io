@@ -467,7 +467,7 @@ ${og}<meta property="og:url" content="${esc(canonical)}"><meta property="og:imag
 <meta property="og:locale" content="en_IN"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0e5b59">
 ${favImg ? `<link rel="icon" href="${esc(u(favImg))}" type="image/png"><link rel="apple-touch-icon" href="${esc(u(fs.existsSync(path.join(ROOT, "static/images/_r/site/favicon-180.png")) && /favicon-96\.png$/.test(favImg) ? "/images/_r/site/favicon-180.png" : favImg))}">` : `<link rel="icon" href="${u("favicon.svg")}" type="image/svg+xml">`}
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>${pathname === "checkout/" && intlOn && String(S.paypal_client_id || "").trim() ? '<link rel="preconnect" href="https://www.paypal.com"><link rel="dns-prefetch" href="https://www.paypalobjects.com">' : ""}
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=optional" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=optional" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="${u("assets/style.css")}?v=${ASSET_V}">
 <link rel="manifest" href="${u("manifest.webmanifest")}">
@@ -1069,6 +1069,43 @@ const obTable = (evs) => !evs.length ? "" : `<div class="ob-box"><h2>Last order 
 for (const f of FEST) {
   const evs = f.events.filter((e) => e.date >= TODAY_IST).slice(0, 2), yr = (evs[0] || f.events.at(-1) || { date: TODAY_IST }).date.slice(0, 4), YR = (t) => String(t || "").replace(/\{year\}/g, yr);
   listing({ file: `${f.url}index.html`, pathname: f.url, h1: YR(f.pg.h1), intro: YR(f.pg.intro), items: f.items, title: YR(f.pg.title) || `${YR(f.pg.h1)} | ${brand}`, description: clip(YR(f.pg.description || f.pg.intro || f.pg.h1)), crumbs: `<a href="${u("festival/")}">Festival calendar</a> / <span>${esc(f.pg.h1)}</span>`, guide: f.pg.guide || null, top: obTable(evs) + (evs.length ? remindForm(f.pg.h1) : "") });
+}
+// ---------- Meta ad landing page – Canada: velvet + wedding / Christmas edit (noindex, ads only) ----------
+// prices: approx. CA$ (build-time rate as fallback, refreshed in the browser), always charged in US $ – said plainly on the page
+const FX_BUILD = await (async () => { if (process.env.NO_FX) return null; try { const r = await fetch("https://open.er-api.com/v6/latest/USD", { signal: AbortSignal.timeout(5000) }); const j = await r.json(); return j && j.rates ? j.rates : null; } catch { return null; } })();
+if (intlOn) {
+  const xmas = CAL_EVENTS.find((e) => e.id === "christmas" && e.date >= TODAY_IST);
+  const obReady = xmas ? orderBy(xmas.date, "intl") : "", obCustom = xmas ? orderBy(xmas.date, "intl", 1) : "";
+  const fest = FEST.find((f) => f.slug === "christmas-new-year");
+  const ok = (p) => p.intl && !p.coming && p.price_usd && p.images[0] && imgOk(p.images[0]);
+  const velvet = products.filter((p) => ok(p) && /velvet/i.test(p.fabric));
+  const wed = products.filter((p) => ok(p) && !velvet.includes(p) && (fest?.items.includes(p) || p.occasion.some((o) => /wedding|party|festive/i.test(o))));
+  const items = [...velvet, ...(fest ? fest.items.filter((p) => wed.includes(p)) : []), ...wed].filter((p, i, a) => a.indexOf(p) === i).slice(0, 16);
+  if (items.length >= 4) {
+    const cad = num(FX_BUILD?.CAD) || num((Array.isArray(S.currency_rates) ? S.currency_rates : []).find((r) => String(r?.code).toUpperCase() === "CAD")?.per_usd) || "";
+    const showOb = obReady && TODAY_IST <= obReady;
+    const promise = ["Free shipping", "Duties included", "Custom fit", showOb ? `Order by ${dShort(obReady)}` : ""].filter(Boolean);
+    const wa = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent("Hi Bahe Kurtiz! I'm in Canada and saw your velvet / Christmas edit. Can you help me choose a size?")}` : "";
+    const pathname = "canada/velvet-wedding-christmas/";
+    const body = `<section class="wrap section ad-land" data-force-cur="CAD"${cad ? ` data-fx="${cad}"` : ""}>
+  <div class="list-head center"><p class="eyebrow">🇨🇦 For Canada · Wedding season & Christmas</p><h1>Velvet & Wedding-Season Edit</h1>
+  <p class="ad-promise">${promise.map((x) => `<span>${esc(x)}</span>`).join(" · ")}</p>
+  <p class="muted">Velvet Anarkalis, festive suits and party sets, stitched in our own unit in Jaipur and delivered to your door in Canada with shipping, duties and taxes paid – nothing to pay at delivery.</p>
+  ${wa ? `<p><a class="btn btn-wa" href="${wa}" target="_blank" rel="noopener" data-wa-ad>💬 Ask us on WhatsApp</a></p>` : ""}</div>
+  <p class="small muted center ad-cur"><span class="ad-cur-ca">Prices shown in approx. Canadian dollars (CA$).</span><span class="ad-cur-us">Prices in US $.</span> You pay in US $ by PayPal or card – your bank converts it to CA$; no extra fees from us.</p>
+  <h2 class="sr-only">Products</h2>
+  <div class="grid">${items.map((p, i) => card(p, i)).join("")}</div>
+  <div class="ad-help">
+    <div><h2>Not sure of your size?</h2><p>Our sizes are Indian sizes by body bust in inches, XS–3XL (4XL in our linen & velvet styles). Use the <a class="link" href="${u("tools/indian-size-converter/")}">size converter (Canadian/US/UK → Indian size)</a> or the size chart on every product page.</p>
+    <p><b>Free custom fit</b> – send your bust, waist, hip and height and we stitch to your measurements, up to 3XL (4XL in linen & velvet styles).${obCustom && TODAY_IST <= obCustom ? ` For Christmas, order custom fit by <b>${dShort(obCustom)}</b>${showOb ? ` (ready sizes by <b>${dShort(obReady)}</b>)` : ""}.` : ""}</p>
+    ${wa ? `<p><a class="btn btn-wa" href="${wa}" target="_blank" rel="noopener" data-wa-ad>💬 WhatsApp us your measurements</a></p>` : ""}</div>
+    <div><h2>Delivery to Canada</h2><ul class="ad-list"><li>✈️ Free express shipping with tracking – ${SHIP.intlMin}–${SHIP.intlMax} business days after dispatch</li><li>🛃 Import duties & taxes included – nothing to pay at the door</li><li>🔒 Secure PayPal or card checkout, no account needed</li><li>💚 Fit Promise – if it doesn't fit, we fix it</li></ul>${showOb ? `<p class="small muted">Order by ${dShort(obReady)} (ready sizes) for delivery before Christmas. Customs or courier delays are rare but possible – earlier is safer.</p>` : ""}</div>
+  </div>
+  ${trustStrip()}
+  <p class="center"><a class="btn btn-ghost" href="${u(fest ? fest.url : "shop/")}">See the full Christmas & New Year edit →</a></p>
+</section>`;
+    add(pathname + "index.html", page({ title: `Velvet & Wedding-Season Edit for Canada | ${brand}`, description: clip("Velvet Anarkalis and festive Indian outfits delivered to Canada – free shipping, duties included, free custom fit."), pathname, body, image: items[0].images[0], noindex: true }));
+  }
 }
 {
   const up = CAL_EVENTS.filter((e) => (e.end || e.date) >= TODAY_IST && e.kind !== "public");

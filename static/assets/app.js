@@ -368,8 +368,10 @@
         const ppItems = bag.map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
         showDone(`<div class="done-box"><h1>Pay ${usd(t.total)} USD</h1><p>Order <strong>${ref}</strong>. Pay securely with PayPal or any debit / credit card.</p><div data-pp-box class="pp-box"><p class="muted">Loading secure payment…</p></div><p class="pp-cards">Pay with PayPal or any debit/credit card – no PayPal account needed</p><p class="muted small">Import duties &amp; taxes are included – nothing to pay on delivery. <button type="button" class="link" data-pp-invoice>Prefer an invoice? WhatsApp us</button></p></div>`);
         $("[data-pp-invoice]")?.addEventListener("click", invoiceDone);
-        const s2 = document.createElement("script"); s2.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cid)}&currency=USD&intent=capture&enable-funding=venmo,paylater,card`;
-        s2.onerror = invoiceDone;
+        // PayPal script: one automatic retry on a network hiccup before falling back to the invoice flow
+        const ppSrc = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cid)}&currency=USD&intent=capture&enable-funding=venmo,paylater,card`;
+        const s2 = document.createElement("script"); s2.src = ppSrc;
+        s2.onerror = () => { s2.remove(); const s3 = document.createElement("script"); s3.src = ppSrc + "&r=1"; s3.onerror = invoiceDone; s3.onload = s2.onload; setTimeout(() => document.head.appendChild(s3), 1200); };
         s2.onload = () => { try { $("[data-pp-box]").innerHTML = "";
           window.paypal.Buttons({ style: { layout: "vertical", shape: "rect", label: "pay" },
             createOrder: (d, actions) => actions.order.create({ purchase_units: [{ reference_id: ref, invoice_id: ref, description: `${BK.brand} order ${ref}`, amount: { currency_code: "USD", value: t.total.toFixed(2) } }] }),
@@ -469,15 +471,20 @@
     const code = guessCC();
     const row = CL.find((r) => r[0] === code); cc = row ? { c: row[0], n: row[1], cur: row[2] } : null;
   }
-  let rates = { USD: 1, ...(BK.rates || {}) };
+  // ad landing pages can force an approximate local currency (e.g. CA$) with a build-time fallback rate
+  const FORCE_EL = document.querySelector("[data-force-cur]"), FORCE_CUR = FORCE_EL?.dataset.forceCur || "";
+  let rates = { USD: 1, ...(FORCE_CUR && +FORCE_EL.dataset.fx ? { [FORCE_CUR]: +FORCE_EL.dataset.fx } : {}), ...(BK.rates || {}) };
   const fmtLocal = (v, cur) => { try { return new Intl.NumberFormat("en", { style: "currency", currency: cur, minimumFractionDigits: 0, maximumFractionDigits: v * rates[cur] >= 10 ? 0 : 2 }).format(v * rates[cur]); } catch { return null; } };
   function applyLocal() {
-    const cur = cc?.cur || (isUSD() ? "USD" : "INR");
-    $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" ? "$" : cur}` : el.textContent));
-    $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${cur}` : el.textContent));
-    const local = !BK.noLocal && cur !== "INR" && cur !== "USD" && rates[cur];
+    const force = FORCE_CUR && isUSD() ? FORCE_CUR : "";
+    const cur = force || cc?.cur || (isUSD() ? "USD" : "INR");
+    const local = (force || !BK.noLocal) && cur !== "INR" && cur !== "USD" && rates[cur];
+    // a non-US visitor without a local rate sees "US$52" (never a bare "$52" next to a "CAD" label)
+    const usPrefix = !local && isUSD() && cur !== "USD" && cur !== "INR";
+    $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" || !local ? (cur === "USD" ? "$" : "US$") : cur}` : el.textContent));
+    $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${local || cur === "INR" ? cur : "US$"}` : el.textContent));
     document.documentElement.classList.toggle("local-cur", !!local);
-    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? "≈ " + t : el.dataset.usdText; el.title = t ? `${el.dataset.usdText} USD – charged in US $` : ""; });
+    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? "≈ " + t : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
   }
   function setCountry(row, silent) {
     cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
@@ -486,7 +493,7 @@
     ensureRates().then(applyLocal); renderCart().catch(() => {}); try { paintPdpEta(); paintBagEta(); } catch {}
   }
   let ratesP;
-  const ensureRates = () => { const cur = cc?.cur; if (!cur || cur === "USD" || cur === "INR" || rates[cur]) return Promise.resolve(); return (ratesP ||= (async () => { try { const c = JSON.parse(localStorage.getItem("bk_rates") || "null"); if (c && Date.now() - c.t < 12 * 36e5) { rates = { ...c.r, ...(BK.rates || {}), USD: 1 }; return; } } catch {} try { const r = await fetch("https://open.er-api.com/v6/latest/USD"); const j = await r.json(); if (j && j.rates) { rates = { ...j.rates, ...(BK.rates || {}), USD: 1 }; try { localStorage.setItem("bk_rates", JSON.stringify({ t: Date.now(), r: j.rates })); } catch {} } } catch {} })()); };
+  const ensureRates = () => { const cur = (FORCE_CUR && isUSD() ? FORCE_CUR : "") || cc?.cur; if ((BK.noLocal && !FORCE_CUR) || !cur || cur === "USD" || cur === "INR" || rates[cur]) return Promise.resolve(); return (ratesP ||= (async () => { try { const c = JSON.parse(localStorage.getItem("bk_rates") || "null"); if (c && Date.now() - c.t < 12 * 36e5) { rates = { ...c.r, ...(BK.rates || {}), USD: 1 }; return; } } catch {} try { const r = await fetch("https://open.er-api.com/v6/latest/USD"); const j = await r.json(); if (j && j.rates) { rates = { ...j.rates, ...(BK.rates || {}), USD: 1 }; try { localStorage.setItem("bk_rates", JSON.stringify({ t: Date.now(), r: j.rates })); } catch {} } } catch {} })()); };
   const cm = $("[data-country-modal]"), cq = $("[data-country-q]"), clist = $("[data-country-list]");
   const renderCL = () => { const q = (cq.value || "").trim().toLowerCase(); const rows = CL.filter((r) => !q || r[1].toLowerCase().includes(q) || r[0].toLowerCase() === q || r[2].toLowerCase() === q); const top = q ? rows : [...CL.filter((r) => ["IN", "US", "GB", "AE", "CA", "AU"].includes(r[0])), ...rows]; clist.innerHTML = [...new Map(top.map((r) => [r[0], r])).values()].slice(0, 260).map((r) => `<button type="button" data-cc="${r[0]}"${cc?.c === r[0] ? ' class="on"' : ""}><span>${flag(r[0])} ${esc(r[1])}</span><small>${r[0] === "IN" ? "₹ INR" : r[2]}</small></button>`).join(""); };
   $$("[data-country]").filter((b) => b.tagName !== "INPUT").forEach((b) => b.addEventListener("click", () => { if (!cm?.showModal) return; closeAll(); cq.value = ""; renderCL(); cm.showModal(); document.documentElement.classList.add("locked"); setTimeout(() => cq.focus(), 50); }));
