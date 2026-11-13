@@ -1534,3 +1534,5 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 body.checkout-page [data-checkout]{min-height:100vh}
 @media (max-width:760px){body.pdp.sticky-on .wa-float{bottom:calc(140px + env(safe-area-inset-bottom))}}
 .checkout .line strong,.cart-drawer .line strong{white-space:nowrap}
+/* below-the-fold blocks render only when scrolled near (faster first paint on phones) */
+.site-footer{content-visibility:auto;contain-intrinsic-size:auto 900px}
