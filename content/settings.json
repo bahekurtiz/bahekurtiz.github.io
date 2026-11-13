@@ -7,8 +7,14 @@
   "emergency_note": "",
   "languages_off": false,
   "local_currency_display": false,
-  "local_currency_markets": ["CAD", "GBP"],
-  "local_currency_fallback": {"CAD": 1.4, "GBP": 0.78},
+  "local_currency_markets": [
+    "CAD",
+    "GBP"
+  ],
+  "local_currency_fallback": {
+    "CAD": 1.4,
+    "GBP": 0.78
+  },
   "maintenance_mode": false,
   "checkout_pause": false,
   "pause_message": "We are updating our store. Orders will open again shortly – WhatsApp us for help.",
@@ -32,7 +38,19 @@
   "address_city": "Jaipur",
   "address_region": "Rajasthan",
   "address_postcode": "302029",
-  "store_hours": { "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "10:00", "closes": "19:00", "text": "Mon–Sat 10:00–19:00 · Sunday closed · online store open 24/7" },
+  "store_hours": {
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "opens": "10:00",
+    "closes": "19:00",
+    "text": "Mon–Sat 10:00–19:00 · Sunday closed · online store open 24/7"
+  },
   "google_maps_url": "https://g.page/r/CZRg9KONAiAfEBM",
   "google_review_url": "https://g.page/r/CZRg9KONAiAfEBM/review",
   "social_links": [
@@ -99,23 +117,98 @@
   "currency_rates": [],
   "usd_rate": 85,
   "coupons": [
-    { "code": "FRIEND10", "kind": "Percent", "value": 10, "market": "Both", "active": true },
-    { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true }
+    {
+      "code": "FRIEND10",
+      "kind": "Percent",
+      "value": 10,
+      "market": "Both",
+      "active": true
+    },
+    {
+      "code": "THANKYOU10",
+      "kind": "Percent",
+      "value": 10,
+      "market": "Both",
+      "active": true
+    }
   ],
   "referral_coupon": "FRIEND10",
-  "wholesale_moq": "15–20 pieces per design (sizes can be mixed). Shipping extra.",
+  "wholesale_moq": "15–20 pieces per design. Samples in 7–8 days; about 15 days for 100 pieces after sample approval. Private label available.",
   "wholesale_prices": {},
   "wholesale_price_note": "Cotton styles, INR per piece. Shipping extra. Other fabrics (linen, velvet, silk, georgette, chiffon, Kota Doria) on request.",
-  "wholesale_price_fabrics": ["Cotton", "Pure Cotton", "Cotton Flex"],
-  "wholesale_price_list": [{"type": "Hand block kurta + pant", "price": "₹1,199", "categories": ["Kurta Pant Dupatta Set", "Kurta Pant Set", "Kurta Palazzo Set"], "print": "Hand Block Print"}, {"type": "3-piece suit", "price": "₹1,245", "categories": ["Kurta Pant Dupatta Set"]}, {"type": "Co-ord set", "price": "₹1,199", "categories": ["Co-ord Set"]}, {"type": "Straight kurti", "price": "₹599", "categories": ["Kurti"]}, {"type": "Dresses", "price": "₹745", "categories": ["Dress"]}, {"type": "Anarkali", "price": "₹1,499", "categories": ["Anarkali Suit", "Anarkali Gown"]}],
+  "wholesale_price_fabrics": [
+    "Cotton",
+    "Pure Cotton",
+    "Cotton Flex"
+  ],
+  "wholesale_price_list": [
+    {
+      "type": "Hand block kurta + pant",
+      "price": "₹1,199",
+      "categories": [
+        "Kurta Pant Dupatta Set",
+        "Kurta Pant Set",
+        "Kurta Palazzo Set"
+      ],
+      "print": "Hand Block Print"
+    },
+    {
+      "type": "3-piece suit",
+      "price": "₹1,245",
+      "categories": [
+        "Kurta Pant Dupatta Set"
+      ]
+    },
+    {
+      "type": "Co-ord set",
+      "price": "₹1,199",
+      "categories": [
+        "Co-ord Set"
+      ]
+    },
+    {
+      "type": "Straight kurti",
+      "price": "₹599",
+      "categories": [
+        "Kurti"
+      ]
+    },
+    {
+      "type": "Dresses",
+      "price": "₹745",
+      "categories": [
+        "Dress"
+      ]
+    },
+    {
+      "type": "Anarkali",
+      "price": "₹1,499",
+      "categories": [
+        "Anarkali Suit",
+        "Anarkali Gown"
+      ]
+    }
+  ],
   "ad_cad_rate_fallback": 1.4,
   "model_height_default": "5'8\"",
   "model_size_default": "S",
   "exit_popup": false,
   "trust_ratings_checked": "November 2026",
   "trust_ratings": [
-    { "name": "Etsy", "shop": "BaheKurtiz", "rating": 4.3, "count": "257 reviews", "url": "https://www.etsy.com/shop/BaheKurtiz" },
-    { "name": "Myntra", "shop": "Bahe Kurtiz", "rating": 4.3, "count": "1.5K+ ratings", "url": "" }
+    {
+      "name": "Etsy",
+      "shop": "BaheKurtiz",
+      "rating": 4.3,
+      "count": "257 reviews",
+      "url": "https://www.etsy.com/shop/BaheKurtiz"
+    },
+    {
+      "name": "Myntra",
+      "shop": "Bahe Kurtiz",
+      "rating": 4.3,
+      "count": "1.5K+ ratings",
+      "url": ""
+    }
   ],
   "prepaid_discount_percent": 5,
   "upi_id": "",
@@ -443,7 +536,6 @@
   "size_chart": [],
   "size_note": "Need help? WhatsApp us your bust and height and we will suggest a size.",
   "wholesale_intro": "Boutiques and resellers worldwide: hand block printed kurta sets direct from our Jaipur unit. Private label available.",
-  "wholesale_moq": "15–20 pieces per design. Samples in 7–8 days; about 15 days for 100 pieces after sample approval. Private label available.",
   "wholesale_payment": "50% advance, balance before dispatch",
   "category_seo": [],
   "redirects": [],
@@ -462,5 +554,6 @@
   "github_repo": "",
   "cod_charge": 0,
   "cod_enabled": false,
-  "login_eyebrow": "Bahe VIP · A gift from Jaipur"
+  "login_eyebrow": "Bahe VIP · A gift from Jaipur",
+  "founder_name": "Abhinav Shekhawat"
 }
