@@ -484,7 +484,7 @@
     $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" || !local ? (cur === "USD" ? "$" : "US$") : cur}` : el.textContent));
     $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${local || cur === "INR" ? cur : "US$"}` : el.textContent));
     document.documentElement.classList.toggle("local-cur", !!local);
-    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? "≈ " + t : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
+    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? (force ? t : "≈ " + t) : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
   }
   function setCountry(row, silent) {
     cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}

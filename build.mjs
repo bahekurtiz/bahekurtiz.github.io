@@ -1082,19 +1082,23 @@ if (intlOn) {
   const wed = products.filter((p) => ok(p) && !velvet.includes(p) && (fest?.items.includes(p) || p.occasion.some((o) => /wedding|party|festive/i.test(o))));
   const items = [...velvet, ...(fest ? fest.items.filter((p) => wed.includes(p)) : []), ...wed].filter((p, i, a) => a.indexOf(p) === i).slice(0, 16);
   if (items.length >= 4) {
-    const cad = num(FX_BUILD?.CAD) || num((Array.isArray(S.currency_rates) ? S.currency_rates : []).find((r) => String(r?.code).toUpperCase() === "CAD")?.per_usd) || "";
+    const cadFix = num(S.ad_cad_rate_fallback) || 1.4, cad = num(FX_BUILD?.CAD) || num((Array.isArray(S.currency_rates) ? S.currency_rates : []).find((r) => String(r?.code).toUpperCase() === "CAD")?.per_usd) || cadFix;
+    const ca = (v) => "CA$" + Math.round(v * cad);
+    // CA$ only: no ₹ / US$ on this page; the browser refreshes the figures with the live rate (fixed fallback if that fails)
+    const caCard = (p, i) => card(p, i).replace(/<div class="card-price">[\s\S]*?<\/div>\n    <\/div>/, `<div class="card-price"><span class="price" data-cadv="${p.price_usd}">${ca(p.price_usd)}</span>${p.mrp_usd > p.price_usd ? ` <s class="mrp" data-cadv="${p.mrp_usd}">${ca(p.mrp_usd)}</s>` : ""}</div>\n    </div>`).replace(/<span class="tag tag-sale cur-inr">[^<]*<\/span>/, "").replace(' cur-usd">', '">');
     const showOb = obReady && TODAY_IST <= obReady;
     const promise = ["Free shipping", "Duties included", "Custom fit", showOb ? `Order by ${dShort(obReady)}` : ""].filter(Boolean);
     const wa = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent("Hi Bahe Kurtiz! I'm in Canada and saw your velvet / Christmas edit. Can you help me choose a size?")}` : "";
     const pathname = "canada/velvet-wedding-christmas/";
-    const body = `<section class="wrap section ad-land" data-force-cur="CAD"${cad ? ` data-fx="${cad}"` : ""}>
+    const body = `<section class="wrap section ad-land" data-force-cur="CAD" data-fx="${cad}">
   <div class="list-head center"><p class="eyebrow">🇨🇦 For Canada · Wedding season & Christmas</p><h1>Velvet & Wedding-Season Edit</h1>
   <p class="ad-promise">${promise.map((x) => `<span>${esc(x)}</span>`).join(" · ")}</p>
   <p class="muted">Velvet Anarkalis, festive suits and party sets, stitched in our own unit in Jaipur and delivered to your door in Canada with shipping, duties and taxes paid – nothing to pay at delivery.</p>
   ${wa ? `<p><a class="btn btn-wa" href="${wa}" target="_blank" rel="noopener" data-wa-ad>💬 Ask us on WhatsApp</a></p>` : ""}</div>
-  <p class="small muted center ad-cur"><span class="ad-cur-ca">Prices shown in approx. Canadian dollars (CA$).</span><span class="ad-cur-us">Prices in US $.</span> You pay in US $ by PayPal or card – your bank converts it to CA$; no extra fees from us.</p>
+  <p class="small muted center ad-cur">Prices in Canadian dollars (CA$), duties included</p>
   <h2 class="sr-only">Products</h2>
-  <div class="grid">${items.map((p, i) => card(p, i)).join("")}</div>
+  <div class="grid">${items.map((p, i) => caCard(p, i)).join("")}</div>
+  <script>(function(){var F=${cad};function paint(r){if(!(r>0))return;document.querySelectorAll("[data-cadv]").forEach(function(e){e.textContent="CA$"+Math.round(+e.dataset.cadv*r)})}try{var c=JSON.parse(localStorage.getItem("bk_rates")||"null");if(c&&c.r&&c.r.CAD&&Date.now()-c.t<432e5){paint(c.r.CAD);return}}catch(e){}paint(F);fetch("https://open.er-api.com/v6/latest/USD").then(function(r){return r.json()}).then(function(j){if(j&&j.rates&&j.rates.CAD){paint(j.rates.CAD);try{localStorage.setItem("bk_rates",JSON.stringify({t:Date.now(),r:j.rates}))}catch(e){}}}).catch(function(){})})();</script>
   <div class="ad-help">
     <div><h2>Not sure of your size?</h2><p>Our sizes are Indian sizes by body bust in inches, XS–3XL (4XL in our linen & velvet styles). Use the <a class="link" href="${u("tools/indian-size-converter/")}">size converter (Canadian/US/UK → Indian size)</a> or the size chart on every product page.</p>
     <p><b>Free custom fit</b> – send your bust, waist, hip and height and we stitch to your measurements, up to 3XL (4XL in linen & velvet styles).${obCustom && TODAY_IST <= obCustom ? ` For Christmas, order custom fit by <b>${dShort(obCustom)}</b>${showOb ? ` (ready sizes by <b>${dShort(obReady)}</b>)` : ""}.` : ""}</p>
@@ -2230,14 +2234,17 @@ add("custom/index.html", page({ title: `Custom Size, Custom Design & Restyle | $
   {
     const WP = S.wholesale_prices && typeof S.wholesale_prices === "object" ? S.wholesale_prices : {};
     const moq = String(S.wholesale_moq || "15–20 pieces per design (sizes can be mixed)");
-    const rowsLS = products.filter((p) => !p.coming && p.images[0]).map((p) => { const wp = WP[p.slug] || WP[p.sku] || "";
-      return `<tr><td><img src="${esc(u(rsHasW(p.images[0], 320) ? rsPath(p.images[0], 320) : p.images[0]))}" alt="" width="80" height="120" loading="lazy"></td><td><b>${esc(p.title)}</b><br><small>${esc(p.category)}</small></td><td>${esc(p.sku || "–")}</td><td>${esc(p.fabric || "–")}</td><td>${esc(p.print_work.filter((w) => w !== "Solid").join(", ") || "–")}</td><td>${esc(p.sizes.join(", ") || "Custom")}</td><td>${wp ? `<b>${esc(String(wp))}</b>` : `<span class="muted">On request</span>`}</td></tr>`; }).join("");
+    const WPL = (Array.isArray(S.wholesale_price_list) ? S.wholesale_price_list : []).filter((r) => r && r.type && r.price), WPF = (Array.isArray(S.wholesale_price_fabrics) ? S.wholesale_price_fabrics : []).map((f) => String(f).toLowerCase());
+    const ruleFor = (p) => WPF.includes(String(p.fabric || "").toLowerCase()) ? WPL.find((r) => (r.categories || []).includes(p.category) && (!r.print || p.print_work.includes(r.print))) : null;
+    const rowsLS = products.filter((p) => !p.coming && p.images[0]).map((p) => { const rl = ruleFor(p), wp = WP[p.slug] || WP[p.sku] || (rl ? `${rl.price} <small class="muted">(${esc(rl.type)})</small>` : "");
+      return `<tr><td><img src="${esc(u(rsHasW(p.images[0], 320) ? rsPath(p.images[0], 320) : p.images[0]))}" alt="" width="80" height="120" loading="lazy"></td><td><b>${esc(p.title)}</b><br><small>${esc(p.category)}</small></td><td>${esc(p.sku || "–")}</td><td>${esc(p.fabric || "–")}</td><td>${esc(p.print_work.filter((w) => w !== "Solid").join(", ") || "–")}</td><td>${esc(p.sizes.join(", ") || "Custom")}</td><td>${wp ? `<b>${rl && !WP[p.slug] && !WP[p.sku] ? wp : esc(String(wp))}</b>` : `<span class="muted">On request</span>`}</td></tr>`; }).join("");
+    const priceTbl = WPL.length ? `<h2>Wholesale prices</h2><div class="tbl-scroll"><table class="ob-table ls-prices"><thead><tr><th>Style</th><th>Price per piece</th></tr></thead><tbody>${WPL.map((r) => `<tr><td>${esc(r.type)}</td><td><b>${esc(r.price)}</b></td></tr>`).join("")}</tbody></table></div><p class="small muted">${esc(S.wholesale_price_note || "Per piece, shipping extra.")} Minimum order: ${esc(moq)}</p>` : "";
     const body = `<section class="wrap section linesheet"><nav class="crumbs no-print" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("wholesale/")}">Wholesale</a> / <span>Line sheet</span></nav>
 <div class="ls-head"><div><p class="eyebrow">Wholesale line sheet · ${esc(new Date(Date.parse(TODAY_IST + "T00:00:00Z")).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }))}</p><h1>${esc(brand)} – Wholesale Line Sheet</h1>
 <p>${esc(S.legal_name || brand)} · ${esc(S.address || "Sanganer, Jaipur, India")}${waNumber ? ` · WhatsApp +${waNumber}` : ""}${S.email ? ` · ${esc(S.email)}` : ""}</p></div>
 <p class="no-print"><button class="btn" type="button" onclick="window.print()">Save as PDF / Print</button> <a class="btn btn-ghost" href="${u("wholesale/quote/")}">Get a quote</a></p></div>
-<div class="tbl-scroll"><table class="ob-table ls-table"><thead><tr><th>Photo</th><th>Style</th><th>SKU</th><th>Fabric</th><th>Craft</th><th>Sizes</th><th>Wholesale price</th></tr></thead><tbody>${rowsLS}</tbody></table></div>
-<h2>Terms</h2><ul><li><b>Minimum order:</b> ${esc(moq)}</li><li><b>Private label:</b> your brand label and packaging on request</li><li><b>Production:</b> made in our own unit in Sanganer, Jaipur; lead time confirmed with your quote</li><li><b>Shipping:</b> worldwide; duties and freight quoted per order</li><li><b>Prices:</b> ${Object.keys(WP).length ? "wholesale prices shown are per piece, excluding shipping and duties" : "shared on request with your quote"}</li></ul>
+${priceTbl}<h2>Styles</h2><div class="tbl-scroll"><table class="ob-table ls-table"><thead><tr><th>Photo</th><th>Style</th><th>SKU</th><th>Fabric</th><th>Craft</th><th>Sizes</th><th>Wholesale price</th></tr></thead><tbody>${rowsLS}</tbody></table></div>
+<h2>Terms</h2><ul><li><b>Minimum order:</b> ${esc(moq)}</li><li><b>Private label:</b> your brand label and packaging on request</li><li><b>Production:</b> made in our own unit in Sanganer, Jaipur; lead time confirmed with your quote</li><li><b>Shipping:</b> worldwide; duties and freight quoted per order</li><li><b>Prices:</b> ${Object.keys(WP).length || WPL.length ? "wholesale prices shown are per piece in INR, shipping extra (duties, if any, for the buyer); styles marked “On request” are quoted individually" : "shared on request with your quote"}</li></ul>
 </section>`;
     add("wholesale/line-sheet/index.html", page({ title: `Wholesale Line Sheet | ${brand}, Jaipur`, description: clip(`Wholesale line sheet of ${brand}: every style with SKU, fabric, craft, sizes and MOQ. Printable PDF for boutiques and retailers.`), pathname: "wholesale/line-sheet/", noindex: true, body, bodyClass: "linesheet-page" }));
   }

@@ -101,8 +101,12 @@
     { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true }
   ],
   "referral_coupon": "FRIEND10",
-  "wholesale_moq": "15–20 pieces per design (sizes can be mixed)",
+  "wholesale_moq": "15–20 pieces per design (sizes can be mixed). Shipping extra.",
   "wholesale_prices": {},
+  "wholesale_price_note": "Cotton styles, INR per piece. Shipping extra. Other fabrics (linen, velvet, silk, georgette, chiffon, Kota Doria) on request.",
+  "wholesale_price_fabrics": ["Cotton", "Pure Cotton", "Cotton Flex"],
+  "wholesale_price_list": [{"type": "Hand block kurta + pant", "price": "₹1,199", "categories": ["Kurta Pant Dupatta Set", "Kurta Pant Set", "Kurta Palazzo Set"], "print": "Hand Block Print"}, {"type": "3-piece suit", "price": "₹1,245", "categories": ["Kurta Pant Dupatta Set"]}, {"type": "Co-ord set", "price": "₹1,199", "categories": ["Co-ord Set"]}, {"type": "Straight kurti", "price": "₹599", "categories": ["Kurti"]}, {"type": "Dresses", "price": "₹745", "categories": ["Dress"]}, {"type": "Anarkali", "price": "₹1,499", "categories": ["Anarkali Suit", "Anarkali Gown"]}],
+  "ad_cad_rate_fallback": 1.4,
   "model_height_default": "5'8\"",
   "model_size_default": "S",
   "exit_popup": false,

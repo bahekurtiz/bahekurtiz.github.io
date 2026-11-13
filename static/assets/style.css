@@ -1526,4 +1526,3 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 @media (max-width:760px){body.pdp .crumbs{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-block:4px}}
 
 .ad-land .ad-promise{font-weight:600;color:var(--accent,#11605e);margin:6px 0 10px}.ad-land .ad-cur{margin:4px 0 16px}.ad-help{display:grid;gap:24px;margin:36px 0 20px}.ad-help h2{font-size:1.3rem;margin:0 0 8px}.ad-list{list-style:none;padding:0;margin:0 0 8px}.ad-list li{padding:4px 0}.btn-wa{background:#1f8a55;border-color:#1f8a55;color:#fff}@media (min-width:860px){.ad-help{grid-template-columns:1fr 1fr}}
-.ad-cur-ca{display:none}html.local-cur .ad-cur-ca{display:inline}html.local-cur .ad-cur-us{display:none}
