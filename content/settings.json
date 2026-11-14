@@ -136,7 +136,7 @@
   "gift_amounts_usd": [],
   "customer_sheet_url": "https://script.google.com/macros/s/AKfycbz-NuyW1v-DqrYU6EykxndG6Ttne1F_OAAtNenKV0r5UFo7amQ3yb8MMA_GglXOt8Tm/exec",
   "google_client_id": "",
-  "login_popup": true,
+  "login_popup": false,
   "login_title": "Free handmade potli with your first order",
   "login_text": "Join the VIP list for early access to limited drops, new hand block prints and festive edits.",
   "ga4_id": "G-8PMGB8V2VL",

@@ -1,7 +1,7 @@
 [hidden]{display:none!important}
 :root{
   --bg:#fbf7f1; --surface:#fff; --sand:#f3ebe1; --ink:#231815; --muted:#6e605a; --line:#e8dccf;
-  --accent:#0e5b59; --accent-2:#0a4644; --gold:#a8812f; --wa:#1f9d55; --sale:#b3261e;
+  --accent:#0e5b59; --accent-2:#0a4644; --gold:#8c6a22; --wa:#17804a; --sale:#b3261e;
   --serif:"Cormorant Garamond",Georgia,serif; --sans:Jost,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --r:4px; --shadow:0 10px 30px rgba(35,24,21,.12);
 }
@@ -1184,7 +1184,7 @@ body{background:#fff}
 .share-row{display:flex!important}.share-row>*:not(:first-child){display:none!important}
 
 /* ===== v48: Fit finder, VIP band, The Bahe Block ===== */
-.btn-gold{background:#a8812f;border-color:#a8812f;color:#fff}.btn-gold:hover{background:#8f6d25;border-color:#8f6d25}
+.btn-gold{background:#8c6a22;border-color:#8c6a22;color:#fff}.btn-gold:hover{background:#755819;border-color:#755819}
 .btn-line{background:transparent;border:1px solid rgba(246,241,233,.7);color:#f6f1e9}.btn-line:hover{background:rgba(246,241,233,.12)}
 .fit-unit{display:flex;gap:8px;margin:12px 0 4px}.fit-unit label{flex:0 0 auto}
 .fit-unit input,.fit-chips input{position:absolute;opacity:0;pointer-events:none}
@@ -1211,7 +1211,7 @@ body{background:#fff}
 .bb-p-grid b{display:block;color:#0e5b59;font-size:15px}.bb-p-grid span{font-size:13px;color:#6e605a}
 .bb-end{padding:64px 16px}
 @media (max-width:760px){.bb-grid{grid-template-columns:1fr}.bb-p-grid{grid-template-columns:1fr 1fr}.bb-hero-in{padding-top:80px;padding-bottom:70px}.fit-meas{grid-template-columns:1fr 1fr}}
-.vip-band .btn-gold,.bb-page .btn-gold{background:#a8812f!important;border:1px solid #a8812f!important;color:#fff!important;padding:15px 30px}
+.vip-band .btn-gold,.bb-page .btn-gold{background:#8c6a22!important;border:1px solid #8c6a22!important;color:#fff!important;padding:15px 30px}
 .vip-band .btn-gold:hover,.bb-page .btn-gold:hover{background:#8f6d25!important}
 .bb-page .btn-line{background:transparent!important;border:1px solid rgba(246,241,233,.75)!important;color:#f6f1e9!important;padding:15px 30px}
 

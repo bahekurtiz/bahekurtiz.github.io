@@ -1328,7 +1328,7 @@ for (const p of [...products, ...upcoming]) {
         : (i === 0 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
-    <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt=""video" : "view " + (i + 1)}" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
+    <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
   </div>
   <div class="buybox">
     <p class="eyebrow">${esc(p.category)}${p.color ? " · " + esc(p.color) : ""}</p>
@@ -1438,6 +1438,7 @@ add("checkout/index.html", page({
       <p class="form-error" data-co-error hidden></p>
       ${trustStrip("trust-co")}
       <button class="btn btn-block btn-lg" type="submit" data-place disabled>Place order</button>
+      <p class="muted small co-terms">By placing your order you agree to our <a href="${u("terms/")}">Terms</a>. ${intlOn && S.intl_return_policy ? `<span class="cur-inr"><a href="${u("returns/")}">Returns</a> · <a href="${u("shipping/")}">Shipping</a></span><span class="cur-usd"><a href="${u("international-returns/")}">${num(S.intl_return_days) || 14}-day returns</a> · <a href="${u("international-shipping/")}">Shipping</a></span>` : `<a href="${u("returns/")}">Returns</a> · <a href="${u("shipping/")}">Shipping</a>`}</p>
       ${intlOn ? `<div class="co-cards cur-usd"><p>${I.shield} <b>Pay with PayPal or any debit/credit card – no PayPal account needed</b></p>${S.paypal_client_id ? `<p class="co-pills"><b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b></p>` : ""}<p class="muted small">Charged in USD · duties &amp; taxes included · PayPal Buyer Protection. Prefer an invoice? ${waNumber ? `<a href="${esc(waLink(`Hi ${brand}! I would like to pay my order by invoice.`))}" target="_blank" rel="noopener">WhatsApp us</a>` : "WhatsApp us"}.</p></div>` : ""}
       <p class="secure" data-secure hidden>${I.shield} Payments are processed securely by Razorpay. We never see your card details.</p>
     </form>
