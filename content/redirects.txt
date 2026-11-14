@@ -139,3 +139,35 @@
 /stories/what-to-wear-to-an-indian-wedding-in-the-usa /blog/what-to-wear-to-an-indian-wedding-in-the-usa/ 301
 /stories/where-to-buy-real-hand-block-print-kurta-sets-usa-uk-canada/ /blog/where-to-buy-real-hand-block-print-kurta-sets-usa-uk-canada/ 301
 /stories/where-to-buy-real-hand-block-print-kurta-sets-usa-uk-canada /blog/where-to-buy-real-hand-block-print-kurta-sets-usa-uk-canada/ 301
+
+# Country pages merged into one hub (14 Nov 2026, doorway-risk cleanup)
+/indian-clothes-online-usa/ /indian-clothes-online-uk-canada-australia-uae/#usa 301
+/indian-clothes-online-usa /indian-clothes-online-uk-canada-australia-uae/#usa 301
+/indian-clothes-online-uk/ /indian-clothes-online-uk-canada-australia-uae/#uk 301
+/indian-clothes-online-uk /indian-clothes-online-uk-canada-australia-uae/#uk 301
+/indian-clothes-online-canada/ /indian-clothes-online-uk-canada-australia-uae/#canada 301
+/indian-clothes-online-canada /indian-clothes-online-uk-canada-australia-uae/#canada 301
+/indian-clothes-online-australia/ /indian-clothes-online-uk-canada-australia-uae/#australia 301
+/indian-clothes-online-australia /indian-clothes-online-uk-canada-australia-uae/#australia 301
+/indian-clothes-online-uae/ /indian-clothes-online-uk-canada-australia-uae/#uae 301
+/indian-clothes-online-uae /indian-clothes-online-uk-canada-australia-uae/#uae 301
+/indian-clothes-online-singapore/ /indian-clothes-online-uk-canada-australia-uae/#singapore 301
+/indian-clothes-online-singapore /indian-clothes-online-uk-canada-australia-uae/#singapore 301
+/indian-clothes-online-malaysia/ /indian-clothes-online-uk-canada-australia-uae/#malaysia 301
+/indian-clothes-online-malaysia /indian-clothes-online-uk-canada-australia-uae/#malaysia 301
+
+# Wholesale import guides merged into one hub (14 Nov 2026)
+/import-kurtis-from-india-to-usa-wholesale/ /import-kurtis-from-india-wholesale/#usa 301
+/import-kurtis-from-india-to-usa-wholesale /import-kurtis-from-india-wholesale/#usa 301
+/import-kurtis-from-india-to-uk-wholesale/ /import-kurtis-from-india-wholesale/#uk 301
+/import-kurtis-from-india-to-uk-wholesale /import-kurtis-from-india-wholesale/#uk 301
+/import-kurtis-from-india-to-canada-wholesale/ /import-kurtis-from-india-wholesale/#canada 301
+/import-kurtis-from-india-to-canada-wholesale /import-kurtis-from-india-wholesale/#canada 301
+/import-kurtis-from-india-to-australia-wholesale/ /import-kurtis-from-india-wholesale/#australia 301
+/import-kurtis-from-india-to-australia-wholesale /import-kurtis-from-india-wholesale/#australia 301
+/import-kurtis-from-india-to-uae-wholesale/ /import-kurtis-from-india-wholesale/#uae 301
+/import-kurtis-from-india-to-uae-wholesale /import-kurtis-from-india-wholesale/#uae 301
+/import-kurtis-from-india-to-singapore-wholesale/ /import-kurtis-from-india-wholesale/#singapore 301
+/import-kurtis-from-india-to-singapore-wholesale /import-kurtis-from-india-wholesale/#singapore 301
+/import-kurtis-from-india-to-malaysia-wholesale/ /import-kurtis-from-india-wholesale/#malaysia 301
+/import-kurtis-from-india-to-malaysia-wholesale /import-kurtis-from-india-wholesale/#malaysia 301

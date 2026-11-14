@@ -2280,7 +2280,7 @@ function md(src = "") {
   const safeUrl = (x) => (/^(https?:\/\/|\/|#|mailto:)/i.test(x.trim()) ? x.trim() : "#");
   const inline = (t) => esc(t)
     .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, a, h) => `<img decoding="async" src="${esc(u(safeUrl(h)))}" alt="${a}" loading="lazy">`)
-    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, a, h) => { const x = safeUrl(h); return `<a href="${esc(u(x))}"${/^https?:/.test(x) && !x.includes(SITE_URL) ? ' target="_blank" rel="noopener"' : ""}>${a}</a>`; })
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, a, h) => { const x = safeUrl(h); return `<a href="${esc(x.startsWith("#") ? x : u(x))}"${/^https?:/.test(x) && !x.includes(SITE_URL) ? ' target="_blank" rel="noopener"' : ""}>${a}</a>`; })
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/__([^_]+)__/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>").replace(/(^|\W)_([^_]+)_(?=\W|$)/g, "$1<em>$2</em>").replace(/`([^`]+)`/g, "<code>$1</code>");
   const out = []; let list = null, para = [], tbl = [];
@@ -2292,7 +2292,7 @@ function md(src = "") {
     if (/^\|.*\|$/.test(line)) { flushP(); flushL(); tbl.push(line); continue; }
     flushT();
     if (!line) { flushP(); flushL(); continue; }
-    if ((m = line.match(/^(#{1,4})\s+(.*)$/))) { flushP(); flushL(); const lv = Math.min(4, Math.max(2, m[1].length)); out.push(`<h${lv}>${inline(m[2])}</h${lv}>`); continue; }
+    if ((m = line.match(/^(#{1,4})\s+(.*)$/))) { flushP(); flushL(); const lv = Math.min(4, Math.max(2, m[1].length)); out.push(`<h${lv} id="${esc(slugify(m[2].replace(/[*_`\[\]]|\(([^)]*)\)/g, "")))}">${inline(m[2])}</h${lv}>`); continue; }
     if ((m = line.match(/^[-*+]\s+(.*)$/))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(m[1]); continue; }
     if ((m = line.match(/^\d+[.)]\s+(.*)$/))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(m[1]); continue; }
     if ((m = line.match(/^>\s?(.*)$/))) { flushP(); flushL(); out.push(`<blockquote>${inline(m[1])}</blockquote>`); continue; }
