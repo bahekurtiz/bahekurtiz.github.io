@@ -85,3 +85,7 @@
 - `functions/` + `lib/` – पेमेंट सर्वर (इसे मत छेड़ो)
 - `static/` – फ़ोटो, डिज़ाइन, एडमिन पैनल
 - `build.mjs` – वेबसाइट बनाने वाला प्रोग्राम (इसे मत छेड़ो)
+
+## Private notes
+
+Strategy notes, Search Console exports, audits and the weekly routine are kept in the private claude.ai Project "Bahe – Website Build" (folder agent-notes/), not in this public repo. Never commit raw GA4/Search Console data or secrets here.

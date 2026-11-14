@@ -1,1 +1,5 @@
 _site/
+
+# private notes live in the claude.ai Project "Bahe – Website Build", not here (public repo)
+ideas/
+*.zip
