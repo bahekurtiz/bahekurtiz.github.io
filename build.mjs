@@ -394,7 +394,7 @@ const crumbLd = (list) => ({ "@context": "https://schema.org", "@type": "Breadcr
 // ---------- Meta Pixel (ID from admin settings) ----------
 const pixelId = digits(S.meta_pixel_id);
 const pixelHead = `<script>(function(){var w=window;if(location.pathname.indexOf("/admin/")>-1)return;var S=w.BKtags||[];${pixelId ? `!function(f){if(f.fbq)return;var n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[]}(w);var c=null;try{c=localStorage.getItem("bk_consent")}catch(e){}if(w.BKeu&&c!=="yes")fbq("consent","revoke");var am={};try{var U=JSON.parse(localStorage.getItem("bk_user_v1")||"null");if(U){if(U.email)am.em=String(U.email).toLowerCase();var P=String(U.phone||"").replace(/\\D/g,"");if(P){var UC=String(U.country||"").trim(),IN;if(UC)IN=/^(india|in|bharat)$/i.test(UC);else{try{var K=JSON.parse(localStorage.getItem("bk_country")||"null");if(K&&K.c)IN=K.c==="IN"}catch(e){}if(IN===undefined)IN=!document.documentElement.classList.contains("usd")}am.ph=P.length==10&&IN?"91"+P:P}if(U.name)am.fn=String(U.name).split(" ")[0].toLowerCase();if(P)am.external_id=P}}catch(e){}fbq("init","${pixelId}",am);w.BKpv="PageView."+Date.now()+"."+Math.random().toString(36).slice(2,8);fbq("track","PageView",{},{eventID:w.BKpv});S.push("https://connect.facebook.net/en_US/fbevents.js");` : ""}if(!S.length)return;var L=function(){if(L.d)return;L.d=1;S.forEach(function(s){var t=document.createElement("script");t.async=1;t.src=s;document.head.appendChild(t)})};["pointerdown","keydown","scroll","touchstart"].forEach(function(e){addEventListener(e,L,{once:true,passive:true})});var T=function(){setTimeout(function(){(w.requestIdleCallback||setTimeout)(L)},3000)};var ad=/[?&](fbclid|igshid)=|[?&]utm_source=(facebook|fb|ig|instagram|meta)\b/i.test(location.search)||/facebook\.com|instagram\.com|fb\.me/i.test(document.referrer)||/FBAN|FBAV|Instagram/.test(navigator.userAgent);if(ad&&w.fbq){var A=function(){if(L.d)return;var t=document.createElement("script");t.async=1;t.src="https://connect.facebook.net/en_US/fbevents.js";document.head.appendChild(t);S=S.filter(function(x){return x.indexOf("fbevents")<0})};w.requestAnimationFrame?requestAnimationFrame(function(){setTimeout(A,0)}):setTimeout(A,0)}if(document.readyState==="complete")T();else addEventListener("load",T,{once:true})})();</script>`;
-const pixelBody = pixelId ? `<noscript><img decoding="async" height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"></noscript>` : "";
+const pixelBody = pixelId ? `<noscript><img decoding="async" height="1" width="1" style="display:none" alt="Facebook pixel" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"></noscript>` : "";
 
 // ---------- Shoppable reels (Instagram-style videos, each can be linked to a product) ----------
 const igCode = (l) => (String(l || "").match(/instagram\.com\/(?:[^/]+\/)?(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i) || [])[1] || "";
@@ -590,6 +590,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
   ${landings.some((l) => !intlOn || l.type === "shop") ? `<div class="wrap foot-seo"><h3>Popular</h3><p>${landings.filter((l) => !intlOn || l.type === "shop").map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></div>` : ""}
   <div class="wrap foot-pay"><span>Secure payments</span>${S.paypal_client_id ? `<b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b>` : ""}<b class="pay-pill cur-inr">UPI</b><b class="pay-pill cur-inr">RuPay</b><span class="pay-lock">🔒 SSL encrypted checkout</span></div>
   ${intlOn ? `<div class="wrap foot-country"><button type="button" class="foot-cc" data-country>${I.globe} Country / region: <b data-cc-name>India · ₹ INR</b> <u>Change</u></button></div>` : ""}
+  ${S.address || S.phone ? `<address class="wrap copy foot-nap" style="font-style:normal">${S.address ? esc(S.address) : ""}${S.address && S.phone ? " · " : ""}${S.phone ? `<a href="tel:${esc(String(S.phone).replace(/[^+\d]/g, ""))}">${esc(S.phone)}</a>` : ""}</address>` : ""}
   <div class="wrap copy">© ${year} ${esc(brand)}${S.legal_name ? ` (${esc(S.legal_name)})` : ""}, Jaipur. All rights reserved.</div>
 </footer>`}
 ${waHi ? `<a class="wa-float" href="${esc(waHi)}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${I.wa}</a>` : ""}
@@ -692,7 +693,16 @@ const rsBig = (src) => { const local = BASE && String(src).startsWith(BASE) ? "/
 const imgSizes = (tag) => { const wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
   return /data-rs="big"|class="post-cover"/.test(tag) ? "(max-width: 480px) 320px, (max-width: 900px) 92vw, 50vw" : /class="logo-img"/.test(tag) ? "170px" : wd && wd <= 120 ? "120px" : wd && wd <= 160 ? "80px" : "(max-width: 480px) 160px, (max-width: 720px) 46vw, 25vw"; };
 const srcsetFor = (local, raw) => { const ws = RS.filter((w) => rsHasW(local, w)); return ws.map((w) => `${esc(encU(u(rsPath(local, w))))} ${w}w`).join(", ") + (ws.includes(1400) ? "" : `, ${esc(encU(raw))} 1200w`); };
+// empty alt="" on real photos (noscript copies, hover/related images): fill it from the product title or the file name, so no visible photo goes without alt text
+const altFill = (tag) => {
+  if (!/\salt=""/.test(tag) || /facebook\.com\/tr|width="1" height="1"/.test(tag)) return tag;
+  const src = (tag.match(/\s(?:data-)?src="([^"]+)"/) || [])[1] || ""; if (!src) return tag;
+  const file = decodeURIComponent(src.split("?")[0].split("/").pop() || "").replace(/\.(webp|jpe?g|png|avif)$/i, "").replace(/-(\d{3,4})$/, "");
+  const pr = /\/products\//.test(src) && products.find((x) => file === x.slug || file.startsWith(x.slug + "-"));
+  const txt = pr ? `${pr.title} – ${brand}` : `${file.replace(/-(tall|wide|\d+)$/g, "").replace(/[-_]+/g, " ").trim().replace(/^./, (c) => c.toUpperCase())} – ${brand}, Jaipur`;
+  return tag.replace(/\salt=""/, () => ` alt="${esc(txt)}"`); };
 const withSrcset = (html) => html.replace(/<img\b[^>]*>/g, (tag) => {
+  tag = altFill(tag);
   if (!/\sdecoding=/.test(tag)) tag = tag.replace(/^<img\b/, '<img decoding="async"');
   if (/\ssrcset=/.test(tag)) return tag;
   const m = tag.match(/\ssrc="([^"]+)"/);
@@ -885,7 +895,7 @@ ${slides.length > 1 ? `<div class="hero-dots">${slides.map((_, i) => `<button ty
 ${trendStrip()}
 ${TRUST.length ? `<section class="wrap">${trustStrip("trust-home")}</section>` : ""}
 ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}" data-us="${esc(festNext.order_by_intl)}"><div class="wrap fest-row"><span class="fest-name">${esc(festNext.name)} · ${esc(festNext.dateText)}</span><span class="fest-cut"><span class="cur-inr">Order by <b>${esc(festNext.order_by_in_text)}</b> for delivery in India</span>${intlOn ? `<span class="cur-usd">Order by <b>${esc(festNext.order_by_intl_text)}</b> for delivery abroad</span>` : ""} <span class="fest-left" data-fest-left></span></span><a class="link" href="${u(festNext.link || "shop/")}">Shop →</a><button class="link fest-cal" type="button" data-ics>📅 Add festivals to my calendar</button></div></div>` : ""}
-<section class="brand-intro"><h1>${esc(brand)}</h1><p>Hand block printed kurta sets &amp; Anarkalis from Jaipur – stitched to your measurements.</p></section>
+<section class="brand-intro"><h1>${esc(brand)}<span style="display:block;font-size:.5em;font-weight:400;letter-spacing:.02em;margin-top:.3em">Hand Block Print Kurta Sets, Made to Measure in Jaipur</span></h1><p>Kurta sets, Anarkalis &amp; co-ords hand block printed in our own Jaipur unit – free custom fit and worldwide shipping.</p></section>
 <section class="trust" aria-label="Why shop with us">
   <div class="wrap trust-row">
     <div>${I.needle}<span><strong>Handmade in Jaipur</strong>Hand block prints by our own karigars</span></div>
