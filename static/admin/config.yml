@@ -593,6 +593,17 @@ collections:
           - { name: intl_shipping_policy, label: "Shipping Policy – विदेश (International)", widget: text, required: false }
           - { name: intl_return_policy, label: "Return / Refund Policy – विदेश (International)", widget: text, required: false }
           - { name: intl_return_days, label: "विदेश return के दिन (International return days)", widget: number, value_type: int, default: 14, required: false }
+          - label: "Automatic engine (हर हफ्ते के drafts और alerts – कुछ भी अपने आप post नहीं होता)"
+            name: engine
+            widget: object
+            collapsed: true
+            required: false
+            fields:
+              - { name: festival_drafts, label: "Festival drafts (त्योहार के posts के drafts)", widget: boolean, default: true, required: false }
+              - { name: drafts_kit, label: "Weekly drafts kit (हर रविवार 3 products के caption/reel/pin drafts)", widget: boolean, default: true, required: false }
+              - { name: demand_radar, label: "Demand radar (Search Console से हफ्ते का काम)", widget: boolean, default: true, required: false }
+              - { name: alerts_email, label: "Email alerts (traffic गिरे या build fail हो)", widget: boolean, default: true, required: false }
+              - { name: allow_sale_words, label: "असली sale चल रही है (तभी on करें) – drafts में sale/discount शब्द allow", widget: boolean, default: false, required: false }
           - { name: privacy_policy, label: "Privacy Policy", widget: text }
           - { name: terms, label: "Terms & Conditions", widget: text }
           - { name: site_url, label: "वेबसाइट का पता", widget: string }

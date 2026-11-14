@@ -11,6 +11,7 @@ import path from "node:path";
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const PLAN = path.join(ROOT, "_site/data/festival-plan.json");
 const DRY = process.argv.includes("--dry");
+{ const S0 = JSON.parse(fs.readFileSync(path.join(ROOT, "content/settings.json"), "utf8")); if (S0.engine && S0.engine.festival_drafts === false) { console.log("festival-engine: switched off in settings.engine.festival_drafts"); process.exit(0); } }
 if (!fs.existsSync(PLAN)) { console.error("Run `node build.mjs` first (missing _site/data/festival-plan.json)."); process.exit(1); }
 const P = JSON.parse(fs.readFileSync(PLAN, "utf8"));
 const today = P.today, ms = (d) => Date.parse(d + "T00:00:00Z"), plus = (d, n) => new Date(ms(d) + n * 864e5).toISOString().slice(0, 10);

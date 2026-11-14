@@ -1,0 +1,38 @@
+name: Weekly engine (drafts only – nothing is posted)
+# Every Sunday ~07:41 IST: rebuild, write festival drafts + the weekly drafts kit to drafts/,
+# check them with lint-claims, and commit only if the check passes.
+# Switches: content/settings.json → "engine". Nothing here posts to social media or emails customers.
+on:
+  schedule:
+    - cron: "11 2 * * 0"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: engine-weekly
+  cancel-in-progress: false
+jobs:
+  drafts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build the site (needed for product and festival data)
+        run: node build.mjs
+      - name: Festival drafts
+        run: node scripts/festival-engine.mjs
+      - name: Weekly drafts kit
+        run: node scripts/drafts-kit.mjs
+      - name: Honest-claims check (blocks fake scarcity, discounts, review numbers, wrong prices)
+        run: node scripts/lint-claims.mjs --changed
+      - name: Commit drafts
+        run: |
+          git config user.name "bahe-bot"
+          git config user.email "bot@bahekurtiz.com"
+          git add drafts
+          git diff --cached --quiet && { echo "No new drafts"; exit 0; }
+          git commit -m "drafts: weekly kit and festival drafts $(date -u +%F)"
+          git pull --rebase
+          git push
