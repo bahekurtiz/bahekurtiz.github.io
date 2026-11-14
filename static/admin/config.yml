@@ -593,6 +593,7 @@ collections:
           - { name: intl_shipping_policy, label: "Shipping Policy – विदेश (International)", widget: text, required: false }
           - { name: intl_return_policy, label: "Return / Refund Policy – विदेश (International)", widget: text, required: false }
           - { name: intl_return_days, label: "विदेश return के दिन (International return days)", widget: number, value_type: int, default: 14, required: false }
+          - { name: review_policy, label: "Review Policy (reviews के नियम – सिर्फ असली reviews)", widget: text, required: false }
           - label: "Automatic engine (हर हफ्ते के drafts और alerts – कुछ भी अपने आप post नहीं होता)"
             name: engine
             widget: object

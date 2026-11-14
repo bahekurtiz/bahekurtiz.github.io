@@ -79,6 +79,7 @@
 
   const giftText = (f) => (f.gift_to || f.gift_msg ? `\n\n🎁 GIFT${f.gift_to ? "\nFor: " + f.gift_to : ""}${f.gift_msg ? "\nCard message: " + f.gift_msg : ""}${f.gift_hide === "yes" ? "\nDo NOT put price/invoice in the parcel" : ""}` : "");
   const gcText = () => { try { const g = localStorage.getItem("bk_gc"); return g ? `\nGift card: ${g}` : ""; } catch { return ""; } };
+  const heardText = () => { const v = document.querySelector("[data-co-form] [name=heard]")?.value; return v ? `\nHeard about us: ${v}` : ""; };
   const refText = () => { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); return r && Date.now() - r.t < 30 * 864e5 ? `\nReferred by: ${r.code}` : ""; } catch { return ""; } };
   try { const src = (new URLSearchParams(location.search).get("utm_source") || "") + " " + (document.referrer || ""); const m = src.match(/chatgpt|openai|perplexity|gemini|copilot|claude|bard/i); if (m) localStorage.setItem("bk_ai", JSON.stringify({ src: m[0].toLowerCase(), t: Date.now() })); } catch {}
   try { const q = new URLSearchParams(location.search), s = q.get("utm_source"); if (s && !/whatsapp/i.test(q.get("utm_medium") || "") ) localStorage.setItem("bk_src", JSON.stringify({ s: [s, q.get("utm_medium"), q.get("utm_campaign")].filter(Boolean).join(" / ").slice(0, 80), t: Date.now() })); } catch {}
@@ -331,7 +332,7 @@
     const body = { ref, currency: cur, total: pay.total, sub: t.sub, shipping: t.shipping || 0, discount: (t.discount || 0) + (t.couponOff || 0), coupon: t.coupon || "",
       method: pay.method, payment_id: pay.id || "", paypal_order: pay.paypal_order || "", razorpay_order_id: pay.rzp_order || "", razorpay_signature: pay.rzp_sig || "",
       name: f.name, email: f.email || "", phone: pay.phone || f.phone || "", address: String(f.address || "").slice(0, 300), city: f.city || "", state: f.state || "", pincode: f.pincode || "", country: f.country || (cur === "INR" ? "India" : ""),
-      gift_to: f.gift_to || "", gift_msg: f.gift_msg || "", gift_hide: f.gift_hide || "", note: [refText(), aiText(), gcText()].join("").replace(/^\n+/, "").replace(/\n/g, " · "), fit,
+      gift_to: f.gift_to || "", gift_msg: f.gift_msg || "", gift_hide: f.gift_hide || "", note: [refText(), aiText(), gcText(), heardText()].join("").replace(/^\n+/, "").replace(/\n/g, " · "), fit,
       items: its.map((i) => { const p = cat.products[i.slug]; return { slug: i.slug, title: p?.title || i.slug, size: i.size || "", qty: i.qty, price: unitP(p), image: p?.thumb || p?.image || "" }; }) };
     fetch(url("api/order-notify"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), keepalive: true }).catch(() => {});
   } catch {} };
