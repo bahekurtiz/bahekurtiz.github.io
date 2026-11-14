@@ -391,6 +391,7 @@ ${pinTag ? `if(!deny){w.pintrk=function(){w.pintrk.queue.push(Array.prototype.sl
 ${clarity ? `if(!deny){w.clarity=w.clarity||function(){(w.clarity.q=w.clarity.q||[]).push(arguments)};S.push("https://www.clarity.ms/tag/${clarity}");}` : ""}
 w.BKtags=S;})();</script>` : "";
 
+const STORY_LINK = (() => { try { return (JSON.parse(fs.readFileSync(path.join(ROOT, "content/stories.json"), "utf8")).slugs || []).length > 0; } catch { return false; } })();
 const crumbLd = (list) => ({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [["Home", ""], ...list].map(([name, path_], i) => ({ "@type": "ListItem", position: i + 1, name, item: SITE_URL + "/" + path_ })) });
 // ---------- Meta Pixel (ID from admin settings) ----------
 const pixelId = digits(S.meta_pixel_id);
@@ -578,8 +579,8 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
       <p>${esc(S.tagline || "")}</p>
       ${socials.length ? `<p class="social">${socials.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener me">${socialIcon(x.name)}${esc(x.name)}</a>`).join("")}</p>` : ""}
     </div>
-    <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
-    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a><a href="${u("tools/")}">Free Style Tools</a>${CAL_EVENTS.length ? `<a href="${u("festival/")}">Festival Calendar & Order Dates</a>` : ""}<a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a><a href="${u("press/")}">Press & Bloggers</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("gift-to-india/")}">Send a Gift to India</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="#cookie-settings" data-cookie-settings hidden>Cookie settings</a><a href="${u("terms/")}">Terms & Conditions</a>${S.review_policy ? `<a href="${u("review-policy/")}">Review Policy</a>` : ""}</div>
+    <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.length ? `<a href="${u("collections/")}">All Collections</a>` : ""}${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
+    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a>${STORY_LINK ? `<a href="${u("stories/")}">Style Stories</a>` : ""}<a href="${u("tools/")}">Free Style Tools</a>${CAL_EVENTS.length ? `<a href="${u("festival/")}">Festival Calendar & Order Dates</a>` : ""}<a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a><a href="${u("press/")}">Press & Bloggers</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("gift-to-india/")}">Send a Gift to India</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="#cookie-settings" data-cookie-settings hidden>Cookie settings</a><a href="${u("terms/")}">Terms & Conditions</a>${S.review_policy ? `<a href="${u("review-policy/")}">Review Policy</a>` : ""}</div>
     <div><h3>Contact</h3>
       ${waHi ? `<a href="${esc(waHi)}" target="_blank" rel="noopener">WhatsApp: ${esc(S.phone || "+" + waNumber)}</a>` : ""}
       ${S.email ? `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}
@@ -988,6 +989,7 @@ const autoCopy = (h1, items) => {
 const autoHtml = (c, h1, pathname) => !c ? "" : `<section class="craft-guide prose coll-copy"><h2>About ${esc(h1)}</h2>${c.intro.map((t) => `<p>${esc(t)}</p>`).join("")}${c.cmp && c.cmp.length ? `<h3>Which fabric to choose</h3><div class="tbl-scroll"><table class="ob-table"><thead><tr><th>Fabric</th><th>Styles</th><th>From</th><th>Best season</th><th>Good for</th></tr></thead><tbody>${c.cmp.map((r) => `<tr><td><b>${esc(r[0])}</b></td><td>${r[1]}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td></tr>`).join("")}</tbody></table></div>` : ""}${c.cats.length > 1 ? `<p>Shop by type: ${c.cats.map((x) => `<a class="link" href="${u(x.url)}">${esc(x.plural)}</a>`).join(" · ")}</p>` : ""}<div class="pfaq craft-faq"><h3>Frequently asked questions</h3>${c.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}${/wholesale quote/.test(a) ? ` <a class="link" href="${u("wholesale/quote/")}">Get a quote →</a>` : ""}</p></details>`).join("")}</div></section>`;
 const autoLd = (c) => c ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }] : [];
 const THIN = new Set();
+const DUP_SHOP = new Set(); // filter pages that mostly repeat their collection – kept for shoppers, noindex for Google (cannibalisation)
 // page guides (content/page-guides/<path with / → -->.json): keyword-first title/H1, intro, guide + FAQ and extra categories for a listing page
 const PAGE_GUIDE = (() => { const d = path.join(ROOT, "content/page-guides"), o = {}; try { for (const f of fs.readdirSync(d)) if (f.endsWith(".json")) o[f.replace(/\.json$/, "").replace(/--/g, "/") + "/"] = JSON.parse(fs.readFileSync(path.join(d, f), "utf8")); } catch {} return o; })();
 // money pages: every related blog post and product links to the page meant to rank for the buying keyword
@@ -1008,7 +1010,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   const PG = PAGE_GUIDE[pathname];
   if (PG) { if (PG.h1) h1 = PG.h1; if (PG.title) title = `${PG.title} | ${brand}`; if (PG.description) description = clip(PG.description); if (PG.intro) intro = PG.intro; if (PG.sections) guide = PG;
     if (Array.isArray(PG.extra_categories)) items = [...items, ...products.filter((p) => !items.includes(p) && !p.coming && PG.extra_categories.includes(p.category))]; }
-  const thin = /^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4 && !(guide && guideWords(guide) >= 250); if (thin) THIN.add(pathname);
+  const thin = (/^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4 || DUP_SHOP.has(pathname)) && !(guide && guideWords(guide) >= 250); if (thin) THIN.add(pathname);
   const body = `
 <section class="wrap section">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / ${crumbs}</nav>
@@ -1272,6 +1274,8 @@ const autoPages = S.auto_pages === false ? [] : (() => { const out = [], has = (
       out.push({ label, url, cat: c, k, v, items });
     } }
   return out; })();
+// a filter page is worth indexing only when it is a real subset: at least 6 styles and at most 70% of its collection
+for (const a of autoPages) if (a.items.length < 6 || a.items.length > 0.7 * a.cat.items.length) DUP_SHOP.add(a.url);
 for (const a of autoPages) {
   const kind = { color: "colour", fabric: "fabric", print: "print", occ: "occasion" }[a.k];
   const seo = `${a.label} for women by ${brand} – ${a.items.length} styles made in our own unit in Sanganer, Jaipur. ${a.k === "fabric" ? `Every piece is ${a.v.toLowerCase()}, picked for comfort in Indian weather.` : a.k === "print" ? (craftInfo("print", a.v)?.[1] || "") : a.k === "occ" ? `Easy to wear and easy to style for ${a.v.toLowerCase()}.` : `Shop ${a.v.toLowerCase()} ${a.cat.plural.toLowerCase()} in sizes ${uniq(a.items.flatMap((p) => p.sizes)).sort((x, y) => sizeRank(x) - sizeRank(y)).join(", ")}.`} Secure prepaid payment, shipping across India${intlOn ? " and worldwide" : ""}.`;
