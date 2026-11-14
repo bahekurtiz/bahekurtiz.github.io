@@ -21,7 +21,7 @@
   const unit = (p) => (isUSD() ? p.price_usd : p.price);
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
   // ---------- delivery estimate: ONE function for product page, bag and checkout (numbers = BK.ship from settings) ----------
-  // today + dispatch (ready 2–4 / custom fit 5–7 working days) + transit (India 3–5 working / international 5–10 business days); Sundays skipped
+  // today + dispatch (ready 2–4 / custom fit 10–15 working days) + transit (India 3–5 working / international 5–10 business days); Sundays skipped
   const SH = Object.assign({ dMin: 2, dMax: 4, cMin: 5, cMax: 7, inMin: 3, inMax: 5, intlMin: 5, intlMax: 10 }, BK.ship || {});
   const CUSTOM = "Custom Fit", isCustom = (sz) => /^custom fit/i.test(String(sz || "").trim());
   const etaCC = () => { if (!isUSD()) return "IN"; let c = ""; try { c = (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || ""; } catch {} if (!c || c === "IN") c = guessCC(); return !c || c === "IN" ? "US" : c; };

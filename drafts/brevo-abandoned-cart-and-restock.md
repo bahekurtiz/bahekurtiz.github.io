@@ -30,7 +30,7 @@ Hi {{ contact.FIRSTNAME | default : "there" }},
 You were looking at something lovely on Bahe Kurtiz – your bag is saved on the same phone or computer.
 
 - **Not sure of the size?** Every piece can be stitched to your measurements at no extra cost. Use the [size converter](https://bahekurtiz.com/tools/indian-size-converter/) or just reply with your bust, waist and hip.
-- **Delivery:** ready sizes ship in 2–4 working days; abroad, free express shipping with duties included to the USA, UK, Canada, UAE and Australia.
+- **Delivery:** ready sizes ship in 7–10 working days; abroad, free express shipping with duties included to the USA, UK, Canada, UAE and Australia.
 
 [Finish my order](https://bahekurtiz.com/checkout/)
 
@@ -63,7 +63,7 @@ Team Bahe Kurtiz
 **When a size is back:** send a short campaign to that list. Filter by product if you want – the product and size are in the restock row of your sheet.
 
 **Subject:** It's back: {{ product }} in your size
-**Body:** Good news – the size you asked for is available again. [Shop it here](link to the product). Ready sizes ship in 2–4 working days.
+**Body:** Good news – the size you asked for is available again. [Shop it here](link to the product). Ready sizes ship in 7–10 working days.
 
 ## 3. Price-drop alert – not built
 
