@@ -254,7 +254,7 @@ const OCC_TOP = ["Festive", "Wedding Guest", "Party", "Office", "Daily", "Diwali
 const occasions = uniq(products.flatMap((p) => p.occasion)).sort((a, b) => ((OCC_TOP.indexOf(a) + 1) || 99) - ((OCC_TOP.indexOf(b) + 1) || 99));
 // ---------- delivery promise: ONE source of truth (admin → settings; canonical defaults) ----------
 // ready sizes dispatch 7–10 working days · custom fit 10–15 · India 3–5 working days after dispatch · international 5–10 business days after dispatch (DDP)
-const SHIP = { dMin: num(S.dispatch_min) || 2, dMax: num(S.dispatch_max) || 4, cMin: num(S.custom_dispatch_min) || 5, cMax: num(S.custom_dispatch_max) || 7, inMin: num(S.transit_days_min) || 3, inMax: num(S.transit_days_max) || 5, intlMin: num(S.intl_eta_min) || 5, intlMax: num(S.intl_eta_max) || 10 };
+const SHIP = { dMin: num(S.dispatch_min) || 7, dMax: num(S.dispatch_max) || 10, cMin: num(S.custom_dispatch_min) || 10, cMax: num(S.custom_dispatch_max) || 15, inMin: num(S.transit_days_min) || 3, inMax: num(S.transit_days_max) || 5, intlMin: num(S.intl_eta_min) || 5, intlMax: num(S.intl_eta_max) || 10 };
 const SHIP_T = {
   ready: `Ready sizes: dispatched in ${SHIP.dMin}–${SHIP.dMax} working days.`,
   custom: `Made-to-measure / custom fit: ${SHIP.cMin}–${SHIP.cMax} working days.`,
@@ -2014,7 +2014,7 @@ if (S.intl_shipping_policy) {
 <p class="small muted">Dispatch first: ready sizes ${SHIP.dMin}–${SHIP.dMax} working days, custom fit ${SHIP.cMin}–${SHIP.cMax} working days. Prices are in US dollars; your card or PayPal is charged in USD and your bank converts to your currency. Shipping somewhere else? Ask us on WhatsApp.</p>
 ${local.length ? `<h2>Local festivals we prepare for</h2><ul>${local.map((e) => `<li><b>${esc(e.name)}</b> – ${dShort(e.date)} ${e.date.slice(0, 4)}${e.markets ? ` (${e.markets.join(", ")})` : ""}${e.note ? `. ${esc(e.note)}` : ""}</li>`).join("")}</ul>` : ""}
 <p>Every upcoming festival with last order dates: <a href="${u("festival/")}">festival calendar</a>. Sending a gift to family in India instead? <a href="${u("gift-to-india/")}">Gift to India</a>.</p>`;
-  infoPage("international-shipping/index.html", "international-shipping/", `International Shipping: Delivery Times by Country | ${brand}`, "International Shipping", paras(S.intl_shipping_policy) + extra, `Free duties-paid express shipping from Jaipur to the USA, UK, Canada, Australia, UAE, Singapore, Malaysia and more: delivery times by country and last order dates for festivals.`);
+  infoPage("international-shipping/index.html", "international-shipping/", `International Shipping: Delivery Times by Country | ${brand}`, "International Shipping", paras(S.intl_shipping_policy) + extra, `Free duties-paid express shipping from Jaipur to the USA, UK, Canada, Australia, UAE and more: delivery times by country and festival order dates.`);
 }
 if (S.intl_return_policy) infoPage("international-returns/index.html", "international-returns/", `International Returns & Refunds | ${brand}`, "International Returns & Refunds", paras(S.intl_return_policy), `Return and refund policy for international orders from ${brand}, Jaipur.`);
 
