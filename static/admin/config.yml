@@ -592,6 +592,7 @@ collections:
           - { name: return_policy, label: "Return / Refund Policy – भारत (India)", widget: text }
           - { name: intl_shipping_policy, label: "Shipping Policy – विदेश (International)", widget: text, required: false }
           - { name: intl_return_policy, label: "Return / Refund Policy – विदेश (International)", widget: text, required: false }
+          - { name: intl_return_days, label: "विदेश return के दिन (International return days)", widget: number, value_type: int, default: 14, required: false }
           - { name: privacy_policy, label: "Privacy Policy", widget: text }
           - { name: terms, label: "Terms & Conditions", widget: text }
           - { name: site_url, label: "वेबसाइट का पता", widget: string }
