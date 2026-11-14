@@ -36,3 +36,20 @@ jobs:
           git commit -m "drafts: weekly kit and festival drafts $(date -u +%F)"
           git pull --rebase
           git push
+  radar:
+    # Google radar email to the owner. Needs secrets WINDSOR_API_KEY, BREVO_API_KEY, OWNER_EMAIL
+    # (skips quietly if they are missing). Raw Search Console data is never committed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Demand radar + pulse alert
+        env:
+          WINDSOR_API_KEY: ${{ secrets.WINDSOR_API_KEY }}
+          WINDSOR_SC_URL: ${{ secrets.WINDSOR_SC_URL }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_SENDER: ${{ secrets.BREVO_SENDER }}
+          OWNER_EMAIL: ${{ secrets.OWNER_EMAIL }}
+        run: node scripts/demand-radar.mjs
