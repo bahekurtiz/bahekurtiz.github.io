@@ -103,7 +103,6 @@
     { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true }
   ],
   "referral_coupon": "FRIEND10",
-  "wholesale_moq": "15–20 pieces per design (sizes can be mixed). Shipping extra.",
   "wholesale_prices": {},
   "wholesale_price_note": "Cotton styles, INR per piece. Shipping extra. Other fabrics (linen, velvet, silk, georgette, chiffon, Kota Doria) on request.",
   "wholesale_price_fabrics": ["Cotton", "Pure Cotton", "Cotton Flex"],
