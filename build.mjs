@@ -149,6 +149,9 @@ const offUsd = (p) => (p.price_usd && p.mrp_usd && p.mrp_usd > p.price_usd ? Mat
 const uniq = (arr) => [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 const fabrics = uniq(products.map((p) => p.fabric).filter((f) => f && f !== "Other"));
 const prints = uniq(products.flatMap((p) => p.print_work));
+// menus link only to pages Google can index: prints/fabrics with 4+ styles (or hand block print → its money page), collections with 3+ styles
+const navPrints = prints.filter((x) => /^hand block print$/i.test(x) || products.filter((p) => p.print_work.includes(x)).length >= 4);
+const navFabrics = fabrics.filter((x) => products.filter((p) => p.fabric === x).length >= 4);
 // ---------- Fabric & print guide data (built-in; grows with the admin lists) ----------
 const CRAFT = {
   print: {
@@ -508,16 +511,16 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
     <nav class="main-nav" aria-label="Main">
       <div class="has-mega"><a href="${u("shop/")}" class="mega-trigger">Shop <span aria-hidden="true">▾</span></a>
         <div class="mega"><div class="wrap mega-grid">
-          <div><h4>Categories</h4><a href="${u("shop/")}">Shop All</a>${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
-          ${prints.length ? `<div><h4>Shop by print</h4>${prints.slice(0, 9).map((x) => `<a href="${u(craftUrl(x))}">${esc(x)}</a>`).join("")}</div>` : ""}
-          ${fabrics.length ? `<div><h4>Shop by fabric</h4>${fabrics.slice(0, 9).map((x) => `<a href="${u(craftUrl(x))}">${esc(x)}</a>`).join("")}</div>` : ""}
+          <div><h4>Categories</h4><a href="${u("shop/")}">Shop All</a>${categories.filter((c) => c.items.length >= 3).map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
+          ${navPrints.length ? `<div><h4>Shop by print</h4>${navPrints.slice(0, 9).map((x) => `<a href="${u(/^hand block print$/i.test(x) ? "hand-block-print-kurta-sets/" : craftUrl(x))}">${esc(x)}</a>`).join("")}</div>` : ""}
+          ${navFabrics.length ? `<div><h4>Shop by fabric</h4>${navFabrics.slice(0, 9).map((x) => `<a href="${u(craftUrl(x))}">${esc(x)}</a>`).join("")}</div>` : ""}
           <a class="mega-feat" href="${u("wholesale/")}"><img decoding="async" src="${esc(u(products[0]?.images[0] || S.hero_image || ""))}" alt="${esc(products[0]?.title || brand)} – wholesale from Jaipur" width="240" height="320" loading="lazy"><span><em>For boutiques & brands</em>Wholesale & Private Label →</span></a>
         </div></div>
       </div>
       ${products.filter((p) => p.bestseller).length >= 4 ? `<a href="${u("bestsellers/")}">Bestsellers</a>` : ""}
       <a href="${u("bahe-block/")}">The Bahe Block</a>
       <a href="${u("shop/")}">New Arrivals</a>
-      <a href="${u("custom/")}">Custom & Restyle</a>
+      <a href="${u("custom-stitched-indian-suits-made-to-measure/")}">Custom & Restyle</a>
       <a href="${u("about/")}">Our Story</a>
       <a href="${u("founder/")}">Meet the Founder</a>
     </nav>
@@ -541,7 +544,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   <a href="${u("group-orders/")}">Group & Bridesmaid Orders</a>
   <a href="${u("wholesale/quote/")}">Wholesale Quote</a>
   <a href="${u("bahe-block/")}">🪵 The Bahe Block – our hand block prints</a>
-  <a href="${u("custom/")}">✂️ Custom & Restyle</a>
+  <a href="${u("custom-stitched-indian-suits-made-to-measure/")}">✂️ Custom & Restyle</a>
   <a href="${u("wishlist/")}">Wishlist</a>
   <a href="${u("feed/")}">▶ Feed – watch & shop</a>
   <a href="${u("craft/")}">🧵 Fabric & print guide</a>
@@ -596,8 +599,8 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
       <p>${esc(S.tagline || "")}</p>
       ${socials.length ? `<p class="social">${socials.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener me">${socialIcon(x.name)}${esc(x.name)}</a>`).join("")}</p>` : ""}
     </div>
-    <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.length ? `<a href="${u("collections/")}">All Collections</a>` : ""}${categories.map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
-    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a>${STORY_LINK ? `<a href="${u("stories/")}">Style Stories</a>` : ""}<a href="${u("tools/")}">Free Style Tools</a>${CAL_EVENTS.length ? `<a href="${u("festival/")}">Festival Calendar & Order Dates</a>` : ""}<a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a><a href="${u("press/")}">Press & Bloggers</a><a href="${u("wholesale/")}">Wholesale & Private Label</a><a href="${u("custom/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("gift-to-india/")}">Send a Gift to India</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="#cookie-settings" data-cookie-settings hidden>Cookie settings</a><a href="${u("terms/")}">Terms & Conditions</a>${S.review_policy ? `<a href="${u("review-policy/")}">Review Policy</a>` : ""}</div>
+    <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.length ? `<a href="${u("collections/")}">All Collections</a>` : ""}${categories.filter((c) => c.items.length >= 3).map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
+    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a>${STORY_LINK ? `<a href="${u("stories/")}">Style Stories</a>` : ""}<a href="${u("tools/")}">Free Style Tools</a>${CAL_EVENTS.length ? `<a href="${u("festival/")}">Festival Calendar & Order Dates</a>` : ""}<a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a><a href="${u("press/")}">Press & Bloggers</a><a href="${u("wholesale/")}">Wholesale & Private Label</a>${fs.existsSync(path.join(ROOT, "content/landing/import-kurtis-from-india-wholesale.json")) ? `<a href="${u("import-kurtis-from-india-wholesale/")}">Import Kurtis Wholesale – Duty Guide</a>` : ""}${fs.existsSync(path.join(ROOT, "content/landing/private-label-kurti-manufacturer-india.json")) ? `<a href="${u("private-label-kurti-manufacturer-india/")}">Private Label Manufacturer</a>` : ""}<a href="${u("custom-stitched-indian-suits-made-to-measure/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("gift-to-india/")}">Send a Gift to India</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="#cookie-settings" data-cookie-settings hidden>Cookie settings</a><a href="${u("terms/")}">Terms & Conditions</a>${S.review_policy ? `<a href="${u("review-policy/")}">Review Policy</a>` : ""}</div>
     <div><h3>Contact</h3>
       ${waHi ? `<a href="${esc(waHi)}" target="_blank" rel="noopener">WhatsApp: ${esc(S.phone || "+" + waNumber)}</a>` : ""}
       ${S.email ? `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}
@@ -892,7 +895,7 @@ ${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a clas
   // "New Arrivals" = the newest live styles (launch date, else highest SKU number), so the homepage changes by itself when products are added
   const skuNo = (p) => +(String(p.sku).match(/\d+/) || [0])[0];
   const list = products.filter((p) => !p.coming && p.images[0]).sort((a, b) => (b.launchDay || "").localeCompare(a.launchDay || "") || skuNo(b) - skuNo(a) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999)).slice(0, 8);
-  const tiles = categories.map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
+  const tiles = categories.filter((c) => c.items.length >= 3).map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
   const body = `
 ${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="${esc(st.t)}" width="120" height="120" loading="lazy"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
 ${live.on && live.url ? `<a class="live-strip" href="#live"><span class="live-dot"></span> LIVE NOW · ${esc(live.title)} <b>Watch & shop →</b></a>` : liveNextText ? `<div class="live-strip next">📺 Next live shopping: <b>${esc(liveNextText)}</b>${ytChan ? ` · <a href="${esc(ytChan)}" target="_blank" rel="noopener">Subscribe on YouTube</a>` : ""}</div>` : ""}
@@ -914,7 +917,7 @@ ${slides.length > 1 ? `<div class="hero-dots">${slides.map((_, i) => `<button ty
 ${trendStrip()}
 ${TRUST.length ? `<section class="wrap">${trustStrip("trust-home")}</section>` : ""}
 ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}" data-us="${esc(festNext.order_by_intl)}"><div class="wrap fest-row"><span class="fest-name">${esc(festNext.name)} · ${esc(festNext.dateText)}</span><span class="fest-cut"><span class="cur-inr">Order by <b>${esc(festNext.order_by_in_text)}</b> for delivery in India</span>${intlOn ? `<span class="cur-usd">Order by <b>${esc(festNext.order_by_intl_text)}</b> for delivery abroad</span>` : ""} <span class="fest-left" data-fest-left></span></span><a class="link" href="${u(festNext.link || "shop/")}">Shop →</a><button class="link fest-cal" type="button" data-ics>📅 Add festivals to my calendar</button></div></div>` : ""}
-<section class="brand-intro"><h1>${esc(brand)}<span style="display:block;font-size:.5em;font-weight:400;letter-spacing:.02em;margin-top:.3em">Hand Block Print Kurta Sets, Made to Measure in Jaipur</span></h1><p>Kurta sets, Anarkalis &amp; co-ords hand block printed in our own Jaipur unit – free custom fit and worldwide shipping.</p></section>
+<section class="brand-intro"><h1>${esc(brand)}<span style="display:block;font-size:.5em;font-weight:400;letter-spacing:.02em;margin-top:.3em">Indian Ethnic Wear, Handmade in Our Jaipur Unit</span></h1><p>Kurta sets, Anarkalis &amp; co-ords hand block printed in our own Jaipur unit – free custom fit and worldwide shipping.</p></section>
 <section class="trust" aria-label="Why shop with us">
   <div class="wrap trust-row">
     <div>${I.needle}<span><strong>Handmade in Jaipur</strong>Hand block prints by our own karigars</span></div>
@@ -966,7 +969,7 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
   </div>
 </section>`;
   add("index.html", page({
-    title: `${brand} | Hand Block Print Kurta Sets, Made to Measure`,
+    title: `${brand} | Handmade Indian Ethnic Wear from Jaipur`,
     description: clip(intlOn ? `${brand}: hand block printed kurta sets & Anarkalis from Jaipur, stitched to your size. Free shipping to the USA, UK, Canada, UAE & Australia.` : `Hand block printed kurtis, kurta sets and dresses from Jaipur by ${brand}. Secure prepaid payment and pan-India delivery.`),
     pathname: "", body: `` + body, bodyClass: "home",
     ld: [{ "@context": "https://schema.org", "@type": "WebSite", "@id": SITE_URL + "/#website", name: brand, alternateName: ["Bahe Kurti", "Bahe Kurtis", "BaheKurtiz", "Bahe Kurtiz Jaipur", "बाहे कुर्तीज़"], url: SITE_URL + "/", publisher: { "@id": SITE_URL + "/#store" }, inLanguage: "en", potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: SITE_URL + "/shop/?q={search_term_string}" }, "query-input": "required name=search_term_string" } }],
@@ -1941,7 +1944,7 @@ render()})();`;
 <p class="small muted">${esc(priceLine)} Nothing is charged until you approve. Hand block printing has small, natural variations.</p></div></div>
 <h2>How it works</h2><ol class="dcSteps"><li>Design your outfit above – every option updates the picture.</li><li>Tap <b>Order this design on WhatsApp</b>. Your full design goes to our Jaipur team.</li><li>We confirm fabric, print, price and delivery date. You approve and pay.</li><li>Your fabric is hand block printed, stitched to your size and shipped to you.</li></ol>
 ${motifInfo.length ? `<h2>Jaipur block-print motifs explained</h2><ul>${motifInfo.map(([n, d]) => `<li><b>${esc(n)}:</b> ${esc(d)}</li>`).join("")}</ul>` : ""}
-<p>Prefer something ready to ship? Browse our <a href="${u("craft/hand-block-print/")}">hand block print collection</a>, or learn <a href="${u("tools/indian-size-converter/")}">your Indian size</a>.</p>
+<p>Prefer something ready to ship? Browse our <a href="${u("hand-block-print-kurta-sets/")}">hand block print collection</a>, or learn <a href="${u("tools/indian-size-converter/")}">your Indian size</a>.</p>
 ${grid(pick(/block|print|cotton/i, 4))}
 ${faqBlock(qs)}</section>${helper}<style>.dcSteps{counter-reset:s;list-style:none;padding:0}.dcSteps li{counter-increment:s;margin:8px 0;padding-left:34px;position:relative}.dcSteps li:before{content:counter(s);position:absolute;left:0;top:0;width:24px;height:24px;border-radius:50%;background:#6d1a36;color:#fff;text-align:center;font-size:.85em;line-height:24px}</style><script>${js}</script>`;
     add("tools/design-your-own-block-print-kurta/index.html", page({ title: `Design Your Own Block-Print Kurta Set (Jaipur) | ${brand}`, description: clip("Design your own hand block print kurta set online: pick the silhouette, neckline, sleeves, Jaipur block motif and colours, see it live and order on WhatsApp. Stitched to your size."), pathname: "tools/design-your-own-block-print-kurta/", image: products[0]?.images[0], body, ld: [appLd("Block-Print Kurta Designer", "tools/design-your-own-block-print-kurta/", "Design a custom Jaipur hand block printed kurta set and order it made to measure."), faqLdT(qs), crumbLd([["Free style tools", "tools/"], ["Design your own block-print kurta", "tools/design-your-own-block-print-kurta/"]])] }));
