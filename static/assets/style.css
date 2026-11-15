@@ -197,7 +197,7 @@ details>div,details>dl{padding-bottom:16px;font-size:.94rem}
 .sticky-buy.show{transform:none}
 .sticky-buy div{display:flex;flex-direction:column;min-width:0;font-size:.85rem}
 .sticky-buy span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
-.pdp.sticky-on .wa-float{bottom:calc(84px + env(safe-area-inset-bottom))}
+.pdp.sticky-on .wa-float{transform:translateY(-68px)}
 @media (max-width:860px){
   .product{grid-template-columns:1fr;gap:20px}
   .gallery{margin-inline:-16px}
@@ -1532,7 +1532,7 @@ html.usd .aud-in{display:none!important}html:not(.usd) .aud-intl{display:none!im
 .btn-wa{background:#157347;border-color:#157347;color:#fff}.btn-wa:hover{background:#11613a}
 .sticky-buy .btn{min-height:44px}
 body.checkout-page [data-checkout]{min-height:100vh}
-@media (max-width:760px){body.pdp.sticky-on .wa-float{bottom:calc(140px + env(safe-area-inset-bottom))}}
+@media (max-width:760px){body.pdp.sticky-on .wa-float{transform:translateY(-66px)}}
 .checkout .line strong,.cart-drawer .line strong{white-space:nowrap}
 /* below-the-fold blocks render only when scrolled near (faster first paint on phones) */
 .site-footer{content-visibility:auto;contain-intrinsic-size:auto 900px}
@@ -1555,3 +1555,4 @@ body.checkout-page [data-checkout]{min-height:100vh}
 }
 .local-cur-note{display:none;margin:2px 0 0}
 html.local-cur .local-cur-note{display:block}
+.wa-float{transition:transform .25s}
