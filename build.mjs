@@ -2356,6 +2356,11 @@ const niceDate = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-IN", { 
 // blog extras: author (E-E-A-T), reading time, table of contents, tag pages, pagination
 const FOUNDER = S.founder_name || "Suresh Kumar Choudhary";
 const authorLd = { "@type": "Person", "@id": SITE_URL + "/founder/#person", name: FOUNDER, url: SITE_URL + "/founder/", jobTitle: `Founder, ${brand}` };
+const TEAM = `${brand} Styling Team`;
+const teamLd = { "@type": "Organization", "@id": SITE_URL + "/#store", name: brand, url: SITE_URL + "/about/" };
+// honest bylines: the founder is credited only on craft / unit / wholesale posts (or when a post sets "author": "founder"); styling posts are by the team
+const FOUNDER_TOPIC = /(block-print|sanganer|bagru|dabu|ajrakh|indigo|karigar|wholesale|private-label|manufactur|gota|founder|craft|our-unit)/;
+const byTeam = (b) => b.author === "team" || (b.author !== "founder" && (/by the [^*]{0,20}styling team/i.test(String(b.body || "")) || !FOUNDER_TOPIC.test(b.slug)));
 const publisherLd = { "@type": "Organization", "@id": SITE_URL + "/#store", name: brand, url: SITE_URL + "/", logo: { "@type": "ImageObject", url: abs(logoImg || favImg || "favicon.svg") } };
 const tagOk = (t) => String(t).length <= 40;
 const tagSlug = (t) => slugify(t).replace(/^-+|-+$/g, "");
@@ -2399,12 +2404,12 @@ for (const b of posts) {
   const more = posts.filter((x) => x.slug !== b.slug).map((x, i) => [x, score(x), i]).sort((a, c) => c[1] - a[1] || a[2] - c[2]).slice(0, 3).map(([x]) => x);
   const shareText = encodeURIComponent(`${b.title} ${SITE_URL}/${b.url}`);
   const rel = b.related.length ? b.related : [];
-  const authorBox = `<aside class="author-box" aria-label="About the author"><span class="author-av" aria-hidden="true">${esc(FOUNDER.split(/\s+/).map((w) => w[0]).slice(0, 2).join(""))}</span><div><p class="author-by">Written by <a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a></p><p>Founder of ${esc(brand)}, Jaipur – working with Indian clothing since 2018.</p><a class="link" href="${u("founder/")}">Read ${esc(FOUNDER.split(/\s+/)[0])}'s story →</a></div></aside>`;
+  const authorBox = byTeam(b) ? `<aside class="author-box" aria-label="About the author"><span class="author-av" aria-hidden="true">BK</span><div><p class="author-by">Written by the <a href="${u("about/")}" rel="author">${esc(TEAM)}</a></p><p>Our styling team in Jaipur writes these guides from the pieces we make in our own unit in Sanganer.</p><a class="link" href="${u("about/")}">Read our story →</a></div></aside>` : `<aside class="author-box" aria-label="About the author"><span class="author-av" aria-hidden="true">${esc(FOUNDER.split(/\s+/).map((w) => w[0]).slice(0, 2).join(""))}</span><div><p class="author-by">Written by <a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a></p><p>Founder of ${esc(brand)}, Jaipur – working with Indian clothing since 2018.</p><a class="link" href="${u("founder/")}">Read ${esc(FOUNDER.split(/\s+/)[0])}'s story →</a></div></aside>`;
   const body = `
 <article class="wrap section post">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <a href="${u("blog/")}">Blog</a>${b.tagSlugs[0] && tagPages.some((t) => t.slug === b.tagSlugs[0]) ? ` / <a href="${u("blog/tag/" + b.tagSlugs[0] + "/")}">${esc(tagName.get(b.tagSlugs[0]))}</a>` : ""} / <span>${esc(b.title)}</span></nav>
   <header class="post-head"><p class="eyebrow">${b.tags.filter(tagOk).map(tagLink).join(", ") || "Style Journal"}</p><h1>${esc(b.title)}</h1>${b.excerpt ? `<p class="lead">${esc(b.excerpt)}</p>` : ""}
-  <p class="post-meta">By <a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a> · <time datetime="${b.date}">${esc(niceDate(b.date))}</time>${b.updated > b.date ? ` · Updated <time datetime="${b.updated}">${esc(niceDate(b.updated))}</time>` : ""} · ${b.mins} min read</p></header>
+  <p class="post-meta">By ${byTeam(b) ? `<a href="${u("about/")}" rel="author">${esc(TEAM)}</a>` : `<a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a>`} · <time datetime="${b.date}">${esc(niceDate(b.date))}</time>${b.updated > b.date ? ` · Updated <time datetime="${b.updated}">${esc(niceDate(b.updated))}</time>` : ""} · ${b.mins} min read</p></header>
   ${b.cover ? `<img decoding="async" class="post-cover" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" fetchpriority="high">` : ""}
   <div class="post-body prose">${withToc(md(b.body))}</div>
   ${moneyBox(b.title + " " + b.tags.join(" ") + " " + String(b.body || "").slice(0, 4000), "")}
@@ -2420,7 +2425,7 @@ ${more.length ? `<section class="wrap section related-posts"><div class="section
     title: b.seo_title || `${b.title} | ${brand}`, description: clip(b.seo_description || b.excerpt || b.title), pathname: b.url, image: img, type: "article", body,
     og: `<meta property="article:published_time" content="${b.date}"><meta property="article:modified_time" content="${b.updated}"><meta property="article:author" content="${SITE_URL}/founder/">`,
     ld: [{ "@context": "https://schema.org", "@type": "BlogPosting", "@id": SITE_URL + "/" + b.url + "#article", headline: clip(b.title, 110), description: b.excerpt || undefined, image: [abs(img)],
-      datePublished: b.date + "T09:00:00+05:30", dateModified: b.updated + "T09:00:00+05:30", author: authorLd, publisher: publisherLd, mainEntityOfPage: { "@type": "WebPage", "@id": SITE_URL + "/" + b.url }, isPartOf: { "@type": "Blog", "@id": SITE_URL + "/blog/" }, inLanguage: "en", wordCount: b.words, timeRequired: `PT${b.mins}M`, keywords: b.tags.filter(tagOk).join(", ") || undefined, articleSection: b.tags.filter(tagOk)[0] || undefined,
+      datePublished: b.date + "T09:00:00+05:30", dateModified: b.updated + "T09:00:00+05:30", author: byTeam(b) ? teamLd : authorLd, publisher: publisherLd, mainEntityOfPage: { "@type": "WebPage", "@id": SITE_URL + "/" + b.url }, isPartOf: { "@type": "Blog", "@id": SITE_URL + "/blog/" }, inLanguage: "en", wordCount: b.words, timeRequired: `PT${b.mins}M`, keywords: b.tags.filter(tagOk).join(", ") || undefined, articleSection: b.tags.filter(tagOk)[0] || undefined,
       ...(rel.length ? { mentions: rel.slice(0, 4).map((p) => ({ "@type": "Thing", name: p.feed_title, url: SITE_URL + "/" + p.url })) } : {}) },
       ...blogFaqLd(b),
       crumbLd([["Blog", "blog/"], ...(b.tagSlugs[0] && tagPages.some((t) => t.slug === b.tagSlugs[0]) ? [[tagName.get(b.tagSlugs[0]), "blog/tag/" + b.tagSlugs[0] + "/"]] : []), [b.title, b.url]])],
