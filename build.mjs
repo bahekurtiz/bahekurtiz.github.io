@@ -1408,7 +1408,7 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
   const faqHtml = `<section class="wrap section pfaq"><div class="section-head"><h2>Questions about this piece</h2></div>${pfaq.map(([q, a2]) => `<details><summary>${esc(q)}</summary><p>${esc(a2)}</p></details>`).join("")}</section>`;
   const faqLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: pfaq.map(([q, a2]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a2 } })) };
   const C5 = ["US", "GB", "CA", "AU", "AE"];
-  const ld = {
+  let ld = {
     "@context": "https://schema.org", "@type": "Product", name: p.feed_title, image: p.images.map(abs), description: String(p.description || "").replace(/\s+/g, " ").trim() || p.title,
     "@id": SITE_URL + "/" + p.url + "#product", sku: p.slug, mpn: p.sku || p.slug, brand: { "@type": "Brand", name: brand }, manufacturer: { "@id": SITE_URL + "/#store" }, url: SITE_URL + "/" + p.url, category: p.category, color: p.color || undefined, material: p.fabric || undefined, audience: { "@type": "PeopleAudience", suggestedGender: "female", suggestedMinAge: 13 }, size: p.sizes.length ? { "@type": "SizeSpecification", name: p.sizes.join(", "), sizeSystem: "https://schema.org/WearableSizeSystemIN", sizeGroup: "https://schema.org/WearableSizeGroupRegular" } : undefined, pattern: p.print_work[0] || undefined, countryOfOrigin: "IN", additionalProperty: [["Neckline", p.neckline], ["Sleeves", p.sleeve], ["Length", p.length_type], ["Occasion", p.occasion.join(", ")], ["Craft", p.print_work.join(", ")]].filter(([, v]) => v).map(([n, v]) => ({ "@type": "PropertyValue", name: n, value: v })),
     ...(p.price !== null ? { offers: p.intl ? [{ "@type": "Offer", url: SITE_URL + "/" + p.url, priceCurrency: "USD", price: p.price_usd.toFixed(2), availability: p.in_stock ? "https://schema.org/InStock" : "https://schema.org/PreOrder", itemCondition: "https://schema.org/NewCondition", seller: { "@id": SITE_URL + "/#store" }, priceValidUntil: `${year + 1}-12-31`, eligibleRegion: C5.map((c) => ({ "@type": "Country", name: c })),
@@ -1424,6 +1424,15 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
   if (p.reviews.length) { const avgR = p.reviews.reduce((x, r) => x + r.rating, 0) / p.reviews.length;
     ld.aggregateRating = { "@type": "AggregateRating", ratingValue: avgR.toFixed(1), reviewCount: p.reviews.length, bestRating: 5, worstRating: 1 };
     ld.review = p.reviews.slice(0, 10).map((r) => ({ "@type": "Review", author: { "@type": "Person", name: r.name }, reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 }, reviewBody: r.text, ...(r.date ? { datePublished: r.date } : {}) })); }
+  // one Product per size inside a ProductGroup, so Google Shopping and AI shopping see real size variants
+  if (p.sizes.length > 1 && ld.offers) {
+    const { offers, size, aggregateRating, review, ...base } = ld; delete base["@context"]; delete base["@type"]; delete base["@id"]; delete base.sku; delete base.mpn; delete base.color;
+    const col = (p.color_base || p.color || "").replace(/\s*(&|,| and )\s*/gi, "/").slice(0, 100) || undefined;
+    ld = { "@context": "https://schema.org", "@type": "ProductGroup", "@id": SITE_URL + "/" + p.url + "#product", ...base, productGroupID: p.slug, variesBy: ["https://schema.org/size"],
+      hasVariant: p.sizes.map((sz) => ({ "@type": "Product", "@id": SITE_URL + "/" + p.url + "#size-" + slugify(sz), name: `${p.feed_title} – Size ${sz}`, sku: `${p.slug}-${slugify(sz)}`, mpn: `${p.sku || p.slug}-${sz}`, image: ld.image[0], color: col, url: SITE_URL + "/" + p.url + "?size=" + encodeURIComponent(sz),
+        size: { "@type": "SizeSpecification", name: sz, sizeSystem: "https://schema.org/WearableSizeSystemIN", sizeGroup: "https://schema.org/WearableSizeGroupRegular" }, offers })),
+      ...(aggregateRating ? { aggregateRating, review } : {}) };
+  }
   const crumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL + "/" },
     { "@type": "ListItem", position: 2, name: cat.plural, item: SITE_URL + "/" + cat.url },
