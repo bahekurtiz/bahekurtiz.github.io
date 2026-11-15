@@ -1536,3 +1536,6 @@ body.checkout-page [data-checkout]{min-height:100vh}
 .checkout .line strong,.cart-drawer .line strong{white-space:nowrap}
 /* below-the-fold blocks render only when scrolled near (faster first paint on phones) */
 .site-footer{content-visibility:auto;contain-intrinsic-size:auto 900px}
+.guide-links{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+.guide-links a{display:block;padding:.8rem 1rem;border:1px solid var(--line,#e6dfd3);border-radius:10px;text-decoration:none;color:inherit;min-height:44px}
+.guide-links a:hover{border-color:var(--gold,#8c6a22)}

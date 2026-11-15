@@ -444,6 +444,11 @@ const landings = (fs.existsSync(landDir) ? fs.readdirSync(landDir) : []).filter(
 const annItems = String(S.announcement || "").split("|").map((x) => x.trim()).filter(Boolean);
 
 let _dm; const defaultMini = () => _dm !== undefined ? _dm : (_dm = (() => { const r = reels.find((x) => x.video); if (!r) return null; const p = products.find((x) => x.slug === r.product); return { video: u(r.video), cover: r.cover ? u(r.cover) : "", caption: r.caption, product: p ? { title: p.title, url: u(p.url), image: u(p.images[0] || ""), price: priceHtml(p) } : null }; })());
+// product -> live blog posts that feature it (for "Styling guides for this piece" on product pages)
+const GUIDES_FOR = (() => { const m = new Map(); try { for (const f of fs.readdirSync(path.join(ROOT, "content/blog"))) { if (!f.endsWith(".json")) continue; let b; try { b = JSON.parse(fs.readFileSync(path.join(ROOT, "content/blog", f), "utf8")); } catch { continue; }
+  if (!b.title || b.draft === true || !b.date || String(b.date) > today || b.merged_into) continue; const slug = f.replace(/\.json$/, ""), rel = Array.isArray(b.related_products) ? b.related_products : [];
+  rel.forEach((s, i) => { if (!m.has(s)) m.set(s, []); m.get(s).push({ slug, title: b.seo_title && b.seo_title.length < b.title.length ? b.title : b.title, date: String(b.date), rank: i }); }); }
+  for (const [k, v] of m) m.set(k, v.sort((x, y) => x.rank - y.rank || y.date.localeCompare(x.date))); } catch {} return m; })();
 const NOINDEXED = new Set(); // every page rendered with noindex – kept out of the sitemap
 const OCC_GUIDES = (() => { try { return new Set(fs.readdirSync(path.join(ROOT, "content/occasion-guides")).map((f) => f.replace(/\.json$/, ""))); } catch { return new Set(); } })();
 const noindexRule = (p) => { p = String(p || "").replace(/^\//, "");
@@ -1381,6 +1386,7 @@ ${p.price !== null && !p.coming ? `<div class="sticky-buy" data-sticky><div><str
 ${howSteps(" how4-pdp")}
 ${look.length ? `<section class="wrap section look"><div class="section-head"><div><p class="eyebrow">Shop the look</p><h2>Complete the look</h2></div>${look.some((x) => x.price !== null) ? `<button class="btn btn-ghost" type="button" data-add-look="${esc([p.slug, ...look.filter((x) => x.price !== null).map((x) => x.slug)].join(","))}">Add complete look</button>` : ""}</div><div class="grid">${look.map((p) => card(p)).join("")}</div></section>` : ""}
 ${p.sizes.length ? sizeDialogFor(p) : ""}
+${(() => { const g = (GUIDES_FOR.get(p.slug) || []).slice(0, 3); return g.length ? `<section class="wrap section guides-for"><div class="section-head"><h2>Styling guides for this piece</h2></div><ul class="guide-links">${g.map((x) => `<li><a href="${u(`blog/${x.slug}/`)}">${esc(x.title)}</a></li>`).join("")}</ul></section>` : ""; })()}
 ${related.length ? `<section class="wrap section"><div class="section-head"><h2>You may also like</h2></div><div class="grid">${related.map((p) => card(p)).join("")}</div></section>` : ""}
 <section class="wrap section recent" data-recent hidden><div class="section-head"><h2>Recently viewed</h2></div><div class="grid" data-recent-grid></div></section>`;
   // auto FAQ for every product (visible + FAQPage schema) – helps Google and AI answers; built from the product data
