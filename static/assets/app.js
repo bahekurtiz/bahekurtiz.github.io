@@ -3,6 +3,7 @@
   const BK = window.BK || { base: "/", wa: "", brand: "Bahe Kurtiz" };
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const LITE = (() => { try { const c = navigator.connection; return !!(c && (c.saveData || /(^|-)(2g|3g)$/.test(c.effectiveType || ""))); } catch { return false; } })(); // data-saver or slow network
   const inr = (n) => "₹" + Math.round(n).toLocaleString("en-IN");
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const usd = (n) => "$" + (Math.round(n * 100) % 100 ? (Math.round(n * 100) / 100).toFixed(2) : String(Math.round(n)));
@@ -197,7 +198,7 @@
     const galLoad = (im) => { if (!im.dataset.src) return; if (im.dataset.srcset) { im.srcset = im.dataset.srcset; im.removeAttribute("data-srcset"); } im.src = im.dataset.src; im.removeAttribute("data-src"); };
     // preload the gallery one photo at a time, in order: photo 2 starts when photo 1 has arrived, then 3, and so on,
     // so on a slow phone the next photo is ready before the swipe and the bandwidth is never split
-    { const queue = galImgs.slice(); let busy = false;
+    { const queue = LITE ? [] : galImgs.slice(0, 1); let busy = false; // only the next photo; the rest load when swiped into view
       const step = () => { if (busy) return; const im = queue.find((x) => x.dataset.src); if (!im) return; busy = true;
         const done = () => { busy = false; setTimeout(step, 0); }; im.addEventListener("load", done, { once: true }); im.addEventListener("error", done, { once: true }); galLoad(im); };
       const first = slides?.querySelector("img:not([data-src])");
@@ -206,7 +207,7 @@
     slides?.addEventListener("scroll", () => { const i = Math.round(Math.abs(slides.scrollLeft) / slides.clientWidth); dots.forEach((d, k) => d.classList.toggle("on", k === i)); thumbs.forEach((t, k) => t.classList.toggle("on", k === i)); }, { passive: true });
     // sticky bar when main buttons scroll out of view
     const sticky = $("[data-sticky]"), main = $(".buy-row");
-    if (sticky && main && "IntersectionObserver" in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting && e.boundingClientRect.top < 0; sticky.classList.toggle("show", on); document.body.classList.toggle("sticky-on", on); }).observe(main);
+    if (sticky && main && "IntersectionObserver" in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting; sticky.classList.toggle("show", on); document.body.classList.toggle("sticky-on", on); }).observe(main);
   }
 
   // ---------- listing sort ----------
@@ -445,7 +446,7 @@
   // product video: muted autoplay; pause when off screen
   const pv2 = $$("video[data-pvideo]");
   if (pv2.length && "IntersectionObserver" in window) {
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches || LITE;
     const io2 = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !reduce) { if (e.target.preload === "none") e.target.preload = "metadata"; e.target.play().catch(() => {}); } else e.target.pause(); }), { threshold: 0.4 });
     pv2.forEach((v) => { if (reduce) v.removeAttribute("autoplay"); io2.observe(v); });
   }
@@ -614,7 +615,7 @@
     if (hide || matchMedia("(prefers-reduced-motion: reduce)").matches) mini.remove();
     else {
       const mv = $("video", mini);
-      const showMini = () => { if (mini.classList.contains("show")) return; if (mv && mv.dataset.src) { mv.src = mv.dataset.src; mv.preload = "metadata"; mv.play().catch(() => {}); } mini.classList.add("show"); };
+      const showMini = () => { if (mini.classList.contains("show")) return; if (mv && mv.dataset.src && !LITE && matchMedia("(min-width: 861px)").matches) { mv.src = mv.dataset.src; mv.preload = "metadata"; mv.play().catch(() => {}); } mini.classList.add("show"); }; // phones: poster only – the video loads when tapped (saves 4–8 MB of data)
       const gal = $(".gallery");
       if (gal && "IntersectionObserver" in window) { const io3 = new IntersectionObserver(([e]) => { if (!e.isIntersecting && e.boundingClientRect.top < 0) { showMini(); io3.disconnect(); } }); io3.observe(gal); }
       else { const onS = () => { if (scrollY > 520) { showMini(); removeEventListener("scroll", onS); } }; addEventListener("scroll", onS, { passive: true }); }
@@ -1113,7 +1114,7 @@
   lf?.addEventListener("submit", () => setTimeout(() => { try { if (localStorage.getItem("bk_follow_pending") === "1" && getUser()?.phone && lf.consent?.checked) { localStorage.removeItem("bk_follow_pending"); localStorage.setItem("bk_follow", "1"); sendSheet({ type: "follow", name: getUser().name, phone: getUser().phone, consent: "yes" }); paintFollow(); } } catch {} }, 80));
 
   $$("[data-yt]").forEach((b) => b.addEventListener("click", () => { b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&playsinline=1" title="Live video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`; }));
-  try { if (window.BKeu && !localStorage.getItem("bk_consent") && (window.BKtags?.length || window.fbq)) { const cb = document.createElement("div"); cb.className = "consent-bar"; cb.innerHTML = `<p>We would like to use cookies for analytics and ads. Nothing is set until you choose – you can change this any time in “Cookie settings” at the bottom of the page. <a href="${url("privacy/")}">Privacy</a></p><div><button type="button" class="btn btn-sm" data-cs="no">Reject all</button><button type="button" class="btn btn-sm" data-cs="yes">Accept all</button></div>`; document.body.appendChild(cb);
+  try { if (window.BKeu && !localStorage.getItem("bk_consent") && (window.BKtags?.length || window.fbq)) { const cb = document.createElement("div"); cb.className = "consent-bar"; cb.innerHTML = `<p>Cookies for analytics &amp; ads? Nothing is set until you choose. <a href="${url("privacy/")}">Privacy</a></p><div><button type="button" class="btn btn-sm" data-cs="no">Reject all</button><button type="button" class="btn btn-sm" data-cs="yes">Accept all</button></div>`; document.body.appendChild(cb);
     cb.addEventListener("click", (e) => { const b = e.target.closest("[data-cs]"); if (!b) return; const ok = b.dataset.cs === "yes"; try { localStorage.setItem("bk_consent", ok ? "yes" : "no"); } catch {} if (ok) { const g = "granted"; try { window.gtag?.("consent", "update", { ad_storage: g, ad_user_data: g, ad_personalization: g, analytics_storage: g }); window.fbq?.("consent", "grant"); if (window.fbq && window.BKnoc) { window.BKnoc = false; const t = document.createElement("script"); t.async = 1; t.src = "https://connect.facebook.net/en_US/fbevents.js"; document.head.appendChild(t); } } catch {} } cb.remove(); }); } } catch {}
   // cookie settings link (footer): UK/EU visitors can change their choice at any time
   try { const cs = $("[data-cookie-settings]"); if (cs && window.BKeu) { cs.hidden = false; cs.addEventListener("click", (e) => { e.preventDefault(); try { localStorage.removeItem("bk_consent"); } catch {} location.reload(); }); } } catch {}

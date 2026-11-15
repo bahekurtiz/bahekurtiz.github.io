@@ -217,7 +217,7 @@ details>div,details>dl{padding-bottom:16px;font-size:.94rem}
 @media (max-width:860px){.co-grid{grid-template-columns:1fr}.co-summary{order:-1}}
 .co-form h2,.co-summary h2{font-size:1.5rem;margin-top:8px}
 .co-form label{display:block;font-size:.8rem;letter-spacing:.06em;color:var(--muted);margin-bottom:14px}
-.co-form input,.co-form textarea{display:block;width:100%;margin-top:6px;padding:13px 14px;border:1px solid var(--line);background:var(--surface);font:inherit;font-size:16px;color:var(--ink);border-radius:var(--r)}
+.co-form input,.co-form textarea,.co-form select{display:block;width:100%;margin-top:6px;padding:13px 14px;border:1px solid var(--line);background:var(--surface);font:inherit;font-size:16px;color:var(--ink);border-radius:var(--r)}
 .co-form input:focus,.co-form textarea:focus{border-color:var(--ink);outline:none}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 @media (max-width:560px){.f2,.f3{grid-template-columns:1fr}}
@@ -1539,3 +1539,19 @@ body.checkout-page [data-checkout]{min-height:100vh}
 .guide-links{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
 .guide-links a{display:block;padding:.8rem 1rem;border:1px solid var(--line,#e6dfd3);border-radius:10px;text-decoration:none;color:inherit;min-height:44px}
 .guide-links a:hover{border-color:var(--gold,#8c6a22)}
+/* --- 15 Nov fixes: mobile buy flow (UK cookie bar, checkout zoom, first screen) --- */
+.co-form select{min-height:48px;appearance:auto}
+.coupon-row input{font-size:16px}
+.co-heard{display:block;margin:14px 0 6px}
+.mini-x{width:32px;height:32px;top:2px;right:2px}
+@media (max-width:860px){
+  .consent-bar{bottom:calc(66px + env(safe-area-inset-bottom));font-size:.8rem;padding:10px 12px}
+  body.pdp.sticky-on .consent-bar{bottom:calc(136px + env(safe-area-inset-bottom))}
+  html:has(.consent-bar) .mini-reel{display:none}
+  body.sticky-on .mini-reel{display:none}
+  .list-head h1{font-size:1.7rem;margin:.2em 0}
+  .list-head>p.muted{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin:0 0 4px}
+  main>.section:first-child{padding-top:12px}
+}
+.local-cur-note{display:none;margin:2px 0 0}
+html.local-cur .local-cur-note{display:block}

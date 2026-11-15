@@ -1344,7 +1344,7 @@ for (const p of [...products, ...upcoming]) {
   <div class="gallery">
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
-        ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(rsHasW(p.images[0], 720) ? rsPath(p.images[0], 720) : p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
+        ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(rsHasW(p.images[0], 960) ? rsPath(p.images[0], 960) : p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
         : (i === 0 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
@@ -1353,7 +1353,7 @@ for (const p of [...products, ...upcoming]) {
   <div class="buybox">
     <p class="eyebrow">${esc(p.category)}${p.color ? " · " + esc(p.color) : ""}</p>
     <div class="title-row"><h1>${esc(p.title)}</h1><button class="wish wish-lg" type="button" data-wish="${esc(p.slug)}" aria-label="Save to wishlist" aria-pressed="false">${I.heart}</button></div>
-    <div class="pdp-price">${priceHtml(p)}</div>
+    <div class="pdp-price">${priceHtml(p)}</div>${intlOn && p.intl ? `<p class="small muted local-cur-note">Approximate local price – you are charged in US$ and your bank converts it.</p>` : ""}
     ${(() => { const mh = S.model_height_default || p.model_height || "", ms = S.model_size_default || p.model_size || ""; return mh || ms || p.fit ? `<p class="fit-line">${[mh ? `Model is ${esc(mh)}${ms ? ` and wears size ${esc(ms)}` : ""}` : ms ? `Model wears size ${esc(ms)}` : "", p.fit ? `Fit: ${esc(p.fit)}` : ""].filter(Boolean).join(" · ")}</p>` : ""; })()}
     ${p.price !== null ? `<p class="tax cur-inr">Inclusive of all taxes${disc ? ` · <strong>Extra ${disc}% off</strong> on online payment` : ""}</p>` : ""}
     ${intlOn && p.intl ? `<p class="tax cur-usd">${esc(S.intl_duty_note || "Prices exclude import duties and taxes of your country.")}</p>` : ""}
@@ -1454,8 +1454,8 @@ add("checkout/index.html", page({
       <datalist id="states">${["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi","Jammu and Kashmir","Ladakh","Chandigarh","Puducherry"].map((s) => `<option value="${s}">`).join("")}</datalist>
       <details class="gift"><summary>🎁 This is a gift</summary><div class="gift-body"><label>Recipient name<input name="gift_to" maxlength="60"></label><label>Gift message (printed on a card)<textarea name="gift_msg" rows="2" maxlength="150"></textarea></label><label class="check"><input type="checkbox" name="gift_hide" value="yes"> Do not put the price in the parcel</label><p class="muted small">Enter the recipient's address above as the delivery address.</p></div></details>
       <label class="check"><input type="checkbox" name="consent" value="yes" data-co-consent> Send me offers and new arrivals on WhatsApp / email</label>
-      <h2>Payment</h2>
       <label class="co-heard">How did you hear about us? <span class="muted small">(optional)</span><select name="heard"><option value="">Choose…</option>${["Instagram", "Facebook", "Google search", "ChatGPT or another AI assistant", "Pinterest", "YouTube", "Etsy or Myntra", "Friend or family", "WhatsApp", "Other"].map((o) => `<option>${o}</option>`).join("")}</select></label>
+      <h2>Payment</h2>
       <div class="pay-opts" data-pay-opts><p class="muted">Loading payment options…</p></div>
       <p class="form-error" data-co-error hidden></p>
       ${trustStrip("trust-co")}
