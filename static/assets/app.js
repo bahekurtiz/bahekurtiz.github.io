@@ -796,17 +796,20 @@
   if (co) {
     const u0 = getUser(), form = $("[data-co-form]");
     if (u0 && form) { for (const k of ["name", "phone", "email", "address", "city", "state", "pincode", "country"]) if (u0[k] && form[k] && !form[k].value) form[k].value = u0[k]; }
-    let sent = false;
+    let sent = false, sentEmail = "", sentConsent = false; // phone → order sheet once; email → saved again when it changes or consent is ticked
     form?.phone?.addEventListener("blur", async () => {
       if (sent) return; const ph = form.phone.value.replace(/\D/g, ""); if (ph.length < 7 || !form.name.value.trim()) return; sent = true;
       const cat = await catalog().catch(() => null);
       sendSheet({ type: "checkout_started", name: form.name.value.trim(), phone: form.phone.value.trim(), email: (form.email?.value || "").trim(), city: (form.city?.value || "").trim(), consent: $("[data-co-consent]")?.checked ? "yes" : "no", items: cat ? bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") : "" });
     });
-    form?.email?.addEventListener("blur", async () => {
-      if (sent || !isUSD() || !bag.length) return; const em = form.email.value.trim(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em)) return; sent = true;
+    const emailLead = async () => {
+      if (!bag.length) return; const em = (form.email?.value || "").trim(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em)) return; const ok = !!$("[data-co-consent]")?.checked;
+      if (em === sentEmail && ok === sentConsent) return; sentEmail = em; sentConsent = ok;
       const cat = await catalog().catch(() => null);
       sendSheet({ type: "checkout_started", name: form.name.value.trim(), phone: form.phone.value.trim(), email: em, city: (form.city?.value || "").trim(), country: (form.country?.value || "").trim(), consent: $("[data-co-consent]")?.checked ? "yes" : "no", source: "checkout_email", items: cat ? bag.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") : "" });
-    });
+    };
+    form?.email?.addEventListener("blur", emailLead);
+    $("[data-co-consent]")?.addEventListener("change", emailLead);
   }
   paintUser();
 
