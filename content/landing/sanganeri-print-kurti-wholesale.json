@@ -20,5 +20,6 @@
       "q": "What is your minimum order quantity?",
       "a": "Our minimum order is 15 to 20 pieces per design. Samples take 7 to 8 days, and 100 pieces take about 15 days after sample approval."
     }
-  ]
+  ],
+  "draft": true
 }

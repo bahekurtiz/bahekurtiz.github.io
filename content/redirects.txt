@@ -189,8 +189,8 @@
 /blog/where-to-buy-real-hand-block-print-kurta-sets-usa-uk-canada /hand-block-print-kurta-sets/ 301
 /blog/how-to-buy-kurtis-in-wholesale-from-jaipur-for-your-boutique/ /wholesale/ 301
 /blog/how-to-buy-kurtis-in-wholesale-from-jaipur-for-your-boutique /wholesale/ 301
-/blog/cotton-co-ord-sets-for-women-floral-top-palazzo-styling-guide/ /cotton-co-ord-sets-for-women/ 301
-/blog/cotton-co-ord-sets-for-women-floral-top-palazzo-styling-guide /cotton-co-ord-sets-for-women/ 301
+/blog/cotton-co-ord-sets-for-women-floral-top-palazzo-styling-guide/ /collections/co-ord-sets/ 301
+/blog/cotton-co-ord-sets-for-women-floral-top-palazzo-styling-guide /collections/co-ord-sets/ 301
 /blog/festive-season-capsule-wardrobe-5-indian-outfits-for-dec-to-feb/ /blog/one-anarkali-three-wedding-functions-restyle-guide/ 301
 /blog/festive-season-capsule-wardrobe-5-indian-outfits-for-dec-to-feb /blog/one-anarkali-three-wedding-functions-restyle-guide/ 301
 /blog/off-white-vs-peach-embroidered-kurta-set-which-suits-you/ /blog/pastel-kurta-sets-for-day-events-white-peach-grey/ 301
@@ -292,3 +292,17 @@
 /stories/what-to-wear-to-an-indian-wedding-when-pregnant /blog/what-to-wear-to-an-indian-wedding-when-pregnant/ 301
 /stories/what-to-wear-to-the-pheras-hindu-wedding-ceremony/ /blog/what-to-wear-to-the-pheras-hindu-wedding-ceremony/ 301
 /stories/what-to-wear-to-the-pheras-hindu-wedding-ceremony /blog/what-to-wear-to-the-pheras-hindu-wedding-ceremony/ 301
+
+# SearchFit SEO audit (15 Nov 2026): one page per money keyword, thin B2B doorways folded into /wholesale/
+/anarkali-suits-online-usa-uk/ /collections/anarkali-suits/ 301
+/anarkali-suits-online-usa-uk /collections/anarkali-suits/ 301
+/indian-kurta-sets-for-women-usa/ /collections/kurta-pant-dupatta-sets/ 301
+/indian-kurta-sets-for-women-usa /collections/kurta-pant-dupatta-sets/ 301
+/cotton-co-ord-sets-for-women/ /collections/co-ord-sets/ 301
+/cotton-co-ord-sets-for-women /collections/co-ord-sets/ 301
+/block-print-dress-manufacturer-jaipur/ /wholesale/ 301
+/block-print-dress-manufacturer-jaipur /wholesale/ 301
+/sanganeri-print-kurti-wholesale/ /wholesale/ 301
+/sanganeri-print-kurti-wholesale /wholesale/ 301
+/indian-kurti-supplier-usa-uk-europe/ /wholesale/ 301
+/indian-kurti-supplier-usa-uk-europe /wholesale/ 301

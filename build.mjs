@@ -444,7 +444,16 @@ const landings = (fs.existsSync(landDir) ? fs.readdirSync(landDir) : []).filter(
 const annItems = String(S.announcement || "").split("|").map((x) => x.trim()).filter(Boolean);
 
 let _dm; const defaultMini = () => _dm !== undefined ? _dm : (_dm = (() => { const r = reels.find((x) => x.video); if (!r) return null; const p = products.find((x) => x.slug === r.product); return { video: u(r.video), cover: r.cover ? u(r.cover) : "", caption: r.caption, product: p ? { title: p.title, url: u(p.url), image: u(p.images[0] || ""), price: priceHtml(p) } : null }; })());
+const NOINDEXED = new Set(); // every page rendered with noindex – kept out of the sitemap
+const OCC_GUIDES = (() => { try { return new Set(fs.readdirSync(path.join(ROOT, "content/occasion-guides")).map((f) => f.replace(/\.json$/, ""))); } catch { return new Set(); } })();
+const noindexRule = (p) => { p = String(p || "").replace(/^\//, "");
+  if ((Array.isArray(S.noindex_paths) ? S.noindex_paths : []).map((x) => String(x).replace(/^\//, "")).includes(p)) return true; // owner list in settings
+  if (/^blog\/tag\//.test(p)) return true; // tag archives: thin lists, kept for readers only
+  const o = p.match(/^occasion\/([^/]+)\/$/); if (o && !OCC_GUIDES.has(o[1])) return true; // occasion pages without a written guide repeat the shop
+  return false; };
 function page({ title, description, pathname, image, body, ld = [], type = "website", noindex = false, bodyClass = "", mini, og = "" }) {
+  if (!noindex && noindexRule(pathname)) noindex = true;
+  if (noindex && pathname) NOINDEXED.add(String(pathname).replace(/^\//, ""));
   if (!noindex && pathname && pathname !== "404.html" && !ld.some((x) => x && x["@type"] === "BreadcrumbList")) ld = [...ld, crumbLd([[String(title || "").split(/ [|–] /)[0].trim(), pathname]])];
   if (mini === undefined) mini = defaultMini();
   const canonical = SITE_URL + "/" + pathname;
@@ -1010,7 +1019,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   const PG = PAGE_GUIDE[pathname];
   if (PG) { if (PG.h1) h1 = PG.h1; if (PG.title) title = `${PG.title} | ${brand}`; if (PG.description) description = clip(PG.description); if (PG.intro) intro = PG.intro; if (PG.sections) guide = PG;
     if (Array.isArray(PG.extra_categories)) items = [...items, ...products.filter((p) => !items.includes(p) && !p.coming && PG.extra_categories.includes(p.category))]; }
-  const thin = (/^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4 || DUP_SHOP.has(pathname)) && !(guide && guideWords(guide) >= 250); if (thin) THIN.add(pathname);
+  const thin = ((/^(shop|craft|occasion)\/[^/]+\/$/.test(pathname) && items.length < 4 || DUP_SHOP.has(pathname)) && !(guide && guideWords(guide) >= 250)) || (/^collections\/[^/]+\/$/.test(pathname) && items.length < 3); if (thin) THIN.add(pathname);
   const body = `
 <section class="wrap section">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / ${crumbs}</nav>
@@ -1275,7 +1284,8 @@ const autoPages = S.auto_pages === false ? [] : (() => { const out = [], has = (
     } }
   return out; })();
 // a filter page is worth indexing only when it is a real subset: at least 6 styles and at most 70% of its collection
-for (const a of autoPages) if (a.items.length < 6 || a.items.length > 0.7 * a.cat.items.length) DUP_SHOP.add(a.url);
+for (const a of autoPages) if (a.k === "occ" || a.items.length < 6 || a.items.length > 0.7 * a.cat.items.length) DUP_SHOP.add(a.url); // occasions have their own pages
+{ const seen = new Map(); for (const a of autoPages) { const key = a.items.map((p) => p.slug).sort().join("|"); if (seen.has(key)) DUP_SHOP.add(a.url); else seen.set(key, a.url); } } // identical product grids
 for (const a of autoPages) {
   const kind = { color: "colour", fabric: "fabric", print: "print", occ: "occasion" }[a.k];
   const seo = `${a.label} for women by ${brand} – ${a.items.length} styles made in our own unit in Sanganer, Jaipur. ${a.k === "fabric" ? `Every piece is ${a.v.toLowerCase()}, picked for comfort in Indian weather.` : a.k === "print" ? (craftInfo("print", a.v)?.[1] || "") : a.k === "occ" ? `Easy to wear and easy to style for ${a.v.toLowerCase()}.` : `Shop ${a.v.toLowerCase()} ${a.cat.plural.toLowerCase()} in sizes ${uniq(a.items.flatMap((p) => p.sizes)).sort((x, y) => sizeRank(x) - sizeRank(y)).join(", ")}.`} Secure prepaid payment, shipping across India${intlOn ? " and worldwide" : ""}.`;
@@ -1380,7 +1390,7 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
     p.sizes.length ? [`Which sizes are available?`, `Sizes ${p.sizes.join(", ")}${p.sold_out.length ? ` (${p.sold_out.join(", ")} sold out right now – tap "notify me")` : ""}. ${p.fit ? `The fit is ${p.fit.toLowerCase()}. ` : ""}See the size chart on this page or WhatsApp us your bust and height and we will suggest a size.`] : null,
     care ? [`How do I wash and care for it?`, care] : null,
     [`How long does delivery take?`, `${SHIP_T.ready} ${SHIP_T.custom} ${SHIP_T.india}${intlOn && p.intl ? " " + SHIP_T.intl : ""}`],
-    num(S.return_days) ? [`Can I exchange the size?`, `Yes – size exchange within ${num(S.return_days)} days of delivery for unused pieces with tags. Read our return policy for details.`] : null,
+    num(S.return_days) ? [`Can I return or exchange it?`, `In India: return or exchange unused pieces with tags within ${num(S.return_days)} days of delivery.${intlOn && p.intl && S.intl_return_policy ? ` Outside India: ready sizes can be returned within ${num(S.intl_return_days) || 14} days of delivery for a full refund.` : ""} Custom-fit pieces are made only for you, so they can't be returned for a change of mind – if we made it wrong, we remake it free. See our return policies for details.`] : null,
     [`Can boutiques buy this in wholesale?`, `Yes. ${brand} makes every piece in its own unit in Sanganer, Jaipur. Boutiques, online sellers and importers can order in bulk or under their own label – send an enquiry on our wholesale page.`],
   ].filter(Boolean);
   const faqHtml = `<section class="wrap section pfaq"><div class="section-head"><h2>Questions about this piece</h2></div>${pfaq.map(([q, a2]) => `<details><summary>${esc(q)}</summary><p>${esc(a2)}</p></details>`).join("")}</section>`;
@@ -2976,7 +2986,7 @@ if (fs.existsSync(cfgPath)) {
 
 // sitemap, robots, redirects for old shop links, headers
 const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "gift-to-india/", "press/", ...(fs.existsSync(path.join(ROOT, "content/reports/style-report-2026.json")) ? ["indian-wedding-guest-style-report/"] : []), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/", ...(S.review_policy ? ["review-policy/"] : [])];
-urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x)));
+urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x) && !NOINDEXED.has(x)));
 // page fingerprints: a page's lastmod changes only when its content changes; IndexNow gets only new/changed pages.
 // Live builds read the manifest of the deploy that is live right now (/data/page-hashes.json) to compare.
 const LIVE_BUILD = process.env.CF_PAGES === "1" && (!process.env.CF_PAGES_BRANCH || ["main", "master"].includes(process.env.CF_PAGES_BRANCH));
@@ -3076,7 +3086,7 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
   ...CLEAN_REDIRECTS, ...THIN_SHOP,
   extraRedirects.trim(),
 ].filter(Boolean).join("\n") + "\n");
-fs.writeFileSync(path.join(OUT, "_headers"), `# duplicate hosts must not be indexed – the canonical site is only https://bahekurtiz.com (www → apex 301 = Cloudflare Redirect Rule)\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex\nhttps://www.bahekurtiz.com/*\n  X-Robots-Tag: noindex\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Strict-Transport-Security: max-age=31536000\n  Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(self)\n  Cross-Origin-Opener-Policy: same-origin-allow-popups\n/track/*\n  X-Robots-Tag: noindex\n/checkout/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=2592000, stale-while-revalidate=31536000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n/embed/*\n  ! X-Frame-Options\n  Content-Security-Policy: frame-ancestors *\n  X-Robots-Tag: noindex\n/widget.js\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=3600\n  Content-Type: application/javascript; charset=utf-8\n`);
+fs.writeFileSync(path.join(OUT, "_headers"), `# duplicate hosts must not be indexed – the canonical site is only https://bahekurtiz.com (www → apex 301 = Cloudflare Redirect Rule)\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex\nhttps://www.bahekurtiz.com/*\n  X-Robots-Tag: noindex\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Strict-Transport-Security: max-age=31536000\n  Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(self)\n  Cross-Origin-Opener-Policy: same-origin-allow-popups\n/track/*\n  X-Robots-Tag: noindex\n/checkout/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=2592000, stale-while-revalidate=31536000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n  X-Robots-Tag: noindex\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n/embed/*\n  ! X-Frame-Options\n  Content-Security-Policy: frame-ancestors *\n  X-Robots-Tag: noindex\n/widget.js\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=3600\n  Content-Type: application/javascript; charset=utf-8\n`);
 console.log(`Built ${pages.length} pages, ${products.length} products, ${categories.length} categories → _site (url ${SITE_URL})`);
 
 // ---------- IndexNow: tell Bing, Yandex, Seznam & Naver (and ChatGPT search, which uses Bing) about new/changed pages, on each live deploy ----------
