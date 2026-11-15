@@ -16,10 +16,10 @@
     { "id": "gurpurab", "name": "Guru Nanak Gurpurab", "date": "2026-11-24", "audience": "both", "kind": "festival", "theme": "gurpurab", "source": "multi",
       "copy": { "hook": "Gurpurab is on 24 November", "wear": "soft colours, full sleeves and a dupatta to cover your head in the gurdwara", "colours": ["ivory", "white", "peach", "pastel pink", "saffron accents"], "hashtags": ["Gurpurab", "GuruNanakJayanti", "Gurpurab2026", "PunjabiSuit", "SikhFestival"], "guide": "blog/guru-nanak-gurpurab-outfit-ideas-for-women/" } },
     { "id": "india-winter-weddings", "name": "Indian wedding season (winter)", "date": "2026-11-01", "end": "2027-02-28", "audience": "both", "kind": "season", "source": "multi", "note": "Shaadi season Nov–Feb. Main muhurat dates resume after Dev Uthani Ekadashi in November; Kharmas (mid-Dec to Makar Sankranti) has few or no dates.",
-      "copy": { "hook": "Wedding season is here", "wear": "Anarkalis and suits for every function – haldi, mehendi, sangeet, wedding and reception – stitched to your measurements", "colours": ["emerald", "wine", "royal blue", "gold", "pastels for day events"], "hashtags": ["WeddingSeason", "IndianWeddingGuest", "WeddingGuestOutfit", "Anarkali", "ShaadiSeason"], "guide": "blog/indian-wedding-season-guide-november-to-february/", "shop": "occasion/wedding-guest/" } },
+      "copy": { "hook": "Wedding season is here", "wear": "Anarkalis and suits for every function – haldi, mehndi, sangeet, wedding and reception – stitched to your measurements", "colours": ["emerald", "wine", "royal blue", "gold", "pastels for day events"], "hashtags": ["WeddingSeason", "IndianWeddingGuest", "WeddingGuestOutfit", "Anarkali", "ShaadiSeason"], "guide": "blog/indian-wedding-season-guide-november-to-february/", "shop": "occasion/wedding-guest/" } },
     { "id": "christmas", "name": "Christmas", "date": "2026-12-25", "audience": "both", "kind": "festival", "theme": "christmas", "source": "fixed", "page": "christmas-new-year",
       "copy": { "hook": "Christmas is on Friday, 25 December", "wear": "red, green and velvet Indian outfits for Christmas parties, church and family dinners", "colours": ["red", "bottle green", "wine", "gold", "ivory"], "hashtags": ["DesiChristmas", "ChristmasOutfit", "IndianChristmas", "VelvetAnarkali", "ChristmasParty"], "guide": "blog/christmas-outfit-ideas-indian-ethnic-wear-for-women/" } },
-    { "id": "new-year", "name": "New Year's Eve", "date": "2027-01-01", "audience": "both", "kind": "festival", "theme": "new-year", "source": "fixed", "page": "christmas-new-year", "note": "Party night is 31 Dec 2026; the date is 1 Jan.",
+    { "id": "new-year", "name": "New Year's Eve", "date": "2026-12-31", "audience": "both", "kind": "festival", "theme": "new-year", "source": "fixed", "page": "christmas-new-year",
       "copy": { "hook": "New Year's Eve is on Thursday, 31 December", "wear": "black, gold and velvet party looks with an Indian touch", "colours": ["black", "gold", "navy", "wine", "emerald"], "hashtags": ["NewYearsEve", "NYEOutfit", "IndoWestern", "PartyWear", "NewYear2027"], "guide": "blog/new-years-eve-indian-party-outfit-ideas/" } },
     { "id": "lohri", "name": "Lohri", "date": "2027-01-13", "audience": "both", "kind": "festival", "theme": "lohri", "source": "drik", "page": "lohri", "note": "Drik Panchang and most calendars: 13 Jan (one calendar says 14 Jan evening).",
       "copy": { "hook": "Lohri is on Wednesday, 13 January", "wear": "bright Punjabi colours with warm layers for the bonfire night", "colours": ["mustard", "red", "rani pink", "orange", "phulkari brights"], "hashtags": ["Lohri", "HappyLohri", "Lohri2027", "PunjabiOutfit", "LohriOutfit"], "guide": "blog/what-to-wear-for-lohri-outfit-ideas/" } },
@@ -52,7 +52,7 @@
     { "id": "navratri", "name": "Navratri", "date": "2027-09-30", "audience": "both", "kind": "festival", "theme": "navratri", "source": "drik", "note": "Ghatasthapana 30 Sep 2027.", "drafts": false },
     { "id": "durga-puja", "name": "Durga Puja", "date": "2027-10-05", "end": "2027-10-09", "audience": "both", "kind": "festival", "source": "multi", "note": "Ashtami 7/8 Oct (calendars differ), Vijayadashami 9 Oct.", "drafts": false },
     { "id": "dussehra", "name": "Dussehra", "date": "2027-10-09", "audience": "india", "kind": "festival", "source": "multi", "drafts": false },
-    { "id": "karwa-chauth", "name": "Karwa Chauth", "date": "2027-10-18", "audience": "both", "kind": "festival", "theme": "karwa-chauth", "source": "multi", "drafts": false },
+    { "id": "karwa-chauth", "name": "Karva Chauth", "date": "2027-10-18", "audience": "both", "kind": "festival", "theme": "karwa-chauth", "source": "multi", "drafts": false },
     { "id": "dhanteras", "name": "Dhanteras", "date": "2027-10-27", "audience": "india", "kind": "festival", "source": "multi", "drafts": false },
     { "id": "deepavali-my-sg", "name": "Deepavali (Singapore & Malaysia)", "date": "2027-10-28", "audience": "intl", "kind": "global", "markets": ["SG", "MY"], "source": "mom", "note": "Singapore public holiday 28 Oct 2027 (MOM). Malaysia: 28 Oct (some states 29 Oct).", "drafts": false },
     { "id": "diwali", "name": "Diwali", "date": "2027-10-29", "audience": "both", "kind": "festival", "theme": "diwali", "source": "multi", "drafts": false },
@@ -70,7 +70,7 @@
     "christmas-new-year": {
       "h1": "Indian Outfits for Christmas & New Year's Eve",
       "title": "Indian Christmas & New Year Outfits for Women {year}",
-      "description": "Velvet Anarkalis, red & green suits and black-and-gold party sets for Christmas and New Year's Eve – with the last order dates for the USA, UK, Canada, UAE, Australia and India.",
+      "description": "Velvet Anarkalis, red and green suits and black-and-gold party sets for Christmas and New Year's Eve, with last order dates for India and abroad.",
       "intro": "Red, green, wine and velvet for Christmas – black, gold and jewel tones for New Year's Eve. Stitched in Jaipur, shipped with duties paid.",
       "theme": "christmas",
       "guide": {
@@ -90,7 +90,7 @@
     "lohri": {
       "h1": "Lohri Outfits for Women",
       "title": "Lohri Outfits for Women {year}: Suits & Kurta Sets",
-      "description": "Bright Punjabi suits, kurta sets and Anarkalis for Lohri – mustard, red and rani pink with warm layers for the bonfire. Last order dates for India, USA, UK and Canada.",
+      "description": "Bright Punjabi suits, kurta sets and Anarkalis for Lohri in mustard, red and rani pink, with warm layers for the bonfire and last order dates by country.",
       "intro": "Bright, happy colours for the bonfire night – with room for a warm shawl. Stitched to your size in Jaipur.",
       "theme": "lohri",
       "guide": {

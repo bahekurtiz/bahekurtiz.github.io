@@ -35,7 +35,7 @@ const PH = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "con
 const phStyle = (src) => { let k = String(src || ""); try { k = decodeURI(k); } catch {} const c = PH[k.replace(/^https?:\/\/[^/]+/, "")]; return c ? ` style="background:linear-gradient(${c})"` : ""; };
 const esc = (s = "") => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const paras = (t = "") => String(t || "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
-const clip = (t, n = 155) => { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n - 1); return c.slice(0, Math.max(c.lastIndexOf(" "), 60)).replace(/[\s,;:–-]+$/, "") + "…"; };
+const clip = (t, n = 155) => { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n); const s = Math.max(c.lastIndexOf(". "), c.lastIndexOf("! "), c.lastIndexOf("? ")); if (s >= 90) return c.slice(0, s + 1); const d = c.slice(0, n - 1); return d.slice(0, Math.max(d.lastIndexOf(" "), 60)).replace(/[\s,;:–-]+$/, "") + "…"; }; // prefer ending on a full sentence
 const slugify = (s) => String(s).toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-");
 const num = (v) => (v === "" || v === null || v === undefined || isNaN(Number(v)) ? null : Number(v));
 const inr = (n) => (num(n) === null ? "" : "₹" + Number(n).toLocaleString("en-IN"));
@@ -463,6 +463,7 @@ const noindexRule = (p) => { p = String(p || "").replace(/^\//, "");
   const o = p.match(/^occasion\/([^/]+)\/$/); if (o && !OCC_GUIDES.has(o[1])) return true; // occasion pages without a written guide repeat the shop
   return false; };
 function page({ title, description, pathname, image, body, ld = [], type = "website", noindex = false, bodyClass = "", mini, og = "" }) {
+  { const ov = S.page_descriptions && S.page_descriptions[String(pathname || "").replace(/^\//, "")]; if (ov) description = String(ov); }
   if (!noindex && noindexRule(pathname)) noindex = true;
   if (noindex && pathname) NOINDEXED.add(String(pathname).replace(/^\//, ""));
   if (!noindex && pathname && pathname !== "404.html" && !ld.some((x) => x && x["@type"] === "BreadcrumbList")) ld = [...ld, crumbLd([[String(title || "").split(/ [|–] /)[0].trim(), pathname]])];
@@ -1021,7 +1022,7 @@ const MONEY = [
   [/gota/i, "craft/gota-patti/", "Gota patti Anarkalis"],
   [/anarkali/i, "collections/anarkali-suits/", "Anarkali suits & gowns"],
   [/wedding|sangeet|mehndi|mehendi|haldi|reception|bridesmaid|nikah|walima|anand karaj|pheras|jaggo/i, "indian-wedding-guest-outfits/", "Indian wedding guest outfits"],
-  [/diwali|dhanteras|lakshmi|laxmi|bhai dooj|karwa/i, "diwali-outfits-for-women/", "Diwali suit sets for women"],
+  [/diwali|dhanteras|lakshmi|laxmi|bhai dooj|karwa|karva/i, "diwali-outfits-for-women/", "Diwali suit sets for women"],
   [/plus[ -]size|curvy|chubby|apple shape|xxl|3xl|4xl/i, "plus-size-indian-outfits/", "Plus size Indian outfits (3XL, 4XL & custom fit)"],
 ].filter(([, url]) => fs.existsSync(path.join(ROOT, "content/landing", url.replace(/\/$/, "") + ".json")) || fs.existsSync(path.join(ROOT, "content/page-guides", url.replace(/\/$/, "").replace(/\//g, "--") + ".json")) || fs.existsSync(path.join(ROOT, "content/occasion-guides", url.replace(/^occasion\//, "").replace(/\/$/, "") + ".json")));
 const moneyLinks = (text, self = "", max = 3) => MONEY.filter(([re, url]) => re.test(text) && url !== self).slice(0, max);
@@ -1185,7 +1186,7 @@ let REPORT_URL = "";
     const tally = (arr) => Object.entries(arr.reduce((o, x) => ((o[x] = (o[x] || 0) + 1), o), {})).sort((a, b) => b[1] - a[1]);
     const colours = tally(live.map((p) => fam(p.color))).filter(([k]) => k !== "Other"), fabrics = tally(live.map((p) => p.fabric).filter((f) => f && f !== "Other")).slice(0, 7);
     const bars = (rows, total, unit = "") => `<div class="rbars">${rows.map(([k, v]) => `<div class="rbar"><span class="rbar-l">${esc(k)}</span><span class="rbar-t"><span class="rbar-f" style="width:${Math.max(3, Math.round((v / rows[0][1]) * 100))}%"></span></span><span class="rbar-v">${v}${unit}${total ? ` <small>(${pct(v, total)}%)</small>` : ""}</span></div>`).join("")}</div>`;
-    const abroad = RP.countries.filter(([c]) => c !== "India").reduce((n, [, v]) => n + v, 0);
+    const abroad = RP.total_impressions - ((RP.countries.find(([c]) => c === "India") || [, 0])[1]); // all impressions outside India, not just the top 10
     const nextF = CAL_EVENTS.filter((e) => e.kind === "festival" && e.date >= TODAY_IST).slice(0, 8);
     const cite = `${brand} (${RP.year}). Indian Wedding Guest Style Report ${RP.year}. ${SITE_URL}/${REPORT_URL}`;
     const qs = [["Where does this data come from?", `From Google Search Console for ${SITE_URL.replace(/^https?:\/\//, "")} (${RP.period}) and from our own ${RP.year} catalogue. It shows what people searched before landing on our site – not the whole market.`],
@@ -1195,7 +1196,7 @@ let REPORT_URL = "";
 <p class="eyebrow">Report · ${esc(RP.period)}</p>
 <h1>Indian Wedding Guest Style Report ${RP.year}</h1>
 <p class="lead">What wedding guests and festive shoppers searched for before finding ${esc(brand)} this season – which communities' weddings, which festivals and which styling questions – plus the colours and fabrics in our ${RP.year} collection. Real numbers, no estimates.</p>
-<div class="rkeys"><div><b>${RP.total_impressions.toLocaleString("en-US")}</b><span>search impressions</span></div><div><b>${RP.countries_count}</b><span>countries</span></div><div><b>${pct(abroad, RP.total_impressions)}%</b><span>from outside India (top 10 countries)</span></div><div><b>${RP.mobile_share}%</b><span>on mobile</span></div></div>
+<div class="rkeys"><div><b>${RP.total_impressions.toLocaleString("en-US")}</b><span>search impressions</span></div><div><b>${RP.countries_count}</b><span>countries</span></div><div><b>${pct(abroad, RP.total_impressions)}%</b><span>from outside India</span></div><div><b>${RP.mobile_share}%</b><span>on mobile</span></div></div>
 <h2>Key findings</h2><ul>
 <li><b>${esc(RP.weddings[0][0])}</b> was the most searched wedding topic (${RP.weddings[0][1]} impressions) – more than the next three communities together.</li>
 <li><b>Festivals beat weddings in October–November:</b> ${esc(RP.festive[0][0].toLowerCase())} alone had ${RP.festive[0][1]} impressions, ahead of every single wedding topic.</li>
@@ -2480,7 +2481,7 @@ const STORY_URLS = [];
       page("end", pick(secs.length + 2), `<p class="eyebrow">Made in Jaipur</p><h2>Read the full guide</h2><p>${esc(clipS(b.excerpt || qa, 150))}</p><p class="brand">${esc(brand.toUpperCase())}</p>`, [`${SITE_URL}/${b.url}`, "Read the guide"]),
     ];
     const ld = { "@context": "https://schema.org", "@type": "Article", headline: sTitle, image: [abs(cover)], datePublished: b.date + "T09:00:00+05:30", dateModified: b.updated + "T09:00:00+05:30", author: { "@type": "Organization", name: brand, url: SITE_URL + "/" }, publisher: { "@type": "Organization", name: brand, logo: { "@type": "ImageObject", url: logo } }, mainEntityOfPage: url };
-    const html = `<!doctype html><html ⚡ lang="en"><head><meta charset="utf-8"><title>${esc(sTitle)} (Web Story)</title><link rel="canonical" href="${url}"><meta name="viewport" content="width=device-width"><meta name="description" content="${esc(clipS(`Swipe through ${spages.length} quick slides with outfit photos from our Jaipur studio. Full guide with all the details: ${b.title}`, 155))}"><meta name="robots" content="index,follow,max-image-preview:large">${AMP_BP}<script async src="https://cdn.ampproject.org/v0.js"></script><script async custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js"></script>${CSS}<script type="application/ld+json">${JSON.stringify([ld, crumbLd([["Web stories", "stories/"], [sTitle, String(url).replace(SITE_URL + "/", "")]])]).replace(/</g, "\\u003c")}</script></head><body><amp-story standalone title="${esc(sTitle)}" publisher="${esc(brand)}" publisher-logo-src="${esc(logo)}" poster-portrait-src="${img(cover)}">${spages.join("")}</amp-story></body></html>`;
+    const html = `<!doctype html><html ⚡ lang="en"><head><meta charset="utf-8"><title>${esc(sTitle)} (Web Story)</title><link rel="canonical" href="${url}"><meta name="viewport" content="width=device-width"><meta name="description" content="${esc(clipS(b.seo_description || b.description || `${spages.length} quick slides with outfit photos from our Jaipur studio.`, 155))}"><meta name="robots" content="index,follow,max-image-preview:large">${AMP_BP}<script async src="https://cdn.ampproject.org/v0.js"></script><script async custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js"></script>${CSS}<script type="application/ld+json">${JSON.stringify([ld, crumbLd([["Web stories", "stories/"], [sTitle, String(url).replace(SITE_URL + "/", "")]])]).replace(/</g, "\\u003c")}</script></head><body><amp-story standalone title="${esc(sTitle)}" publisher="${esc(brand)}" publisher-logo-src="${esc(logo)}" poster-portrait-src="${img(cover)}">${spages.join("")}</amp-story></body></html>`;
     pages.push([`stories/${b.slug}/index.html`, html]); // raw AMP – not passed through add() transforms
     STORY_URLS.push({ path: `stories/${b.slug}/`, title: b.title, cover });
   }

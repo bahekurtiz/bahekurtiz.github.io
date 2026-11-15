@@ -308,3 +308,7 @@
 /indian-kurti-supplier-usa-uk-europe /wholesale/ 301
 /bestsellers/ /shop/ 301
 /bestsellers /shop/ 301
+/occasion/mehendi/ /occasion/mehndi/ 301
+/occasion/mehendi /occasion/mehndi/ 301
+/occasion/haldi-mehendi/ /occasion/haldi-mehndi/ 301
+/occasion/haldi-mehendi /occasion/haldi-mehndi/ 301
