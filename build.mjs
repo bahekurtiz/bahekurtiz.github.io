@@ -571,7 +571,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   <div class="drawer-body" data-cart-items><p class="empty">Your bag is empty.</p></div>
   <div class="drawer-foot" data-cart-foot hidden>
     <div class="row"><span>Subtotal</span><strong data-cart-subtotal>₹0</strong></div>
-    ${num(S.prepaid_discount_percent) ? `<p class="hint cur-inr">Extra ${num(S.prepaid_discount_percent)}% off on online payment at checkout</p>` : ""}
+    ${num(S.prepaid_discount_percent) ? `<p class="hint cur-inr" data-prepaid-hint hidden>Extra ${num(S.prepaid_discount_percent)}% off on online payment at checkout</p>` : ""}
     ${intlOn && S.intl_duty_note ? `<p class="hint cur-usd">${esc(S.intl_duty_note)}</p>` : ""}
     <p class="cart-eta" data-cart-eta hidden></p>
     ${intlOn ? `<div class="cart-perks cur-usd" data-cart-perks><p data-potli>🎁 Free handmade potli with your first order</p></div>` : ""}
@@ -687,7 +687,7 @@ const cm = (n) => (n === null ? "–" : `${n}" <small>${Math.round(n * 2.54)} cm
 const normSize = (x) => String(x || "").trim().toUpperCase().replace(/^2XL$/, "XXL").replace(/^XXXL$/, "3XL");
 const sizeDialogFor = (p) => { const want = new Set(p.sizes.map(normSize)), rows = sizeRows.filter((r) => want.has(normSize(r.size))); return sizeDialogT(rows.length ? rows : sizeRows); };
 const sizeDialogT = (rows) => `<dialog class="size-modal" data-size-modal aria-labelledby="sz-h"><div class="size-box"><div class="drawer-head"><h2 id="sz-h">Size chart</h2><button class="icon-btn" type="button" data-close-size aria-label="Close">${I.close}</button></div>
-<p class="muted">Body measurements in inches (cm). Between two sizes? Relaxed styles: take your usual size. Fitted styles: size up. ${esc(S.size_note || "Need help? WhatsApp us your bust and height and we will suggest a size.")}</p>
+<p class="muted">Body measurements in inches (cm). Between two sizes? Relaxed styles: take your usual size. Fitted styles: size up. ${esc(S.size_note || "Need help? WhatsApp us your bust and height and we will suggest a size.")} <a href="${u("tools/indian-size-converter/")}">US/UK/EU size converter</a> · ask us on WhatsApp for this piece's garment measurements.</p>
 <div class="table-scroll"><table class="size-table"><thead><tr><th>Size</th><th>Bust</th><th>Waist</th><th>Hip</th></tr></thead><tbody>${rows.map((r) => `<tr><th>${esc(r.size)}</th><td>${cm(r.bust)}</td><td>${cm(r.waist)}</td><td>${cm(r.hip)}</td></tr>`).join("")}</tbody></table></div>
 <p class="size-custom-note">Need another size? Choose Free Custom Fit – we stitch to your measurements.</p>
 <p class="muted small">How to measure: Bust – around the fullest part. Waist – around the natural waistline. Hip – around the fullest part of the hips.</p></div></dialog>`;

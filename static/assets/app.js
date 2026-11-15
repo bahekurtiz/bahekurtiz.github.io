@@ -307,7 +307,7 @@
       const sec = $("[data-secure]"); if (sec) sec.hidden = true;
       await renderCheckout(); btn.disabled = false; return;
     }
-    try { const r = await fetch(url("api/payment-status"), { cache: "no-store" }); online = r.ok && (await r.json()).online === true; } catch { online = false; }
+    try { const r = await fetch(url("api/payment-status"), { cache: "no-store" }); online = r.ok && (await r.json()).online === true; } catch { online = false; } $$("[data-prepaid-hint]").forEach((h) => (h.hidden = !online));
     const opts = [];
     if (online) opts.push(["online", "Pay online", "UPI, cards, netbanking, wallets" + (s.prepaid_discount_percent ? ` · <b>${s.prepaid_discount_percent}% off</b>` : "")]);
     if (!online && s.upi_id) opts.push(["upi", "Pay by UPI", "GPay, PhonePe, Paytm" + (s.prepaid_discount_percent ? ` · <b>${s.prepaid_discount_percent}% off</b>` : "")]);
@@ -811,6 +811,7 @@
     form?.email?.addEventListener("blur", emailLead);
     $("[data-co-consent]")?.addEventListener("change", emailLead);
   }
+  if ($("[data-prepaid-hint]") && !co) { try { const k = "bk_online"; const c = sessionStorage.getItem(k); const show = (v) => $$("[data-prepaid-hint]").forEach((h) => (h.hidden = !v)); if (c !== null) show(c === "1"); else fetch(url("api/payment-status"), { cache: "no-store" }).then((r) => r.ok ? r.json() : {}).then((j) => { const v = j.online === true; try { sessionStorage.setItem(k, v ? "1" : "0"); } catch {} show(v); }).catch(() => {}); } catch {} }
   paintUser();
 
   // ---------- delivery date estimate on the product page: ONE line, from bkEta() (same numbers as bag + checkout) ----------
