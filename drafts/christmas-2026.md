@@ -4,7 +4,7 @@
 > Date: **Friday 25 December** (source: fixed)
 > Shop link: https://bahekurtiz.com/festival/christmas-new-year/
 > Guide: https://bahekurtiz.com/blog/christmas-outfit-ideas-indian-ethnic-wear-for-women/
-> Last order dates: India: order by 12 Dec · USA, UK, Canada, UAE & Australia: order by 5 Dec (free shipping, duties paid)
+> Last order dates: India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 > No discount is mentioned anywhere. If you want a sale for Christmas, tell Claude first – prices are never changed automatically.
 
 ## Products to feature
@@ -15,7 +15,7 @@
 ## Google Business Profile post (type: Update · button: Shop / Learn more → shop link)
 Christmas is on Friday, 25 December! Red, green and velvet Indian outfits for Christmas parties, church and family dinners. Colours we love for it: red, bottle green, wine, gold, ivory.
 Every piece is designed and stitched in our own unit in Sanganer, Jaipur – with free custom fit to your measurements.
-India: order by 12 Dec · USA, UK, Canada, UAE & Australia: order by 5 Dec (free shipping, duties paid)
+India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 Shop: https://bahekurtiz.com/festival/christmas-new-year/
 
 ## Instagram caption (use 3–5 product photos or a Reel)
@@ -23,7 +23,7 @@ Christmas is on Friday, 25 December ✨
 Red, green and velvet Indian outfits for Christmas parties, church and family dinners – handmade in Jaipur, stitched to your size.
 
 🎨 Colours: red · bottle green · wine · gold · ivory
-📦 India: order by 12 Dec · USA, UK, Canada, UAE & Australia: order by 5 Dec (free shipping, duties paid)
+📦 India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 🔗 Link in bio · DM or WhatsApp us for sizes
 
 #DesiChristmas #ChristmasOutfit #IndianChristmas #VelvetAnarkali #ChristmasParty #BaheKurtiz #HandmadeInJaipur #IndianWear
@@ -34,7 +34,7 @@ Our picks:
 - Gulnar – Wine Velvet Anarkali Suit Set with Organza Dupatta & Lace Trim – ₹2,400 / $52: https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
 - Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹2,400 / $52: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
 - Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
-India: order by 12 Dec · USA, UK, Canada, UAE & Australia: order by 5 Dec (free shipping, duties paid)
+India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 Free custom fit – send your bust, waist and hip and we stitch to your measurements.
 👉 https://bahekurtiz.com/festival/christmas-new-year/
 
@@ -45,7 +45,7 @@ Plan early – production + shipping needs time.
 Wholesale quote: https://bahekurtiz.com/wholesale/quote/
 
 ## X (Twitter) – max 280 characters
-Christmas is on Friday, 25 December. Red, green and velvet Indian outfits for Christmas parties, church and family dinners – stitched to your size in Jaipur. Abroad? Order by 5 Dec. https://bahekurtiz.com/festival/christmas-new-year/
+Christmas is on Friday, 25 December. Red, green and velvet Indian outfits for Christmas parties, church and family dinners – stitched to your size in Jaipur. Abroad? Order by 27 Nov. https://bahekurtiz.com/festival/christmas-new-year/
 
 ## WhatsApp broadcast
 *Christmas is on Friday, 25 December* ✨
@@ -56,7 +56,7 @@ https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
 https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
 • Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52
 https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
-India: order by 12 Dec · USA, UK, Canada, UAE & Australia: order by 5 Dec (free shipping, duties paid)
+India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 Reply with your size or measurements and we will help you choose.
 https://wa.me/917073350886
 
@@ -73,7 +73,7 @@ Three styles we would pick:
 - Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹2,400 / $52: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
 - Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
 
-**When to order:** India: order by 12 Dec · USA, UK, Canada, UAE & Australia: order by 5 Dec (free shipping, duties paid)
+**When to order:** India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 
 Every piece is made in our own Jaipur unit, with free custom fit.
 Styling guide: https://bahekurtiz.com/blog/christmas-outfit-ideas-indian-ethnic-wear-for-women/

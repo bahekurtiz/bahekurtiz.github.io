@@ -116,7 +116,13 @@ for (const e of P.events) {
   if (e.page && !e.page_url.includes("/festival/")) rep.noPage.push(e.name);
   if (e.drafts === false) continue;
   if (!e.copy || !e.copy.hook) { rep.needCopy.push(e.name); continue; }
-  if (existing.includes(fname)) { rep.exists.push(fname); continue; }
+  if (existing.includes(fname)) {
+    // last order dates change when dispatch times change: update just the date text in an existing draft (keeps any hand edits)
+    const fp = path.join(DDIR, fname), old = fs.readFileSync(fp, "utf8"), fresh = draft(e), L = (t) => (t.match(/^> Last order dates: (.+)$/m) || [])[1] || "";
+    const oL = L(old), nL = L(fresh), ab = (t) => (t.match(/Australia: order by (\d+ \w+)/) || [])[1] || "";
+    if (oL && nL && oL !== nL) { let up = old.split(oL).join(nL); if (ab(oL) && ab(nL)) up = up.split(`Order by ${ab(oL)}.`).join(`Order by ${ab(nL)}.`); if (!DRY) fs.writeFileSync(fp, up); (rep.refreshed ||= []).push(`${fname} (${oL} → ${nL})`); }
+    else rep.exists.push(fname);
+    continue; }
   if (!DRY) fs.writeFileSync(path.join(DDIR, fname), draft(e));
   rep.written.push(fname);
 }
@@ -128,6 +134,7 @@ Active: ${rep.active.map(line).join(", ") || "-"}
 Starting before next run: ${rep.soon.map(line).join(", ") || "-"}
 Drafts written: ${rep.written.join(", ") || "-"}${DRY ? " (dry run – nothing written)" : ""}
 Drafts already there: ${rep.exists.join(", ") || "-"}
+Drafts with updated last order dates: ${(rep.refreshed || []).join("; ") || "-"}
 Needs copy in calendar.json (hook/wear/colours/hashtags) before drafts: ${rep.needCopy.join(", ") || "-"}
 Needs a banner theme in banner-calendar.json: ${rep.needTheme.join(", ") || "-"}
 Festival page not built (fewer than 4 matching styles – shop link falls back): ${rep.noPage.join(", ") || "-"}
