@@ -26,13 +26,13 @@
   const SH = Object.assign({ dMin: 7, dMax: 10, cMin: 10, cMax: 15, inMin: 3, inMax: 5, intlMin: 5, intlMax: 10 }, BK.ship || {});
   const CUSTOM = "Custom Fit", isCustom = (sz) => /^custom fit/i.test(String(sz || "").trim());
   const etaCC = () => { if (!isUSD()) return "IN"; let c = ""; try { c = (JSON.parse(localStorage.getItem("bk_country") || "null") || {}).c || ""; } catch {} if (!c || c === "IN") c = guessCC(); return !c || c === "IN" ? "US" : c; };
-  const addWorkD = (n) => { const d = new Date(); let k = 0; while (k < n) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0) k++; } return d; };
+  const addWorkD = (n, from, biz) => { const d = from ? new Date(from) : new Date(); let k = 0; while (k < n) { d.setDate(d.getDate() + 1); const w = d.getDay(); if (w !== 0 && !(biz && w === 6)) k++; } return d; }; // dispatch: Mon–Sat; transit abroad: business days Mon–Fri
   const fmtEta = (d) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
   function bkEta(custom, proc) {
     const intl = isUSD(), cc = etaCC(), mk = intl ? (BK.mk || {})[cc] : null;
     const d = custom ? [SH.cMin, SH.cMax] : proc && proc.length ? [proc[0], proc[1] || proc[0]] : [SH.dMin, SH.dMax];
     const t = mk && Array.isArray(mk.t) && mk.t.length > 1 ? mk.t : intl ? [SH.intlMin, SH.intlMax] : [SH.inMin, SH.inMax];
-    return { intl, cc, d, t, range: `${fmtEta(addWorkD(d[0] + t[0]))} – ${fmtEta(addWorkD(d[1] + t[1]))}`, name: cc === "IN" ? "India" : (BK.countries || []).find((r) => r[0] === cc)?.[1] || cc };
+    return { intl, cc, d, t, range: `${fmtEta(addWorkD(t[0], addWorkD(d[0]), intl))} – ${fmtEta(addWorkD(t[1], addWorkD(d[1]), intl))}`, name: cc === "IN" ? "India" : (BK.countries || []).find((r) => r[0] === cc)?.[1] || cc };
   }
   const etaHtml = (custom) => { const e = bkEta(custom); return `🚚 Order today → est. delivery <b>${e.range}</b>${custom ? " <small>(custom fit)</small>" : ""}`; };
   function paintBagEta() { const custom = bag.some((i) => isCustom(i.size)); $$("[data-cart-eta],[data-co-eta]").forEach((el) => { el.hidden = !bag.length; if (bag.length) el.innerHTML = etaHtml(custom); }); }
@@ -69,7 +69,7 @@
   const UK = "bk_user_v1";
   const getUser = () => { try { return JSON.parse(localStorage.getItem(UK)) || null; } catch { return null; } };
   const setUser = (x) => { try { x ? localStorage.setItem(UK, JSON.stringify(x)) : localStorage.removeItem(UK); } catch {} paintUser(); };
-  const sendSheet = (data) => { try { if (data && data.type === "paid") localStorage.setItem("bk_bought", "1"); if (data && /^(signup|google|follow)$/.test(data.type) && data.email) localStorage.setItem("bk_vip", "1"); } catch {} try { if (data && data.email && /^(signup|google|follow|checkout_started|paid)$/.test(data.type)) fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: data.type, email: data.email, name: data.name || "", consent: data.consent || "", source: data.source || undefined }), keepalive: true }).catch(() => {}); } catch {} if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
+  const sendSheet = (data) => { try { if (data && data.type === "paid") localStorage.setItem("bk_bought", "1"); if (data && /^(signup|google|follow)$/.test(data.type) && data.email) localStorage.setItem("bk_vip", "1"); } catch {} const noSub = !!(data && data._noSub); if (data) delete data._noSub; try { if (!noSub && data && data.email && /^(signup|google|follow|checkout_started|paid)$/.test(data.type)) fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: data.type, email: data.email, name: data.name || "", consent: data.consent || "", source: data.source || undefined }), keepalive: true }).catch(() => {}); } catch {} if (!BK.sheet) return; try { fetch(BK.sheet, { method: "POST", mode: "no-cors", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...data, page: location.pathname, ts: new Date().toISOString(), currency: data.currency || (document.documentElement.classList.contains("usd") ? "USD" : "INR"), device: /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop" }) }).catch(() => {}); } catch {} };
   function saveCustomer(f, type, extra = {}) {
     const coc = document.querySelector("[data-co-consent]"); const consent = coc ? coc.checked : !!getUser()?.consent;
     const u0 = getUser() || {};
@@ -488,7 +488,7 @@
     $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" || !local ? (cur === "USD" ? "$" : "US$") : cur}` : el.textContent));
     $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${local || cur === "INR" ? cur : "US$"}` : el.textContent));
     document.documentElement.classList.toggle("local-cur", !!local);
-    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? ((force || mkt) && !co ? t : "≈ " + t) : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
+    $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? (force && !co ? t : "≈ " + t) : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
   }
   function setCountry(row, silent) {
     cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
@@ -733,9 +733,9 @@
     const grid = () => sl.length > 1 && innerWidth > 900; // laptop: all banners side by side (same cards as phone)
     // banners 2+ load only when shown (or a few seconds after the page has loaded), so banner 1 gets the bandwidth
     const hLoad = (x) => x && x.querySelectorAll("img[data-gal][data-src]").forEach((im) => { if (im.dataset.srcset) { im.srcset = im.dataset.srcset; im.removeAttribute("data-srcset"); } im.src = im.dataset.src; im.removeAttribute("data-src"); });
-    const hLater = () => setTimeout(() => sl.forEach(hLoad), 3000);
+    const hLater = () => { if (!LITE) setTimeout(() => hLoad(sl[1]), 3000); }; // only the next banner; the rest load when they rotate in
     if (document.readyState === "complete") hLater(); else addEventListener("load", hLater, { once: true });
-    const show = (i) => { hi = (i + sl.length) % sl.length; if (grid()) sl.forEach(hLoad); else hLoad(sl[hi]); if (grid()) { if (track) track.style.transform = ""; sl.forEach((x) => { x.classList.add("on"); x.removeAttribute("aria-hidden"); x.inert = false; }); return; } if (track) track.style.transform = `translateX(-${hi * 100}%)`; sl.forEach((x, k) => { x.classList.toggle("on", k === hi); x.setAttribute("aria-hidden", k !== hi); x.inert = k !== hi; }); hd.forEach((d, k) => d.classList.toggle("on", k === hi)); };
+    const show = (i) => { hi = (i + sl.length) % sl.length; if (grid()) sl.forEach(hLoad); else { hLoad(sl[hi]); if (!LITE) hLoad(sl[(hi + 1) % sl.length]); } if (grid()) { if (track) track.style.transform = ""; sl.forEach((x) => { x.classList.add("on"); x.removeAttribute("aria-hidden"); x.inert = false; }); return; } if (track) track.style.transform = `translateX(-${hi * 100}%)`; sl.forEach((x, k) => { x.classList.toggle("on", k === hi); x.setAttribute("aria-hidden", k !== hi); x.inert = k !== hi; }); hd.forEach((d, k) => d.classList.toggle("on", k === hi)); };
     addEventListener("resize", () => { show(hi); auto(); });
     const auto = () => { clearInterval(ht); if (grid()) return; if (sl.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) ht = setInterval(() => show(hi + 1), 5000); };
     $$("[data-hero-step]", hero).forEach((b) => b.addEventListener("click", () => { show(hi + +b.dataset.heroStep); auto(); }));
@@ -1487,9 +1487,12 @@
   $$("[data-vip-form]").forEach((vf) => vf.addEventListener("submit", (e) => {
     e.preventDefault(); const inp = vf.email, msg = $("[data-vip-msg]", vf), em = String(inp.value || "").trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { msg.textContent = "Please enter a valid email address."; msg.className = "vip-msg err"; inp.focus(); return; }
-    sendSheet({ type: "signup", email: em, name: getUser()?.name || "", consent: "yes", source: "footer" });
-    track("Lead", { content_name: "footer_vip" });
-    vf.querySelector(".vip-row").hidden = true; msg.textContent = "💚 You're on the VIP list! Watch your inbox for early access – your free gift comes with your first order."; msg.className = "vip-msg ok";
+    const btn = vf.querySelector("button[type=submit],button:not([type])"); if (btn) btn.disabled = true; msg.textContent = "Saving…"; msg.className = "vip-msg";
+    fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "signup", email: em, name: getUser()?.name || "", consent: "yes", source: "footer" }) })
+      .then((r) => r.ok ? r.json().catch(() => ({})) : Promise.reject(r.status)).then((j) => { if (j && j.ok === false) throw new Error(j.error || "no");
+        sendSheet({ type: "signup", email: em, name: getUser()?.name || "", consent: "yes", source: "footer", _noSub: true }); track("Lead", { content_name: "footer_vip" });
+        vf.querySelector(".vip-row").hidden = true; msg.textContent = "💚 You're on the VIP list! Watch your inbox for early access – your free gift comes with your first order."; msg.className = "vip-msg ok"; })
+      .catch(() => { if (BK.sheet) { sendSheet({ type: "signup", email: em, name: getUser()?.name || "", consent: "yes", source: "footer_retry", _noSub: true }); vf.querySelector(".vip-row").hidden = true; msg.textContent = "💚 Thank you – we have your email and will add you to the VIP list."; msg.className = "vip-msg ok"; return; } if (btn) btn.disabled = false; msg.textContent = "Sorry, we couldn't save that just now – please try again, or message us on WhatsApp."; msg.className = "vip-msg err"; });
   }));
   // ---------- CRO: bag drawer perks (USD) – free potli line + "order today → est. delivery" from the same BK.ship / market rules as the product page ----------
   function cartPerks() {

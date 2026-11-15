@@ -1556,3 +1556,4 @@ body.checkout-page [data-checkout]{min-height:100vh}
 .local-cur-note{display:none;margin:2px 0 0}
 html.local-cur .local-cur-note{display:block}
 .wa-float{transition:transform .25s}
+@media (max-width:860px){html:has(.consent-bar) .wa-float{display:none}}

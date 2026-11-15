@@ -2,7 +2,7 @@
   "_help": "Festival & wedding-season engine. One list of dated events for the next 12+ months. The build uses it for: homepage banners (India visitors: from lead.india_start days before until the day before; visitors abroad: from lead.intl_start until lead.intl_stop days before), festival shop pages (events with a 'page'), feed custom labels, and the 'last order date' table. scripts/festival-engine.mjs writes social/email drafts to drafts/ when an event's lead time starts. audience: india = banner for India visitors only, intl = visitors abroad only, both = both. theme = the banner theme id in content/banners/calendar/banner-calendar.json (no theme = no banner). Dates: only verified dates; 'note' says when calendars differ by a day. Extend every month (weekly routine checks covers_until).",
   "verified_on": "2026-11-12",
   "covers_until": "2027-11-30",
-  "lead": { "intl_start": 60, "intl_stop": 14, "india_start": 30, "india_stop": 1 },
+  "lead": { "intl_start": 60, "intl_stop": 28, "india_start": 30, "india_stop": 18 },
   "sources": {
     "drik": "drikpanchang.com (festival date pages, New Delhi)",
     "mom": "Ministry of Manpower Singapore – public holidays 2027 (press release 0618, 2026)",

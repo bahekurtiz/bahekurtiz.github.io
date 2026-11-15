@@ -40,7 +40,7 @@ function welcome(email, name) {
 <p style="margin:0 0 6px;font-size:14px;line-height:1.6">Need help with size or a custom fit? <a href="https://wa.me/917073350886" style="color:#0e5b59">WhatsApp us</a> – a real person from our Jaipur team will reply.</p>
 <p style="margin:18px 0 26px;font-size:14px">With love from Jaipur,<br>Team Bahe Kurtiz</p>
 </td></tr>
-<tr><td style="background:#f6f1e9;padding:14px;text-align:center;font-size:11px;color:#7a6f66">Free express shipping to 20+ countries, duties included · <a href="https://bahekurtiz.com" style="color:#7a6f66">bahekurtiz.com</a></td></tr>
+<tr><td style="background:#f6f1e9;padding:14px;text-align:center;font-size:11px;color:#7a6f66">Free express shipping to 15+ countries, duties included · <a href="https://bahekurtiz.com" style="color:#7a6f66">bahekurtiz.com</a></td></tr>
 </table></td></tr></table></body></html>`;
   return { sender: FROM, to: [{ email, name: first }], replyTo: FROM, subject: "Welcome to Bahe VIP 💚 Your free potli is waiting", htmlContent: html, tags: ["welcome"] };
 }
