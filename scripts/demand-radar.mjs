@@ -65,6 +65,15 @@ const lowCtr = ctrs.filter((x) => x.ctr < med / 2 && x.pos <= 15).sort((a, b) =>
 const ideas = [...qNow].filter(([q, o]) => o.i >= 50 && o.pos > 30 && q.split(" ").length >= 3 && !/bahe|kurtiz/.test(q))
   .sort((a, b) => b[1].i - a[1].i).slice(0, 2).map(([q, o]) => ({ q, i: o.i, pos: o.pos.toFixed(0) }));
 
+// 5. weak old posts – a REVIEW list only, never auto-deleted. Rule (content-pruning practice): a post must be 90+ days old,
+//    have < 30 impressions and 0 clicks over the last ~8 weeks. Suggested action: improve it, or merge it into the closest strong post with a 301.
+const blogDir = path.join(ROOT, "content/blog"), todayD = new Date(Date.now() + 5.5 * 36e5);
+const pAll = agg(data.filter((x) => inR(x, B0, END)), (x) => x.p);
+const weak = (fs.existsSync(blogDir) ? fs.readdirSync(blogDir) : []).filter((f) => f.endsWith(".json")).map((f) => { try { const b = JSON.parse(fs.readFileSync(path.join(blogDir, f), "utf8")); return { slug: f.slice(0, -5), b }; } catch { return null; } })
+  .filter((x) => x && x.b.title && x.b.draft !== true && !x.b.merged_into && x.b.date && (todayD - new Date(String(x.b.date).slice(0, 10))) / 864e5 >= 90)
+  .map((x) => { const o = pAll.get(`${SITE}/blog/${x.slug}/`) || { i: 0, c: 0 }; return { slug: x.slug, title: x.b.title, i: o.i, c: o.c, date: String(x.b.date).slice(0, 10) }; })
+  .filter((x) => x.i < 30 && x.c === 0).sort((a, b) => a.i - b.i).slice(0, 10);
+
 // 4. pulse: last 7 days vs the 7 before
 const sum = (a, b) => data.filter((x) => inR(x, a, b)).reduce((s, x) => s + x.c, 0);
 const wNow = sum(W1a, END), wPrev = sum(W0a, W0b);
@@ -82,10 +91,13 @@ ${li(rising, (x) => `<b>"${esc(x.q)}"</b> – ${x.i} impressions (pehle ${x.prev
 ${li(lowCtr, (x) => `<a href="${esc(x.p)}">${esc(short(x.p))}</a> – ${x.i} impressions, ${x.c} clicks (${(x.ctr * 100).toFixed(1)}%), position ${x.pos.toFixed(1)}`)}
 <h3>3. Naye guide ka idea (max 2 – sirf tab likho jab aapke paas asli jaankari/photo ho)</h3>
 ${li(ideas, (x) => `"${esc(x.q)}" – ${x.i} impressions, abhi position ${x.pos}`)}
+<h3>4. Kamzor purane posts (90+ din purane, 8 hafte me 30 se kam baar dikhe, 0 click)</h3>
+<p>Inhe apne aap nahi hataya jaata. Pehle behtar karo (title, products, links). Na sudhre toh Claude ko bolo – sabse milte-julte achhe post me jod kar 301 kar dega.</p>
+${li(weak, (x) => `<a href="${SITE}/blog/${esc(x.slug)}/">${esc(x.title)}</a> – ${x.i} impressions, publish ${x.date}`)}
 <p style="color:#666;font-size:13px">Ye email har Sunday apne aap aata hai. Isme se kuch bhi apne aap website par publish nahi hota. Band karna ho to /admin → Settings → Automatic engine.</p></div>`;
 
 if (PRINT) { console.log(html.replace(/<[^>]+>/g, " ").replace(/\s+\n/g, "\n").replace(/ {2,}/g, " ")); }
-console.log(`demand-radar: ${rising.length} rising, ${lowCtr.length} low-CTR, ${ideas.length} ideas, pulse ${wNow}/${wPrev}${drop ? " DROP" : ""}`);
+console.log(`demand-radar: ${rising.length} rising, ${lowCtr.length} low-CTR, ${ideas.length} ideas, ${weak.length} weak-old, pulse ${wNow}/${wPrev}${drop ? " DROP" : ""}`);
 
 const wantEmail = (E.demand_radar !== false) || (drop && E.alerts_email !== false);
 if (!wantEmail || PRINT) process.exit(0);
