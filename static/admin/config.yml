@@ -595,6 +595,7 @@ collections:
           - { name: intl_return_days, label: "विदेश return के दिन (International return days)", widget: number, value_type: int, default: 14, required: false }
           - { name: review_policy, label: "Review Policy (reviews के नियम – सिर्फ असली reviews)", widget: text, required: false }
           - { name: noindex_paths, label: "Google se chhupaye pages (noindex) – jaise feed/", widget: list, required: false }
+          - { name: promise_money_back, label: "Late dispatch par 10% wapas + event miss par full refund (tabhi on karein jab sach me dete hain)", widget: boolean, default: false, required: false }
           - label: "Automatic engine (हर हफ्ते के drafts और alerts – कुछ भी अपने आप post नहीं होता)"
             name: engine
             widget: object

@@ -33,14 +33,14 @@ function welcome(email, name) {
 <tr><td style="padding:30px 32px 10px">
 <p style="margin:0 0 6px;font-size:12px;letter-spacing:3px;color:#a8812f">BAHE VIP</p>
 <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-weight:normal;font-size:26px;color:#0e5b59">Welcome, ${first}!</h1>
-<p style="margin:0 0 14px;font-size:15px;line-height:1.6">Every Bahe piece is hand block printed or hand embroidered in Jaipur and stitched to your measurements – so it fits you, not a size chart.</p>
+<p style="margin:0 0 14px;font-size:15px;line-height:1.6">Every Bahe piece is made in our own unit in Jaipur. Choose a ready size, or free custom fit stitched to your measurements.</p>
 <p style="margin:0 0 14px;font-size:15px;line-height:1.6"><b>Your VIP gift:</b> a free handmade potli with your first order. It is packed automatically – no code needed.</p>
-<p style="margin:0 0 22px;font-size:15px;line-height:1.6">As a VIP, you hear first about new prints, limited drops and festive edits.</p>
-<p style="margin:0 0 26px;text-align:center"><a href="https://bahekurtiz.com/diwali-outfits-for-women/" style="background:#0e5b59;color:#ffffff;text-decoration:none;padding:13px 28px;border-radius:6px;font-size:14px;letter-spacing:1px;display:inline-block">SHOP THE DIWALI EDIT</a></p>
+<p style="margin:0 0 22px;font-size:15px;line-height:1.6">As a VIP, you hear first about new prints and festive edits.</p>
+<p style="margin:0 0 26px;text-align:center"><a href="https://bahekurtiz.com/shop/" style="background:#0e5b59;color:#ffffff;text-decoration:none;padding:13px 28px;border-radius:6px;font-size:14px;letter-spacing:1px;display:inline-block">SHOP NEW ARRIVALS</a></p>
 <p style="margin:0 0 6px;font-size:14px;line-height:1.6">Need help with size or a custom fit? <a href="https://wa.me/917073350886" style="color:#0e5b59">WhatsApp us</a> – a real person from our Jaipur team will reply.</p>
 <p style="margin:18px 0 26px;font-size:14px">With love from Jaipur,<br>Team Bahe Kurtiz</p>
 </td></tr>
-<tr><td style="background:#f6f1e9;padding:14px;text-align:center;font-size:11px;color:#7a6f66">Free worldwide shipping to the USA, UK, Canada, UAE &amp; Australia · <a href="https://bahekurtiz.com" style="color:#7a6f66">bahekurtiz.com</a></td></tr>
+<tr><td style="background:#f6f1e9;padding:14px;text-align:center;font-size:11px;color:#7a6f66">Free express shipping to 20+ countries, duties included · <a href="https://bahekurtiz.com" style="color:#7a6f66">bahekurtiz.com</a></td></tr>
 </table></td></tr></table></body></html>`;
   return { sender: FROM, to: [{ email, name: first }], replyTo: FROM, subject: "Welcome to Bahe VIP 💚 Your free potli is waiting", htmlContent: html, tags: ["welcome"] };
 }

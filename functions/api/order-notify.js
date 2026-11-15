@@ -99,7 +99,8 @@ ${itemsTable(o, false)}
 <h2 style="margin:18px 0 6px;font-size:15px;color:${TEAL}">Shipping to</h2><p style="margin:0 0 12px;font-size:14px;line-height:1.5">${addrHtml(o)}</p>
 ${fitText(o) ? `<p style="margin:0 0 12px;font-size:14px"><b>Your measurements:</b> ${esc(fitText(o))} (inches)</p>` : ""}
 <h2 style="margin:18px 0 8px;font-size:15px;color:${TEAL}">What happens next</h2>
-<ol style="margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6">${li("We start making your piece in our own Jaipur unit – hand finished and stitched for you.")}${li("Before it ships, we send you photos of your actual piece.")}${li(intl ? "Duties-paid express delivery: usually <b>5–10 business days after dispatch</b> – no customs bills at your door." : "Tracked delivery to your door – we share the tracking link as soon as it ships.")}</ol>
+<ol style="margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6">${li("We start making your piece in our own Jaipur unit – ready sizes are dispatched in 7–10 working days, custom fit in 10–15 working days.")}${li("Before it ships, we send you photos of your actual piece.")}${li(intl ? "Duties-paid express delivery: usually <b>5–10 business days after dispatch</b> – no customs bills at your door." : "Tracked delivery to your door – we share the tracking link as soon as it ships.")}</ol>
+<p style="margin:0 0 14px;font-size:13px;line-height:1.6;color:#7a6f66">${intl ? `Ready sizes can be returned within 14 days of delivery for a full refund; custom-fit pieces are remade free if we got them wrong. <a href="${SITE}/international-returns/" style="color:${TEAL}">Returns policy</a>` : `Returns and exchanges within 7 days of delivery for unused pieces with tags. <a href="${SITE}/returns/" style="color:${TEAL}">Returns policy</a>`}</p>
 <p style="margin:0 0 22px;text-align:center"><a href="${SITE}/track/?ref=${encodeURIComponent(o.ref)}" style="background:${TEAL};color:#ffffff;text-decoration:none;padding:13px 28px;border-radius:6px;font-size:14px;letter-spacing:1px;display:inline-block">TRACK MY ORDER</a></p>
 <p style="margin:0 0 6px;font-size:14px;line-height:1.6">Questions about size or your order? <a href="${WA}" style="color:${TEAL}">WhatsApp us</a> – a real person from our Jaipur team will reply. You can also simply reply to this email.</p>
 <p style="margin:0 0 6px;font-size:14px;line-height:1.6">Once your order has arrived, we would be grateful for your honest review on Google – it helps a small Jaipur studio a lot: <a href="${REVIEW}" style="color:${TEAL}">Review us on Google</a></p>
@@ -126,7 +127,7 @@ async function verified(o, env, cat) {
   try {
     if (o.method === "Razorpay") { const s = env.RAZORPAY_KEY_SECRET || env.RZP_KEY_SECRET; return !!(s && o.rzp_order && o.rzp_sig && (await verifySig(s, o.rzp_order, o.payment_id, o.rzp_sig))); }
     if (o.method === "PayPal") {
-      const pp = paypalEnv(env), id = pp.id, sec = pp.secret; if (!id || !sec || !o.paypal_order) return true; // no PayPal API keys: trust the client (owner email says to check PayPal)
+      const pp = paypalEnv(env), id = pp.id, sec = pp.secret; if (!id || !sec || !o.paypal_order) return "unchecked"; // no PayPal keys: never mark as verified – owner email says to check PayPal
       const host = pp.sandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
       const tk = await (await fetch(host + "/v1/oauth2/token", { method: "POST", headers: { authorization: "Basic " + btoa(id + ":" + sec), "content-type": "application/x-www-form-urlencoded" }, body: "grant_type=client_credentials" })).json();
       const r = await (await fetch(host + "/v2/checkout/orders/" + encodeURIComponent(o.paypal_order), { headers: { authorization: "Bearer " + tk.access_token } })).json();
@@ -153,11 +154,11 @@ export async function onRequestPost({ request, env }) {
     if (!o.ref || !o.items.length) return J({ ok: false, error: "order" });
     if (seen(o.ref)) return J({ ok: true, duplicate: true });
     const ok = await verified(o, env, cat);
-    const out = { ok: true, verified: ok, owner: false, customer: false };
+    const out = { ok: true, verified: ok === true, owner: false, customer: false };
     const owner = String(env.OWNER_EMAIL || "").trim() || FROM.email;
-    out.owner = await send(key, ownerEmail(o, owner, ok));
+    out.owner = await send(key, ownerEmail(o, owner, ok === true));
     if (!out.owner) SENT.delete(o.ref); // let a retry try again
-    if (ok && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(o.email) && mailOk(o.email)) out.customer = await send(key, customerEmail(o));
+    if ((ok === true || ok === "unchecked") && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(o.email) && mailOk(o.email)) out.customer = await send(key, customerEmail(o));
     return J(out);
   } catch { return J({ ok: false, error: "down" }); }
 }

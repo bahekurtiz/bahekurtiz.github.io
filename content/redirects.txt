@@ -306,3 +306,5 @@
 /sanganeri-print-kurti-wholesale /wholesale/ 301
 /indian-kurti-supplier-usa-uk-europe/ /wholesale/ 301
 /indian-kurti-supplier-usa-uk-europe /wholesale/ 301
+/bestsellers/ /shop/ 301
+/bestsellers /shop/ 301
