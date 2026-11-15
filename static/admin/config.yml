@@ -152,7 +152,7 @@ collections:
         default: [S, M, L, XL, XXL]
         required: false
       - { name: sold_out_sizes, label: "कौन से साइज़ खत्म हैं? (Sold out – 'Notify me' दिखेगा)", widget: select, multiple: true, options: ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL", "Free Size", "Custom Size"], required: false }
-      - { name: occasion, label: "मौका (Occasion)", widget: select, multiple: true, required: false, options: ["Office", "Daily", "Festive", "Wedding", "Wedding Guest", "Haldi & Mehendi", "Sangeet", "Party", "Vacation", "Gifting", "Navratri", "Diwali", "Eid", "Karwa Chauth", "Teej", "Rakhi", "Puja", "College", "Maternity"] }
+      - { name: occasion, label: "मौका (Occasion)", widget: select, multiple: true, required: false, options: ["Office", "Daily", "Festive", "Wedding", "Wedding Guest", "Haldi & Mehendi", "Mehndi", "Sangeet", "Reception", "Party", "Vacation", "Gifting", "Navratri", "Diwali", "Eid", "Karwa Chauth", "Teej", "Rakhi", "Puja", "College", "Maternity"] }
       - { name: model_height, label: "मॉडल की लंबाई (जैसे 5'5\")", widget: string, required: false }
       - { name: model_size, label: "मॉडल ने कौन सा साइज़ पहना है", widget: string, required: false }
       - { name: fit, label: "फ़िट", widget: select, options: [Relaxed, Regular, Fitted, Oversized, Flowy], required: false }
