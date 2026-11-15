@@ -451,7 +451,7 @@
   "redirects": [],
   "auto_pages": true,
   "auto_page_min": 2,
-  "auto_guides": true,
+  "auto_guides": false,
   "indexnow": true,
   "show_empty_categories": false,
   "menu_categories": [],
