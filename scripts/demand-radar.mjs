@@ -47,7 +47,11 @@ if (!data.length) { console.log("demand-radar: no rows returned"); process.exit(
 const inR = (x, a, b) => x.d >= a && x.d <= b;
 const agg = (list, key) => { const m = new Map(); for (const x of list) { const k = key(x); const o = m.get(k) || { c: 0, i: 0, pw: 0, pages: new Map() }; o.c += x.c; o.i += x.i; o.pw += x.pos * x.i; o.pages.set(x.p, (o.pages.get(x.p) || 0) + x.i); m.set(k, o); } for (const o of m.values()) { o.pos = o.i ? o.pw / o.i : 0; o.page = [...o.pages].sort((a, b) => b[1] - a[1])[0]?.[0] || ""; } return m; };
 const now = data.filter((x) => inR(x, A0, END)), prev = data.filter((x) => inR(x, B0, B1));
-const qNow = agg(now.filter((x) => x.q), (x) => x.q), qPrev = agg(prev.filter((x) => x.q), (x) => x.q);
+// Rows come per date + query + PAGE. When several of our pages show for one search, averaging them all makes the
+// position look far worse than it is (Search Console itself counts only our TOP result). So per date + query keep:
+// best (lowest) position, the largest impression count (same search counted once), and all clicks.
+const byQuery = (list) => { const m = new Map(); for (const x of list.filter((r) => r.q)) { const k = x.d + "\u0000" + x.q; const o = m.get(k); if (!o) { m.set(k, { ...x }); continue; } o.c += x.c; if (x.pos && (!o.pos || x.pos < o.pos)) { o.pos = x.pos; o.p = x.p; } o.i = Math.max(o.i, x.i); } return [...m.values()]; };
+const qNow = agg(byQuery(now), (x) => x.q), qPrev = agg(byQuery(prev), (x) => x.q);
 const pNow = agg(now, (x) => x.p);
 const short = (u) => u.replace(SITE, "") || "/";
 
