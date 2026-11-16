@@ -37,6 +37,7 @@ export async function buildEvent(b, req) {
 
 export async function onRequestPost({ request, env, waitUntil }) {
   const token = env.META_CAPI_TOKEN || env.META_ACCESS_TOKEN; if (!token) return ok();
+  { const org = request.headers.get("origin") || request.headers.get("referer") || ""; if (org && !/^https:\/\/(www\.)?bahekurtiz\.com(\/|$)/.test(org) && !/\.pages\.dev(\/|$)/.test(org)) return ok(); } // only our own pages may send ad events
   let b; try { b = JSON.parse(await request.text()); } catch { return ok(); }
   if (!b || !EVENTS.has(b.event_name) || !b.event_id) return ok();
   let pixel = String(env.META_PIXEL_ID || "").replace(/\D/g, "");

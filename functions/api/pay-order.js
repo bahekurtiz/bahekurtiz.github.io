@@ -35,6 +35,6 @@ export async function onRequestPost({ request, env }) {
   const amount = Math.round(t.total * 100); if (amount < 100) return json({ error: "Order amount is too low." }, 400);
   const ref = String(b.ref || "").replace(/[^\w-]/g, "").slice(0, 40);
   const r = await fetch("https://api.razorpay.com/v1/orders", { method: "POST", headers: { "content-type": "application/json", authorization: "Basic " + btoa(id + ":" + secret) }, body: JSON.stringify({ amount, currency: "INR", receipt: ref, notes: { ref, coupon: t.coupon } }) });
-  const o = await r.json().catch(() => ({})); if (!r.ok) return json({ error: o?.error?.description || "Payment could not start." }, 502);
+  const o = await r.json().catch(() => ({})); if (!r.ok) { console.error("razorpay order", r.status, o?.error?.description); return json({ error: "Payment could not start. Please try again or order on WhatsApp." }, 502); }
   return json({ key_id: id, order_id: o.id, amount });
 }

@@ -320,7 +320,7 @@
     await renderCheckout();
     btn.disabled = false;
   }
-  const orderRef = () => { const d = new Date(); return "BK" + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(); };
+  const orderRef = () => { const d = new Date(); return "BK" + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0") + "-" + (() => { const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", r = new Uint8Array(6); try { crypto.getRandomValues(r); } catch { for (let i = 0; i < 6; i++) r[i] = Math.random() * 256; } return [...r].map((x) => A[x % A.length]).join(""); })(); };
   function orderText(cat, f, ref, total, payLine) {
     const lines = bag.map((i) => { const p = cat.products[i.slug]; return `• ${p.title}${i.size ? " | Size " + i.size : ""} | Qty ${i.qty} | ${inr(p.price * i.qty)}`; }).join("\n");
     return `New order ${ref}\n\n${lines}\n\n${coupon ? "Coupon: " + coupon + "\n" : ""}Total: ${inr(total)}\nPayment: ${payLine}\n\nName: ${f.name}\nPhone: ${f.phone}${f.email ? "\nEmail: " + f.email : ""}\nAddress: ${f.address}, ${f.city}, ${f.state} - ${f.pincode}${giftText(f)}${refText()}${aiText()}${gcText()}`;

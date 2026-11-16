@@ -4,7 +4,9 @@ export async function verifySig(secret, orderId, paymentId, signature) {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${orderId}|${paymentId}`));
   const hex = [...new Uint8Array(sig)].map((x) => x.toString(16).padStart(2, "0")).join("");
-  return typeof signature === "string" && hex.length === signature.length && hex === signature;
+  if (typeof signature !== "string" || hex.length !== signature.length) return false;
+  let d = 0; for (let i = 0; i < hex.length; i++) d |= hex.charCodeAt(i) ^ signature.charCodeAt(i);
+  return d === 0;
 }
 export async function onRequestPost({ request, env }) {
   const secret = env.RAZORPAY_KEY_SECRET || env.RZP_KEY_SECRET; if (!secret) return json({ ok: false, error: "not configured" }, 503);

@@ -6,6 +6,7 @@
 // Product titles / prices / photos are taken from the published catalog (not trusted from the browser).
 import { paypalEnv } from "../../lib/paypal-env.js";
 import { verifySig } from "./pay-verify.js";
+import { priceOrder } from "./pay-order.js";
 
 const B = "https://api.brevo.com/v3";
 const SITE = "https://bahekurtiz.com";
@@ -87,13 +88,13 @@ ${n.length ? `<h2 style="margin:16px 0 6px;font-size:15px;color:${TEAL}">Notes</
     subject: `🛍️ New order ${o.ref} – ${money(o.total, o.currency)} ${o.currency}${verified ? "" : " (check payment)"}`, htmlContent: wrap(inner, `Automatic order alert from <a href="${SITE}" style="color:#7a6f66">bahekurtiz.com</a>`), tags: ["order-owner"] };
 }
 
-export function customerEmail(o) {
+export function customerEmail(o, confirmed = true) {
   const first = (o.name.split(/\s+/)[0] || "there");
   const intl = o.currency === "USD";
   const li = (t) => `<li style="margin:0 0 8px">${t}</li>`;
-  const inner = `<p style="margin:0 0 6px;font-size:12px;letter-spacing:3px;color:#a8812f">ORDER CONFIRMED</p>
+  const inner = `<p style="margin:0 0 6px;font-size:12px;letter-spacing:3px;color:#a8812f">${confirmed ? "ORDER CONFIRMED" : "ORDER RECEIVED"}</p>
 <h1 style="margin:0 0 12px;font-family:Georgia,serif;font-weight:normal;font-size:26px;color:${TEAL}">Thank you, ${esc(first)}!</h1>
-<p style="margin:0 0 14px;font-size:15px;line-height:1.6">Your payment is received and your order <b>${esc(o.ref)}</b> is confirmed.</p>
+<p style="margin:0 0 14px;font-size:15px;line-height:1.6">${confirmed ? `Your payment is received and your order <b>${esc(o.ref)}</b> is confirmed.` : `We have received your order <b>${esc(o.ref)}</b>. We are confirming your payment and will message you on WhatsApp or email shortly.`}</p>
 ${itemsTable(o, false)}
 <p style="margin:0 0 6px;font-size:13px;color:#7a6f66">Paid by ${esc(o.method)}${o.payment_id ? ` · Ref ${esc(o.payment_id)}` : ""}</p>
 <h2 style="margin:18px 0 6px;font-size:15px;color:${TEAL}">Shipping to</h2><p style="margin:0 0 12px;font-size:14px;line-height:1.5">${addrHtml(o)}</p>
@@ -105,7 +106,7 @@ ${fitText(o) ? `<p style="margin:0 0 12px;font-size:14px"><b>Your measurements:<
 <p style="margin:0 0 6px;font-size:14px;line-height:1.6">Questions about size or your order? <a href="${WA}" style="color:${TEAL}">WhatsApp us</a> – a real person from our Jaipur team will reply. You can also simply reply to this email.</p>
 <p style="margin:0 0 6px;font-size:14px;line-height:1.6">Once your order has arrived, we would be grateful for your honest review on Google – it helps a small Jaipur studio a lot: <a href="${REVIEW}" style="color:${TEAL}">Review us on Google</a></p>
 <p style="margin:18px 0 26px;font-size:14px">With love from Jaipur,<br>Team Bahe Kurtiz</p>`;
-  return { sender: FROM, to: [{ email: o.email, name: first }], replyTo: FROM, subject: `Your Bahe Kurtiz order ${o.ref} is confirmed 💚`,
+  return { sender: FROM, to: [{ email: o.email, name: first }], replyTo: FROM, subject: confirmed ? `Your Bahe Kurtiz order ${o.ref} is confirmed 💚` : `We received your Bahe Kurtiz order ${o.ref}`,
     htmlContent: wrap(inner, `Handmade in Jaipur, India · <a href="${SITE}" style="color:#7a6f66">bahekurtiz.com</a>`), tags: ["order-confirmation"] };
 }
 
@@ -125,7 +126,17 @@ function expectedUSD(o, cat) {
 
 async function verified(o, env, cat) {
   try {
-    if (o.method === "Razorpay") { const s = env.RAZORPAY_KEY_SECRET || env.RZP_KEY_SECRET; return !!(s && o.rzp_order && o.rzp_sig && (await verifySig(s, o.rzp_order, o.payment_id, o.rzp_sig))); }
+    if (o.method === "Razorpay") {
+      // 1) signature proves the payment belongs to this Razorpay order; 2) the Razorpay order itself (amount set by our server in
+      // pay-order.js) must be PAID and its amount must equal the bill for THESE items – so a cheap payment can't be reused for a big order
+      const kid = env.RAZORPAY_KEY_ID || env.RZP_KEY_ID, s = env.RAZORPAY_KEY_SECRET || env.RZP_KEY_SECRET;
+      if (!s || !o.rzp_order || !o.rzp_sig || !(await verifySig(s, o.rzp_order, o.payment_id, o.rzp_sig))) return false;
+      if (!kid || !cat) return "unchecked";
+      const ro = await (await fetch("https://api.razorpay.com/v1/orders/" + encodeURIComponent(o.rzp_order), { headers: { authorization: "Basic " + btoa(kid + ":" + s) } })).json();
+      const t = priceOrder(cat, o.items, o.coupon);
+      if (ro.status !== "paid" || ro.currency !== "INR" || t.error || ro.amount !== Math.round(t.total * 100)) return false;
+      o.total = ro.amount / 100; return true;
+    }
     if (o.method === "PayPal") {
       const pp = paypalEnv(env), id = pp.id, sec = pp.secret; if (!id || !sec || !o.paypal_order) return "unchecked"; // no PayPal keys: never mark as verified – owner email says to check PayPal
       const host = pp.sandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
@@ -134,8 +145,10 @@ async function verified(o, env, cat) {
       if (r.status !== "COMPLETED") return false;
       // the amount actually paid must match the bill worked out here from the catalog (the browser could be tampered with)
       const amt = r.purchase_units?.[0]?.payments?.captures?.[0]?.amount || r.purchase_units?.[0]?.amount || {};
-      const want = expectedUSD(o, cat);
-      return amt.currency_code === "USD" && want !== null && Number(amt.value) + 0.01 >= want;
+      const want = expectedUSD(o, cat), pu = r.purchase_units?.[0] || {};
+      if (pu.invoice_id && pu.invoice_id !== o.ref) return false; // PayPal order made for a different checkout
+      if (!(amt.currency_code === "USD" && want !== null && Number(amt.value) + 0.01 >= want)) return false;
+      o.total = Number(amt.value); return true;
     }
   } catch {}
   return false;
@@ -153,12 +166,16 @@ export async function onRequestPost({ request, env }) {
     const o = normalizeOrder(b, cat);
     if (!o.ref || !o.items.length) return J({ ok: false, error: "order" });
     if (seen(o.ref)) return J({ ok: true, duplicate: true });
+    const pid = o.payment_id || o.paypal_order || o.rzp_order;
+    if (pid && env.ORDERS) { try { if (await env.ORDERS.get("pay:" + pid)) return J({ ok: true, duplicate: true }); } catch {} }
+    if (pid && seen("pay:" + pid)) return J({ ok: true, duplicate: true });
     const ok = await verified(o, env, cat);
     const out = { ok: true, verified: ok === true, owner: false, customer: false };
     const owner = String(env.OWNER_EMAIL || "").trim() || FROM.email;
     out.owner = await send(key, ownerEmail(o, owner, ok === true));
     if (!out.owner) SENT.delete(o.ref); // let a retry try again
-    if ((ok === true || ok === "unchecked") && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(o.email) && mailOk(o.email)) out.customer = await send(key, customerEmail(o));
+    if (ok === true && pid && env.ORDERS) { try { await env.ORDERS.put("pay:" + pid, o.ref, { expirationTtl: 7776000 }); } catch {} }
+    if ((ok === true || ok === "unchecked") && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(o.email) && mailOk(o.email)) out.customer = await send(key, customerEmail(o, ok === true));
     return J(out);
   } catch { return J({ ok: false, error: "down" }); }
 }
