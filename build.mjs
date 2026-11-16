@@ -228,6 +228,7 @@ const CRAFT = {
     "Georgette": ["Synthetic / silk", "Light, flowy and slightly crinkled – great for anarkalis and gowns.", "Gentle hand wash or dry clean."],
     "Faux Georgette": ["Synthetic", "Georgette look and flow, easy care.", "Gentle hand wash."],
     "Chiffon": ["Synthetic / silk", "Sheer, very light and floaty.", "Gentle hand wash or dry clean."],
+    "Jam Silk": ["Silk blend", "Smooth, soft fabric with a gentle sheen and a fluid fall – richer than cotton, lighter than heavy silk.", "Dry clean."],
     "Chinon": ["Synthetic / silk", "Soft, fluid chiffon-like fabric with a gentle natural sheen – drapes beautifully for anarkalis and dupattas.", "Dry clean."],
     "Crepe": ["Synthetic / blend", "Fine crinkled texture that resists wrinkles – good for travel and office.", "Gentle hand wash."],
     "Satin": ["Synthetic / silk", "Glossy, smooth face with luxurious drape.", "Dry clean recommended."],
