@@ -1127,14 +1127,15 @@ if (intlOn) {
     const promise = ["Free shipping", "Duties included", "Custom fit", showOb ? `Order by ${dShort(obReady)}` : ""].filter(Boolean);
     const wa = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent("Hi Bahe Kurtiz! I'm in Canada and saw your velvet / Christmas edit. Can you help me choose a size?")}` : "";
     const pathname = "canada/velvet-wedding-christmas/";
-    const body = `<section class="wrap section ad-land" data-force-cur="CAD" data-fx="${cad}">
+    const CA_ON = LC.includes("CAD");
+    const body = `<section class="wrap section ad-land"${CA_ON ? ` data-force-cur="CAD" data-fx="${cad}"` : ""}>
   <div class="list-head center"><p class="eyebrow">🇨🇦 For Canada · Wedding season & Christmas</p><h1>Velvet & Wedding-Season Edit</h1>
   <p class="ad-promise">${promise.map((x) => `<span>${esc(x)}</span>`).join(" · ")}</p>
   <p class="muted">Velvet Anarkalis, festive suits and party sets, stitched in our own unit in Jaipur and delivered to your door in Canada with shipping, duties and taxes paid – nothing to pay at delivery.</p>
   ${wa ? `<p><a class="btn btn-wa" href="${wa}" target="_blank" rel="noopener" data-wa-ad>💬 Ask us on WhatsApp</a></p>` : ""}</div>
-  <p class="small muted center ad-cur">Prices shown in Canadian dollars (CA$) as a guide – you are charged in US$ by PayPal or card and your bank converts. Duties included.</p>
+  ${CA_ON ? `<p class="small muted center ad-cur">Prices shown in Canadian dollars (CA$) as a guide – you are charged in US$ by PayPal or card and your bank converts. Duties included.</p>` : `<p class="small muted center ad-cur">Prices in US$ – paid by PayPal or card, your bank converts. Duties included.</p>`}
   <h2 class="sr-only">Products</h2>
-  <div class="grid">${items.map((p, i) => caCard(p, i)).join("")}</div>
+  <div class="grid">${items.map((p, i) => (CA_ON ? caCard(p, i) : card(p, i))).join("")}</div>
   <script>(function(){var F=${cad};function paint(r){if(!(r>0))return;document.querySelectorAll("[data-cadv]").forEach(function(e){e.textContent="CA$"+Math.round(+e.dataset.cadv*r)})}try{var c=JSON.parse(localStorage.getItem("bk_rates")||"null");if(c&&c.r&&c.r.CAD&&Date.now()-c.t<432e5){paint(c.r.CAD);return}}catch(e){}paint(F);fetch("https://open.er-api.com/v6/latest/USD").then(function(r){return r.json()}).then(function(j){if(j&&j.rates&&j.rates.CAD){paint(j.rates.CAD);try{localStorage.setItem("bk_rates",JSON.stringify({t:Date.now(),r:j.rates}))}catch(e){}}}).catch(function(){})})();</script>
   <div class="ad-help">
     <div><h2>Not sure of your size?</h2><p>Our sizes are Indian sizes by body bust in inches, XS–3XL (4XL in our linen & velvet styles). Use the <a class="link" href="${u("tools/indian-size-converter/")}">size converter (Canadian/US/UK → Indian size)</a> or the size chart on every product page.</p>

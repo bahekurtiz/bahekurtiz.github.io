@@ -469,7 +469,10 @@
   const CL = BK.countries || [];
   const getCC = () => { try { return JSON.parse(localStorage.getItem("bk_country") || "null"); } catch { return null; } };
   let cc = getCC();
-  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } } catch {}
+  // A browser in India (time zone) that never PICKED a foreign country in the menu shows ₹ – a foreign country saved only
+  // from an ad / test link (?country=AU) must not stick there (owner saw A$ on desktop and ₹ on mobile).
+  if (cc && !cc.pick && cc.c !== "IN" && guessCC() === "IN") { cc = null; try { localStorage.removeItem("bk_country"); localStorage.setItem("bk_cur", "INR"); } catch {} document.documentElement.classList.remove("usd"); }
+  try { const qc = (new URLSearchParams(location.search).get("country") || "").toUpperCase(); const row = qc && CL.find((r) => r[0] === qc); if (row) { cc = { c: row[0], n: row[1], cur: row[2] }; document.documentElement.classList.toggle("usd", cc.c !== "IN"); if (guessCC() !== "IN") { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } } } catch {}
   if (!cc && CL.length) { // first visit: guess from browser
     const code = guessCC();
     const row = CL.find((r) => r[0] === code); cc = row ? { c: row[0], n: row[1], cur: row[2] } : null;
@@ -491,7 +494,7 @@
     $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? (force && !co ? t : "≈ " + t) : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
   }
   function setCountry(row, silent) {
-    cc = { c: row[0], n: row[1], cur: row[2] }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
+    cc = { c: row[0], n: row[1], cur: row[2], pick: silent ? undefined : 1 }; try { localStorage.setItem("bk_country", JSON.stringify(cc)); localStorage.setItem("bk_cur", cc.c === "IN" ? "INR" : "USD"); } catch {}
     const wasUSD = isUSD(), toUSD = cc.c !== "IN"; document.documentElement.classList.toggle("usd", toUSD);
     if (!silent) { toast(cc.c === "IN" ? "Showing prices in ₹ for India" : `Prices for ${cc.n}${cc.cur !== "USD" ? " (approx. " + cc.cur + ", charged in US $)" : " in US $"}`); if (co && wasUSD !== toUSD) return location.reload(); }
     ensureRates().then(applyLocal); renderCart().catch(() => {}); try { paintPdpEta(); paintBagEta(); } catch {}

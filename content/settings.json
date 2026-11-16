@@ -7,7 +7,7 @@
   "emergency_note": "",
   "languages_off": false,
   "local_currency_display": false,
-  "local_currency_markets": ["CAD", "GBP", "AUD", "AED"],
+  "local_currency_markets": [],
   "local_currency_fallback": {"CAD": 1.4, "GBP": 0.78, "AUD": 1.52, "AED": 3.67},
   "maintenance_mode": false,
   "checkout_pause": false,
