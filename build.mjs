@@ -2799,7 +2799,10 @@ function dashMain() {
     $("[data-print-paid]")?.addEventListener("click", () => { const os = D.orders.filter((o) => o.status === "Paid" || o.status === "Packed"); if (!os.length) { toast("Koi Paid order pack ke liye nahi"); return; } slip(os); });
     const dlg = $("[data-dlg]");
     $$("[data-edit]").forEach((b) => b.addEventListener("click", () => { const f = $("[data-f=status]"); f.ref_order.value = b.dataset.edit; $("[data-dlg-ref]").textContent = b.dataset.edit; const o = D.orders.find((x) => x.ref === b.dataset.edit); if (o) f.status.value = o.status; dlg.showModal(); }));
-    dlg.addEventListener("close", async () => { if (dlg.returnValue !== "save") return; const f = $("[data-f=status]"); await post({ type: "status", ...Object.fromEntries(new FormData(f)) }); toast("Saved ✓"); setTimeout(load, 1800); });
+    dlg.addEventListener("close", async () => { if (dlg.returnValue !== "save") return; const f = $("[data-f=status]"); const want = Object.fromEntries(new FormData(f)); await post({ type: "status", ...want }); toast("Bhej diya – Sheet mein check kar rahe hain…");
+      // the POST is no-cors (no reply), so read the sheet back and say honestly whether the status really changed
+      for (const ms of [2500, 4000, 6000]) { await new Promise((r) => setTimeout(r, ms)); try { const r = await fetch(URL0 + (URL0.includes("?") ? "&" : "?") + "key=" + encodeURIComponent(getK()) + "&t=" + Date.now()); const d2 = await r.json(); const o2 = (d2.orders || []).find((x) => x.ref === want.ref_order); if (o2 && o2.status === want.status) { toast("Saved ✓ " + want.ref_order + " → " + want.status); return load(); } } catch {} }
+      load(); alert("⚠️ Order " + want.ref_order + " ka status Google Sheet mein save NAHI hua (abhi bhi purana hai).\n\nWajah: Sheet ka Apps Script status update nahi kar raha. Tab tak Sheet ke 'Orders' tab mein us order ki Status cell khud badal do – dashboard wahi dikhayega."); });
     $$("form[data-f=expense],form[data-f=return]").forEach((f) => f.addEventListener("submit", async (e) => { e.preventDefault(); const b = f.querySelector("button"); b.disabled = true; await post({ type: f.dataset.f, ...Object.fromEntries(new FormData(f)) }); toast("Saved ✓"); setTimeout(load, 1800); }));
     studio(); controlCenter();
     const tipbox = $("[data-tipbox]");
