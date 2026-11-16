@@ -203,11 +203,11 @@
         const done = () => { busy = false; setTimeout(step, 0); }; im.addEventListener("load", done, { once: true }); im.addEventListener("error", done, { once: true }); galLoad(im); };
       const first = slides?.querySelector("img:not([data-src])");
       if (!first || (first.complete && first.naturalWidth)) step(); else { first.addEventListener("load", step, { once: true }); first.addEventListener("error", step, { once: true }); setTimeout(step, 3000); } }
-    if (galImgs.length) { if ("IntersectionObserver" in window) { const sc = getComputedStyle(slides).overflowX !== "visible"; const gio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { galLoad(e.target); gio.unobserve(e.target); } }), { root: sc ? slides : null, rootMargin: sc ? "0px 100% 0px 100%" : "300px 0px" }); galImgs.forEach((im) => gio.observe(im)); } else galImgs.forEach(galLoad); }
+    if (galImgs.length) { if ("IntersectionObserver" in window) { const sc = getComputedStyle(slides).overflowX !== "visible"; const gio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { galLoad(e.target); gio.unobserve(e.target); } }), { root: sc ? slides : null, rootMargin: sc ? "0px 50% 0px 50%" : "300px 0px" }); galImgs.forEach((im) => gio.observe(im)); } else galImgs.forEach(galLoad); }
     slides?.addEventListener("scroll", () => { const i = Math.round(Math.abs(slides.scrollLeft) / slides.clientWidth); dots.forEach((d, k) => d.classList.toggle("on", k === i)); thumbs.forEach((t, k) => t.classList.toggle("on", k === i)); }, { passive: true });
     // sticky bar when main buttons scroll out of view
     const sticky = $("[data-sticky]"), main = $(".buy-row");
-    if (sticky && main && "IntersectionObserver" in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting; sticky.classList.toggle("show", on); document.body.classList.toggle("sticky-on", on); }).observe(main);
+    if (sticky && main && "IntersectionObserver" in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting && e.boundingClientRect.top < 0; sticky.classList.toggle("show", on); document.body.classList.toggle("sticky-on", on); }).observe(main);
   }
 
   // ---------- listing sort ----------
@@ -291,7 +291,7 @@
     if (q("country")) q("country").required = intl;
     if (q("state")) q("state").required = !intl;
     if (q("email")) q("email").required = intl;
-    if (q("phone")) { q("phone").placeholder = intl ? "+1 555 123 4567" : "10-digit mobile"; q("phone").inputMode = intl ? "tel" : "numeric"; }
+    if (q("phone")) { q("phone").placeholder = intl ? "+1 555 123 4567" : "10-digit mobile"; q("phone").inputMode = "tel"; }
     if (q("pin")) q("pin").inputMode = intl ? "text" : "numeric";
     if (intl && q("country") && !q("country").value) { // prefill from saved details or the country picked / detected on the site
       let n = String(getUser()?.country || "").trim(); const CLx = BK.countries || [];

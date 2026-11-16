@@ -1571,3 +1571,15 @@ a.link,.spec-chips a,.specs a{display:inline-block;padding:4px 0;min-height:24px
 @media (max-width:900px){.hero-same.hero-clean .hero-media img{object-position:center bottom}.hero-same.hero-clean .hero-text{position:static!important;padding:14px 20px 34px!important;background:#1c1310!important}}
 /* touch targets: phone / email links outside running text get at least 24px height (WCAG 2.2) */
 a[href^="tel:"]:not(p a):not(li a):not(td a),a[href^="mailto:"]:not(p a):not(li a):not(td a){display:inline-block;padding-block:5px;min-height:24px}
+/* mobile UX audit 16 Nov: less screen covered, no iPhone zoom on forms, readable small text, bigger tap targets */
+html:has(.consent-bar) .sticky-buy{display:none}
+@media (max-width:860px){.consent-bar p{font-size:.8rem;line-height:1.35}}
+.login-box input,.login-box select,.login-box textarea,.b2b-form input,.b2b-form select,.b2b-form textarea{font-size:16px}
+@media (max-width:600px){.sort select{font-size:16px}}
+.trend-tag{font-size:.75rem}.eyebrow{font-size:.75rem}.cur-btn,.lang-btn,.pay-pill{font-size:.75rem}.bag-count{font-size:.72rem}
+.bnav a,.bnav button{font-size:.75rem}
+.size-guide{padding:6px 0;min-height:32px}.ask-wa{min-height:44px;display:inline-flex;align-items:center}
+.foot-cc{padding:8px 0}
+.vip-fine a,.consent-bar a{display:inline-block;padding:6px 2px}
+.card .wish{z-index:31}
+.trust-h .star,.trust-h [aria-hidden="true"]{color:#9a6f12}
