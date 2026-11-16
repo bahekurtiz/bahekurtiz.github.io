@@ -487,8 +487,8 @@
     const cur = force || cc?.cur || (isUSD() ? "USD" : "INR");
     const mkt = LCM.includes(cur), local = (force || mkt || !BK.noLocal) && cur !== "INR" && cur !== "USD" && rates[cur];
     // a non-US visitor without a local rate sees "US$52" (never a bare "$52" next to a "CAD" label)
-    const usPrefix = !local && isUSD() && cur !== "USD" && cur !== "INR";
-    $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" || !local ? (cur === "USD" ? "$" : "US$") : cur}` : el.textContent));
+    const usPrefix = false; // owner: every country sees exactly the US price ("$50"), no "US$" variant
+    $$("[data-cc-label]").forEach((el) => (el.textContent = cc ? `${flag(cc.c)} ${cur === "INR" ? "₹" : cur === "USD" || !local ? "$" : cur}` : el.textContent));
     $$("[data-cc-name]").forEach((el) => (el.textContent = cc ? `${cc.n} · ${local || cur === "INR" ? cur : "US$"}` : el.textContent));
     document.documentElement.classList.toggle("local-cur", !!local);
     $$("[data-usdv]").forEach((el) => { if (!el.dataset.usdText) el.dataset.usdText = el.textContent; const v = +el.dataset.usdv; const t = local && v ? fmtLocal(v, cur) : null; el.textContent = t ? (force && !co ? t : "≈ " + t) : usPrefix ? el.dataset.usdText.replace(/^\$/, "US$") : el.dataset.usdText; el.title = t ? `US${el.dataset.usdText} – charged in US $` : ""; });
