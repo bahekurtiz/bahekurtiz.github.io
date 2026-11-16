@@ -36,8 +36,9 @@ const lc = (s) => String(s || "").toLowerCase();
 const utm = (url, src, med) => `${url}${url.includes("?") ? "&" : "?"}utm_source=${src}&utm_medium=${med}&utm_campaign=kit-${WEEK.toLowerCase()}`;
 const dispatch = S.dispatch_note || "Handmade in Jaipur";
 const wa = S.whatsapp ? `https://wa.me/91${String(S.whatsapp).replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "")}` : "";
-const tags = (p) => ["BaheKurtiz", "HandmadeInJaipur", ...list(p.craft).slice(0, 2), p.category, p.fabric, ...list(p.occasion).slice(0, 2)]
-  .filter(Boolean).map((t) => "#" + String(t).replace(/[^A-Za-z0-9]/g, "")).filter((t, i, a) => t.length > 2 && a.indexOf(t) === i).join(" ");
+// Instagram tests a 3-hashtag cap (since late 2025): brand + the 2 most specific tags only
+const tags = (p) => ["BaheKurtiz", ...list(p.craft).slice(0, 1), ...list(p.occasion).slice(0, 1), p.category, "HandmadeInJaipur"]
+  .filter(Boolean).map((t) => "#" + String(t).replace(/[^A-Za-z0-9]/g, "")).filter((t, i, a) => t.length > 2 && a.indexOf(t) === i).slice(0, 3).join(" ");
 
 function block(p, n) {
   const craft = list(p.craft).join(", "), occ = list(p.occasion).slice(0, 3).join(", ");
@@ -50,6 +51,7 @@ Price: ${inr(p.price_inr)} in India${usd}
 Photos: ${p.images.slice(0, 4).join(" · ")}
 
 ### Instagram / Facebook caption (search-friendly – Google indexes public Instagram posts)
+${cap([lc(p.color || "").split(" with")[0], lc(p.fabric), lc(p.category)].filter(Boolean).join(" "))}${list(p.occasion)[0] ? ` for ${lc(list(p.occasion)[0])}` : ""} – handmade in Jaipur
 ${p.title} ✨
 ${craft ? `${craft} on ${lc(p.fabric) || "fabric"}` : cap(what)}, designed and stitched in our own unit in Sanganer, Jaipur.
 Made for: ${occ || "everyday and festive wear"}.

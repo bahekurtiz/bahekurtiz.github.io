@@ -41,6 +41,9 @@ const RULES = [
   [/\b(\d(?:\.\d)?)\s*(★|stars?)\b/i, "star rating", (m) => !ratings.has(m[1])],
   [/\b(delivered|delivery|arrives?)\s+(in|within)\s+([1-4])\s*(-|–|to)?\s*\d*\s*days?\b/i, "delivery faster than dispatch times"],
   [/\b(best[- ]?selling|#1|number one|no\.? ?1)\b/i, "ranking claim"],
+  [/\bworld'?s (best|finest|top|leading)\b/i, "ranking claim"],
+  [/\breview[^.!?]{0,60}\b(discount|coupon|gift|free|cashback|reward)\b|\b(discount|coupon|gift|cashback|reward)\b[^.!?]{0,60}\breview/i, "incentivised review (not allowed by Google/Etsy)"],
+  [/(#\w+[^#]*){4,}/, "more than 3 hashtags (Instagram cap)", (m) => (m.input.match(/#[A-Za-z]\w+/g) || []).length > 3],
   [/(₹\s?[\d,]+|\$\s?\d+(?:\.\d+)?)/g, "price not on any product", (m) => !prices.has(m[1].replace(/[\s,]/g, "").replace(/\.0+$/, ""))],
 ];
 
