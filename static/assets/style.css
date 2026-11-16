@@ -1569,3 +1569,5 @@ a.link,.spec-chips a,.specs a{display:inline-block;padding:4px 0;min-height:24px
 .hero-same.hero-clean .hero-text{position:absolute!important;inset:16px 0 auto 0!important;height:auto!important;width:auto!important;padding:0!important;background:none!important;display:flex;justify-content:center;z-index:2}
 .hero-same.hero-clean .hero-cta .btn{padding:10px 18px;font-size:.78rem}
 @media (max-width:900px){.hero-same.hero-clean .hero-media img{object-position:center bottom}.hero-same.hero-clean .hero-text{position:static!important;padding:14px 20px 34px!important;background:#1c1310!important}}
+/* touch targets: phone / email links outside running text get at least 24px height (WCAG 2.2) */
+a[href^="tel:"]:not(p a):not(li a):not(td a),a[href^="mailto:"]:not(p a):not(li a):not(td a){display:inline-block;padding-block:5px;min-height:24px}
