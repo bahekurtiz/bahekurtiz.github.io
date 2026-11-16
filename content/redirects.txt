@@ -382,3 +382,6 @@
 /shop/sangeet-anarkali-suit-sets /shop/sangeet-anarkali-suits/ 301
 /shop/wedding-guest-anarkali-suit-sets/ /shop/wedding-guest-anarkali-suits/ 301
 /shop/wedding-guest-anarkali-suit-sets /shop/wedding-guest-anarkali-suits/ 301
+/blog/kota-doria-fabric-guide /blog/what-is-kota-doria-fabric-styling-and-care/ 301
+/stories/kota-doria-fabric-guide/ /blog/what-is-kota-doria-fabric-styling-and-care/ 301
+/stories/kota-doria-fabric-guide /blog/what-is-kota-doria-fabric-styling-and-care/ 301
