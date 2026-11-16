@@ -52,7 +52,7 @@
     "/images/products/v2/purple-bandhani-chiffon-anarkali-suit-set-3.webp",
     "/images/products/v2/purple-bandhani-chiffon-anarkali-suit-set-4.webp"
   ],
-  "video": "",
+  "video": "/media/products/purple-bandhani-chiffon-anarkali-suit-set.mp4",
   "match_products": [],
   "tryon_png": "/images/products/purple-bandhani-chiffon-anarkali-suit-set-1.webp",
   "sku": "bahe28",
@@ -73,5 +73,6 @@
   "sort_order": 0.01,
   "seo_title": "Purple Bandhani Chiffon Anarkali Suit with Hand Work – Ira",
   "seo_description": "Purple bandhani print chiffon Anarkali with hand-embroidered V-neck, wired flared hem, cotton lining, cotton pants and dupatta. Made in Jaipur, ships worldwide.",
-  "style_name": "Ira"
+  "style_name": "Ira",
+  "video_date": "2026-11-16"
 }

@@ -62,7 +62,7 @@ Sizes ${list(p.sizes)[0] || "XS"}–${list(p.sizes).at(-1) || "3XL"} or free cus
 ${tags(p)}
 
 ### Reel script (under 60 seconds, your own footage)
-1. 0–3s: close-up of the ${craft ? lc(craft.split(",")[0]) : "fabric"} – text on screen: "${p.title.split(" ").slice(0, 6).join(" ")}"
+1. 0–3s: close-up of the ${craft ? craftNoun(craft) : "fabric"} – text on screen: "${p.title.split(" ").slice(0, 6).join(" ")}"
 2. 3–10s: hand on the fabric, show the ${lc(p.fabric) || "fabric"} texture in daylight
 3. 10–25s: full look on model, front and back
 4. 25–40s: twirl or walk; text: "Made in our Jaipur unit"
@@ -75,13 +75,15 @@ Use original audio or a licensed track from the Instagram library. Do not repost
   Link: ${utm(p.url, "pinterest", "organic")}
 - Title: ${occ ? `${list(p.occasion)[0]} outfit idea: ${lc(p.color || "").split(" with")[0]} ${lc(p.category)}`.slice(0, 95) : `${p.category} from Jaipur`}
   Link: ${utm(p.url, "pinterest", "organic")}
-- Title: ${craft ? `How ${craft.split(",")[0]} is done in Jaipur – ${lc(p.category)}`.slice(0, 95) : `${p.fabric} ${lc(p.category)} care and styling`}
+- Title: ${craft ? `How ${craftNoun(craft)} is done in Jaipur – ${lc(p.category)}`.slice(0, 95) : `${p.fabric} ${lc(p.category)} care and styling`}
   Link: ${utm(p.url, "pinterest", "organic")}
 
 ### WhatsApp Channel / Status (only to people who follow you)
 New in our Jaipur unit: ${p.title}. ${inr(p.price_inr)}${p.ships_internationally && p.price_usd ? ` · $${p.price_usd} abroad` : ""}. ${utm(p.url, "whatsapp", "channel")}
 `;
 }
+// craft labels are adjectives in product data ("Embroidered", "Hand Block Print") – turn the first one into a noun for sentences
+const craftNoun = (c) => { const x = lc(String(c || "").split(",")[0].trim()); return ({ embroidered: "embroidery", printed: "print", "mirror work": "mirror work" })[x] || x; };
 function cap(s) { s = String(s || ""); return s.charAt(0).toUpperCase() + s.slice(1); }
 
 // upcoming festivals in the next 8 weeks (drafts come from scripts/festival-engine.mjs)
