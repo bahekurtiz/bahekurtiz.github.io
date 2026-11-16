@@ -1583,3 +1583,5 @@ html:has(.consent-bar) .sticky-buy{display:none}
 .vip-fine a,.consent-bar a{display:inline-block;padding:6px 2px}
 .card .wish{z-index:31}
 .trust-h .star,.trust-h [aria-hidden="true"]{color:#9a6f12}
+/* Devanagari breaks apart with letter-spacing – keep it normal in Hindi text */
+[lang="hi"] .eyebrow,[lang="hi"] .btn,[lang="hi"] h1,[lang="hi"] h2,[lang="hi"] h3,[lang="hi"] .link,[lang="hi"] summary,a[lang="hi"]{letter-spacing:normal}

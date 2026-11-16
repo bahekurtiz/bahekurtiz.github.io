@@ -438,6 +438,10 @@ const reelsHtml = () => !reels.length ? "" : `<section class="reels" aria-label=
 </section>`;
 
 const landDir = path.join(ROOT, "content/landing");
+// Hindi pages (content/hi/*.json) – real Hindi landing pages for Indian shoppers who search in Hindi; each names its English twin (hreflang pair)
+const hiDir = path.join(ROOT, "content/hi");
+const HI_PAGES = fs.existsSync(hiDir) ? fs.readdirSync(hiDir).filter((f) => f.endsWith(".json")).map((f) => { const h = JSON.parse(fs.readFileSync(path.join(hiDir, f), "utf8")); return { ...h, url: "hi/" + (h.slug || f.slice(0, -5)).replace(/^hi\//, "").replace(/\/?$/, "/"), faq: Array.isArray(h.faq) ? h.faq : [] }; }).filter((h) => h.draft !== true) : [];
+const HI_TWIN = Object.fromEntries(HI_PAGES.filter((h) => h.en).map((h) => [String(h.en).replace(/^\//, ""), h.url]));
 const landings = (fs.existsSync(landDir) ? fs.readdirSync(landDir) : []).filter((f) => f.endsWith(".json")).map((f) => {
   const l = JSON.parse(fs.readFileSync(path.join(landDir, f), "utf8"));
   l.slug = slugify(l.slug || f.replace(/\.json$/, "")).replace(/^-+|-+$/g, "");
@@ -464,7 +468,8 @@ const noindexRule = (p) => { p = String(p || "").replace(/^\//, "");
   if (/\/page\/\d+\/$/.test(p)) return true; // blog page 2, 3… (same H1, lists only) – followed, not indexed
   const o = p.match(/^occasion\/([^/]+)\/$/); if (o && !OCC_GUIDES.has(o[1])) return true; // occasion pages without a written guide repeat the shop
   return false; };
-function page({ title, description, pathname, image, body, ld = [], type = "website", noindex = false, bodyClass = "", mini, og = "" }) {
+function page({ title, description, pathname, image, body, ld = [], type = "website", noindex = false, bodyClass = "", mini, og = "", lang = "en-IN", alt = null }) {
+  { const pn = String(pathname || "").replace(/^\//, ""); if (!alt && HI_TWIN[pn]) alt = HI_TWIN[pn]; }
   { const ov = S.page_descriptions && S.page_descriptions[String(pathname || "").replace(/^\//, "")]; if (ov) description = String(ov); }
   if (!noindex && noindexRule(pathname)) noindex = true;
   if (noindex && pathname) NOINDEXED.add(String(pathname).replace(/^\//, ""));
@@ -474,13 +479,13 @@ function page({ title, description, pathname, image, body, ld = [], type = "webs
   const lds = [orgLd, ...ld].map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`).join("\n");
   const waHi = waLink(`Hi ${brand}! I have a question.`);
   return `<!doctype html>
-<html lang="en-IN">
+<html lang="${lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${esc(fitTitle(title))}</title>
 <meta name="description" content="${esc(description)}">
-${noindex ? "" : `<link rel="canonical" href="${esc(canonical)}">`}
+${noindex ? "" : `<link rel="canonical" href="${esc(canonical)}">${alt ? (() => { const en = lang === "hi" ? SITE_URL + "/" + alt : canonical, hi = lang === "hi" ? canonical : SITE_URL + "/" + alt; return `<link rel="alternate" hreflang="en" href="${esc(en)}"><link rel="alternate" hreflang="hi" href="${esc(hi)}"><link rel="alternate" hreflang="x-default" href="${esc(en)}">`; })() : ""}`}
 <meta name="robots" content="${noindex ? "noindex" : "index,follow,max-image-preview:large"}">
 ${S.google_site_verification ? `<meta name="google-site-verification" content="${esc(S.google_site_verification)}">` : ""}
 ${S.facebook_domain_verification ? `<meta name="facebook-domain-verification" content="${esc(S.facebook_domain_verification)}">` : ""}
@@ -603,7 +608,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
       ${socials.length ? `<p class="social">${socials.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener me">${socialIcon(x.name)}${esc(x.name)}</a>`).join("")}</p>` : ""}
     </div>
     <div><h3>Shop</h3><a href="${u("shop/")}">Shop All</a>${categories.length ? `<a href="${u("collections/")}">All Collections</a>` : ""}${categories.filter((c) => c.items.length >= 3).map((c) => `<a href="${u(c.url)}">${esc(c.plural)}</a>`).join("")}</div>
-    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a>${STORY_LINK ? `<a href="${u("stories/")}">Style Stories</a>` : ""}<a href="${u("tools/")}">Free Style Tools</a>${CAL_EVENTS.length ? `<a href="${u("festival/")}">Festival Calendar & Order Dates</a>` : ""}<a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a><a href="${u("press/")}">Press & Bloggers</a><a href="${u("wholesale/")}">Wholesale & Private Label</a>${fs.existsSync(path.join(ROOT, "content/landing/import-kurtis-from-india-wholesale.json")) ? `<a href="${u("import-kurtis-from-india-wholesale/")}">Import Kurtis Wholesale – Duty Guide</a>` : ""}${fs.existsSync(path.join(ROOT, "content/landing/private-label-kurti-manufacturer-india.json")) ? `<a href="${u("private-label-kurti-manufacturer-india/")}">Private Label Manufacturer</a>` : ""}<a href="${u("custom-stitched-indian-suits-made-to-measure/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("gift-to-india/")}">Send a Gift to India</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="#cookie-settings" data-cookie-settings hidden>Cookie settings</a><a href="${u("terms/")}">Terms & Conditions</a>${S.review_policy ? `<a href="${u("review-policy/")}">Review Policy</a>` : ""}</div>
+    <div><h3>Help</h3><a href="${u("blog/")}">Blog</a>${STORY_LINK ? `<a href="${u("stories/")}">Style Stories</a>` : ""}<a href="${u("tools/")}">Free Style Tools</a>${CAL_EVENTS.length ? `<a href="${u("festival/")}">Festival Calendar & Order Dates</a>` : ""}<a href="${u("widget/")}">Free Widget for Your Site</a><a href="${u("contact/")}">Contact Us</a>${HI_PAGES.length ? `<a href="${u("hi/")}" lang="hi" hreflang="hi">हिंदी में पढ़ें</a>` : ""}<a href="${u("press/")}">Press & Bloggers</a><a href="${u("wholesale/")}">Wholesale & Private Label</a>${fs.existsSync(path.join(ROOT, "content/landing/import-kurtis-from-india-wholesale.json")) ? `<a href="${u("import-kurtis-from-india-wholesale/")}">Import Kurtis Wholesale – Duty Guide</a>` : ""}${fs.existsSync(path.join(ROOT, "content/landing/private-label-kurti-manufacturer-india.json")) ? `<a href="${u("private-label-kurti-manufacturer-india/")}">Private Label Manufacturer</a>` : ""}<a href="${u("custom-stitched-indian-suits-made-to-measure/")}">Custom & Restyle</a><a href="${u("refer/")}">Refer & Earn</a><a href="${u("gift-card/")}">E-Gift Card</a><a href="${u("gift-to-india/")}">Send a Gift to India</a><a href="${u("shipping/")}">Shipping Policy (India)</a><a href="${u("returns/")}">Returns & Refunds (India)</a>${S.intl_shipping_policy ? `<a href="${u("international-shipping/")}">International Shipping</a>` : ""}${S.intl_return_policy ? `<a href="${u("international-returns/")}">International Returns</a>` : ""}<a href="${u("privacy/")}">Privacy Policy</a><a href="#cookie-settings" data-cookie-settings hidden>Cookie settings</a><a href="${u("terms/")}">Terms & Conditions</a>${S.review_policy ? `<a href="${u("review-policy/")}">Review Policy</a>` : ""}</div>
     <div><h3>Contact</h3>
       ${waHi ? `<a href="${esc(waHi)}" target="_blank" rel="noopener">WhatsApp: ${esc(S.phone || "+" + waNumber)}</a>` : ""}
       ${S.email ? `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` : ""}
@@ -2514,6 +2519,33 @@ ${l.faq.length ? `<section class="wrap section faq"><div class="section-head"><h
   add(l.url + "index.html", page({ title: l.seo_title || `${l.h1} | ${brand}`, description: clip(l.seo_description || l.lead || l.h1), pathname: l.url, body, ld, image: items[0]?.images[0], bodyClass: "landing-page" }));
 }
 
+// ---------- Hindi pages (content/hi/*.json): same products and prices, Hindi text, hreflang pair with the English twin ----------
+for (const h of HI_PAGES) {
+  const words = String(h.match || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
+  const items = (words.length ? products.filter((p) => words.some((w) => [p.title, p.category, p.fabric, p.print_work.join(" ")].join(" ").toLowerCase().includes(w))) : products).filter((p) => !p.coming).slice(0, num(h.max) || 12);
+  const waL = waLink(`Namaste ${brand}! Mujhe ${h.h1} ke baare me jaankari chahiye.`);
+  const enUrl = h.en ? String(h.en).replace(/^\//, "") : "";
+  const hub = HI_PAGES.filter((x) => x.url !== h.url);
+  const body = `
+<section class="b2b-hero land-hero" lang="hi"><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">होम</a> / <a href="${u("hi/")}">हिंदी</a> / <span>${esc(h.h1)}</span></nav>
+  <p class="eyebrow">${esc(h.eyebrow || "जयपुर में हमारे अपने यूनिट में बना · पूरे भारत में फ्री डिलीवरी")}</p>
+  <h1>${esc(h.h1)}</h1>
+  ${h.lead ? `<p class="lead">${esc(h.lead)}</p>` : ""}
+  <div class="hero-cta">${waL ? `<a class="btn btn-wa" href="${esc(waL)}" target="_blank" rel="noopener">${I.wa} WhatsApp करें</a>` : ""}<a class="btn btn-light" href="#land-shop">${esc(h.cta || "डिज़ाइन देखें")}</a></div>
+  ${enUrl ? `<p class="small" style="margin-top:10px"><a href="${u(enUrl)}" hreflang="en" lang="en">Read in English</a></p>` : ""}
+</div></section>
+${items.length ? `<section class="wrap section" id="land-shop"><div class="section-head"><div><p class="eyebrow" lang="hi">हमारे कलेक्शन से</p><h2 lang="hi">${esc(h.products_title || "चुनिंदा डिज़ाइन")}</h2></div><a class="link" href="${u("shop/")}" lang="hi">सब देखें →</a></div><div class="grid">${items.map((p, i) => card(p, i < 4 ? i + 1 : 9)).join("")}</div></section>` : ""}
+<section class="wrap section prose land-body" lang="hi">${md(h.body || "")}</section>
+${h.faq.length ? `<section class="wrap section faq" lang="hi"><div class="section-head"><h2>अक्सर पूछे जाने वाले सवाल</h2></div>${h.faq.map((x) => `<details><summary>${esc(x.q)}</summary><div>${paras(x.a)}</div></details>`).join("")}</section>` : ""}
+${hub.length ? `<section class="wrap section prose" lang="hi"><h2>हिंदी में और पढ़ें</h2><ul>${hub.map((x) => `<li><a href="${u(x.url)}">${esc(x.h1)}</a></li>`).join("")}</ul></section>` : ""}`;
+  const ld = [{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "होम", item: SITE_URL + "/" }, { "@type": "ListItem", position: 2, name: "हिंदी", item: SITE_URL + "/hi/" }, { "@type": "ListItem", position: 3, name: h.h1, item: SITE_URL + "/" + h.url }] }];
+  if (h.faq.length) ld.push({ "@context": "https://schema.org", "@type": "FAQPage", inLanguage: "hi", mainEntity: h.faq.map((x) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a } })) });
+  add(h.url + "index.html", page({ title: h.seo_title || `${h.h1} | ${brand}`, description: clip(h.seo_description || h.lead || h.h1), pathname: h.url, body, ld, image: items[0]?.images[0], bodyClass: "landing-page", lang: "hi", alt: enUrl || null }));
+}
+if (HI_PAGES.length) add("hi/index.html", page({ title: `बहे कुर्तीज़ – जयपुर के हाथ से बने कुर्ते, सूट और अनारकली | ${brand}`, description: "जयपुर के सांगानेर में हमारे अपने यूनिट में बने कुर्ती, कुर्ता सेट और अनारकली सूट। पूरे भारत में फ्री डिलीवरी, फ्री कस्टम फिट।", pathname: "hi/", lang: "hi",
+  body: `<section class="wrap section prose" lang="hi"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">होम</a> / <span>हिंदी</span></nav><h1>बहे कुर्तीज़ – हिंदी में</h1><p class="lead">हम जयपुर के सांगानेर में अपने यूनिट में कुर्ती, कुर्ता सेट, अनारकली सूट और ड्रेस बनाते हैं। बीच में कोई ट्रेडर नहीं, इसलिए हाथ का काम सही दाम पर।</p><ul>${HI_PAGES.map((x) => `<li><a href="${u(x.url)}">${esc(x.h1)}</a> – ${esc(x.lead || "")}</li>`).join("")}</ul></section>` }));
+
 const WIDGET_FILES = [];
 // ---------- Bahe Widget: free embeddable size converter other websites can add with one line ----------
 {
@@ -3018,7 +3050,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "gift-to-india/", "press/", ...(fs.existsSync(path.join(ROOT, "content/reports/style-report-2026.json")) ? ["indian-wedding-guest-style-report/"] : []), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/", ...(S.review_policy ? ["review-policy/"] : [])];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...(STORY_URLS.length ? ["stories/", ...STORY_URLS.map((x) => x.path)] : []), ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "gift-to-india/", "press/", ...(fs.existsSync(path.join(ROOT, "content/reports/style-report-2026.json")) ? ["indian-wedding-guest-style-report/"] : []), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), ...(HI_PAGES.length ? ["hi/", ...HI_PAGES.map((h) => h.url)] : []), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/", ...(S.review_policy ? ["review-policy/"] : [])];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x) && !NOINDEXED.has(x)));
 // page fingerprints: a page's lastmod changes only when its content changes; IndexNow gets only new/changed pages.
 // Live builds read the manifest of the deploy that is live right now (/data/page-hashes.json) to compare.
