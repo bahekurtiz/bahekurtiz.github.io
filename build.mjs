@@ -3094,6 +3094,8 @@ const oldLinks = (() => { const seen = new Set(), out = [];
   for (const [old, cat] of Object.entries(known)) if (!products.some((p) => p.slug === old)) put("/products/" + old, catOrShop(cat));
   return out; })();
 const extraRedirects = fs.existsSync(path.join(ROOT, "content/redirects.txt")) ? fs.readFileSync(path.join(ROOT, "content/redirects.txt"), "utf8") : "";
+const UNLIVE_POSTS = (() => { const out = [], dir = path.join(ROOT, "content/blog"); try { for (const f of fs.readdirSync(dir)) { if (!f.endsWith(".json")) continue; let b; try { b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); } catch { continue; }
+  if (b.draft === true || String(b.date || today).slice(0, 10) > today) { const sl = f.replace(/\.json$/, ""); for (const base of ["blog", "stories"]) out.push(`/${base}/${sl}/ /blog/ 302`, `/${base}/${sl} /blog/ 302`); } } } catch {} return out; })();
 fs.writeFileSync(path.join(OUT, "_redirects"), [
   "# Old website links -> new pages (keeps Google ranking)",
   "/mirror/* /shop/ 301",
@@ -3114,7 +3116,12 @@ fs.writeFileSync(path.join(OUT, "_redirects"), [
   "# empty categories and thin filter pages → nearest live collection (automatic)",
   ...CLEAN_REDIRECTS, ...THIN_SHOP,
   extraRedirects.trim(),
-].filter(Boolean).join("\n") + "\n");
+  "# blog posts that are not live (draft / scheduled) → blog home until they publish (automatic, temporary)",
+  ...UNLIVE_POSTS,
+].filter(Boolean).join("\n").split("\n").filter((l) => {   // never redirect a page that exists in this build (a tag, post or page that came back)
+  const src = l.trim().split(/\s+/)[0] || ""; if (!src.startsWith("/") || src.includes("*") || src.includes(":")) return true;
+  const rel = src.replace(/^\/+/, "").replace(/\/+$/, ""); return !(rel && fs.existsSync(path.join(OUT, rel, "index.html")));
+}).join("\n") + "\n");
 fs.writeFileSync(path.join(OUT, "_headers"), `# duplicate hosts must not be indexed – the canonical site is only https://bahekurtiz.com (www → apex 301 = Cloudflare Redirect Rule)\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex\nhttps://www.bahekurtiz.com/*\n  X-Robots-Tag: noindex\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Strict-Transport-Security: max-age=31536000\n  Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(self)\n  Cross-Origin-Opener-Policy: same-origin-allow-popups\n/track/*\n  X-Robots-Tag: noindex\n/checkout/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=2592000, stale-while-revalidate=31536000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/products.json\n  Access-Control-Allow-Origin: *\n/llms.txt\n  Access-Control-Allow-Origin: *\n/feeds/*\n  Access-Control-Allow-Origin: *\n/admin/*\n  X-Robots-Tag: noindex\n/sw.js\n  Cache-Control: no-cache\n/p/*\n  Content-Type: text/markdown; charset=utf-8\n  Access-Control-Allow-Origin: *\n  X-Robots-Tag: noindex\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n/agents.md\n  Content-Type: text/markdown; charset=utf-8\n/data/*\n  Cache-Control: no-cache\n  Access-Control-Allow-Origin: *\n/embed/*\n  ! X-Frame-Options\n  Content-Security-Policy: frame-ancestors *\n  X-Robots-Tag: noindex\n/widget.js\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=3600\n  Content-Type: application/javascript; charset=utf-8\n`);
 console.log(`Built ${pages.length} pages, ${products.length} products, ${categories.length} categories → _site (url ${SITE_URL})`);
 
