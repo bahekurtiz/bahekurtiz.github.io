@@ -3181,3 +3181,6 @@ console.log(`Built ${pages.length} pages, ${products.length} products, ${categor
 function shortGid(s) { if (s.length <= 50) return s; let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return s.slice(0, 42).replace(/-+$/, "") + "-" + h.toString(36).slice(0, 6); }
 // same ≤50-char variant id as the Google feed (vid)
 function shortVid(slug, z) { const suf = "-" + slugify(z), full = slug + suf; if (full.length <= 50) return full; let h = 0; for (const c of slug) h = (h * 31 + c.charCodeAt(0)) >>> 0; const hs = h.toString(36); return slug.slice(0, 50 - suf.length - hs.length - 1).replace(/-+$/, "") + "-" + hs + suf; }
+
+// last step: Google merchant-listing rules check – a failure stops the deploy
+await import("./scripts/lint-schema.mjs");
