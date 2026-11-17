@@ -2999,7 +2999,7 @@ fs.writeFileSync(path.join(OUT, "data/catalog.json"), JSON.stringify(catalog));
 const gid = (s) => { if (s.length <= 50) return s; let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return s.slice(0, 42).replace(/-+$/, "") + "-" + h.toString(36).slice(0, 6); };
   // ---- Google feeds (rich): one item per size grouped by item_group_id, apparel attributes,
   // product highlights/details, handling + transit times. Same data as the product pages (no invented claims).
-  const INTL_C = ["US", "GB", "CA", "AU", "NZ", "AE", "SA", "QA", "SG", "MY", "DE", "FR", "NL", "IE", "IT", "ES", "ZA", "JP", "CH", "AT", "BE", "DK", "SE", "NO", "FI", "PT", "PL", "HK", "KR", "KW", "BH", "OM"];
+  const INTL_C = ["US", "GB", "CA", "AU", "NZ", "AE", "SA", "QA", "SG", "MY", "DE", "FR", "NL", "IE", "IT", "ES", "ZA", "JP", "CH", "AT", "BE", "DK", "SE", "NO", "FI", "PT", "PL", "HK", "KW", "BH", "OM"];
   const hl = (p) => { const a = [], add = (s) => { s = String(s || "").replace(/\s+/g, " ").trim().slice(0, 150); if (s && !a.includes(s)) a.push(s); };
     if (p.print_work.length && !(p.print_work.length === 1 && p.print_work[0] === "Solid")) add(`${p.print_work.join(" & ")}${p.fabric ? ` on ${p.fabric.toLowerCase()}` : ""}`); else if (p.fabric) add(`${p.fabric} fabric`);
     if (p.set_items.length) add(`Set includes: ${p.set_items.join(", ")}`);
