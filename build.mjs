@@ -1437,8 +1437,8 @@ ${related.length ? `<section class="wrap section"><div class="section-head"><h2>
   if (p.sizes.length > 1 && ld.offers) {
     const { offers, size, aggregateRating, review, ...base } = ld; delete base["@context"]; delete base["@type"]; delete base["@id"]; delete base.sku; delete base.mpn; delete base.color;
     const col = (p.color_base || p.color || "").replace(/\s*(&|,| and )\s*/gi, "/").slice(0, 100) || undefined;
-    ld = { "@context": "https://schema.org", "@type": "ProductGroup", "@id": SITE_URL + "/" + p.url + "#product", ...base, productGroupID: p.slug, variesBy: ["https://schema.org/size"],
-      hasVariant: p.sizes.map((sz) => ({ "@type": "Product", "@id": SITE_URL + "/" + p.url + "#size-" + slugify(sz), name: `${p.feed_title} – Size ${sz}`, sku: `${p.slug}-${slugify(sz)}`, mpn: `${p.sku || p.slug}-${sz}`, image: ld.image[0], color: col, url: SITE_URL + "/" + p.url + "?size=" + encodeURIComponent(sz),
+    ld = { "@context": "https://schema.org", "@type": "ProductGroup", "@id": SITE_URL + "/" + p.url + "#product", ...base, productGroupID: shortGid(p.slug), variesBy: ["https://schema.org/size"],
+      hasVariant: p.sizes.map((sz) => ({ "@type": "Product", "@id": SITE_URL + "/" + p.url + "#size-" + slugify(sz), name: `${p.feed_title} – Size ${sz}`, description: base.description, sku: `${p.slug}-${slugify(sz)}`, mpn: `${p.sku || p.slug}-${sz}`, image: ld.image[0], color: col, url: SITE_URL + "/" + p.url + "?size=" + encodeURIComponent(sz),
         size: { "@type": "SizeSpecification", name: sz, sizeSystem: "https://schema.org/WearableSizeSystemIN", sizeGroup: "https://schema.org/WearableSizeGroupRegular" }, offers })),
       ...(aggregateRating ? { aggregateRating, review } : {}) };
   }
@@ -3177,3 +3177,5 @@ console.log(`Built ${pages.length} pages, ${products.length} products, ${categor
     } catch (e) { console.log("IndexNow skipped:", e.message); }
   }
 }
+// same ≤50-char group id as the Google feed (gid); hoisted so the product schema can use it
+function shortGid(s) { if (s.length <= 50) return s; let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return s.slice(0, 42).replace(/-+$/, "") + "-" + h.toString(36).slice(0, 6); }
