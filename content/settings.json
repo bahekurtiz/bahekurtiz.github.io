@@ -141,7 +141,7 @@
   "gift_amounts_inr": [],
   "gift_amounts_usd": [],
   "customer_sheet_url": "https://script.google.com/macros/s/AKfycbz-NuyW1v-DqrYU6EykxndG6Ttne1F_OAAtNenKV0r5UFo7amQ3yb8MMA_GglXOt8Tm/exec",
-  "orders_api_url": "",
+  "orders_api_url": "https://script.google.com/macros/s/AKfycbxQI_gIl5b2AfTiD8gobEl8ym5LlFyn8bfEh1LAOGhnvtekmSHjJv_JSRbwqzXdvwy_/exec",
   "google_client_id": "",
   "login_popup": false,
   "login_title": "Free handmade potli with your first order",
