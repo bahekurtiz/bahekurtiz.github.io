@@ -682,7 +682,7 @@ const card = (p, i = 9) => {
     </div>
     <div class="card-body">
       <h3>${esc(p.title)}</h3>
-      <div class="card-price">${priceHtml(p)}</div>
+      <div class="card-price">${priceHtml(p)}</div>${p.price !== null && p.ships_abroad !== false ? `<div class="aud-intl card-ship">Free shipping · duties paid</div>` : ""}
     </div>
   </a>
   <button class="wish" type="button" data-wish="${esc(p.slug)}" aria-label="Save ${esc(p.title)} to wishlist" aria-pressed="false">${I.heart}</button>
