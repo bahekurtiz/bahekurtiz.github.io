@@ -1622,3 +1622,4 @@ details.h-card summary{cursor:pointer;list-style:none}details.h-card summary h2{
 .dash-hgrid{display:grid;gap:16px}@media (min-width:820px){.dash-hgrid{grid-template-columns:1.6fr 1fr}}.dash-hside{background:#faf7f2;border-radius:12px;padding:12px;font-size:.9rem}.dash-hside h3{font-size:.95rem;margin:8px 0 4px}
 .dash-hdlg{width:min(96vw,960px)}
 .dash-hdlg{padding:16px 16px 20px;border:0;border-radius:14px}
+.dash-warn{background:#fff6e0;border-color:#e8c46a}
