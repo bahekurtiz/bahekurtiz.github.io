@@ -1597,3 +1597,28 @@ html:has(.consent-bar) .sticky-buy{display:none}
 .dash-ship{display:grid;gap:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
 .dash-unp{list-style:none;padding:0;margin:8px 0 0}.dash-unp-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .dash-unpaid summary{cursor:pointer}.dash-unpaid summary h2{display:inline}
+/* Help Center */
+.help-float{position:fixed;left:12px;bottom:16px;z-index:30;background:var(--surface,#fff);color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:.82rem;font-weight:600;text-decoration:none;box-shadow:var(--shadow)}
+@media (max-width:760px){.help-float{bottom:calc(74px + env(safe-area-inset-bottom))}body.pdp.sticky-on .help-float{bottom:calc(140px + env(safe-area-inset-bottom))}}
+@media (min-width:761px) and (max-width:860px){body.pdp.sticky-on .help-float{bottom:calc(84px + env(safe-area-inset-bottom))}}
+html.locked .help-float,body:has(dialog[open]) .help-float{display:none}
+.h-card{border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px;background:var(--surface,#fff)}.h-card h2{font-size:1.2rem;margin:0 0 10px}
+details.h-card summary{cursor:pointer;list-style:none}details.h-card summary h2{display:inline;margin:0}details.h-card[open] summary{margin-bottom:10px}
+.h-reasons{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}.h-reasons legend{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.h-reasons label{display:inline-flex}.h-reasons input{position:absolute;opacity:0;pointer-events:none}.h-reasons span{border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:.85rem;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.h-reasons input:checked+span{background:var(--accent);border-color:var(--accent);color:#fff}.h-reasons input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.h-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}.h-photo{font-size:.85rem}
+.h-err{color:#b3261e}.h-notice{background:#f3f8f6;border-radius:10px;padding:12px;margin:0 0 12px}
+.h-thead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.h-thead h2{margin:0}
+.h-st{display:inline-block;border-radius:999px;padding:3px 10px;font-size:.75rem;font-weight:600;background:#eee;white-space:nowrap}.h-st-open{background:#fff3d6;color:#7a5600}.h-st-waiting{background:#e2f1ee;color:#0e5b59}.h-st-closed{background:#ececec;color:#555}
+.h-thread{list-style:none;padding:0;margin:16px 0;display:grid;gap:10px}.h-bub{max-width:88%;padding:10px 12px;border-radius:14px;font-size:.92rem;line-height:1.5}.h-bub p{margin:0}
+.h-me{justify-self:end;background:#e2f1ee;border-bottom-right-radius:4px}.h-them{justify-self:start;background:#f6f1e9;border-bottom-left-radius:4px}.h-who{font-size:.72rem;color:var(--muted);margin-bottom:3px!important}
+.h-prev{margin:10px 0}.h-tk{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;background:none;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0;cursor:pointer;font:inherit}
+.h-quick ul{padding-left:18px;line-height:2}
+.dash-badge{background:#b3261e;color:#fff;border-radius:999px;padding:2px 9px;font-size:.75rem;vertical-align:middle}
+.dash-hl-list{list-style:none;padding:0;margin:8px 0 0}.dash-hl-row{display:grid;gap:3px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:11px 2px;cursor:pointer;font:inherit;color:inherit}
+.dash-hl-row.unread{font-weight:600}.dash-hl-top small{float:right;color:var(--muted);font-weight:400}.dash-hl-msg{color:var(--muted);font-size:.85rem;font-weight:400}
+.dash-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#b3261e;margin-right:6px}
+.dash-hgrid{display:grid;gap:16px}@media (min-width:820px){.dash-hgrid{grid-template-columns:1.6fr 1fr}}.dash-hside{background:#faf7f2;border-radius:12px;padding:12px;font-size:.9rem}.dash-hside h3{font-size:.95rem;margin:8px 0 4px}
+.dash-hdlg{width:min(96vw,960px)}
+.dash-hdlg{padding:16px 16px 20px;border:0;border-radius:14px}

@@ -157,6 +157,8 @@ function findTicket(id) {
   return null;
 }
 function saveTicket(t, vals) { t.sh.getRange(t.row, 1, 1, HELP_HEAD.length).setValues([vals]); t.vals = vals; }
+function maskEmail(e) { var p = String(e || '').split('@'); return p.length === 2 ? p[0].slice(0, 2) + '•••@' + p[1] : ''; }
+function samePhone(a, b) { a = String(a || '').replace(/\D/g, ''); b = String(b || '').replace(/\D/g, '').slice(-4); return b.length === 4 && a.slice(-4) === b; }
 function sameEmail(a, b) { a = String(a || '').trim().toLowerCase(); b = String(b || '').trim().toLowerCase(); return a.length > 3 && a === b; }
 function clean(s, n) { return String(s || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, n); }
 function orderFor(ref, email, phone) {
@@ -183,13 +185,13 @@ function help(b) {
   var a = String(b.action), now = new Date();
   if (a === 'help_order') { // customer: find my order (order no. + email or phone)
     var o = orderFor(b.ref, b.email, b.phone); if (!o) return { ok: false, error: 'order_not_found' };
-    return { ok: true, order: orderCard(o), email: o.email, tickets: ticketsFor(o.ref, o.email) };
+    return { ok: true, order: orderCard(o), email: maskEmail(o.email), tickets: ticketsFor(o.ref, o.email) };
   }
   if (a === 'help_create') {
     if (b.hp) return { ok: true, ticket: 'H000000-0000' }; // honeypot – bots get a fake success
     var reason = REASONS.indexOf(b.reason) >= 0 ? b.reason : 'Other', msg = clean(b.message, 3000), email = clean(b.email, 120), name = clean(b.name, 80), ref = clean(b.ref, 30).toUpperCase(), phone = clean(b.phone, 30), o = null;
     if (msg.length < 3) return { ok: false, error: 'no_message' };
-    if (ref) { o = orderFor(ref, email, phone); if (!o) return { ok: false, error: 'order_not_found' }; email = o.email || email; name = name || o.name; phone = phone || o.phone; }
+    if (ref) { o = orderFor(ref, email, phone); if (!o) return { ok: false, error: 'order_not_found' }; email = o.email || email; name = name || o.name; phone = o.phone || phone; }
     else { reason = 'General question'; if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: 'name_email_required' }; }
     if (!rateOk('h:' + String(email || phone).toLowerCase(), 6)) return { ok: false, error: 'too_many' };
     var id = newTicketId(), photo = b.photo ? savePhoto(b.photo, id) : '';
@@ -198,7 +200,7 @@ function help(b) {
     var t = findTicket(id); return { ok: true, ticket: id, data: tObj(t.vals, t.row, false), order: orderCard(o) };
   }
   if (a === 'help_view' || a === 'help_reply_customer') { // customer: ticket id + email
-    var t2 = findTicket(b.ticket); if (!t2 || !sameEmail(t2.vals[6], b.email)) return { ok: false, error: 'ticket_not_found' };
+    var t2 = findTicket(b.ticket); if (!t2 || !(sameEmail(t2.vals[6], b.email) || samePhone(t2.vals[7], b.phone))) return { ok: false, error: 'ticket_not_found' };
     if (a === 'help_reply_customer') {
       var m2 = clean(b.message, 3000); if (m2.length < 2) return { ok: false, error: 'no_message' };
       if (!rateOk('hr:' + String(b.ticket), 20)) return { ok: false, error: 'too_many' };

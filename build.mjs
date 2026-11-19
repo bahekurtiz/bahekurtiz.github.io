@@ -561,6 +561,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
   <a href="${u("tools/indian-size-converter/")}">📏 Size converter (US/UK/AU/EU)</a>
   <a href="${u("tools/indian-wedding-outfit-finder/")}">💡 What should I wear? (wedding quiz)</a>
   <a href="${u("track/")}">📦 Track order</a>
+  <a href="${u("help/")}">💬 Help Center</a>
   <a href="${u("return-request/")}">↩️ Return / exchange</a>
   <a href="${u("review/")}">⭐ Write a review</a>
   <button class="mnav-cur" type="button" data-follow><span data-follow-label>＋ Follow Bahe Kurtiz</span></button>
@@ -625,7 +626,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
   ${S.address || S.phone ? `<address class="wrap copy foot-nap" style="font-style:normal">${S.address ? esc(S.address) : ""}${S.address && S.phone ? " · " : ""}${S.phone ? `<a href="tel:${esc(String(S.phone).replace(/[^+\d]/g, ""))}">${esc(S.phone)}</a>` : ""}</address>` : ""}
   <div class="wrap copy">© ${year} ${esc(brand)}${S.legal_name ? ` (${esc(S.legal_name)})` : ""}, Jaipur. All rights reserved.</div>
 </footer>`}
-${waHi ? `<a class="wa-float" href="${esc(waHi)}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${I.wa}</a>` : ""}
+${["checkout-page", "dash-page", "help-page", "linesheet-page"].includes(bodyClass) || String(pathname || "").startsWith("admin") ? "" : `<a class="help-float" href="${u("help/")}" aria-label="Help Center">? Help</a>`}${waHi ? `<a class="wa-float" href="${esc(waHi)}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${I.wa}</a>` : ""}
 <div class="toast" data-toast role="status" aria-live="polite"></div>
 <dialog class="login-modal" data-login-modal aria-labelledby="login-h"><form class="login-box" data-login-form method="dialog" novalidate>
   <button class="icon-btn login-x" type="button" data-close-login aria-label="Close">${I.close}</button>
@@ -1537,7 +1538,17 @@ add("track/index.html", page({ title: `Track Your Order | ${brand}`, description
   body: `<section class="wrap section narrow" data-track><h1>Track your order</h1><p class="muted">Enter the order number from your confirmation (like BK261007-1234) and the phone number used at checkout.</p>
   <form class="svc-form" data-track-form><label>Order number<input name="ref" required maxlength="24" autocomplete="off" placeholder="BK…"></label><label>Phone (last 4 digits are enough)<input name="ph" required inputmode="numeric" maxlength="15" autocomplete="tel"></label><button class="btn" type="submit">Track</button></form>
   <div data-track-out aria-live="polite"></div>
-  <p class="muted small">Need help? ${waNumber ? `<a class="link" href="${esc(waLink("Hi " + brand + "! I need help with my order: "))}" target="_blank" rel="noopener">WhatsApp us</a> · ` : ""}<a class="link" href="${u("return-request/")}">Return / exchange request</a></p></section>` }));
+  <p class="small"><a class="btn btn-ghost btn-sm" data-track-help href="${u("help/")}">💬 Get help with this order</a></p><p class="muted small">${waNumber ? `<a class="link" href="${esc(waLink("Hi " + brand + "! I need help with my order: "))}" target="_blank" rel="noopener">WhatsApp us</a> (optional) · ` : ""}<a class="link" href="${u("return-request/")}">Return / exchange request</a></p></section>` }));
+add("help/index.html", page({ title: `Help Center | ${brand}`, description: `Get help with your ${brand} order – order status, courier tracking, size, address, returns. A real person replies.`, pathname: "help/", bodyClass: "help-page",
+  body: `<section class="wrap section narrow" data-help><h1>Help Center</h1><p class="muted">Get help with an order, ask a question or read our replies – no account needed. A real person from our Jaipur team answers, usually within one working day.</p>
+  <div data-hv="home">
+  <div class="h-card"><h2>📦 Help with an order</h2><form class="svc-form" data-h-order><label>Order number<input name="ref" required maxlength="24" placeholder="BK…" autocomplete="off" autocapitalize="characters"></label><label>Email or phone used at checkout<input name="who" required maxlength="120" placeholder="you@email.com – or last 4 digits of your phone"></label><button class="btn" type="submit">Find my order</button></form><div data-h-ord-out aria-live="polite"></div></div>
+  <details class="h-card"><summary><h2>💬 No order? Ask a question</h2></summary><div data-h-gen-box></div></details>
+  <details class="h-card"><summary><h2>🔎 See replies to my request</h2></summary><form class="svc-form" data-h-view><label>Request ID<input name="t" required maxlength="24" placeholder="H261119-1234" autocapitalize="characters"></label><label>Email (or last 4 digits of your phone)<input name="who" required maxlength="120"></label><button class="btn" type="submit">Show my request</button></form></details>
+  <div class="h-quick"><h2>Quick answers</h2><ul><li><a class="link" href="${u("track/")}">Where is my order? – track it</a></li><li><a class="link" href="${u(intlOn ? "international-shipping/" : "shipping/")}">Delivery times & duties</a></li><li><a class="link" href="${u("tools/indian-size-converter/")}">Size help – size converter</a></li><li><a class="link" href="${u("returns/")}">Returns & exchanges (India)</a>${intlOn ? ` · <a class="link" href="${u("international-returns/")}">International returns</a>` : ""}</li><li><a class="link" href="${u("review/")}">Leave a review</a></li></ul>
+  ${waNumber ? `<p class="small muted">Prefer WhatsApp? <a class="link" href="${esc(waLink("Hi " + brand + "! I need help: "))}" target="_blank" rel="noopener">Chat with us</a> – optional, the Help Center works without it.</p>` : ""}</div>
+  </div><div data-hv="thread" hidden></div></section>
+<script>addEventListener("DOMContentLoaded", () => (${helpMain.toString()})());</script>` }));
 add("return-request/index.html", page({ title: `Return or Exchange Request | ${brand}`, description: `Request a return or size exchange for your ${brand} order.`, pathname: "return-request/", noindex: true,
   body: `<section class="wrap section narrow"><h1>Return / exchange request</h1><p class="muted">Please read our <a class="link" href="${u("returns/")}">return policy</a> first. We reply on WhatsApp within 1–2 working days. Every request is checked by us – nothing is approved automatically.</p>
   <form class="svc-form" data-svc="return_request"><label>Order number<input name="ref_order" required maxlength="24" placeholder="BK…"></label><label>Your name<input name="name" required maxlength="80" autocomplete="name"></label><label>Phone / WhatsApp<input name="phone" required inputmode="tel" maxlength="18" autocomplete="tel"></label>
@@ -2598,6 +2609,68 @@ add("404.html", page({ title: `Page not found | ${brand}`, description: "Page no
   body: `<section class="wrap section prose center"><h1>This page has moved</h1><p>The page you are looking for is not here anymore. Our latest collection is waiting for you.</p><p><a class="btn" href="${u("shop/")}">Shop the collection</a></p></section>` }));
 
 // ---------- write ----------
+// ---------- Help Center (/help/): order lookup → reason → message (+ photo) → ticket thread; replies by email ----------
+function helpMain() {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const root = $("[data-help]"); if (!root) return;
+  if (!(window.BK && window.BK.oapi)) { const n = document.createElement("p"); n.className = "h-notice"; const em = (window.BK && window.BK.email) || "", wa = (window.BK && window.BK.wa) || ""; n.innerHTML = `Our online help desk is being switched on. Until then, please ${em ? `email <a class="link" href="mailto:${esc(em)}">${esc(em)}</a>` : "email us"}${wa ? ` or <a class="link" href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener">WhatsApp us</a>` : ""} – we reply within one working day.`; root.querySelector("h1").after(n); }
+  const API = ((window.BK && window.BK.base) || "/") + "api/help";
+  const REASONS = ["Where is my order?", "Size or fit", "Change address", "Wrong or damaged item", "Return / exchange", "Payment", "Other"];
+  const ERR = { order_not_found: "We couldn't find an order with that number and email / phone. Please check both – the order number is in your confirmation email (like BK261118-1234).", ticket_not_found: "We couldn't find that request. Please check the request ID and your email (or the last 4 digits of your phone).", no_message: "Please write a short message.", name_email_required: "Please add your name and a valid email so we can reply.", too_many: "Too many messages in a short time – please try again a little later.", not_set_up: "Our help desk is being set up. Please email us for now.", network: "Connection problem – please check your internet and try again." };
+  const err = (e) => ERR[e] || "Something went wrong – please try again.";
+  const call = async (d) => { try { return await (await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(d) })).json(); } catch { return { ok: false, error: "network" }; } };
+  const fmtD = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); };
+  const stL = (s) => ({ Open: "We're on it", Waiting: "We replied", Closed: "Solved" }[s] || s);
+  const photoData = (file) => new Promise((res) => { if (!file || !/^image\//.test(file.type)) return res(""); const img = new Image(), u = URL.createObjectURL(file); img.onload = () => { const k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u); res(c.toDataURL("image/jpeg", 0.82)); }; img.onerror = () => res(""); img.src = u; });
+  const steps = ["Placed", "Paid", "Packed", "Shipped", "Delivered"];
+  const orderCard = (o) => { if (!o) return ""; const i = steps.indexOf(o.status); const page = o.tracking_url && !String(o.tracking_url).includes(encodeURIComponent(o.tracking || ""));
+    return `<div class="track-card h-order"><p><b>Order ${esc(o.ref)}</b>${o.day ? " · " + esc(o.day) : ""}</p><ol class="track-steps">${steps.map((s, k) => `<li class="${i >= k ? "done" : ""}${o.status === s ? " now" : ""}">${s}</li>`).join("")}</ol>${i < 0 && o.status ? `<p><b>Status:</b> ${esc(o.status)}</p>` : ""}${o.courier || o.tracking ? `<p class="track-courier"><b>Courier:</b> ${esc(o.courier || "–")} · <b>Tracking:</b> ${esc(o.tracking || "–")}${/^https:\/\//.test(o.tracking_url || "") ? ` · <a class="link" href="${esc(o.tracking_url)}" target="_blank" rel="noopener">Track with the courier →</a>${page ? `<br><small class="muted">On the courier's page, enter tracking number ${esc(o.tracking)}.</small>` : ""}` : ""}</p>` : ""}</div>`; };
+  const compose = (withOrder) => `<form class="svc-form h-compose" data-h-compose>${withOrder ? `<fieldset class="h-reasons"><legend>What do you need help with?</legend>${REASONS.map((r, i) => `<label><input type="radio" name="reason" value="${esc(r)}"${i === 0 ? " required" : ""}><span>${esc(r)}</span></label>`).join("")}</fieldset>` : `<label>Your name<input name="name" required maxlength="80" autocomplete="name"></label><label>Your email<input name="email" type="email" required maxlength="120" autocomplete="email"></label>`}
+    <label>Your message<textarea name="message" rows="4" required maxlength="3000" placeholder="Tell us what happened – the more detail, the faster we can help."></textarea></label>
+    <label class="h-photo">📷 Add a photo (optional)<input name="photo" type="file" accept="image/*"></label><input class="h-hp" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button class="btn" type="submit">Send message</button><p class="h-msg-out" aria-live="polite"></p></form>`;
+  let cred = {};
+  const showThread = (html) => { $("[data-hv=home]").hidden = true; const t = $("[data-hv=thread]"); t.hidden = false; t.innerHTML = html; window.scrollTo({ top: root.offsetTop - 80, behavior: "smooth" }); };
+  const bindCompose = (box, withOrder) => { const f = $("[data-h-compose]", box); if (!f) return;
+    f.addEventListener("submit", async (e) => { e.preventDefault(); const out = $(".h-msg-out", f), b = $("button[type=submit]", f); if (!f.reportValidity()) return; b.disabled = true; b.textContent = "Sending…"; out.textContent = "";
+      const photo = await photoData(f.photo.files[0]);
+      const d = withOrder ? { action: "create", ref: cred.ref, email: cred.email, phone: cred.phone, reason: f.reason.value, message: f.message.value, photo, hp: f.hp.value } : { action: "create", name: f.name.value, email: f.email.value, message: f.message.value, photo, hp: f.hp.value };
+      const r = await call(d); b.disabled = false; b.textContent = "Send message";
+      if (!r.ok) { out.textContent = err(r.error); out.className = "h-msg-out h-err"; return; }
+      const em = withOrder ? cred.email : f.email.value, ph = withOrder ? cred.phone : "";
+      try { history.replaceState(null, "", "?t=" + encodeURIComponent(r.ticket) + (em ? "&e=" + encodeURIComponent(em) : ph ? "&p=" + encodeURIComponent(String(ph).replace(/\D/g, "").slice(-4)) : "")); } catch {}
+      openTicket(r.ticket, em, ph, `✅ Thank you – your request <b>${esc(r.ticket)}</b> is sent. ${r.email ? `We emailed a confirmation to ${esc(r.email)}. ` : ""}We usually reply within one working day and will email you when we do.`); }); };
+  async function openTicket(ticket, email, phone, notice) {
+    showThread(`<p class="muted">Loading your request…</p>`);
+    const r = await call({ action: "view", ticket, email, phone });
+    if (!r.ok) { showThread(`<p class="h-err">${esc(err(r.error))}</p><p><a class="link" href="./">← Back to Help Center</a></p>`); return; }
+    const t = r.data, me = (m) => m.by === "customer";
+    showThread(`${notice ? `<p class="h-notice">${notice}</p>` : ""}<div class="h-thead"><div><p class="eyebrow">Request ${esc(t.ticket)}</p><h2>${esc(t.reason)}</h2></div><span class="h-st h-st-${esc(String(t.status).toLowerCase())}">${esc(stL(t.status))}</span></div>${orderCard(r.order)}
+      <ol class="h-thread">${t.thread.map((m) => `<li class="h-bub ${me(m) ? "h-me" : "h-them"}"><p class="h-who">${me(m) ? "You" : "Bahe Kurtiz team"} · <time>${esc(fmtD(m.at))}</time></p><p>${esc(m.text).replace(/\n/g, "<br>")}</p>${m.photo ? `<p class="small muted">📷 Photo attached</p>` : ""}</li>`).join("")}</ol>
+      <form class="svc-form h-compose" data-h-reply><label>${t.status === "Closed" ? "This request is marked as solved. Still need help? Reply and it opens again." : "Reply"}<textarea name="message" rows="3" required maxlength="3000"></textarea></label><label class="h-photo">📷 Add a photo (optional)<input name="photo" type="file" accept="image/*"></label><button class="btn" type="submit">Send reply</button><p class="h-msg-out" aria-live="polite"></p></form>
+      <p class="small"><a class="link" href="./">← Help Center</a></p>`);
+    const f = $("[data-h-reply]"); f.addEventListener("submit", async (e) => { e.preventDefault(); if (!f.reportValidity()) return; const b = $("button", f), out = $(".h-msg-out", f); b.disabled = true; b.textContent = "Sending…";
+      const rr = await call({ action: "reply", ticket, email, phone, message: f.message.value, photo: await photoData(f.photo.files[0]) }); b.disabled = false; b.textContent = "Send reply";
+      if (!rr.ok) { out.textContent = err(rr.error); out.className = "h-msg-out h-err"; return; } openTicket(ticket, email, phone, "✅ Reply sent – we will email you when we answer."); });
+  }
+  // find my order
+  const of = $("[data-h-order]"), oo = $("[data-h-ord-out]");
+  of.addEventListener("submit", async (e) => { e.preventDefault(); const ref = of.ref.value.trim().toUpperCase(), who = of.who.value.trim(), isMail = who.includes("@"), b = $("button", of);
+    b.disabled = true; oo.innerHTML = `<p class="muted">Looking up your order…</p>`; const r = await call({ action: "order", ref, email: isMail ? who : "", phone: isMail ? "" : who }); b.disabled = false;
+    if (!r.ok) { oo.innerHTML = `<p class="h-err">${esc(err(r.error))}</p>`; return; }
+    cred = { ref, email: isMail ? who : "", phone: isMail ? "" : who };
+    oo.innerHTML = orderCard(r.order) + (r.tickets && r.tickets.length ? `<div class="h-prev"><p class="small"><b>Your earlier requests for this order</b></p>${r.tickets.map((t) => `<button type="button" class="h-tk" data-open-t="${esc(t.ticket)}">${esc(t.ticket)} · ${esc(t.reason)} <span class="h-st h-st-${esc(String(t.status).toLowerCase())}">${esc(stL(t.status))}</span></button>`).join("")}</div>` : "") + compose(true);
+    bindCompose(oo, true); $$("[data-open-t]", oo).forEach((x) => (x.onclick = () => openTicket(x.dataset.openT, cred.email, cred.phone))); });
+  // general question
+  const gb = $("[data-h-gen-box]"); gb.innerHTML = compose(false); bindCompose(gb, false);
+  // view existing
+  const vf = $("[data-h-view]"); vf.addEventListener("submit", (e) => { e.preventDefault(); const who = vf.who.value.trim(), isMail = who.includes("@"); openTicket(vf.t.value.trim().toUpperCase(), isMail ? who : "", isMail ? "" : who); });
+  // links from emails / tracking page
+  const q = new URLSearchParams(location.search);
+  if (q.get("t") && (q.get("e") || q.get("p"))) openTicket(q.get("t"), q.get("e") || "", q.get("p") || "");
+  else if (q.get("ref")) { of.ref.value = q.get("ref").slice(0, 24); of.who.focus(); }
+}
 // ---------- Owner business dashboard: /admin/dashboard/ (reads the Google Sheet Apps Script, owner key only) ----------
 function studioMain() {
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -2713,7 +2786,7 @@ function dashMain() {
   const inr = (n) => "₹" + Math.round(n || 0).toLocaleString("en-IN");
   const KK = "bk_owner_key"; const getK = () => { try { return localStorage.getItem(KK) || ""; } catch { return ""; } };
   const root = $("[data-dash]"), URL0 = (window.BK && window.BK.sheet) || "";
-  let D = null, month = "", otab = "all";
+  let D = null, month = "", otab = "all", HL = null, htab = "Open";
   // Orders API (apps-script/orders-api.gs): saves status + courier + tracking and answers with a real result
   const OAPI = (window.BK && window.BK.oapi) || "";
   const COURIERS = {"ShipGlobal": "https://shipglobal.in/tracking/", "DTDC": "https://www.dtdc.com/", "Delhivery": "https://www.delhivery.com/track-v2/package/{n}", "Blue Dart": "https://www.bluedart.com/web/guest/trackdartresultthirdparty?trackFor=0&trackNo={n}", "India Post (Speed Post)": "https://www.indiapost.gov.in/", "Ecom Express": "https://www.ecomexpress.in/", "Xpressbees": "https://www.xpressbees.com/shipment/tracking?awbNo={n}", "Shiprocket": "https://shiprocket.co/tracking/{n}", "Ekart": "https://ekartlogistics.com/shipmenttrack/{n}", "DHL Express": "https://www.dhl.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id={n}", "FedEx": "https://www.fedex.com/fedextrack/?trknbr={n}", "UPS": "https://www.ups.com/track?tracknum={n}", "Aramex": "https://www.aramex.com/us/en/track/results?ShipmentNumber={n}", "USPS (USA)": "https://tools.usps.com/go/TrackConfirmAction?tLabels={n}", "Royal Mail (UK)": "https://www.royalmail.com/track-your-item#/tracking-results/{n}", "Parcelforce (UK)": "https://www.parcelforce.com/track-trace?trackNumber={n}", "Canada Post": "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={n}", "Australia Post": "https://auspost.com.au/mypost/track/details/{n}", "Pos Malaysia": "https://www.pos.com.my/", "SingPost": "https://www.singpost.com/track-items", "Emirates Post": "https://www.emiratespost.ae/", "Japan Post": "https://trackings.post.japanpost.jp/services/srv/search/direct?searchKind=S004&locale=en&reqCodeNo1={n}", "Deutsche Post / DHL Paket": "https://www.dhl.de/en/privatkunden/pakete-empfangen/verfolgen.html?piececode={n}"}; const C_IN = ["ShipGlobal", "DTDC", "Delhivery", "Blue Dart", "India Post (Speed Post)", "Ecom Express", "Xpressbees", "Shiprocket", "Ekart"];
@@ -2753,6 +2826,7 @@ function dashMain() {
     $("[data-dash-status]").textContent = "Updated " + new Date(D.updated).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
     if (!month) { const cur = new Date().toISOString().slice(0, 7); month = D.months.some((m) => m.month === cur) ? cur : ""; }
     await loadCat(); render();
+    loadHelp();
     if (OAPI) { try { const m = await apiGet({ action: "meta" }); if (m.ok && m.orders) { for (const o of D.orders) { const x = m.orders[o.ref]; if (x) Object.assign(o, { courier: x.courier || o.courier || "", tracking: x.tracking || o.tracking || "", tracking_url: x.tracking_url || o.tracking_url || "", emails: x.emails || "" }); } render(); } } catch {} }
   }
   const sumM = (ms) => ms.reduce((a, b) => { for (const k of ["sales", "orders", "pending", "refunds", "shipLost", "ship", "expenses", "returns", "rto", "exchanges", "cancels", "net", "capital"]) a[k] = (a[k] || 0) + (b[k] || 0); for (const c in b.exp) a.exp[c] = (a.exp[c] || 0) + b.exp[c]; return a; }, { exp: {} });
@@ -2802,11 +2876,12 @@ function dashMain() {
     const retRate = t.orders ? Math.round((t.returns + t.rto) / t.orders * 100) : 0;
     box(`<div class="dash-filter"><label>Mahina <select data-month><option value="">Sab (all time)</option>${ms.slice().reverse().map((m) => `<option value="${m.month}"${m.month === month ? " selected" : ""}>${mName(m.month)}</option>`).join("")}</select></label><button class="btn btn-ghost btn-sm" type="button" data-csv>⬇ CSV report</button><button class="btn btn-ghost btn-sm" type="button" data-print-paid>🖨 Print all to pack</button><button class="btn btn-ghost btn-sm" type="button" data-logout>Logout</button></div>
       <div class="dash-tiles">${tile("🆕 Pack karna hai", cnt("pack"), cnt("pack") ? "warn" : "", "paid – abhi dispatch karo", "pack")}${tile("Sales", inr(t.sales), "", `${t.orders || 0} paid orders`, "paid")}${tile("Net profit", inr(t.net), t.net < 0 ? "neg" : "pos", "sales − sab kharche (kharcha neeche likho)", "paid")}${tile("Avg order", inr(t.orders ? t.sales / t.orders : 0), "", "ek order ka average bill", "paid")}${tile("Return + RTO", `${(t.returns || 0) + (t.rto || 0)}`, retRate > 15 ? "warn" : "", `${retRate}% · RTO ${t.rto || 0}`, "ret")}${tile("Refunds", inr(t.refunds))}${tile("Shipping", inr(t.ship + (t.exp.Shipping || 0)), "", `+ RTO loss ${inr(t.shipLost)}`)}${tile("Expenses", inr(t.expenses), "", t.capital ? `Investment alag: ${inr(t.capital)}` : "")}</div>
-      <section class="dash-card dash-board" id="orders" data-board><h2>📦 Orders</h2><p class="ob-h">Action needed</p><div class="ob-act"><button type="button" class="ob-a${cnt("late") ? " red" : ""}" data-tab="late"><b>${cnt("late")}</b> Overdue <small>(4+ din se paid)</small></button><button type="button" class="ob-a${cnt("pack") ? " hot" : ""}" data-tab="pack"><b>${cnt("pack")}</b> Dispatch today</button><a class="ob-a" href="#dash-req"><b>${(D.requests || []).length}</b> Help requests</a></div>
+      <section class="dash-card dash-board" id="orders" data-board><h2>📦 Orders</h2><p class="ob-h">Action needed</p><div class="ob-act"><button type="button" class="ob-a${cnt("late") ? " red" : ""}" data-tab="late"><b>${cnt("late")}</b> Overdue <small>(4+ din se paid)</small></button><button type="button" class="ob-a${cnt("pack") ? " hot" : ""}" data-tab="pack"><b>${cnt("pack")}</b> Dispatch today</button><a class="ob-a" href="#dash-help"><b data-help-n2>–</b> Help requests (new)</a>${(D.requests || []).length ? `<a class="ob-a" href="#dash-req"><b>${D.requests.length}</b> Form requests</a>` : ""}</div>
         <div class="ob-tabs" role="tablist">${GL.map(([g, l]) => `<button type="button" role="tab" class="ob-tab${g === otab ? " on" : ""}" data-tab="${g}" aria-selected="${g === otab}">${l}${g === "all" ? "" : ` <b>${cnt(g)}</b>`}</button>`).join("")}</div>
         <input type="search" placeholder="Naam, phone, order no. ya product dhundo" data-q class="dash-q">
         <div class="dash-orders ob-list">${bord.length ? Object.entries(bord.reduce((a, o) => ((a[o.day] = a[o.day] || []).push(o), a), {})).map(([d, os]) => `<div class="ob-day" data-day><p class="ob-dh">Ordered ${fd(d)} <b>${os.length}</b></p>${os.map(ocard).join("")}</div>`).join("") : `<p class="muted">Is mahine koi order nahi.</p>`}</div><p class="muted small" data-ob-empty hidden>Is list mein abhi koi order nahi. ✓</p><p class="muted small">Sirf paid orders yahan dikhte hain. Jinka payment nahi hua, wo neeche “Unpaid / abandoned carts” mein hain.</p></section>
       <details class="dash-card dash-unpaid" data-unpaid><summary><h2>🛒 Unpaid / abandoned carts <small class="muted">${unp.length}</small></h2></summary><p class="muted small">In logon ne checkout shuru kiya par payment nahi hua – ye <b>real orders nahi</b> hain aur kisi count mein nahi gine jaate. Chaaho to ek baar politely follow-up kar lo.</p>${unp.length ? `<ul class="dash-unp">${unp.map(unpRow).join("")}</ul>` : `<p class="muted small">Koi unpaid cart nahi.</p>`}</details>
+      <section class="dash-card dash-help" id="dash-help"><h2>💬 Help requests <b class="dash-badge" data-help-n hidden></b></h2><div class="ob-tabs" role="tablist" data-help-tabs>${[["Open", "Open"], ["Waiting", "Waiting for customer"], ["Closed", "Closed"]].map(([k, l]) => `<button type="button" role="tab" class="ob-tab${k === htab ? " on" : ""}" data-htab="${k}">${l} <b data-hc="${k}"></b></button>`).join("")}</div><div data-help-body><p class="muted small">${OAPI ? "Loading…" : "Help Center ke liye Orders API lagao – GitHub repo → apps-script/README.md."}</p></div></section>
       <details class="dash-card dash-cc" data-cc><summary><h2>🧭 Live Control Center</h2></summary><div data-cc-body><p class="muted">Checking live website…</p></div></details>
       <section class="dash-card"><h2>📦 Stock</h2>${D.stock_low && D.stock_low.length ? `<ul class="dash-hbars">${D.stock_low.map(([k, q]) => `<li><span class="dash-hl">${esc(k)}</span><span></span><b class="${q <= 0 ? "neg" : ""}">${q <= 0 ? "Sold out" : q + " left"}</b></li>`).join("")}</ul>` : `<p class="muted small">Koi kam stock nahi (ya Stock tab abhi khaali hai).</p>`}<p class="muted small">Stock Google Sheet ke <b>Stock</b> tab mein likho (Sheets app se phone par bhi). Order aate hi apne aap ghatega, Cancelled karne par wapas judega.</p><button class="btn btn-ghost btn-sm" type="button" data-stock-init>Stock tab mein saare products jodo</button></section>
       ${D.requests && D.requests.length ? `<section class="dash-card" id="dash-req"><h2>📥 Customer requests <small class="muted">(returns, reviews, wholesale, restock)</small></h2><div class="dash-orders">${D.requests.map((q) => `<div class="dash-o"><div><b>${esc({ return_request: "↩️ Return/exchange", review: "⭐ Review", wholesale: "🏬 Wholesale", restock: "🔔 Restock", price_drop: "💸 Price drop" }[q.type] || q.type)}</b> · ${esc(q.day)}<br>${esc(q.name)} ${q.ref ? "· " + esc(q.ref) : ""}<br><small class="muted">${esc(q.text)}</small></div><div class="dash-o-r">${q.phone ? `<a class="link small" href="https://wa.me/${esc(String(q.phone).replace(/\D/g, "").replace(/^(\d{10})$/, "91$1"))}" target="_blank" rel="noopener">WhatsApp</a>` : ""}${q.email ? `<a class="link small" href="mailto:${esc(q.email)}">Email</a>` : ""}</div></div>`).join("")}</div><p class="muted small">Review approve karna ho to: Admin → Settings → Reviews mein wahi text daalo.</p></section>` : ""}
@@ -2896,10 +2971,47 @@ function dashMain() {
       setTimeout(load, 1500);
     });
     $$("form[data-f=expense],form[data-f=return]").forEach((f) => f.addEventListener("submit", async (e) => { e.preventDefault(); const b = f.querySelector("button"); b.disabled = true; await post({ type: f.dataset.f, ...Object.fromEntries(new FormData(f)) }); toast("Saved ✓"); setTimeout(load, 1800); }));
-    studio(); controlCenter();
+    studio(); controlCenter(); fillHelp(); $$("[data-htab]").forEach((b) => b.addEventListener("click", () => { htab = b.dataset.htab; fillHelp(); }));
     const tipbox = $("[data-tipbox]");
     $$("[data-hit]").forEach((h) => { const show = () => { const m = D.months.slice(-12)[+h.dataset.hit]; const c = m.refunds + m.shipLost + m.ship + m.expenses; tipbox.innerHTML = `<b>${mName(m.month)}</b><br><i style="background:#009688"></i>Sales ${inr(m.sales)}<br><i style="background:#c0702a"></i>Kharcha ${inr(c)}<br>Profit ${inr(m.net)} · ${m.orders} orders`; tipbox.hidden = false; const r = h.getBoundingClientRect(), p = h.ownerSVGElement.parentNode.getBoundingClientRect(); tipbox.style.left = Math.min(p.width - 170, Math.max(0, r.left - p.left + r.width / 2 - 85)) + "px"; $$("[data-i]").forEach((b) => b.style.opacity = b.dataset.i === h.dataset.hit ? 1 : .45); };
       h.addEventListener("pointerenter", show); h.addEventListener("click", show); h.addEventListener("pointerleave", () => { tipbox.hidden = true; $$("[data-i]").forEach((b) => (b.style.opacity = 1)); }); });
+  }
+  // ---------- Help Center inbox (tickets from the Help tab via the Orders API) ----------
+  async function loadHelp() { if (!OAPI) return; try { const r = await apiPost({ action: "help_list" }); if (r.ok) { HL = r.tickets || []; fillHelp(); } else if (r.error === "key") { const b = $("[data-help-body]"); if (b) b.innerHTML = `<p class="dash-err">${esc(ERR.key)}</p>`; } } catch { const b = $("[data-help-body]"); if (b) b.innerHTML = `<p class="dash-err">Help requests load nahi hue (Orders API tak nahi pahunche).</p>`; } }
+  const hFmt = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); };
+  function fillHelp() {
+    const box = $("[data-help-body]"); if (!box || !HL) return;
+    const un = HL.filter((t) => t.unread).length;
+    [$("[data-help-n]"), $("[data-help-n2]")].forEach((el) => { if (!el) return; el.textContent = el.dataset.helpN2 !== undefined ? un : un + " new"; el.hidden = el.dataset.helpN !== undefined && !un; });
+    $$("[data-hc]").forEach((el) => (el.textContent = HL.filter((t) => t.status === el.dataset.hc).length));
+    $$("[data-htab]").forEach((b) => b.classList.toggle("on", b.dataset.htab === htab));
+    const list = HL.filter((t) => t.status === htab);
+    box.innerHTML = list.length ? `<ul class="dash-hl-list">${list.map((t) => { const last = t.thread[t.thread.length - 1] || {}; return `<li><button type="button" class="dash-hl-row${t.unread ? " unread" : ""}" data-ht="${esc(t.ticket)}"><span class="dash-hl-top">${t.unread ? `<i class="dash-dot" aria-label="unread"></i>` : ""}<b>${esc(t.name || t.email)}</b> · ${esc(t.reason)}${t.ref ? ` · <u>${esc(t.ref)}</u>` : ""}<small>${esc(hFmt(last.at))}</small></span><span class="dash-hl-msg">${last.by === "owner" ? "↩️ Aap: " : ""}${esc(String(last.text || "").slice(0, 110))}</span></button></li>`; }).join("")}</ul>` : `<p class="muted small">${htab === "Open" ? "Koi open request nahi ✓" : "Is list mein kuch nahi."}</p>`;
+    $$("[data-ht]", box).forEach((b) => b.addEventListener("click", () => openHelp(b.dataset.ht)));
+  }
+  async function openHelp(id) {
+    const t = HL.find((x) => x.ticket === id); if (!t) return;
+    let dd = document.querySelector("body > [data-help-dlg]"); if (!dd) { dd = document.createElement("dialog"); dd.className = "dash-od dash-hdlg"; dd.dataset.helpDlg = ""; document.body.appendChild(dd); dd.addEventListener("click", (e) => { if (e.target === dd) dd.close(); }); }
+    const o = t.ref ? D.orders.find((x) => x.ref === t.ref) : null;
+    const items = o ? parseItems(o).map((it) => `${esc(it.title)} · Size <b>${esc(it.size || "?")}</b> · Qty ${it.qty}`).join("<br>") : "";
+    dd.innerHTML = `<div class="od-head"><div><p class="eyebrow">Help request</p><h2>${esc(t.ticket)}</h2><p class="muted small">${esc(t.reason)} · ${esc(t.created)}</p></div><span class="h-st h-st-${esc(t.status.toLowerCase())}">${esc(t.status === "Waiting" ? "Waiting for customer" : t.status)}</span></div>
+      <div class="dash-hgrid"><div><ol class="h-thread">${t.thread.map((m) => `<li class="h-bub ${m.by === "owner" ? "h-me" : "h-them"}"><p class="h-who">${m.by === "owner" ? "Aap (Bahe Kurtiz)" : esc(t.name || "Customer")} · ${esc(hFmt(m.at))}</p><p>${esc(m.text).replace(/\n/g, "<br>")}</p>${m.photo ? `<p><a class="link small" href="${esc(m.photo)}" target="_blank" rel="noopener">📷 Photo dekho</a></p>` : ""}</li>`).join("")}</ol>
+        <form class="dash-form" data-h-rep><label>Jawab likho (customer ko email jayega)<textarea name="m" rows="4" required maxlength="3000"></textarea></label><div class="dash-dlg-b"><button class="btn" type="submit" value="send">Send reply</button><button class="btn btn-ghost" type="submit" value="close">Send & close</button></div><p class="small" data-h-st></p></form>
+        <p class="dash-dlg-b">${t.status === "Closed" ? `<button class="btn btn-ghost btn-sm" type="button" data-h-set="Open">Reopen</button>` : `<button class="btn btn-ghost btn-sm" type="button" data-h-set="Closed">Close request</button>`}<button class="btn btn-ghost btn-sm" type="button" data-h-x>Close window</button></p></div>
+        <aside class="dash-hside"><h3>Customer</h3><p>${esc(t.name)}<br><a href="mailto:${esc(t.email)}">${esc(t.email)}</a>${t.phone ? `<br>📞 ${esc(t.phone)}` : ""}</p>${t.ref ? `<h3>Order ${esc(t.ref)}</h3>${o ? `<p>Status: <b>${esc(o.status)}</b><br>${o.cur === "USD" ? "$" + esc(o.total) : inr(o.inr)} · ${esc(o.payment || "")}<br><small class="muted">${esc(o.day || "")}</small></p><p class="small">${items}</p>${o.courier || o.tracking ? `<p class="small">🚚 ${esc(o.courier)} · ${o.tracking_url ? `<a class="link" href="${esc(o.tracking_url)}" target="_blank" rel="noopener">${esc(o.tracking)}</a>` : esc(o.tracking)}</p>` : ""}<p class="small muted">${esc([o.address, o.city, o.state, o.country].filter(Boolean).join(", "))}</p><p><button class="btn btn-ghost btn-sm" type="button" data-h-ord="${esc(t.ref)}">📋 Order detail</button></p>` : `<p class="muted small">Order is mahine ki list mein nahi – Mahina filter "Sab" karo.</p>`}` : `<p class="muted small">General question (koi order nahi)</p>`}</aside></div>`;
+    if (!dd.open) dd.showModal();
+    $("[data-h-x]", dd).onclick = () => dd.close();
+    const ob = $("[data-h-ord]", dd); if (ob) ob.onclick = () => { dd.close(); const v = document.querySelector(`[data-view-btn="${CSS.escape(t.ref)}"]`); if (v) v.click(); };
+    if (t.unread) { t.unread = false; fillHelp(); apiPost({ action: "help_read", ticket: t.ticket }).catch(() => {}); }
+    const set = $("[data-h-set]", dd); set.onclick = async () => { set.disabled = true; const r = await apiPost({ action: "help_status", ticket: t.ticket, status: set.dataset.hSet }).catch(() => ({ ok: false })); if (r.ok) { Object.assign(t, r.data); fillHelp(); openHelp(t.ticket); toast(r.data.status === "Closed" ? "Request closed ✓" : "Request reopened ✓"); } else { set.disabled = false; toast("Save nahi hua – dobara try karo"); } };
+    const f = $("[data-h-rep]", dd), st = $("[data-h-st]", dd);
+    f.addEventListener("submit", async (e) => { e.preventDefault(); const close = e.submitter && e.submitter.value === "close", msg = f.m.value.trim(); if (!msg) return; $$("button", f).forEach((b) => (b.disabled = true)); st.textContent = "Bhej rahe hain…"; st.className = "small";
+      let r; try { r = await apiPost({ action: "help_reply_owner", ticket: t.ticket, message: msg, close }); } catch { r = { ok: false, error: "network" }; }
+      if (!r.ok) { $$("button", f).forEach((b) => (b.disabled = false)); st.textContent = "❌ Reply save nahi hua: " + (ERR[r.error] || r.error); st.className = "small neg"; return; }
+      Object.assign(t, r.data); fillHelp(); openHelp(t.ticket);
+      const s2 = $("[data-h-st]", dd); s2.textContent = "✅ Reply saved. ✉️ Customer ko email bhej rahe hain…";
+      let m; try { m = await (await fetch(((window.BK && window.BK.base) || "/") + "api/help", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "notify", ticket: t.ticket, key: getK() }) })).json(); } catch { m = { ok: false, error: "network" }; }
+      s2.textContent = m.ok ? "✅ Reply saved · ✉️ Customer ko email chala gaya ✓" : "✅ Reply saved · ✉️ ✗ Email nahi gaya (" + (m.error || "error") + ")" + (t.phone ? " – WhatsApp kar do." : ""); s2.className = "small " + (m.ok ? "pos" : "neg"); });
   }
   // ---------- Live Control Center: reads the DEPLOYED site, never shows fake green ----------
   async function controlCenter() {

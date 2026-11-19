@@ -1191,6 +1191,7 @@
   const tf = $("[data-track-form]");
   if (tf) { const out = $("[data-track-out]"); try { const q = new URLSearchParams(location.search); if (q.get("ref")) tf.ref.value = q.get("ref"); } catch {}
     tf.addEventListener("submit", async (e) => { e.preventDefault(); const ref = tf.ref.value.trim().toUpperCase(), ph = tf.ph.value.replace(/\D/g, "").slice(-4);
+      const hl = $("[data-track-help]"); if (hl && ref) hl.href = url("help/") + "?ref=" + encodeURIComponent(ref);
       if (!BK.sheet && !BK.oapi) { out.innerHTML = `<p class="paused-note">Online tracking is being set up. ${BK.wa ? `<a class="link" href="https://wa.me/${BK.wa}?text=${encodeURIComponent("Order status please: " + ref)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>` : ""}</p>`; return; }
       out.innerHTML = `<p class="muted">Checking…</p>`;
       try { const r = await (await fetch(`${BK.oapi || BK.sheet}?action=track&ref=${encodeURIComponent(ref)}&ph=${ph}`)).json();
