@@ -1623,3 +1623,4 @@ details.h-card summary{cursor:pointer;list-style:none}details.h-card summary h2{
 .dash-hdlg{width:min(96vw,960px)}
 .dash-hdlg{padding:16px 16px 20px;border:0;border-radius:14px}
 .dash-warn{background:#fff6e0;border-color:#e8c46a}
+.pdp-quick{margin:14px 0 6px;padding:10px 12px;border-left:3px solid var(--accent);background:#faf7f2;border-radius:8px;font-size:.88rem;line-height:1.55;color:var(--ink)}
