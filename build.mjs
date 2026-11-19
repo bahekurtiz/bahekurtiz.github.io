@@ -721,7 +721,7 @@ const small = (src) => (rsHas(src) ? rsPath(src, 480) : src);
 // best ready-made copy for a big photo: 1400 → 960 → original
 const rsBig = (src) => { const local = BASE && String(src).startsWith(BASE) ? "/" + String(src).slice(BASE.length) : String(src); for (const w of [1400, 960]) if (rsHasW(local, w)) return u(rsPath(local, w)); return src; };
 const imgSizes = (tag) => { const wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
-  return /data-rs="big"|class="post-cover"/.test(tag) ? "(max-width: 900px) 100vw, 50vw" : /class="logo-img"/.test(tag) ? "170px" : wd && wd <= 120 ? "120px" : wd && wd <= 160 ? "80px" : "(max-width: 720px) 46vw, 25vw"; };
+  return /data-rs="big"|class="post-cover"/.test(tag) ? "(max-width: 900px) 80vw, 50vw" : /class="logo-img"/.test(tag) ? "170px" : wd && wd <= 120 ? "120px" : wd && wd <= 160 ? "80px" : "(max-width: 720px) 46vw, 25vw"; };
 const srcsetFor = (local, raw) => { const ws = RS.filter((w) => rsHasW(local, w)); return ws.map((w) => `${esc(encU(u(rsPath(local, w))))} ${w}w`).join(", ") + (ws.includes(1400) ? "" : `, ${esc(encU(raw))} 1200w`); };
 // empty alt="" on real photos (noscript copies, hover/related images): fill it from the product title or the file name, so no visible photo goes without alt text
 const altFill = (tag) => {
