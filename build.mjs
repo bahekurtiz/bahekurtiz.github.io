@@ -811,7 +811,9 @@ const autoFor = (aud) => {
       for (const fd of [...new Set(dates)]) { const ev = evs.find((e) => e.date === fd);
         if (ev && !(ev.audience === "both" || ev.audience === aud)) continue;
         const a = ev ? plus(fd, -(aud === "intl" ? CAL_LEAD.intl_start : CAL_LEAD.india_start)) : plus(fd, num(t.from) ?? fFrom), b = ev ? plus(fd, -(aud === "intl" ? CAL_LEAD.intl_stop : CAL_LEAD.india_stop)) : plus(fd, num(t.to) ?? fTo);
-        if (day >= a && day <= b) hits.push({ t, year: fd.slice(0, 4), fest: fd, orderBy: orderBy(fd, aud), len: ms(b) - ms(a) }); } }
+        // the banner stops once the last order date (ready sizes) has passed – no promotion for a festival we can no longer deliver for
+        const ob = orderBy(fd, aud), end = ob < b ? ob : b;
+        if (day >= a && day <= end) hits.push({ t, year: fd.slice(0, 4), fest: fd, orderBy: ob, len: ms(end) - ms(a) }); } }
     else if (/^\d\d-\d\d$/.test(t.from) && /^\d\d-\d\d$/.test(t.to)) { const wrap = t.from > t.to;
       if (wrap ? md >= t.from || md <= t.to : md >= t.from && md <= t.to) hits.push({ t, year: day.slice(0, 4), len: (ms("2001-" + t.to) - ms("2001-" + t.from) + (wrap ? 365 * 864e5 : 0)) }); }
   }
