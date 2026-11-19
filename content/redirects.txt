@@ -230,8 +230,6 @@
 /stories/day-wedding-vs-night-wedding-what-to-wear /blog/day-wedding-vs-night-wedding-what-to-wear/ 301
 /stories/destination-wedding-outfits-goa-udaipur-jaipur/ /blog/destination-wedding-outfits-goa-udaipur-jaipur/ 301
 /stories/destination-wedding-outfits-goa-udaipur-jaipur /blog/destination-wedding-outfits-goa-udaipur-jaipur/ 301
-/stories/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada/ /blog/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada/ 301
-/stories/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada /blog/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada/ 301
 /stories/diwali-outfits-for-plus-size-women/ /blog/diwali-outfits-for-plus-size-women/ 301
 /stories/diwali-outfits-for-plus-size-women /blog/diwali-outfits-for-plus-size-women/ 301
 /stories/diwali-party-outfits-for-the-office-usa-uk/ /blog/diwali-party-outfits-for-the-office-usa-uk/ 301
@@ -385,3 +383,7 @@
 /blog/kota-doria-fabric-guide /blog/what-is-kota-doria-fabric-styling-and-care/ 301
 /stories/kota-doria-fabric-guide/ /blog/what-is-kota-doria-fabric-styling-and-care/ 301
 /stories/kota-doria-fabric-guide /blog/what-is-kota-doria-fabric-styling-and-care/ 301
+/blog/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada/ /diwali-outfits-for-women/ 301
+/blog/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada /diwali-outfits-for-women/ 301
+/stories/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada/ /diwali-outfits-for-women/ 301
+/stories/diwali-outfit-ideas-for-women-in-the-uk-usa-and-canada /diwali-outfits-for-women/ 301
