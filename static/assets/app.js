@@ -1583,3 +1583,10 @@
     track("Lead", { content_name: "drop_notify", content_ids: [slug] });
     f.querySelector(".pin-row").hidden = true; msg.textContent = "💚 You're on the list for this drop. We'll email you when it's live."; msg.className = "drop-msg ok"; }));
 })();
+(() => {
+  const a = document.querySelector("a.wa-order"); if (!a) return;
+  a.addEventListener("click", () => {
+    const b = document.querySelector('.size[aria-pressed="true"]'); const z = b ? b.dataset.size : "";
+    try { const u = new URL(a.href); const t = (u.searchParams.get("text") || "").replace(/Size: [^\n]*/, "Size: " + z); a.href = u.origin + u.pathname + "?text=" + encodeURIComponent(t); } catch {}
+  });
+})();
