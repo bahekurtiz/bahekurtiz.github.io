@@ -45,9 +45,21 @@ for (const f of files) {
   }
 }
 
+// Indexing hygiene (Search Console "Pages" report): no redirect chains, no redirect to a missing page,
+// sitemap lists only pages that exist and are indexable.
+{
+  const exists = (u) => { u = u.split(/[?#]/)[0]; const f = path.join(SITE, u); return fs.existsSync(u.endsWith("/") ? path.join(f, "index.html") : f) || fs.existsSync(path.join(f, "index.html")); };
+  const noindex = (u) => { const f = path.join(SITE, u, "index.html"); return fs.existsSync(f) && /name="robots" content="noindex/.test(fs.readFileSync(f, "utf8").slice(0, 8000)); };
+  const rules = fs.readFileSync(path.join(SITE, "_redirects"), "utf8").split("\n").filter((l) => l.trim() && !l.startsWith("#")).map((l) => l.trim().split(/\s+/)).filter((r) => r.length > 1 && !r[0].includes("*") && !r[0].includes(":"));
+  const from = new Map(rules.map((r) => [r[0], r[1]]));
+  for (const [a, b] of from) { if (!b.startsWith("/")) continue; if (from.has(b)) errs.push(`redirect chain: ${a} → ${b} → ${from.get(b)}`); else if (!exists(b)) errs.push(`redirect to missing page: ${a} → ${b}`); }
+  const sm = fs.readFileSync(path.join(SITE, "sitemap.xml"), "utf8");
+  for (const m of sm.matchAll(/<loc>https:\/\/[^/<]+(\/[^<]*)<\/loc>/g)) { if (!exists(m[1])) errs.push(`sitemap lists missing page ${m[1]}`); else if (noindex(m[1])) errs.push(`sitemap lists noindex page ${m[1]}`); }
+}
+
 if (errs.length) {
-  console.error(`lint-schema: ${errs.length} Google merchant-listing problem(s):`);
+  console.error(`lint-schema: ${errs.length} SEO problem(s) – fix before going live:`);
   for (const e of [...new Set(errs)].slice(0, 30)) console.error("  - " + e);
   process.exit(1);
 }
-console.log(`lint-schema: ${products} products, all Google merchant-listing rules OK`);
+console.log(`lint-schema: ${products} products, all Google merchant-listing rules OK; redirects + sitemap clean`);
