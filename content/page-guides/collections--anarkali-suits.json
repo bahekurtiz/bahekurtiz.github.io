@@ -23,7 +23,47 @@
     "Taffeta silk with gota work: a soft sheen for evening functions and receptions.",
     "Velvet: rich and warm for winter weddings, Diwali and Christmas abroad.",
     "Cotton: breathable for day events, pujas and haldi."
-   ]
+   ],
+   "table": {
+    "head": [
+     "Fabric",
+     "Feel",
+     "Best for",
+     "Season"
+    ],
+    "rows": [
+     [
+      "Georgette",
+      "Light, flowing, slight grain",
+      "Sangeet, mehndi, wedding guest",
+      "All year"
+     ],
+     [
+      "Chiffon",
+      "Very light, soft and sheer",
+      "Day weddings, sangeet, dancing",
+      "Spring–summer"
+     ],
+     [
+      "Taffeta silk",
+      "Crisp with a soft sheen",
+      "Evening functions, receptions",
+      "All year"
+     ],
+     [
+      "Velvet",
+      "Rich, heavy and warm",
+      "Winter weddings, Diwali, Christmas abroad",
+      "Winter"
+     ],
+     [
+      "Cotton",
+      "Breathable and easy",
+      "Day events, puja, haldi",
+      "Summer"
+     ]
+    ]
+   }
   },
   {
    "h": "Suit set or gown?",
