@@ -155,6 +155,16 @@ async function verified(o, env, cat) {
   return false;
 }
 
+// Write the result of the server-side payment check to the Orders API (Google Sheet → "Payments" tab).
+// Only this server knows ORDERS_API_SECRET (= SERVER_KEY in the Apps Script), so the browser can never mark an order as paid.
+export async function recordPayment(env, cat, o, ok, pid) {
+  const api = cat && cat.settings && cat.settings.orders_api, secret = String(env.ORDERS_API_SECRET || "").trim();
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(String(api || "")) || !secret) return false;
+  const body = { action: "payment_verified", secret, ref: o.ref, ok: ok === true, method: o.method, payment_id: pid || "", amount: o.total, currency: o.currency, name: o.name, email: o.email,
+    note: ok === true ? "verified with " + o.method : ok === "unchecked" ? "could not be checked automatically – check in " + o.method + " and mark Paid by hand" : "payment check failed", phone: o.phone, country: o.country, items: (o.items || []).map((i) => `${i.title} ${i.size || ""} x${i.qty}`).join("; ") };
+  try { const r = await fetch(api, { method: "POST", headers: { "content-type": "text/plain;charset=utf-8" }, body: JSON.stringify(body), redirect: "follow", signal: AbortSignal.timeout(8000) }); return (await r.json()).ok === true; } catch { return false; }
+}
+
 async function send(key, body) {
   try { const r = await fetch(B + "/smtp/email", { method: "POST", headers: { "api-key": key, accept: "application/json", "content-type": "application/json" }, body: JSON.stringify(body) }); return r.ok; } catch { return false; }
 }
@@ -171,6 +181,7 @@ export async function onRequestPost({ request, env }) {
     if (pid && env.ORDERS) { try { if (await env.ORDERS.get("pay:" + pid)) return J({ ok: true, duplicate: true }); } catch {} }
     if (pid && seen("pay:" + pid)) return J({ ok: true, duplicate: true });
     const ok = await verified(o, env, cat);
+    await recordPayment(env, cat, o, ok, pid); // Google Sheet "Payments" tab – the dashboard shows only verified orders
     const out = { ok: true, verified: ok === true, owner: false, customer: false };
     const owner = String(env.OWNER_EMAIL || "").trim() || FROM.email;
     out.owner = await send(key, ownerEmail(o, owner, ok === true));

@@ -71,3 +71,14 @@ Emails website (Cloudflare) se **Brevo** ke through jaate hain – Cloudflare me
 
 ## Sheet mein naye columns
 Script ye columns khud bana deta hai (agar pehle se nahi hain): **Courier**, **Tracking**, **Tracking link**, **Status updated**, **Customer emails**, aur naya tab **Help**. Inhe rename/delete mat karna.
+
+---
+
+## v3 – sirf verified payment wale orders (Payments + Abandoned tabs)
+Website ka server Razorpay / PayPal se payment check karke result Sheet ke **Payments** tab mein likhta hai. Dashboard mein order tabhi "Orders" mein aata hai jab yahan **Verified = Yes** ho (ya aapne khud Status → Paid kiya ho). Checkout shuru karke chhod dene wale **Abandoned** tab mein jaate hain. Koi row delete nahi hoti.
+
+Iske liye ek secret chahiye jo sirf Apps Script aur Cloudflare ke paas ho:
+1. Ek lamba random text banao (kam se kam 20 akshar, jaise password manager se) – ise kahin chat mein mat bhejna.
+2. **Apps Script:** script.google.com → Bahe Orders API → naya `orders-api.gs` code paste → Save → ⚙️ Project Settings → Script properties → **Add script property**: `SERVER_KEY` = wahi text → Save script properties.
+3. **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy** (URL wahi rahega).
+4. **Cloudflare:** dash.cloudflare.com → Workers & Pages → bahekurtiz → Settings → Variables and Secrets → **+ Add** → Type **Secret**, Name `ORDERS_API_SECRET`, Value = wahi text → Save → Deployments → latest → ⋯ → **Retry deployment**.

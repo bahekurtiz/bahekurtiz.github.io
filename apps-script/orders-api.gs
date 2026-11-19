@@ -12,10 +12,11 @@
  * Script properties (Project Settings → Script properties):
  *   OWNER_KEY  – the same owner key you type in the dashboard (required)
  *   SHEET_ID   – the long id from your Google Sheet link: docs.google.com/spreadsheets/d/<SHEET_ID>/edit (required)
+ *   SERVER_KEY – a long random text; the SAME text goes into Cloudflare as ORDERS_API_SECRET (v3: verified payments)
  *
  * No secrets live in this file. Safe to keep in the public repo.
  */
-var VERSION = 2; // 2 = Help Center (Help tab)
+var VERSION = 3; // 2 = Help Center (Help tab) · 3 = Payments + Abandoned tabs (server-verified payments)
 
 // ---- courier → OFFICIAL tracking link (same list as the website dashboard). {n} = number in the link; without {n} = the courier's official tracking page ----
 var COURIERS = {
@@ -124,7 +125,7 @@ function doGet(e) {
         var cC = colOf(h, 'courier'), cT = colOf(h, 'tracking'), cU = colOf(h, 'trackurl'), cE = colOf(h, 'emails');
         for (var r1 = 1; r1 < v.length; r1++) { var ref1 = String(v[r1][cR]).trim(); if (!ref1) continue; res[ref1] = { status: String(v[r1][cS]), courier: cC >= 0 ? String(v[r1][cC]) : '', tracking: cT >= 0 ? String(v[r1][cT]) : '', tracking_url: cU >= 0 ? String(v[r1][cU]) : '', emails: cE >= 0 ? String(v[r1][cE]) : '' }; }
       }
-      return out({ ok: true, orders: res });
+      return out({ ok: true, orders: res, payments: payments() });
     }
     if (a === 'track') {
       var f2 = findOrder(String(p.ref || '').toUpperCase()); if (!f2) return out({ ok: false, error: 'not_found' });
@@ -234,12 +235,42 @@ function help(b) {
   return { ok: false, error: 'action' };
 }
 
+// =====================================================================================
+// PAYMENTS (v3) – the website's server writes here ONLY after it verified the payment with
+// Razorpay / PayPal (functions/api/order-notify.js, secret SERVER_KEY). The dashboard shows an
+// order in "Orders" only when it is verified here (or when the owner confirmed it).
+// ABANDONED – checkouts that were started but not paid, and payments that failed the check.
+// =====================================================================================
+var PAY_HEAD = ['Ref', 'Verified', 'Method', 'Payment ID', 'Amount', 'Currency', 'Name', 'Email', 'Checked at', 'Note'];
+var AB_HEAD = ['Time', 'Stage', 'Ref', 'Name', 'Email', 'Phone', 'Country', 'Items', 'Total', 'Currency', 'Note'];
+function tab(name, head) { var b = book(), sh = b.getSheetByName(name); if (!sh) { sh = b.insertSheet(name); sh.appendRow(head); } return sh; }
+function serverOk(k) { var want = String(props().getProperty('SERVER_KEY') || ''); return want.length >= 16 && String(k || '') === want; }
+function payments() { // ref → latest record
+  var sh = book().getSheetByName('Payments'); if (!sh) return {}; var v = sh.getDataRange().getValues(), m = {};
+  for (var r = 1; r < v.length; r++) { var ref = String(v[r][0]).trim(); if (!ref) continue; m[ref] = { ok: String(v[r][1]) === 'Yes', method: String(v[r][2]), id: String(v[r][3]), amount: v[r][4], currency: String(v[r][5]), at: fmt(v[r][8]), note: String(v[r][9]) }; }
+  return m;
+}
+function addPayment(rec) { tab('Payments', PAY_HEAD).appendRow([rec.ref, rec.ok ? 'Yes' : 'No', rec.method || '', "'" + (rec.id || ''), rec.amount || '', rec.currency || '', rec.name || '', rec.email || '', new Date(), rec.note || '']); }
+function addAbandoned(b, stage, note) { tab('Abandoned', AB_HEAD).appendRow([new Date(), stage, clean(b.ref, 30), clean(b.name, 80), clean(b.email, 120), "'" + clean(b.phone, 30), clean(b.country, 60), clean(b.items, 500), b.total || '', clean(b.currency, 5), clean(note, 200)]); }
+
 function doPost(e) {
   var b = {}; try { b = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (x) { return out({ ok: false, error: 'bad_json' }); }
   var a = String(b.action || b.type || '');
   if (a.indexOf('help_') === 0) {
     var lk = LockService.getScriptLock(); try { lk.waitLock(15000); } catch (x) { return out({ ok: false, error: 'busy' }); }
     try { return out(help(b)); } catch (err) { return out({ ok: false, error: 'server', detail: String(err).slice(0, 200) }); } finally { try { lk.releaseLock(); } catch (x) {} }
+  }
+  if (a === 'payment_verified') { // website server only (after Razorpay / PayPal check)
+    if (!serverOk(b.secret)) return out({ ok: false, error: 'secret' });
+    var rec = { ref: clean(b.ref, 30), ok: b.ok === true, method: clean(b.method, 20), id: clean(b.payment_id, 80), amount: Number(b.amount) || '', currency: clean(b.currency, 5), name: clean(b.name, 80), email: clean(b.email, 120), note: clean(b.note, 200) };
+    if (!rec.ref) return out({ ok: false, error: 'no_ref' });
+    addPayment(rec); if (!rec.ok) addAbandoned(b, 'payment not verified', rec.note || rec.method);
+    else { var ab = book().getSheetByName('Abandoned'); if (ab && rec.email) { var av = ab.getDataRange().getValues(); for (var i = 1; i < av.length; i++) if (sameEmail(av[i][4], rec.email) && /^checkout started/.test(String(av[i][1]))) ab.getRange(i + 1, 2).setValue('paid later ✓ ' + rec.ref); } }
+    return out({ ok: true });
+  }
+  if (a === 'abandoned') { // public: checkout started (no money involved, follow-up list only)
+    if (!rateOk('ab:' + String(b.email || b.phone || '').toLowerCase(), 4)) return out({ ok: true, skipped: true });
+    addAbandoned(b, clean(b.stage, 40) || 'checkout started', ''); return out({ ok: true });
   }
   if (a === 'email_log') {
     if (!keyOk(b.key)) return out({ ok: false, error: 'key' });
@@ -265,6 +296,7 @@ function doPost(e) {
     var cShip = colOf(f.hdr, 'shipcost'); if (cShip >= 0 && b.ship_cost !== undefined && String(b.ship_cost) !== '') set[cShip] = Number(b.ship_cost) || 0;
     var cNote = colOf(f.hdr, 'note'); if (cNote >= 0 && b.note) set[cNote] = String(b.note).slice(0, 300);
     f.rows.forEach(function (row) { Object.keys(set).forEach(function (c) { f.sh.getRange(row, Number(c) + 1).setValue(set[c]); }); });
+    if (/^paid$/i.test(st)) addPayment({ ref: ref, ok: true, method: 'Owner confirmed', note: 'marked Paid in dashboard' });
     SpreadsheetApp.flush();
     var o = read(f); // read back what is really in the sheet now
     return out({ ok: o.status === st, order: o, error: o.status === st ? undefined : 'not_saved' });
