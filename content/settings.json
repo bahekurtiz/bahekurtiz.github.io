@@ -98,6 +98,7 @@
   "festivals": [],
   "currency_rates": [],
   "usd_rate": 85,
+  "intl_welcome_code": "FRIEND10",
   "coupons": [
     { "code": "FRIEND10", "kind": "Percent", "value": 10, "market": "Both", "active": true },
     { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true }
