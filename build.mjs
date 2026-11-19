@@ -3220,7 +3220,7 @@ const swVer = String([...JSON.stringify(catalog)].reduce((h, c) => (h * 31 + c.c
 fs.writeFileSync(path.join(OUT, "sw.js"), `const V='bk-${swVer}';self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);if(u.origin!==location.origin||/^\\/(admin|api|checkout)/.test(u.pathname))return;if(r.mode==='navigate'){e.respondWith(fetch(r).then(res=>{const c=res.clone();caches.open(V).then(x=>x.put(r,c));return res}).catch(()=>caches.match(r).then(m=>m||caches.match('/'))));return}if(/\\.(css|js|webp|jpg|jpeg|png|svg|woff2)$/.test(u.pathname)){e.respondWith(caches.open(V).then(c=>c.match(r).then(m=>{const f=fetch(r).then(res=>{if(res.ok)c.put(r,res.clone());return res}).catch(()=>m);return m||f})))}});`);
 
 // admin panel config
-const repo = process.env.GITHUB_REPO || S.github_repo || "YOUR-GITHUB-USERNAME/bahe-kurtiz";
+const repo = process.env.GITHUB_REPO || String(S.github_repo || "").trim() || "bahekurtiz/bahekurtiz.github.io"; // Cloudflare Pages has no GITHUB_REPO
 const cfgPath = path.join(OUT, "admin/config.yml");
 if (fs.existsSync(cfgPath)) {
   fs.writeFileSync(cfgPath, fs.readFileSync(cfgPath, "utf8").replaceAll("__REPO__", repo).replaceAll("__BRANCH__", process.env.CF_PAGES_BRANCH || "main").replaceAll("__SITE_URL__", SITE_URL));

@@ -4,6 +4,9 @@ backend:
   name: github
   repo: __REPO__
   branch: __BRANCH__
+  # GitHub login runs on this site (Cloudflare Pages Functions: functions/api/auth.js + callback.js)
+  base_url: https://bahekurtiz.com
+  auth_endpoint: api/auth
   commit_messages:
     create: "नया प्रोडक्ट: {{slug}}"
     update: "अपडेट: {{slug}}"
