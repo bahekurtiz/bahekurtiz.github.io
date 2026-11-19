@@ -1443,7 +1443,7 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .trend-chips::-webkit-scrollbar,.trend-row::-webkit-scrollbar{display:none}
 .trend-chips{display:flex;gap:8px;margin-bottom:12px;padding-bottom:2px}
 .trend-chip{flex:0 0 auto;white-space:nowrap;padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line,#ece6df);font-size:.84rem;color:inherit;text-decoration:none}
-.trend-chip::before{content:"#";opacity:.45;margin-right:2px}
+.trend-chip::before{content:none}
 .trend-chip:hover{border-color:currentColor}
 .trend-row{display:grid;grid-auto-flow:column;grid-auto-columns:116px;gap:12px;padding-bottom:12px;scroll-snap-type:x proximity}
 .trend-item{display:block;scroll-snap-align:start;color:inherit;text-decoration:none}

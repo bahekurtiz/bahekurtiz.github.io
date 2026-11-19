@@ -144,6 +144,7 @@ const upcoming = [];
 for (let i = products.length - 1; i >= 0; i--) { const p = products[i], t = launchTs(p.launch_date); p.launchDay = t === null ? "" : istDay(t);
   p.coming = !!p.launchDay && p.launchDay > TODAY_IST;
   p.isNew = !!p.launchDay && !p.coming && NOW_TS - Date.parse(p.launchDay + "T00:00:00+05:30") < 7 * 864e5;
+  { const ad = /^\d{4}-\d{2}-\d{2}/.test(String(p.added_on || "")) ? String(p.added_on).slice(0, 10) : p.launchDay; p.justIn = !!ad && !p.coming && NOW_TS - Date.parse(ad + "T00:00:00+05:30") < 14 * 864e5; }
   if (p.coming) { upcoming.unshift(p); products.splice(i, 1); } }
 upcoming.sort((a, b) => a.launchDay.localeCompare(b.launchDay) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999));
 const intlOn = products.some((p) => p.intl);
@@ -855,7 +856,11 @@ const autoFor = (aud) => {
     return { text: k, href: words.some((w) => hayAll.includes(w.replace(/s$/, ""))) ? "shop/?q=" + encodeURIComponent(k) : link }; });
   // products: new this week first, then theme matches among the newest, then newest
   const pool = live.filter((p) => p !== heroP), recent = pool.slice(0, 10);
-  const prods = [...pool.filter((p) => p.isNew), ...recent.filter((p) => score(p) >= 4), ...pool].filter((p, i, a) => a.indexOf(p) === i).slice(0, 4);
+  // theme matches first (best score, festive before everyday, then newest); plain everyday pieces (tunics/tops, daily-only) go last
+  const dressy = (p) => p.occasion.some((o) => /party|wedding|reception|sangeet|festive/i.test(o)) && !/tunic|top/i.test(p.category);
+  const everyday = (p) => /tunic|top/i.test(p.category) || (p.occasion.some((o) => /daily/i.test(o)) && !p.occasion.some((o) => /party|wedding|reception|sangeet/i.test(o)));
+  const rank = (p) => score(p) * 10 + (dressy(p) ? 8 : 0) - (everyday(p) ? 15 : 0);
+  const prods = [...pool].sort((a, b) => rank(b) - rank(a) || newer(a, b)).slice(0, 4);
   // guides: "Trend Radar" tag first, then posts about this theme, then the newest posts
   const bDir = path.join(ROOT, "content/blog"), linkSlug = (link.match(/^blog\/([^/]+)/) || [])[1];
   const blogs = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => { try { const b = JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8")); b.slug = slugify(f.replace(/\.json$/, "")).replace(/^-+|-+$/g, ""); b.date = String(b.date || today).slice(0, 10); b.tags = (b.tags || []).filter(Boolean); return b; } catch { return null; } })
@@ -880,11 +885,11 @@ const AUD_SPLIT = !!(AUTO && AUTO_INTL && AUTO.theme.id !== AUTO_INTL.theme.id);
 const trendStrip = () => AUD_SPLIT ? `<div class="aud-in">${trendOne(AUTO, "")}</div><div class="aud-intl">${trendOne(AUTO_INTL, "-x")}</div>` : trendOne(AUTO || AUTO_INTL, "");
 const trendOne = (AUTO, sfx) => {
   if (!AUTO || (!AUTO.chips.length && !AUTO.prods.length && !AUTO.guides.length)) return "";
-  const item = (href, img, alt, tag, title, cls = "") => `<a class="trend-item${cls}" href="${u(href)}"><span class="trend-img"${phStyle(img)}>${img ? `<img src="${esc(u(img))}" alt="${esc(alt)}" width="160" height="240" loading="lazy" decoding="async">` : ""}<em class="trend-tag">${esc(tag)}</em></span><b>${esc(title)}</b></a>`;
+  const item = (href, img, alt, tag, title, cls = "") => `<a class="trend-item${cls}" href="${u(href)}"><span class="trend-img"${phStyle(img)}>${img ? `<img src="${esc(u(img))}" alt="${esc(alt)}" width="160" height="240" loading="lazy" decoding="async">` : ""}${tag ? `<em class="trend-tag">${esc(tag)}</em>` : ""}</span><b>${esc(title)}</b></a>`;
   return `<section class="trend-strip" aria-labelledby="trend-h${sfx}"><div class="wrap">
-<div class="trend-head"><h2 id="trend-h${sfx}">Picked for this week</h2><span class="trend-week">${esc(AUTO.name)} · ${esc(AUTO.week)}</span></div>
-${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a class="trend-chip" href="${u(c.href)}">${esc(c.text)}</a>`).join("")}</div>` : ""}
-<div class="trend-row">${AUTO.prods.map((p) => item(p.url, p.images[0], p.title, p.isNew ? "New this week" : "Just in", p.title)).join("")}${AUTO.guides.map((g) => item(g.url, g.cover, "", g.radar ? "Trend Radar" : "Guide", g.title, " trend-guide")).join("")}</div>
+<div class="trend-head"><h2 id="trend-h${sfx}">Picked for this week</h2><span class="trend-week">${esc(/\bedit$/i.test(AUTO.name) ? AUTO.name : `The ${AUTO.name.replace(/\s+(week|season)$/i, "")} Edit`)}</span></div>
+${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a class="trend-chip" href="${u(c.href)}">${esc(c.text.replace(/(^|[\s&\/-])([a-z])/g, (m, a, b) => a + b.toUpperCase()))}</a>`).join("")}</div>` : ""}
+<div class="trend-row">${AUTO.prods.map((p) => item(p.url, p.images[0], p.title, p.isNew ? "New this week" : p.justIn ? "Just in" : "", p.title)).join("")}${AUTO.guides.map((g) => item(g.url, g.cover, "", g.radar ? "Trend Radar" : "Guide", g.title, " trend-guide")).join("")}</div>
 </div></section>`;
 };
 

@@ -371,8 +371,7 @@
       ],
       "match": {
         "occasion": [
-          "Party",
-          "Gifting"
+          "Party"
         ],
         "fabric": [
           "Velvet"
@@ -381,6 +380,9 @@
           "red",
           "green",
           "bottle green",
+          "gold",
+          "maroon",
+          "wine",
           "velvet"
         ]
       },
