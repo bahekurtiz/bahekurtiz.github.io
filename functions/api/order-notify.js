@@ -49,7 +49,7 @@ export function normalizeOrder(b, cat) {
   };
 }
 
-const wrap = (inner, foot) => `<!doctype html><html><body style="margin:0;background:#f6f1e9;font-family:Arial,Helvetica,sans-serif;color:#2b2522">
+export const wrap = (inner, foot) => `<!doctype html><html><body style="margin:0;background:#f6f1e9;font-family:Arial,Helvetica,sans-serif;color:#2b2522">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f1e9;padding:24px 0"><tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden">
 <tr><td style="background:#ffffff;padding:22px;text-align:center;border-bottom:3px solid ${TEAL}"><img src="${SITE}/images/logo.png" alt="Bahe Kurtiz" width="150" style="display:inline-block"></td></tr>

@@ -618,6 +618,7 @@ collections:
           - { name: gift_amounts_inr, label: "E-Gift Card – ₹ amounts", widget: list, field: { name: v, label: "₹", widget: number }, required: false, hint: "खाली = ₹1000, ₹1500, ₹2500" }
           - { name: gift_amounts_usd, label: "E-Gift Card – $ amounts (विदेश)", widget: list, field: { name: v, label: "$", widget: number }, required: false, hint: "खाली = $25, $40, $60" }
           - { name: customer_sheet_url, label: "ग्राहक डेटा – Google Sheet का Web App लिंक", widget: string, required: false, hint: "Sign-in, checkout और ऑर्डर वाले ग्राहक इस Sheet में अपने-आप आएँगे। लिंक https://script.google.com/macros/s/... से शुरू होगा" }
+          - { name: orders_api_url, label: "Orders API – Web App लिंक (status, courier, tracking, Help Center)", widget: string, required: false, hint: "GitHub repo → apps-script/README.md के steps से deploy करो। लिंक https://script.google.com/macros/s/.../exec से शुरू होगा" }
           - { name: google_client_id, label: "Google Sign-in – Client ID (optional)", widget: string, required: false, hint: "console.cloud.google.com → Credentials → OAuth Client ID (Web). डालोगे तो 'Continue with Google' बटन आएगा" }
           - { name: login_popup, label: "25 सेकंड बाद Sign-in पॉपअप दिखाओ (14 दिन में एक बार)", widget: boolean, default: true }
           - { name: login_title, label: "Sign-in पॉपअप की हेडिंग", widget: string, required: false, default: "Sign in for early access to sales" }
