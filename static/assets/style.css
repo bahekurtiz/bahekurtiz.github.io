@@ -1640,3 +1640,16 @@ details.h-card summary{cursor:pointer;list-style:none}details.h-card summary h2{
 html.usd .pp-express.cur-usd{display:block}.pp-express[hidden]{display:none!important}
 .cart-trust{margin-top:10px;text-align:center;font-size:.8rem;color:var(--muted)}.cart-trust p{margin:4px 0;justify-content:center}.cart-pay{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.cart-pay .pay-pill{font-size:.7rem;padding:3px 8px}
 .em-hint{margin:-6px 0 8px;color:#8a5a00}
+/* product page: order-by line + small WhatsApp link under Add to Bag */
+.pdp-ob{margin:10px 0 12px;padding:8px 10px;border-radius:8px;background:#fff6e0;font-size:.88rem}.pdp-ob small{color:var(--muted)}
+.wa-mini{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;font-size:.85rem;color:var(--muted);text-decoration:underline;text-underline-offset:3px;min-height:44px}.wa-mini svg{width:16px;height:16px}
+/* mobile: name, price and sizes on the first screen – photos keep their 2:3 shape, just smaller (next photo peeks in) */
+@media (max-width:760px){
+  body.pdp .crumbs{display:none}
+  body.pdp .slides{gap:4px;padding-inline:16px;scroll-padding-inline:16px}
+  body.pdp .slide,body.pdp .slide:first-child{flex:0 0 auto;height:clamp(200px,35vh,380px);width:auto;aspect-ratio:2/3}
+  body.pdp .dots{margin-top:4px}
+  body.pdp .product{gap:12px}
+  body.pdp .buybox .eyebrow{margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.pdp .buybox h1{font-size:1.2rem;line-height:1.2}
+}
