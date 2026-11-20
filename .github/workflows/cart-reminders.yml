@@ -1,0 +1,29 @@
+name: Bag reminders (abandoned checkout)
+# Every hour: email people who left their bag at checkout and asked for a reminder (1 h and 24 h after).
+# Uses the existing GitHub secret BREVO_API_KEY (skips quietly if it is missing). See scripts/cart-reminders.mjs.
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only list who would get a reminder (send nothing)"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Send bag reminders
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_SENDER: ${{ secrets.BREVO_SENDER }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+        run: node scripts/cart-reminders.mjs
