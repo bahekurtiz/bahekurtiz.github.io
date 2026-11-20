@@ -350,6 +350,14 @@
       const value = Math.round(its.reduce((s0, i) => s0 + unit(cat.products[i.slug]) * i.qty, 0) * 100) / 100;
       track("InitiateCheckout", { value: value || undefined, currency: cU ? "USD" : "INR", content_ids: its.map((i) => i.slug), contents: its.map((i) => ({ id: i.slug, quantity: i.qty, item_price: unit(cat.products[i.slug]) })), content_type: "product", num_items: its.reduce((s0, i) => s0 + i.qty, 0) }, undefined, { items: gaItems(cat, its) }); })
       .catch(() => track("InitiateCheckout", { num_items: count(), currency: isUSD() ? "USD" : "INR" }));
+    // email typo help ("gmial.com" → "Did you mean gmail.com?") – one tap fixes it, never blocks the order
+    (() => { const em = form.querySelector("[name=email]"); if (!em) return; const DOM = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com", "aol.com", "live.com", "msn.com", "yahoo.co.uk", "hotmail.co.uk", "yahoo.co.in", "rediffmail.com", "protonmail.com", "me.com", "comcast.net"];
+      const dist = (a, b) => { const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; };
+      const hint = document.createElement("p"); hint.className = "small em-hint"; hint.hidden = true; em.closest("label").after(hint);
+      const check = () => { const v = em.value.trim().toLowerCase(), at = v.lastIndexOf("@"); hint.hidden = true; if (at < 1) return; const dom = v.slice(at + 1); if (!dom || DOM.includes(dom)) return;
+        let best = "", bd = 3; for (const x of DOM) { const k = dist(dom, x); if (k < bd) { bd = k; best = x; } } if (!best || bd > 2) return;
+        const fixed = v.slice(0, at + 1) + best; hint.innerHTML = `Did you mean <button type="button" class="link">${esc(fixed)}</button>?`; hint.hidden = false; hint.querySelector("button").onclick = () => { em.value = fixed; hint.hidden = true; em.dispatchEvent(new Event("input", { bubbles: true })); }; };
+      em.addEventListener("blur", check); em.addEventListener("change", check); })();
     // ---------- Express checkout (abroad): PayPal / Venmo / card at the top – address and email come from PayPal, no form ----------
     (async () => { const box = $("[data-pp-express]"); if (!box || !isUSD() || !bag.length) return;
       let cat; try { cat = await catalog(); } catch { return; } const cid = cat.settings.paypal_client_id; if (!cid) return;
