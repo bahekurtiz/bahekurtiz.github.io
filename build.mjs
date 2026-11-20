@@ -591,6 +591,7 @@ ${String(S.emergency_note || "").trim() ? `<div class="emergency-bar" role="aler
     <p class="cart-eta" data-cart-eta hidden></p>${intlOn ? `<p class="small muted local-cur-note">Local prices are approximate – you are charged in US$ and your bank converts.</p>` : ""}
     ${intlOn ? `<div class="cart-perks cur-usd" data-cart-perks><p data-potli>🎁 Free handmade potli with your first order</p></div>` : ""}
     <a class="btn btn-block" href="${u("checkout/")}">Checkout</a>
+    <div class="cart-trust">${intlOn ? `<p class="cur-usd">↩️ 14-day returns, full refund · 🔒 Secure checkout</p><p class="cart-pay cur-usd">${String(S.paypal_client_id || "").trim() ? `<b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b>` : ""}</p>` : ""}<p${intlOn ? ' class="cur-inr"' : ""}>↩️ 7-day easy returns · 🔒 Secure checkout</p><p class="cart-pay${intlOn ? " cur-inr" : ""}"><b class="pay-pill">UPI</b><b class="pay-pill">Cards</b><b class="pay-pill">Netbanking</b></p></div>
   </div>
 </aside>
 <main id="main">
