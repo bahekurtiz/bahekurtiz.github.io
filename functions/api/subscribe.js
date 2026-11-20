@@ -22,6 +22,22 @@ async function listIds(key) {
   return (cache = out);
 }
 
+// bag reminder data (scripts/cart-reminders.mjs reads these): text attributes created once in Brevo
+const CART_ATTRS = ["CHECKOUT_AT", "CART_URL", "CART_ITEMS", "CART_TOTAL", "REMIND1_AT", "REMIND2_AT"];
+let attrsOk = false;
+async function ensureAttrs(key) { if (attrsOk) return; for (const a of CART_ATTRS) { try { await api(key, `/contacts/attributes/normal/${a}`, "POST", { type: "text" }); } catch {} } attrsOk = true; }
+// bag → link + readable list + total, using the published catalog (prices never trusted from the browser)
+async function cartInfo(request, env, cart, cur) {
+  if (!Array.isArray(cart) || !cart.length) return null;
+  let cat = null; try { const u = new URL("/data/catalog.json", request.url); const r = await (env.ASSETS ? env.ASSETS.fetch(u) : fetch(u)); if (r.ok) cat = await r.json(); } catch {}
+  const P = (cat && cat.products) || {}, usd = cur === "USD";
+  const items = cart.slice(0, 20).map((i) => ({ s: String(i.s || ""), z: String(i.z || "").slice(0, 20), q: Math.max(1, Math.min(10, parseInt(i.q, 10) || 1)) })).filter((i) => P[i.s] && (usd ? P[i.s].price_usd : P[i.s].price));
+  if (!items.length) return null;
+  const total = items.reduce((t, i) => t + (usd ? P[i.s].price_usd : P[i.s].price) * i.q, 0);
+  return { url: "https://bahekurtiz.com/checkout/?cart=" + items.map((i) => `${i.s}:${encodeURIComponent(i.z)}:${i.q}`).join(","),
+    items: items.map((i) => `${String(P[i.s].title).split(" – ")[0]} – ${String(P[i.s].title).split(" – ").slice(1).join(" – ") || P[i.s].title}${i.z ? " (" + i.z + ")" : ""}${i.q > 1 ? " × " + i.q : ""}`).join("; ").slice(0, 900),
+    total: usd ? "$" + (Math.round(total * 100) / 100) : "₹" + Math.round(total).toLocaleString("en-IN") };
+}
 
 const FROM = { name: "Bahe Kurtiz", email: "bahekurti@gmail.com" };
 function welcome(email, name) {
@@ -58,7 +74,9 @@ export async function onRequestPost({ request, env }) {
   try {
     const ids = await listIds(key);
     const name = String(b.name || "").trim().slice(0, 60);
-    const r = await api(key, "/contacts", "POST", { email, updateEnabled: true, listIds: [ids[which]], attributes: name ? { FIRSTNAME: name.split(/\s+/)[0] } : {} });
+    const attributes = name ? { FIRSTNAME: name.split(/\s+/)[0] } : {};
+    if (which === "checkout") { const ci = await cartInfo(request, env, b.cart, b.cur === "USD" ? "USD" : "INR"); if (ci) { await ensureAttrs(key); Object.assign(attributes, { CHECKOUT_AT: new Date().toISOString(), CART_URL: ci.url, CART_ITEMS: ci.items, CART_TOTAL: ci.total, REMIND1_AT: "", REMIND2_AT: "" }); } }
+    const r = await api(key, "/contacts", "POST", { email, updateEnabled: true, listIds: [ids[which]], attributes });
     // New VIP (contact just created) -> send the welcome email directly, no Brevo automation needed
     if (which === "vip" && r.status === 201) { try { await api(key, "/smtp/email", "POST", welcome(email, name)); } catch {} }
     if (which === "customers" && ids.checkout) await api(key, `/contacts/${encodeURIComponent(email)}`, "PUT", { unlinkListIds: [ids.checkout] });
