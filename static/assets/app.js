@@ -350,6 +350,32 @@
       const value = Math.round(its.reduce((s0, i) => s0 + unit(cat.products[i.slug]) * i.qty, 0) * 100) / 100;
       track("InitiateCheckout", { value: value || undefined, currency: cU ? "USD" : "INR", content_ids: its.map((i) => i.slug), contents: its.map((i) => ({ id: i.slug, quantity: i.qty, item_price: unit(cat.products[i.slug]) })), content_type: "product", num_items: its.reduce((s0, i) => s0 + i.qty, 0) }, undefined, { items: gaItems(cat, its) }); })
       .catch(() => track("InitiateCheckout", { num_items: count(), currency: isUSD() ? "USD" : "INR" }));
+    // ---------- Express checkout (abroad): PayPal / Venmo / card at the top – address and email come from PayPal, no form ----------
+    (async () => { const box = $("[data-pp-express]"); if (!box || !isUSD() || !bag.length) return;
+      let cat; try { cat = await catalog(); } catch { return; } const cid = cat.settings.paypal_client_id; if (!cid) return;
+      const okItems = () => bag.filter((i) => cat.products[i.slug] && cat.products[i.slug].price_usd);
+      if (!okItems().length) return; box.hidden = false;
+      const ppSrc = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cid)}&currency=USD&intent=capture&enable-funding=venmo,paylater,card`;
+      const loadSdk = () => new Promise((res, rej) => { if (window.paypal && window.paypal.Buttons) return res(); const sc = document.createElement("script"); sc.src = ppSrc; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+      try { await loadSdk(); } catch { try { await new Promise((r) => setTimeout(r, 1200)); await loadSdk(); } catch { box.hidden = true; return; } }
+      let ref = "", t = null, items = [];
+      const nameOf = (cc2) => { const row = (BK.countries || []).find((x) => x[0] === cc2); return row ? row[1] : cc2 || ""; };
+      try { $("[data-ppx-box]", box).innerHTML = "";
+        window.paypal.Buttons({ style: { layout: "vertical", shape: "rect", label: "paypal", tagline: false },
+          createOrder: (d, actions) => { t = totals(cat, "paypal"); ref = orderRef(); items = okItems().map((i) => ({ slug: i.slug, size: i.size, qty: i.qty }));
+            return actions.order.create({ purchase_units: [{ reference_id: ref, invoice_id: ref, description: `${BK.brand} order ${ref}`, amount: { currency_code: "USD", value: t.total.toFixed(2) } }], application_context: { shipping_preference: "GET_FROM_FILE", brand_name: BK.brand } }); },
+          onApprove: (d, actions) => actions.order.capture().then((res) => {
+            const cap = res?.purchase_units?.[0]?.payments?.captures?.[0]?.id || d.orderID, sh = res?.purchase_units?.[0]?.shipping || {}, ad = sh.address || {}, py = res?.payer || {};
+            const nm = sh.name?.full_name || [py.name?.given_name, py.name?.surname].filter(Boolean).join(" ") || "PayPal customer";
+            const ph = String(py.phone?.phone_number?.national_number || "").replace(/[^\d+]/g, "");
+            const f = { name: nm, email: py.email_address || "", phone: ph, country: nameOf(ad.country_code), city: ad.admin_area_2 || "", state: ad.admin_area_1 || "", pincode: ad.postal_code || "", address: [ad.address_line_1, ad.address_line_2].filter(Boolean).join(", ") };
+            sendSheet({ type: "paid", name: f.name, phone: ph, email: f.email, country: f.country, city: f.city, state: f.state, pincode: f.pincode, address: String(f.address).slice(0, 300), ref_order: ref, total: t.total, currency: "USD", payment: "PayPal express " + cap + " (check in PayPal)", items: items.map((i) => `${cat.products[i.slug]?.title} ${i.size || ""} x${i.qty}`).join("; ") + (t.coupon ? " | coupon " + t.coupon : ""), skus: items.map((i) => `${i.slug}|${i.size || ""}|${i.qty}`).join(";") });
+            notifyOrder(cat, f, ref, t, "USD", { method: "PayPal", id: cap, paypal_order: d.orderID, total: t.total, phone: ph }, items);
+            track("Purchase", { value: t.total, currency: "USD", content_ids: items.map((i) => i.slug), content_type: "product" }, ref, { shipping: t.shipping || 0, coupon: t.coupon || undefined, items: gaItems(cat, items) }); setBag([]);
+            showDone(`<div class="done-box"><div class="tick">✓</div><h1>Payment successful!</h1><p>Thank you, ${esc(f.name)}. Your order <strong>${ref}</strong> is confirmed${f.email ? ` – a confirmation is on its way to ${esc(f.email)}` : ""}.</p><p>Shipping to: ${esc([f.address, f.city, f.state, f.pincode, f.country].filter(Boolean).join(", "))}</p><p class="muted">PayPal reference: ${esc(cap)}</p>${BK.wa ? `<p class="small">Want delivery updates on WhatsApp? <a class="link" href="https://wa.me/${BK.wa}?text=${encodeURIComponent("Hi! My order " + ref + " – my WhatsApp number for delivery updates")}" target="_blank" rel="noopener">Send us your number</a></p>` : ""}<p><a class="link" href="${url("track/?ref=" + encodeURIComponent(ref))}">📦 Track this order</a></p></div>`); }),
+          onError: () => { const b2 = $("[data-ppx-box]", box); if (b2) b2.insertAdjacentHTML("afterend", `<p class="warn small">PayPal did not go through. Please try again, or fill in your details below.</p>`); },
+        }).render($("[data-ppx-box]", box)); } catch { box.hidden = true; }
+    })();
     form.addEventListener("submit", async (e) => {
       e.preventDefault(); if (btn.disabled) return; err.hidden = true;
       const f = Object.fromEntries(new FormData(form)); for (const k in f) f[k] = String(f[k]).trim();

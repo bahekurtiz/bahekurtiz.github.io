@@ -1483,6 +1483,7 @@ add("checkout/index.html", page({
   body: `
 <section class="wrap section checkout" data-checkout>
   <h1>Checkout</h1>
+  ${intlOn && String(S.paypal_client_id || "").trim() ? `<div class="pp-express cur-usd" data-pp-express hidden><p class="pp-x-h">Express checkout</p><div data-ppx-box class="pp-x-box"><p class="muted small">Loading PayPal…</p></div><p class="small muted pp-x-note">Fastest way: pay with PayPal, Venmo or any debit / credit card – your delivery address comes from PayPal, no form to fill. Free shipping, duties & taxes included.</p><p class="or pp-x-or"><span>or enter your details below</span></p></div>` : ""}
   <div class="co-grid">
     <form class="co-form" data-co-form novalidate>
       <h2>Delivery details</h2>
