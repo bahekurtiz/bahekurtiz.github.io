@@ -1592,3 +1592,4 @@
     try { const u = new URL(a.href); const t = (u.searchParams.get("text") || "").replace(/Size: [^\n]*/, "Size: " + z); a.href = u.origin + u.pathname + "?text=" + encodeURIComponent(t); } catch {}
   });
 })();
+(() => { try { if (matchMedia("(max-width: 760px)").matches) document.querySelectorAll("details.fcol[open]").forEach((d) => d.removeAttribute("open")); } catch {} })();
