@@ -1654,3 +1654,4 @@ html.usd .pp-express.cur-usd{display:block}.pp-express[hidden]{display:none!impo
   body.pdp .buybox h1{font-size:1.2rem;line-height:1.2}
 }
 .coupon-box .cpn-hint{display:inline-block;text-decoration:none;font-weight:400;font-size:.9em;color:var(--accent,inherit);text-transform:none;letter-spacing:0}
+.trust-strip li.ts-offer{color:#8a6a1f;font-size:1rem}
