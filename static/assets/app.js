@@ -1634,3 +1634,18 @@
   });
 })();
 (() => { try { if (matchMedia("(max-width: 760px)").matches) document.querySelectorAll("details.fcol[open]").forEach((d) => d.removeAttribute("open")); } catch {} })();
+// ---------- Home: designs change every 30 minutes (same for every visitor in that half hour) ----------
+// "Picked for this week" shows 4 of the best dressy pieces from a pool built at deploy; "New Arrivals" starts with a different piece each half hour.
+(() => {
+  const SLOT = 30 * 60 * 1000; let last = -1;
+  const run = () => { const slot = Math.floor(Date.now() / SLOT); if (slot === last) return; last = slot;
+    document.querySelectorAll("[data-rot]").forEach((row) => { const items = [...row.querySelectorAll(".rot-item")], n = +row.dataset.rot || 4; if (items.length <= n) return;
+      const start = (slot * n) % items.length, show = new Set(Array.from({ length: n }, (_, i) => items[(start + i) % items.length]));
+      const first = row.querySelector(":scope > :not(.rot-item)"); // guides stay after the products
+      items.forEach((it) => it.classList.toggle("rot-off", !show.has(it)));
+      [...show].forEach((it) => row.insertBefore(it, first)); });
+    document.querySelectorAll("[data-rot-order]").forEach((g) => { const kids = [...g.children]; if (kids.length < 3) return; const k = slot % kids.length;
+      [...kids.slice(k), ...kids.slice(0, k)].forEach((c) => g.appendChild(c)); g.scrollLeft = 0; });
+  };
+  try { run(); setInterval(run, 60 * 1000); } catch {}
+})();

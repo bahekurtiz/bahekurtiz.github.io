@@ -56,6 +56,11 @@ const brand = S.brand_name || "Bahe Kurtiz";
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
 const HAS_COUPONS = (Array.isArray(S.coupons) ? S.coupons : []).some((c) => c && c.active !== false && String(c.code || "").trim());
 const WELCOME_C = (Array.isArray(S.coupons) ? S.coupons : []).find((x) => x && x.active && String(x.code).toUpperCase() === String(S.intl_welcome_code || "").toUpperCase() && x.kind === "Percent" && (x.market === "Both" || x.market === "International")) || null; // intl welcome offer, shown on product page + checkout
+// Home page shows PREMIUM pieces only (owner, 21 Nov 2026): price ≥ home_premium_min (default ₹1,499) and not a tunic/top/short kurti.
+// Everything else is still in Shop All, collections, search and "Picked for you" (things the visitor viewed).
+const HOME_PREMIUM = S.home_premium_only !== false, PREMIUM_MIN = Number(S.home_premium_min) || 1499;
+const isPremium = (p) => !!p && p.price !== null && p.price >= PREMIUM_MIN && !/tunic|top|^kurti$/i.test(String(p.category || ""));
+const homeOk = (p) => !HOME_PREMIUM || isPremium(p);
 const MIRROR_ON = !!process.env.GEMINI_API_KEY;
 const imgOk = (src) => { const v = String(src || "").trim(); if (!v || /^(https?:)?\/\//i.test(v)) return !!v; return fs.existsSync(path.join(ROOT, "static", decodeURI(v.replace(/^\/+/, "").split(/[?#]/)[0]))); };
 const siteFile = (f) => (fs.existsSync(path.join(ROOT, "static/images/site", f)) ? "/images/site/" + f : "");
@@ -850,7 +855,7 @@ const autoFor = (aud) => {
     return 2 * (p.occasion.some((o) => mOcc.includes(o.toLowerCase())) ? 1 : 0) + 2 * (mFab.includes(p.fabric.toLowerCase()) ? 1 : 0) + mWords.reduce((n, w) => n + (has(main, w) ? 2 : has(extra, w) ? 1 : 0), 0); };
   const live = products.filter((p) => !p.coming && p.images[0] && imgOk(p.images[0])).sort(newer);
   // photo: the newest product among the closest matches (score within 1 of the best match), so a festive theme gets a festive look
-  const top = Math.max(0, ...live.map(score)), heroP = (top ? live.filter((p) => score(p) >= Math.max(1, top - 1)) : live)[0];
+  const top = Math.max(0, ...live.map(score)), heroC = (top ? live.filter((p) => score(p) >= Math.max(1, top - 1)) : live), heroP = heroC.find(homeOk) || live.filter(homeOk).sort((a, b) => score(b) - score(a))[0] || heroC[0];
   const slide = heroP ? { image: heroP.images[0], wide: "", clean: false, auto: true, eyebrow: Y(t.eyebrow), title: Y(t.headline), subtitle: Y(t.line), button: fpage ? `Shop the ${t.name} edit` : Y(t.button), link, alt: `${heroP.title} – ${Y(t.headline)}` } : null;
   // trending chips: search link only when the shop search would find something, else the theme page
   const hayAll = products.map((p) => [p.title, p.category, p.fabric, p.print_work.join(" "), p.color, p.occasion.join(" ")].join(" ").toLowerCase()).join(" | ");
@@ -866,7 +871,9 @@ const autoFor = (aud) => {
   const dressy = (p) => p.occasion.some((o) => /party|wedding|reception|sangeet|festive/i.test(o)) && !/tunic|top/i.test(p.category);
   const everyday = (p) => /tunic|top/i.test(p.category) || (p.occasion.some((o) => /daily/i.test(o)) && !p.occasion.some((o) => /party|wedding|reception|sangeet/i.test(o)));
   const rank = (p) => score(p) * 10 + (dressy(p) ? 8 : 0) - (everyday(p) ? 15 : 0);
-  const prods = [...pool].sort((a, b) => rank(b) - rank(a) || newer(a, b)).slice(0, 4);
+  const ranked = [...pool].sort((a, b) => rank(b) - rank(a) || newer(a, b)), prods = ranked.filter(homeOk).slice(0, 4);
+  // home rotation pool: the best-looking dressy pieces (Anarkalis, kurta-pant-dupatta sets…), theme matches first; the strip shows 4 and changes every 30 minutes (app.js)
+  const rot = ranked.filter((p) => homeOk(p) && !everyday(p) && p.images[0]).slice(0, 16);
   // guides: "Trend Radar" tag first, then posts about this theme, then the newest posts
   const bDir = path.join(ROOT, "content/blog"), linkSlug = (link.match(/^blog\/([^/]+)/) || [])[1];
   const blogs = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => { try { const b = JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8")); b.slug = slugify(f.replace(/\.json$/, "")).replace(/^-+|-+$/g, ""); b.date = String(b.date || today).slice(0, 10); b.tags = (b.tags || []).filter(Boolean); return b; } catch { return null; } })
@@ -883,7 +890,7 @@ const autoFor = (aud) => {
   const fmt = (d, mo) => new Date(ms(d)).toLocaleDateString("en-GB", { day: "numeric", ...(mo ? { month: "short" } : {}), timeZone: "UTC" });
   const week = mon.slice(5, 7) === sun.slice(5, 7) ? `${fmt(mon)} – ${fmt(sun, 1)}` : `${fmt(mon, 1)} – ${fmt(sun, 1)}`;
   console.log(`Auto banner ${aud === "intl" ? "abroad" : "India"} (${day} IST): ${t.id}${hit.fest ? " (festival " + hit.fest + ", order by " + hit.orderBy + ")" : ""} · photo ${heroP ? heroP.slug : "none"} · ${prods.length} products, ${guides.length} guides`);
-  return { day, aud, theme: t, name: Y(t.name), link, slide, chips, prods, guides, week, score, fest: hit.fest || "", year: hit.year };
+  return { day, aud, theme: t, name: Y(t.name), link, slide, chips, prods, rot, guides, week, score, fest: hit.fest || "", year: hit.year };
 };
 const AUTO = autoFor("india"), AUTO_INTL = intlOn ? autoFor("intl") : null;
 const AUD_SPLIT = !!(AUTO && AUTO_INTL && AUTO.theme.id !== AUTO_INTL.theme.id);
@@ -895,7 +902,7 @@ const trendOne = (AUTO, sfx) => {
   return `<section class="trend-strip" aria-labelledby="trend-h${sfx}"><div class="wrap">
 <div class="trend-head"><h2 id="trend-h${sfx}">Picked for this week</h2><span class="trend-week">${esc(/\bedit$/i.test(AUTO.name) ? AUTO.name : `The ${AUTO.name.replace(/\s+(week|season)$/i, "")} Edit`)}</span></div>
 ${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a class="trend-chip" href="${u(c.href)}">${esc(c.text.replace(/(^|[\s&\/-])([a-z])/g, (m, a, b) => a + b.toUpperCase()))}</a>`).join("")}</div>` : ""}
-<div class="trend-row">${AUTO.prods.map((p) => item(p.url, p.images[0], p.title, p.isNew ? "New this week" : p.justIn ? "Just in" : "", p.title)).join("")}${AUTO.guides.map((g) => item(g.url, g.cover, "", g.radar ? "Trend Radar" : "Guide", g.title, " trend-guide")).join("")}</div>
+<div class="trend-row"${(AUTO.rot || []).length > 4 ? ` data-rot="4"` : ""}>${((AUTO.rot || []).length > 4 ? AUTO.rot : AUTO.prods).map((p, i) => item(p.url, p.images[0], p.title, p.isNew ? "New this week" : p.justIn ? "Just in" : "", p.title, (AUTO.rot || []).length > 4 ? (i < 4 ? " rot-item" : " rot-item rot-off") : "")).join("")}${AUTO.guides.map((g) => item(g.url, g.cover, "", g.radar ? "Trend Radar" : "Guide", g.title, " trend-guide")).join("")}</div>
 </div></section>`;
 };
 
@@ -921,7 +928,7 @@ ${AUTO.chips.length ? `<div class="trend-chips">${AUTO.chips.map((c) => `<a clas
   const featured = products.filter((p) => p.featured);
   // "New Arrivals" = the newest live styles (launch date, else highest SKU number), so the homepage changes by itself when products are added
   const skuNo = (p) => +(String(p.sku).match(/\d+/) || [0])[0];
-  const list = products.filter((p) => !p.coming && p.images[0]).sort((a, b) => (b.launchDay || "").localeCompare(a.launchDay || "") || skuNo(b) - skuNo(a) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999)).slice(0, 8);
+  const list = products.filter((p) => !p.coming && p.images[0] && homeOk(p)).sort((a, b) => (b.launchDay || "").localeCompare(a.launchDay || "") || skuNo(b) - skuNo(a) || (num(a.sort_order) ?? 999) - (num(b.sort_order) ?? 999)).slice(0, 8);
   const tiles = categories.filter((c) => c.items.length >= 3).map((c) => `<a class="tile" href="${u(c.url)}"><img decoding="async" src="${esc(u(c.items[0]?.images[1] || c.items[0]?.images[0] || ""))}" alt="${esc(c.plural)} by ${esc(brand)}" width="1200" height="1800" loading="lazy"><span>${esc(c.plural)}<em>Shop now →</em></span></a>`).join("");
   const body = `
 ${storiesData.length ? `<nav class="stories" aria-label="Stories"><div class="stories-row">${storiesData.map((st, i) => `<button class="story" type="button" data-story="${i}"><span class="story-ring"><img decoding="async" src="${esc(u(st.c))}" alt="${esc(st.t)}" width="120" height="120" loading="lazy"></span><em>${esc(st.t)}</em></button>`).join("")}<a class="story" href="${u("feed/")}"><span class="story-ring story-feed">▶</span><em>Feed</em></a></div></nav>` : ""}
@@ -957,13 +964,13 @@ ${festNext ? `<div class="fest" data-fest data-in="${esc(festNext.order_by_in)}"
 ${live.on && live.url ? `<section class="wrap section live" id="live"><div class="section-head"><div><p class="eyebrow"><span class="live-dot"></span> Live now</p><h2>${esc(live.title)}</h2></div><a class="link" href="${esc(live.url)}" target="_blank" rel="noopener">Open on YouTube →</a></div>${live.id ? `<div class="live-frame"><button type="button" class="yt-facade" data-yt="${esc(live.id)}" aria-label="Play live: ${esc(live.title)}"><img src="https://i.ytimg.com/vi/${esc(live.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async"><span class="yt-play">▶</span></button></div>` : ""}<p class="muted">Like something in the live? ${waNumber ? `<a class="link" href="${esc(waLink("Hi " + brand + "! I saw this in your live: "))}" target="_blank" rel="noopener">Order it on WhatsApp</a>` : ""} or search it on the site.</p></section>` : ""}
 <section class="wrap section foryou" data-foryou hidden><div class="section-head"><div><p class="eyebrow">Based on what you viewed</p><h2>Picked for you</h2></div></div><div class="grid scroller" data-foryou-grid></div></section>
 ${reelsHtml()}
-${(() => { const best = products.filter((p) => p.bestseller).slice(0, 8); return best.length >= 4 ? `<section class="wrap section best"><div class="section-head"><div><p class="eyebrow">Most loved</p><h2>Bestsellers</h2></div><a class="link" href="${u("bestsellers/")}">View all →</a></div><div class="grid scroller">${best.map((p) => card(p)).join("")}</div></section>` : ""; })()}
+${(() => { const best = products.filter((p) => p.bestseller && homeOk(p)).slice(0, 8); return best.length >= 4 ? `<section class="wrap section best"><div class="section-head"><div><p class="eyebrow">Most loved</p><h2>Bestsellers</h2></div><a class="link" href="${u("bestsellers/")}">View all →</a></div><div class="grid scroller">${best.map((p) => card(p)).join("")}</div></section>` : ""; })()}
 <section class="wrap section">
   <div class="section-head"><div><p class="eyebrow">Just in</p><h2>New Arrivals</h2></div><a class="link" href="${u("shop/")}">View all →</a></div>
-  <div class="grid scroller">${list.map((p) => card(p)).join("")}</div>
+  <div class="grid scroller" data-rot-order>${list.map((p) => card(p)).join("")}</div>
 </section>
 ${upcoming.length ? `<section class="wrap section drop-sec" data-drop-sec><div class="section-head"><div><p class="eyebrow">Next drop · Made in our Jaipur unit</p><h2>Launching ${esc(dropDate(upcoming[0]))}</h2><p class="drop-cd" data-drop-cd="${esc(upcoming[0].launchDay)}" hidden></p></div></div><div class="grid scroller">${upcoming.slice(0, 8).map((p) => card(p)).join("")}</div></section>` : ""}
-${(() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Easy cotton favourites</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
+${HOME_PREMIUM ? "" : (() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Easy cotton favourites</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
 ${fabrics.length > 1 || prints.length > 1 || occasions.length ? `<section class="shopby"><div class="wrap">
   ${occasions.length ? `<div class="shopby-row"><p class="eyebrow">Shop by occasion</p><div class="pills">${occasions.map((o) => `<a class="pill" href="${u("occasion/" + slugify(o) + "/")}">${esc(o)}</a>`).join("")}</div></div>` : ""}
   ${prints.length > 1 ? `<div class="shopby-row"><p class="eyebrow">Shop by print</p><div class="pills">${prints.map((x) => `<a class="pill" href="${u(craftUrl(x))}">${esc(x)}</a>`).join("")}</div></div>` : ""}
