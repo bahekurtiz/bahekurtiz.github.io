@@ -278,6 +278,7 @@
     });
   }
   const cpIn = $("[data-coupon-in]"), cpMsg = $("[data-coupon-msg]");
+  $("[data-cpn-fill]")?.addEventListener("click", (e) => { if (!cpIn) return; cpIn.value = e.currentTarget.dataset.cpnFill; $("[data-coupon-go]")?.click(); });
   if (cpIn) { if (coupon) cpIn.value = coupon; if (refAuto && cpMsg) { cpMsg.textContent = "🎁 Referral discount applied – 10% off your first order"; cpMsg.className = "small save"; }
     $("[data-coupon-go]")?.addEventListener("click", async () => { const cat = await catalog(); const code = cpIn.value.trim().toUpperCase();
       if (!code) { coupon = ""; try { sessionStorage.removeItem("bk_cpn"); } catch {} cpMsg.textContent = ""; renderCheckout(); return; }

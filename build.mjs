@@ -55,6 +55,7 @@ const brand = S.brand_name || "Bahe Kurtiz";
 // logo from admin (Settings → Logo); falls back to the text logo
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
 const HAS_COUPONS = (Array.isArray(S.coupons) ? S.coupons : []).some((c) => c && c.active !== false && String(c.code || "").trim());
+const WELCOME_C = (Array.isArray(S.coupons) ? S.coupons : []).find((x) => x && x.active && String(x.code).toUpperCase() === String(S.intl_welcome_code || "").toUpperCase() && x.kind === "Percent" && (x.market === "Both" || x.market === "International")) || null; // intl welcome offer, shown on product page + checkout
 const MIRROR_ON = !!process.env.GEMINI_API_KEY;
 const imgOk = (src) => { const v = String(src || "").trim(); if (!v || /^(https?:)?\/\//i.test(v)) return !!v; return fs.existsSync(path.join(ROOT, "static", decodeURI(v.replace(/^\/+/, "").split(/[?#]/)[0]))); };
 const siteFile = (f) => (fs.existsSync(path.join(ROOT, "static/images/site", f)) ? "/images/site/" + f : "");
@@ -1520,7 +1521,7 @@ add("checkout/index.html", page({
     <aside class="co-summary">
       <h2>Order summary</h2>
       <div data-co-items></div>
-      ${HAS_COUPONS ? `<details class="coupon-box"><summary>Have a coupon code?</summary><div class="coupon-row"><label class="sr-only" for="cpn">Coupon code</label><input id="cpn" data-coupon-in placeholder="Coupon code" maxlength="24" autocomplete="off"><button class="btn btn-ghost btn-sm" type="button" data-coupon-go>Apply</button></div><p class="small" data-coupon-msg aria-live="polite"></p></details>` : ""}
+      ${HAS_COUPONS ? `<details class="coupon-box"><summary>Have a coupon code?${WELCOME_C ? `<span class="aud-intl cpn-hint"> · 🎁 Welcome offer: <b>${esc(WELCOME_C.code)}</b> = ${esc(WELCOME_C.value)}% off</span>` : ""}</summary><div class="coupon-row"><label class="sr-only" for="cpn">Coupon code</label><input id="cpn" data-coupon-in placeholder="Coupon code" maxlength="24" autocomplete="off"><button class="btn btn-ghost btn-sm" type="button" data-coupon-go>Apply</button></div>${WELCOME_C ? `<p class="aud-intl small"><button type="button" class="btn btn-ghost btn-sm" data-cpn-fill="${esc(WELCOME_C.code)}">Use ${esc(WELCOME_C.code)} – ${esc(WELCOME_C.value)}% off</button></p>` : ""}<p class="small" data-coupon-msg aria-live="polite"></p></details>` : ""}
       <div class="totals" data-co-totals></div>
       <p class="co-eta" data-co-eta hidden></p>
       ${intlOn ? `<ul class="co-assure cur-usd"><li>✈️ Free express shipping with tracking</li><li>🛃 Import duties &amp; taxes included – nothing to pay at delivery</li><li>🔒 Secure PayPal checkout · Buyer Protection</li><li>💚 Fit Promise – custom fit made wrong? We remake it free. Ready sizes: ${num(S.intl_return_days) || 14}-day returns.</li></ul>` : ""}
