@@ -1634,31 +1634,4 @@
   });
 })();
 (() => { try { if (matchMedia("(max-width: 760px)").matches) document.querySelectorAll("details.fcol[open]").forEach((d) => d.removeAttribute("open")); } catch {} })();
-// ---------- Home: something new every 30 minutes, and every visit ----------
-// "Picked for this week" shows 4 of the best trend-matched premium pieces; "New Arrivals" reorders.
-// A returning visitor sees pieces they have NOT seen yet first: we remember (on this device only) what the home page showed them
-// and which products they opened, and move those to the back. New visitors get the half-hourly set (same for everyone).
-(() => {
-  const SLOT = 30 * 60 * 1000, HK = "bk_home_seen", DAY = 864e5; let last = -1;
-  const slugOf = (el) => ((el.getAttribute("href") || el.querySelector("a[href*='/products/']")?.getAttribute("href") || "").match(/\/products\/([^/?#]+)/) || [])[1] || "";
-  const load = () => { try { const o = JSON.parse(localStorage.getItem(HK) || "{}"); const now = Date.now(); for (const k in o) if (now - o[k] > 14 * DAY) delete o[k]; return o; } catch { return {}; } };
-  const viewed = () => { try { return new Set(JSON.parse(localStorage.getItem("bk_recent_v1") || "[]")); } catch { return new Set(); } };
-  const run = () => { const slot = Math.floor(Date.now() / SLOT); if (slot === last) return; last = slot;
-    const seen = load(), seenAt = (s) => seen[s] || 0, opened = viewed(), now = Date.now();
-    // freshness: never shown or opened = 0; otherwise older first (shown a week ago comes back before shown an hour ago)
-    const stale = (s) => (opened.has(s) ? now : 0) + seenAt(s);
-    document.querySelectorAll("[data-rot]").forEach((row) => { const items = [...row.querySelectorAll(".rot-item")], n = +row.dataset.rot || 4; if (items.length <= n) return;
-      const start = (slot * n) % items.length, ring = [...items.slice(start), ...items.slice(0, start)];
-      const pick = ring.map((it, i) => ({ it, i, f: stale(slugOf(it)) })).sort((a, b) => a.f - b.f || a.i - b.i).slice(0, n).sort((a, b) => a.i - b.i).map((x) => x.it);
-      const first = row.querySelector(":scope > :not(.rot-item)"), show = new Set(pick);
-      items.forEach((it) => it.classList.toggle("rot-off", !show.has(it)));
-      pick.forEach((it) => row.insertBefore(it, first));
-      if (row.offsetParent) pick.forEach((it) => { const s = slugOf(it); if (s) seen[s] = now; }); });
-    document.querySelectorAll("[data-rot-order]").forEach((g) => { const kids = [...g.children]; if (kids.length < 3) return; const k = slot % kids.length;
-      const ring = [...kids.slice(k), ...kids.slice(0, k)].map((c, i) => ({ c, i, f: stale(slugOf(c)) }));
-      ring.sort((a, b) => a.f - b.f || a.i - b.i).forEach((x) => g.appendChild(x.c)); g.scrollLeft = 0;
-      ring.slice(0, 2).forEach((x) => { const s = slugOf(x.c); if (s) seen[s] = now; }); });
-    try { localStorage.setItem(HK, JSON.stringify(seen)); } catch {}
-  };
-  try { run(); setInterval(run, 60 * 1000); } catch {}
-})();
+// Home rotation ("Picked for this week" + New Arrivals order) runs inline in the page before first paint – see ROT_JS in build.mjs.

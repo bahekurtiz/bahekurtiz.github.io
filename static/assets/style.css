@@ -1656,6 +1656,3 @@ html.usd .pp-express.cur-usd{display:block}.pp-express[hidden]{display:none!impo
 .coupon-box .cpn-hint{display:inline-block;text-decoration:none;font-weight:400;font-size:.9em;color:var(--accent,inherit);text-transform:none;letter-spacing:0}
 .trust-strip li.ts-offer{color:#8a6a1f;font-size:1rem}
 .trend-row .rot-off{display:none}
-.trend-row .rot-item{animation:rotIn .5s ease}
-@keyframes rotIn{from{opacity:0}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.trend-row .rot-item{animation:none}}

@@ -895,7 +895,22 @@ const autoFor = (aud) => {
 const AUTO = autoFor("india"), AUTO_INTL = intlOn ? autoFor("intl") : null;
 const AUD_SPLIT = !!(AUTO && AUTO_INTL && AUTO.theme.id !== AUTO_INTL.theme.id);
 // India visitors and visitors abroad (html.usd) see their own banner + trending strip when the themes differ
-const trendStrip = () => AUD_SPLIT ? `<div class="aud-in">${trendOne(AUTO, "")}</div><div class="aud-intl">${trendOne(AUTO_INTL, "-x")}</div>` : trendOne(AUTO || AUTO_INTL, "");
+// Home: new designs every 30 minutes and on every return visit. Runs INLINE right after each block, before the first paint,
+// so nothing flickers or jumps; it never changes while someone is looking at the page (no timers). Same products, no prices touched.
+const ROT_JS = `window.bkRot=window.bkRot||function(){try{var SLOT=18e5,slot=Math.floor(Date.now()/SLOT),now=Date.now(),HK="bk_home_seen",seen={},op={};
+try{seen=JSON.parse(localStorage.getItem(HK)||"{}");for(var k in seen)if(now-seen[k]>12096e5)delete seen[k];}catch(e){}
+try{(JSON.parse(localStorage.getItem("bk_recent_v1")||"[]")).forEach(function(s){op[s]=1});}catch(e){}
+var slug=function(el){var a=el.matches&&el.matches("a")?el:el.querySelector("a[href*='/products/']");var m=a&&(a.getAttribute("href")||"").match(/\\/products\\/([^/?#]+)/);return m?m[1]:"";};
+var stale=function(s){return(op[s]?now:0)+(seen[s]||0);};
+document.querySelectorAll("[data-rot]:not([data-rot-done])").forEach(function(row){row.setAttribute("data-rot-done","");var it=[].slice.call(row.querySelectorAll(".rot-item")),n=+row.getAttribute("data-rot")||4;if(it.length<=n)return;
+var st=(slot*n)%it.length,ring=it.slice(st).concat(it.slice(0,st)).map(function(e,i){return{e:e,i:i,f:stale(slug(e))};});
+var pick=ring.slice().sort(function(a,b){return a.f-b.f||a.i-b.i;}).slice(0,n).sort(function(a,b){return a.i-b.i;}).map(function(x){return x.e;});
+var first=row.querySelector(":scope > :not(.rot-item)");it.forEach(function(e){e.classList.toggle("rot-off",pick.indexOf(e)<0);});pick.forEach(function(e){row.insertBefore(e,first);});
+if(row.offsetParent)pick.forEach(function(e){var s=slug(e);if(s)seen[s]=now;});});
+document.querySelectorAll("[data-rot-order]:not([data-rot-done])").forEach(function(g){g.setAttribute("data-rot-done","");var kids=[].slice.call(g.children);if(kids.length<3)return;var k=slot%kids.length;
+kids.slice(k).concat(kids.slice(0,k)).map(function(c,i){return{c:c,i:i,f:stale(slug(c))};}).sort(function(a,b){return a.f-b.f||a.i-b.i;}).forEach(function(x,i){g.appendChild(x.c);if(i<2){var s=slug(x.c);if(s)seen[s]=now;}});});
+try{localStorage.setItem(HK,JSON.stringify(seen));}catch(e){}}catch(e){}};bkRot();`;
+const trendStrip = () => (AUD_SPLIT ? `<div class="aud-in">${trendOne(AUTO, "")}</div><div class="aud-intl">${trendOne(AUTO_INTL, "-x")}</div>` : trendOne(AUTO || AUTO_INTL, "")) + `<script>${ROT_JS}</script>`;
 const trendOne = (AUTO, sfx) => {
   if (!AUTO || (!AUTO.chips.length && !AUTO.prods.length && !AUTO.guides.length)) return "";
   const item = (href, img, alt, tag, title, cls = "") => `<a class="trend-item${cls}" href="${u(href)}"><span class="trend-img"${phStyle(img)}>${img ? `<img src="${esc(u(img))}" alt="${esc(alt)}" width="160" height="240" loading="lazy" decoding="async">` : ""}${tag ? `<em class="trend-tag">${esc(tag)}</em>` : ""}</span><b>${esc(title)}</b></a>`;
@@ -967,7 +982,7 @@ ${reelsHtml()}
 ${(() => { const best = products.filter((p) => p.bestseller && homeOk(p)).slice(0, 8); return best.length >= 4 ? `<section class="wrap section best"><div class="section-head"><div><p class="eyebrow">Most loved</p><h2>Bestsellers</h2></div><a class="link" href="${u("bestsellers/")}">View all →</a></div><div class="grid scroller">${best.map((p) => card(p)).join("")}</div></section>` : ""; })()}
 <section class="wrap section">
   <div class="section-head"><div><p class="eyebrow">Just in</p><h2>New Arrivals</h2></div><a class="link" href="${u("shop/")}">View all →</a></div>
-  <div class="grid scroller" data-rot-order>${list.map((p) => card(p)).join("")}</div>
+  <div class="grid scroller" data-rot-order>${list.map((p) => card(p)).join("")}</div><script>window.bkRot&&bkRot()</script>
 </section>
 ${upcoming.length ? `<section class="wrap section drop-sec" data-drop-sec><div class="section-head"><div><p class="eyebrow">Next drop · Made in our Jaipur unit</p><h2>Launching ${esc(dropDate(upcoming[0]))}</h2><p class="drop-cd" data-drop-cd="${esc(upcoming[0].launchDay)}" hidden></p></div></div><div class="grid scroller">${upcoming.slice(0, 8).map((p) => card(p)).join("")}</div></section>` : ""}
 ${HOME_PREMIUM ? "" : (() => { const lim = num(S.budget_price) || 999; const cheap = products.filter((p) => p.price !== null && p.price <= lim).slice(0, 8); return cheap.length >= 3 && cheap.some((p) => !list.includes(p)) ? `<section class="wrap section budget"><div class="section-head"><div><p class="eyebrow">Everyday picks</p><h2>${intlOn ? `<span class="cur-inr">Under ${inr(lim)}</span><span class="cur-usd">Easy cotton favourites</span>` : `Under ${inr(lim)}`}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid scroller">${cheap.map((p) => card(p)).join("")}</div></section>` : ""; })()}
