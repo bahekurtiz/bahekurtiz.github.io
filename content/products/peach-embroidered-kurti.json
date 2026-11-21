@@ -6,7 +6,7 @@
   "color_custom": "",
   "neckline": "Round Neck",
   "sleeve": "Elbow Sleeves",
-  "length_type": "",
+  "length_type": "Knee Length",
   "price": 599,
   "mrp": 1245,
   "price_usd": 25,
@@ -29,7 +29,7 @@
   ],
   "model_height": "5.8",
   "model_size": "s",
-  "fit": "",
+  "fit": "Regular",
   "fabric": "Georgette",
   "print_work": [
     "Embroidered"
