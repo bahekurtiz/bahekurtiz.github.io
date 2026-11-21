@@ -878,11 +878,13 @@ const autoFor = (aud) => {
   const bDir = path.join(ROOT, "content/blog"), linkSlug = (link.match(/^blog\/([^/]+)/) || [])[1];
   const blogs = (fs.existsSync(bDir) ? fs.readdirSync(bDir) : []).filter((f) => f.endsWith(".json")).map((f) => { try { const b = JSON.parse(fs.readFileSync(path.join(bDir, f), "utf8")); b.slug = slugify(f.replace(/\.json$/, "")).replace(/^-+|-+$/g, ""); b.date = String(b.date || today).slice(0, 10); b.tags = (b.tags || []).filter(Boolean); return b; } catch { return null; } })
     .filter((b) => b && b.title && b.draft !== true && b.date <= today && b.slug !== linkSlug).sort((a, b) => b.date.localeCompare(a.date));
-  const words = [t.name, ...(t.trending || []), ...mWords].join(" ").toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3 && !GENERIC.has(w));
-  const rel = (b) => { const h = (b.title + " " + b.tags.join(" ")).toLowerCase(); return words.filter((w) => h.includes(w)).length; };
+  const toW = (x) => String(x).toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3 && !GENERIC.has(w));
+  const words = [...new Set(toW([t.name, ...(t.trending || []), ...mWords].join(" ")))], nameW = new Set(toW(t.name)); // each word counts once; the theme's own name (e.g. "christmas") weighs 3×
+  const rel = (b) => { const h = (b.title + " " + b.tags.join(" ")).toLowerCase(); return words.reduce((n, w) => n + (h.includes(w) ? (nameW.has(w) ? 3 : 1) : 0), 0); };
   const radar = blogs.filter((b) => b.tags.some((x) => /trend\s*radar/i.test(x)));
-  const themed = blogs.filter((b) => rel(b) > 0).sort((a, b) => rel(b) - rel(a) || b.date.localeCompare(a.date)).slice(0, 2);
-  const guides = [...radar, ...themed, ...blogs].filter((b, i, a) => a.indexOf(b) === i).slice(0, 3).map((b) => {
+  // guides that match this week's theme come first (an edit should read as one story), then Trend Radar posts, then the newest
+  const themed = blogs.filter((b) => rel(b) > 0).sort((a, b) => rel(b) - rel(a) || b.date.localeCompare(a.date)).slice(0, 3);
+  const guides = [...themed, ...radar, ...blogs].filter((b, i, a) => a.indexOf(b) === i).slice(0, 3).map((b) => {
     const cover = [b.cover, ...(b.related_products || []).map((s) => products.find((p) => p.slug === slugify(s))?.images[0])].find((x) => x && imgOk(x)) || "";
     return { title: b.title, url: `blog/${b.slug}/`, cover, radar: radar.includes(b) }; });
   // IST week (Mon–Sun) label, e.g. "9 – 15 Nov"
