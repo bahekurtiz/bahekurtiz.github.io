@@ -2,7 +2,7 @@
 // Who: only people on the Brevo list "Bahe Checkout Started" – they typed their email at checkout AND ticked
 // "email me a reminder if I don't finish this order". Paying moves them to "Bahe Customers" (functions/api/subscribe.js),
 // so nobody who bought gets a reminder.
-// When: reminder 1 about 1 hour after checkout, reminder 2 about 24 hours after; nothing after 72 hours.
+// When (owner, 21 Nov 2026 – never pester): reminder 1 one day after checkout, reminder 2 one week after; then nothing. Max 2 emails per bag.
 // What: their own bag (items, total, a link that refills the bag on any device). Abroad: a reminder of the standing first-order welcome offer (FRIEND10) – no extra discounts, no fake urgency.
 // Needs GitHub secret BREVO_API_KEY (optional BREVO_SENDER = sender email). DRY_RUN=1 → only prints.
 const KEY = process.env.BREVO_API_KEY, DRY = !!process.env.DRY_RUN, B = "https://api.brevo.com/v3";
@@ -35,15 +35,15 @@ function email(n, c) {
 const lists = {}; for (let off = 0; ; off += 50) { const r = await api(`/contacts/lists?limit=50&offset=${off}`); (r.d.lists || []).forEach((l) => (lists[l.name] = l.id)); if (!r.ok || (r.d.lists || []).length < 50) break; }
 const L = lists["Bahe Checkout Started"], CUST = lists["Bahe Customers"];
 if (!L) { console.log("cart-reminders: list 'Bahe Checkout Started' not found – nothing to do"); process.exit(0); }
-const since = new Date(Date.now() - 4 * 24 * H).toISOString();
+const since = new Date(Date.now() - 9 * 24 * H).toISOString();
 const now = Date.now(); let sent = 0, seen = 0;
 for (let off = 0; ; off += 500) {
   const r = await api(`/contacts/lists/${L}/contacts?limit=500&offset=${off}&modifiedSince=${encodeURIComponent(since)}`); const cs = r.d.contacts || [];
   for (const c of cs) {
     seen++; const a = c.attributes || {}; if (c.emailBlacklisted || !a.CART_URL || !a.CHECKOUT_AT) continue;
     if (CUST && (c.listIds || []).includes(CUST) && !(c.listIds || []).includes(L)) continue;
-    const age = now - Date.parse(a.CHECKOUT_AT); if (!(age >= 0) || age > 72 * H) continue;
-    const n = age >= 24 * H && !a.REMIND2_AT ? 2 : age >= 1 * H && age < 23 * H && !a.REMIND1_AT ? 1 : 0; if (!n) continue;
+    const age = now - Date.parse(a.CHECKOUT_AT); if (!(age >= 0) || age > 8 * 24 * H) continue;
+    const n = age >= 7 * 24 * H && !a.REMIND2_AT ? 2 : age >= 24 * H && age < 6 * 24 * H && !a.REMIND1_AT ? 1 : 0; if (!n) continue; // owner (21 Nov): never pester – at most one email a week
     console.log(`${DRY ? "[dry] " : ""}reminder ${n} → ${c.email.replace(/(.{2}).*@/, "$1•••@")} (${Math.round(age / H)} h)`);
     if (DRY) continue;
     const m = await api("/smtp/email", "POST", email(n, c));
