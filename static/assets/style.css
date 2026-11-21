@@ -1653,4 +1653,4 @@ html.usd .pp-express.cur-usd{display:block}.pp-express[hidden]{display:none!impo
   body.pdp .buybox .eyebrow{margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   body.pdp .buybox h1{font-size:1.2rem;line-height:1.2}
 }
-.coupon-box .cpn-hint{font-weight:400;font-size:.9em;color:var(--accent,inherit);text-transform:none;letter-spacing:0}
+.coupon-box .cpn-hint{display:inline-block;text-decoration:none;font-weight:400;font-size:.9em;color:var(--accent,inherit);text-transform:none;letter-spacing:0}

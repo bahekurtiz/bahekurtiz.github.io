@@ -226,6 +226,8 @@
   let coupon = (() => { try { return sessionStorage.getItem("bk_cpn") || ""; } catch { return ""; } })();
   let refAuto = false; // referral: friend's first-order discount, only via a referral link (30 days) and only before their first order on this device
   if (!coupon && BK.rc) { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (r && Date.now() - r.t < 30 * 864e5 && !localStorage.getItem("bk_bought")) { coupon = BK.rc; refAuto = true; } } catch {} }
+  // international welcome offer: applied automatically on the first order (shoppers abroad should never have to hunt for the code); removable in the coupon box
+  let welcomeAuto = false; try { if (!coupon && BK.wc && isUSD() && !localStorage.getItem("bk_bought") && sessionStorage.getItem("bk_cpn_off") !== "1") { coupon = BK.wc; welcomeAuto = true; } } catch {}
   const istToday = () => new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10);
   const findCoupon = (cat, code, sub) => { const c = (cat.settings.coupons || []).find((x) => x.c === String(code || "").trim().toUpperCase()); if (!c) return [null, "This code is not valid."];
     if ((c.m === "in" && isUSD()) || (c.m === "intl" && !isUSD())) return [null, isUSD() ? "This code is for India orders." : "This code is for international orders."];
@@ -278,10 +280,12 @@
     });
   }
   const cpIn = $("[data-coupon-in]"), cpMsg = $("[data-coupon-msg]");
+  const syncFill = () => { const fb = $("[data-cpn-fill]"); if (fb) fb.closest("p").hidden = !!coupon && coupon === fb.dataset.cpnFill; };
   $("[data-cpn-fill]")?.addEventListener("click", (e) => { if (!cpIn) return; cpIn.value = e.currentTarget.dataset.cpnFill; $("[data-coupon-go]")?.click(); });
-  if (cpIn) { if (coupon) cpIn.value = coupon; if (refAuto && cpMsg) { cpMsg.textContent = "🎁 Referral discount applied – 10% off your first order"; cpMsg.className = "small save"; }
+  syncFill(); $("[data-coupon-go]")?.addEventListener("click", () => setTimeout(syncFill, 600));
+  if (cpIn) { if (coupon) cpIn.value = coupon; if (refAuto && cpMsg) { cpMsg.textContent = "🎁 Referral discount applied – 10% off your first order"; cpMsg.className = "small save"; } else if (welcomeAuto && cpMsg) { cpMsg.textContent = `🎁 Welcome offer ${BK.wc} applied – ${BK.wv}% off your first order`; cpMsg.className = "small save"; const cb = cpIn.closest("details"); if (cb) cb.open = true; }
     $("[data-coupon-go]")?.addEventListener("click", async () => { const cat = await catalog(); const code = cpIn.value.trim().toUpperCase();
-      if (!code) { coupon = ""; try { sessionStorage.removeItem("bk_cpn"); } catch {} cpMsg.textContent = ""; renderCheckout(); return; }
+      if (!code) { coupon = ""; try { sessionStorage.removeItem("bk_cpn"); sessionStorage.setItem("bk_cpn_off", "1"); } catch {} cpMsg.textContent = ""; renderCheckout(); return; }
       const [c, err] = findCoupon(cat, code, totals0(cat, method).sub);
       if (!c) { cpMsg.textContent = "❌ " + err; cpMsg.className = "small warn"; return; }
       coupon = c.c; try { sessionStorage.setItem("bk_cpn", coupon); } catch {} cpMsg.textContent = `✅ ${coupon} applied`; cpMsg.className = "small save"; renderCheckout(); }); }
