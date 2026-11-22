@@ -1639,7 +1639,7 @@
 // Home rotation ("Picked for this week" + New Arrivals order) runs inline in the page before first paint – see ROT_JS in build.mjs.
 
 // Order-by dates never show after they pass (the site rebuilds daily at 07:00 IST; this covers the hours in between): hide at the end of that day, India time
-(() => { try { const now = Date.now(); document.querySelectorAll("[data-until]").forEach((el) => { const t = Date.parse(el.dataset.until + "T23:59:59+05:30"); if (t && now > t) el.remove(); }); document.querySelectorAll(".pdp-ob").forEach((box) => { if (![...box.children].some((c) => c.getClientRects().length)) box.remove(); }); } catch {} })();
+(() => { try { const now = Date.now(); let gone = 0; document.querySelectorAll("[data-until]").forEach((el) => { const t = Date.parse(el.dataset.until + "T23:59:59+05:30"); if (t && now > t) { el.remove(); gone++; } }); if (gone) document.querySelectorAll(".pdp-ob").forEach((box) => { if (![...box.children].some((c) => c.getClientRects().length)) box.remove(); }); } catch {} })(); // layout is only measured when a date has actually passed
 
 // Sales switch on/off on the visitor's clock even if the page stays open past midnight IST
 (() => { try { window.bkSale && bkSale(); } catch {} })();
