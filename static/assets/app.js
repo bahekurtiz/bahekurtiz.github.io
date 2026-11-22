@@ -227,7 +227,9 @@
   let refAuto = false; // referral: friend's first-order discount, only via a referral link (30 days) and only before their first order on this device
   if (!coupon && BK.rc) { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (r && Date.now() - r.t < 30 * 864e5 && !localStorage.getItem("bk_bought")) { coupon = BK.rc; refAuto = true; } } catch {} }
   // international welcome offer: applied automatically on the first order (shoppers abroad should never have to hunt for the code); removable in the coupon box
-  let welcomeAuto = false; try { if (!coupon && BK.wc && isUSD() && !localStorage.getItem("bk_bought") && sessionStorage.getItem("bk_cpn_off") !== "1") { coupon = BK.wc; welcomeAuto = true; } } catch {}
+  // an open sale (abroad) is applied for everyone; otherwise the first-order welcome offer. One code per order. Removable in the coupon box.
+  let welcomeAuto = false, saleAuto = null; try { const d = new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10); saleAuto = isUSD() ? (BK.sl || []).find((x) => d >= x.s && d <= x.e) || null : null;
+    if (!coupon && sessionStorage.getItem("bk_cpn_off") !== "1") { if (saleAuto) coupon = saleAuto.c; else if (BK.wc && isUSD() && !localStorage.getItem("bk_bought")) { coupon = BK.wc; welcomeAuto = true; } } } catch {}
   const istToday = () => new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10);
   const findCoupon = (cat, code, sub) => { const c = (cat.settings.coupons || []).find((x) => x.c === String(code || "").trim().toUpperCase()); if (!c) return [null, "This code is not valid."];
     if ((c.m === "in" && isUSD()) || (c.m === "intl" && !isUSD())) return [null, isUSD() ? "This code is for India orders." : "This code is for international orders."];
@@ -283,7 +285,7 @@
   const syncFill = () => { const fb = $("[data-cpn-fill]"); if (fb) fb.closest("p").hidden = !!coupon && coupon === fb.dataset.cpnFill; };
   $("[data-cpn-fill]")?.addEventListener("click", (e) => { if (!cpIn) return; cpIn.value = e.currentTarget.dataset.cpnFill; $("[data-coupon-go]")?.click(); });
   syncFill(); $("[data-coupon-go]")?.addEventListener("click", () => setTimeout(syncFill, 600));
-  if (cpIn) { if (coupon) cpIn.value = coupon; if (refAuto && cpMsg) { cpMsg.textContent = "🎁 Referral discount applied – 10% off your first order"; cpMsg.className = "small save"; } else if (welcomeAuto && cpMsg) { cpMsg.textContent = `🎁 Welcome offer ${BK.wc} applied – ${BK.wv}% off your first order`; cpMsg.className = "small save"; const cb = cpIn.closest("details"); if (cb) cb.open = true; }
+  if (cpIn) { if (coupon) cpIn.value = coupon; if (refAuto && cpMsg) { cpMsg.textContent = "🎁 Referral discount applied – 10% off your first order"; cpMsg.className = "small save"; } else if (saleAuto && coupon === saleAuto.c && cpMsg) { cpMsg.textContent = `🏷️ ${saleAuto.n}: ${saleAuto.v}% off applied (${saleAuto.c})`; cpMsg.className = "small save"; const cb = cpIn.closest("details"); if (cb) cb.open = true; } else if (welcomeAuto && cpMsg) { cpMsg.textContent = `🎁 Welcome offer ${BK.wc} applied – ${BK.wv}% off your first order`; cpMsg.className = "small save"; const cb = cpIn.closest("details"); if (cb) cb.open = true; }
     $("[data-coupon-go]")?.addEventListener("click", async () => { const cat = await catalog(); const code = cpIn.value.trim().toUpperCase();
       if (!code) { coupon = ""; try { sessionStorage.removeItem("bk_cpn"); sessionStorage.setItem("bk_cpn_off", "1"); } catch {} cpMsg.textContent = ""; renderCheckout(); return; }
       const [c, err] = findCoupon(cat, code, totals0(cat, method).sub);
@@ -1638,3 +1640,6 @@
 
 // Order-by dates never show after they pass (the site rebuilds daily at 07:00 IST; this covers the hours in between): hide at the end of that day, India time
 (() => { try { const now = Date.now(); document.querySelectorAll("[data-until]").forEach((el) => { const t = Date.parse(el.dataset.until + "T23:59:59+05:30"); if (t && now > t) el.remove(); }); document.querySelectorAll(".pdp-ob").forEach((box) => { if (![...box.children].some((c) => c.getClientRects().length)) box.remove(); }); } catch {} })();
+
+// Sales switch on/off on the visitor's clock even if the page stays open past midnight IST
+(() => { try { window.bkSale && bkSale(); } catch {} })();

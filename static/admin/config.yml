@@ -590,6 +590,7 @@ collections:
               - { name: min_order, label: "Kam se kam order (₹ ya $)", widget: number, value_type: float, required: false }
               - { name: start, label: "Shuru (date)", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
               - { name: end, label: "Khatam (date)", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+              - { name: sale, label: "Sale ka naam (videsh me banner me dikhega, sirf Shuru–Khatam ke beech)", widget: string, required: false, hint: "Jaise: Black Friday to Cyber Monday. Khaali chhodo to ye sirf ek normal code hai." }
               - { name: active, label: "Chalu?", widget: boolean, default: true }
           - { name: prepaid_discount_percent, label: "ऑनलाइन पेमेंट पर छूट %", widget: number, value_type: int, required: false }
           - { name: upi_id, label: "UPI ID (Razorpay चालू न हो तब काम आएगी)", widget: string, required: false }
