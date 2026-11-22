@@ -1384,6 +1384,7 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .size-custom-note{margin:10px 0 6px;font-size:.9rem;font-weight:500;color:var(--accent-2)}
 .ship-facts{margin:0 0 10px;padding-left:18px;display:grid;gap:4px;font-size:.92rem}
 .ship-facts .cur-inr,.ship-facts .cur-usd{display:list-item}
+.buy-abroad.cur-usd{display:block}
 .cart-eta,.co-eta{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);font-size:.86rem;color:var(--accent-2)}
 .cart-eta small,.co-eta small{color:var(--muted)}
 /* v49 a11y: contrast ≥ 4.5 for small text */

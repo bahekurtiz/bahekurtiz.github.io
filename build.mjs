@@ -1089,6 +1089,15 @@ const MONEY = [
   [/diwali|dhanteras|lakshmi|laxmi|bhai dooj|karwa|karva/i, "diwali-outfits-for-women/", "Diwali suit sets for women"],
   [/plus[ -]size|curvy|chubby|apple shape|xxl|3xl|4xl/i, "plus-size-indian-outfits/", "Plus size Indian outfits (3XL, 4XL & custom fit)"],
 ].filter(([, url]) => fs.existsSync(path.join(ROOT, "content/landing", url.replace(/\/$/, "") + ".json")) || fs.existsSync(path.join(ROOT, "content/page-guides", url.replace(/\/$/, "").replace(/\//g, "--") + ".json")) || fs.existsSync(path.join(ROOT, "content/occasion-guides", url.replace(/^occasion\//, "").replace(/\/$/, "") + ".json")));
+// collection pages: what a shopper in the USA, UK or Canada asks before buying (price range, delivery days, duties, fit, returns) – all from settings + catalog
+const buyAbroad = (pathname, items, h1) => { const usd = items.filter((p) => p.intl && p.price_usd && !p.coming).map((p) => Number(p.price_usd)); if (!intlOn || usd.length < 3 || !/^(collections|occasion|craft|festival)\/[^/]+\/$/.test(pathname)) return "";
+  const lo = Math.min(...usd), hi = Math.max(...usd), sz = [...new Set(items.flatMap((p) => p.sizes || []))].filter((x) => /^(X*S|M|X*L|[2-6]XL)$/i.test(String(x).trim())).sort((a, b) => sizeRank(a) - sizeRank(b));
+  return `<section class="craft-guide prose buy-abroad cur-usd"><h2>Ordering from the USA, UK or Canada</h2><ul>
+<li><b>Price:</b> $${lo}${hi > lo ? `–$${hi}` : ""} for the ${usd.length} styles on this page, with free express shipping and duties &amp; taxes included – nothing more to pay on delivery.</li>
+<li><b>Delivery:</b> ready sizes leave Jaipur in ${SHIP.dMin}–${SHIP.dMax} working days (custom fit ${SHIP.cMin}–${SHIP.cMax}), then ${SHIP.intlMin}–${SHIP.intlMax} business days to the USA, UK, Canada, UAE or Australia, tracked. See <a href="${u("international-shipping/")}">delivery times by country</a>.</li>
+<li><b>Fit:</b> ${sz.length > 1 ? `sizes ${esc(sz[0])}–${esc(sz.at(-1))}` : "ready sizes"} or free custom fit to your measurements. Not sure of your Indian size? Use the <a href="${u("tools/indian-size-converter/")}">US/UK size converter</a> or read about <a href="${u("custom-stitched-indian-suits-made-to-measure/")}">custom stitching</a>.</li>
+<li><b>Returns:</b> ${num(S.intl_return_days) || 14}-day returns with a full refund on unused ready-size pieces; custom-fit pieces are remade free if we got your measurements wrong. <a href="${u("international-returns/")}">Return policy</a>.</li>
+<li><b>Payment:</b> PayPal or debit / credit card, in US$.</li></ul></section>`; };
 const moneyLinks = (text, self = "", max = 3) => MONEY.filter(([re, url]) => re.test(text) && url !== self).slice(0, max);
 const moneyBox = (text, self) => { const l = moneyLinks(text, self); return l.length ? `<p class="money-links"><span class="muted small">Shop the edit:</span> ${l.map(([, url, t]) => `<a class="pill" href="${u(url)}">${esc(t)}</a>`).join(" ")}</p>` : ""; };
 function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [], guide = null, top = "" }) {
@@ -1117,6 +1126,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   <div class="center" data-more-wrap hidden><button class="btn btn-ghost" type="button" data-more>Load more</button></div>
   ${guideHtml(guide)}
   ${!guide && /^(collections|occasion|craft)\/[^/]+\/$/.test(pathname) ? autoHtml(autoCopy(h1, items), h1, pathname) : ""}
+  ${thin || noindexRule(pathname) ? "" : buyAbroad(pathname, items, h1)}
   <p class="brand-facts small muted">${esc(brand)} – women's Indian ethnic wear designed and stitched in our own unit in Sanganer, Jaipur · sizes XS–3XL (4XL in linen & velvet) or free custom fit · ${intlOn ? "free duties-paid shipping to the USA, UK, Canada, UAE & Australia · " : ""}wholesale from ${MOQ_SHORT}. <a class="link" href="${u("about/")}">About us</a></p>
   ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
 </section>`;
