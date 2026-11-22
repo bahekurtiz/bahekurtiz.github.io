@@ -51,6 +51,8 @@ jobs:
                           print("skip", p, e)
           print("made", made)
           PY
+      - name: Keep phone-size copies light (720/960 px over 110 KB re-made at a slightly lower quality from the original)
+        run: python3 .github/scripts/cap_image_weight.py
       - name: Placeholder colours (shown while a photo loads)
         run: python3 .github/scripts/image_colors.py
       - run: |

@@ -754,6 +754,8 @@ const small = (src) => (rsHas(src) ? rsPath(src, 480) : src);
 // best ready-made copy for a big photo: 1400 → 960 → original
 const rsBig = (src) => { const local = BASE && String(src).startsWith(BASE) ? "/" + String(src).slice(BASE.length) : String(src); for (const w of [1400, 960]) if (rsHasW(local, w)) return u(rsPath(local, w)); return src; };
 const imgSizes = (tag) => { const wd = +(tag.match(/\swidth="(\d+)"/) || [])[1] || 0;
+  // product gallery: on phones each photo is ~210 px wide (two side by side), on tablets full width, on desktop about half the page (max ~667 px) – measured 22 Nov 2026
+  if (/\sdata-pg\b/.test(tag)) return "(max-width: 767px) 210px, (max-width: 899px) 100vw, (max-width: 1340px) 50vw, 667px";
   return /data-rs="big"|class="post-cover"/.test(tag) ? "(max-width: 900px) 80vw, 50vw" : /class="logo-img"/.test(tag) ? "170px" : wd && wd <= 120 ? "120px" : wd && wd <= 160 ? "80px" : "(max-width: 720px) 46vw, 25vw"; };
 const srcsetFor = (local, raw) => { const ws = RS.filter((w) => rsHasW(local, w)); return ws.map((w) => `${esc(encU(u(rsPath(local, w))))} ${w}w`).join(", ") + (ws.includes(1400) ? "" : `, ${esc(encU(raw))} 1200w`); };
 // empty alt="" on real photos (noscript copies, hover/related images): fill it from the product title or the file name, so no visible photo goes without alt text
@@ -791,6 +793,8 @@ const lcpPreload = (html) => {
   const at = (n, t = first) => (t.match(new RegExp(`\\s${n}="([^"]*)"`)) || [])[1];
   // audience split (India vs abroad hero photo): preload only the photo this visitor will see (same currency rule as the head script)
   const alt = /class="aud-in"/.test(first) && (html.match(/<img\b[^>]*class="aud-intl"[^>]*>/) || [])[0];
+  // both hero photos are lazy here: the head script below preloads the ONE this visitor sees, so a visitor abroad no longer also downloads the India photo (and vice versa)
+  if (alt && !/\sloading=/.test(first)) html = html.replace(first, first.replace("<img ", '<img loading="lazy" '));
   if (alt) { const A = JSON.stringify([at("src"), at("srcset") || "", at("sizes") || "100vw"]), B = JSON.stringify([at("src", alt), at("srcset", alt) || "", at("sizes", alt) || "100vw"]);
     const js = `<script>(function(){var c;try{c=localStorage.getItem("bk_cur")}catch(e){}if(!c){var z="";try{z=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}c=/Calcutta|Kolkata/.test(z)||!z?"INR":"USD"}var a=c==="USD"?${B}:${A},l=document.createElement("link");l.rel="preload";l.as="image";l.href=a[0];if(a[1]){l.setAttribute("imagesrcset",a[1]);l.setAttribute("imagesizes",a[2])}l.setAttribute("fetchpriority","high");document.head.appendChild(l)})()</script>`;
     return html.replace(/<link rel="stylesheet" href="[^"]*assets\/style\.css/, (x) => js + "\n" + x); }
@@ -1438,7 +1442,7 @@ for (const p of [...products, ...upcoming]) {
     <div class="slides" data-slides>
       ${gal.map((m, i) => m.video
         ? `<figure class="slide slide-video"><video src="${esc(u(m.video))}"${p.images[0] ? ` poster="${esc(u(rsHasW(p.images[0], 960) ? rsPath(p.images[0], 960) : p.images[0]))}"` : ""} muted loop playsinline preload="none" data-pvideo aria-label="${esc(p.title)} – video"></video><span class="vid-badge" aria-hidden="true">▶ Reel</span></figure>`
-        : (i === 0 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : i === 1 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"></figure>` : `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
+        : (i === 0 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-pg src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" fetchpriority="high" decoding="async"></figure>` : i === 1 ? `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-pg src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"></figure>` : `<figure class="slide"${phStyle(m.img)}><img data-rs="big" data-pg data-gal data-src="${esc(u(m.img))}" alt="${esc(p.title)} – photo ${i + 1}" width="1200" height="1600" decoding="async"><noscript><img src="${esc(u(m.img))}" alt="" width="1200" height="1600"></noscript></figure>`)).join("")}
     </div>
     ${gal.length > 1 ? `<div class="dots" data-dots>${gal.map((_, i) => `<button aria-label="Slide ${i + 1}"${i === 0 ? ' class="on"' : ""}></button>`).join("")}</div>
     <div class="thumbs">${gal.map((m, i) => `<button class="thumb${i === 0 ? " on" : ""}${m.video ? " thumb-video" : ""}" data-go="${i}" aria-label="${m.video ? "Video" : "Photo " + (i + 1)}"><img decoding="async" src="${esc(u(m.video ? (p.images[0] || "") : m.img))}" alt="" width="120" height="180" loading="lazy"></button>`).join("")}</div>` : ""}
