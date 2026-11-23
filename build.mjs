@@ -833,7 +833,7 @@ const FEST = Object.entries(CAL?.pages || {}).map(([slug, pg]) => { const th = B
   const items = products.filter((p) => !p.coming && p.price !== null && p.images[0] && imgOk(p.images[0]) && sc(p) >= (num(pg.min_score) ?? 4)).sort((a, b) => sc(b) - sc(a) || (b.launchDay || "").localeCompare(a.launchDay || "") || skuN(b) - skuN(a)).slice(0, 24);
   return { slug, pg, url: `festival/${slug}/`, items, score: sc, events: CAL_EVENTS.filter((e) => e.page === slug) }; }).filter((f) => { if (f.items.length < 4) console.log(`Festival page skipped (only ${f.items.length} matching styles): ${f.slug}`); return f.items.length >= 4; });
 // product pages: "Order by <date> for <festival> delivery" – the next festival whose last order date (ready sizes) has not passed, within 50 days
-const PDP_OB = Object.fromEntries(["intl", "india"].map((aud) => { const e = CAL_EVENTS.find((x) => x.kind === "festival" && (x.audience === "both" || x.audience === aud) && orderBy(x.date, aud) >= TODAY_IST && dPlus(TODAY_IST, 50) >= x.date);
+const PDP_OB = Object.fromEntries(["intl", "india"].map((aud) => { const e = CAL_EVENTS.find((x) => x.kind === "festival" && (x.audience === "both" || x.audience === aud) && !(aud === "intl" && Array.isArray(x.markets) && x.markets.length) && orderBy(x.date, aud) >= TODAY_IST && dPlus(TODAY_IST, 50) >= x.date);
   return [aud, e ? { name: e.name, by: dShort(orderBy(e.date, aud)), iso: orderBy(e.date, aud), icon: /christmas/i.test(e.name) ? "🎄" : "🎁" } : null]; }));
 const autoFor = (aud) => {
   const file = path.join(ROOT, "content/banners/calendar/banner-calendar.json");
