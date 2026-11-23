@@ -1125,7 +1125,7 @@
         <div class="st-head"><b>${esc(st.t)}</b><button class="st-x" type="button" aria-label="Close">✕</button></div>
         ${x.vid ? `<video src="${esc(x.vid)}" ${x.img ? `poster="${esc(x.img)}"` : ""} playsinline autoplay muted></video>` : `<img src="${esc(x.img)}" alt="">`}
         <button class="st-tap prev" type="button" aria-label="Previous"></button><button class="st-tap next" type="button" aria-label="Next"></button>
-        <div class="st-foot">${x.cap ? `<p>${esc(x.cap)}</p>` : ""}${x.link ? `<a class="st-shop" href="${esc(x.link)}">🛍 ${esc(x.shop || "Shop now")}</a>` : ""}</div>`;
+        <div class="st-foot">${x.cap ? `<p>${esc(x.cap)}${(document.documentElement.classList.contains("usd") ? x.pu : x.pr) ? " · " + esc(document.documentElement.classList.contains("usd") ? x.pu : x.pr) : ""}</p>` : ""}${x.link ? `<a class="st-shop" href="${esc(x.link)}">🛍 ${esc(x.shop || "Shop now")}</a>` : ""}</div>`;
       $(".st-x", sst).onclick = () => smd.close(); $(".st-tap.prev", sst).onclick = prev; $(".st-tap.next", sst).onclick = next;
       const v = $("video", sst);
       if (v) { v.play().catch(() => {}); v.onloadedmetadata = () => run(Math.min(15000, (v.duration || 5) * 1000)); v.onended = next; run(15000); } else run(DUR);
