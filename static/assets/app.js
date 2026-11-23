@@ -50,6 +50,9 @@
   // GA4 item list from bag-style lines [{slug,size,qty}] + catalog
   const gaItems = (cat, lines) => lines.filter((i) => cat.products[i.slug]).map((i) => { const p = cat.products[i.slug]; return { item_id: i.slug, item_name: p.title, item_brand: BK.brand, item_variant: i.size || undefined, price: unit(p) || undefined, quantity: i.qty || 1 }; });
   const track = (ev, data = {}, id, gx) => { id = id || `${ev}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`; capi(ev, id, data); try { window.fbq && window.fbq("track", ev, data, { eventID: id }); } catch {} try { if (window.gtag && GA[ev]) { const gp = { value: data.value, currency: data.currency, items: (data.content_ids || []).map((x) => ({ item_id: x })), ...(gx || {}) }; if (ev === "Purchase") gp.transaction_id = id; window.gtag("event", GA[ev], gp); } } catch {} try { window.pintrk && PIN[ev] && window.pintrk("track", PIN[ev], { value: data.value, currency: data.currency, order_id: id }); } catch {} };
+  // WhatsApp order / question link on a product page → Meta "Contact" (Pixel + CAPI, same event id) so WhatsApp buyers from ads are not invisible
+  document.addEventListener("click", (e) => { const a = e.target && e.target.closest ? e.target.closest("a.wa-mini, a.wa-order") : null; if (!a) return;
+    const slug = document.querySelector("[data-wish]")?.dataset.wish; track("Contact", { content_ids: slug ? [slug] : undefined, content_type: "product", content_category: "whatsapp" }); }, true);
 
   if (window.BKpv) capi("PageView", window.BKpv, {});
   // ---------- storage (safe) ----------
