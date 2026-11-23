@@ -643,7 +643,7 @@ ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.in
       ${markets.length ? `<h3 class="mt">Also on</h3>${markets.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)}</a>`).join("")}` : ""}
     </details>
   </div>
-  ${landings.some((l) => !intlOn || l.type === "shop") ? `<details class="wrap foot-seo fcol" open><summary><h3>Popular</h3></summary><p>${landings.filter((l) => (!intlOn || l.type === "shop") && seasonOk(l.slug)).map((l) => `<a href="${u(l.url)}">${esc(l.h1)}</a>`).join(" · ")}</p></details>` : ""}
+  ${landings.some((l) => !intlOn || l.type === "shop") ? `<details class="wrap foot-seo fcol" open><summary><h3>Popular</h3></summary><p>${landings.filter((l) => (!intlOn || l.type === "shop") && seasonOk(l.slug)).map((l) => `<a href="${u(l.url)}">${esc(String(l.h1).replace(/\s*[–-]\s*[^–]*(?:dut(?:y|ies)|shipped|shipping)[^–]*$/i, ""))}</a>`).join(" · ")}</p></details>` : ""}
   <div class="wrap foot-pay"><span>Secure payments</span>${S.paypal_client_id ? `<b class="pay-pill">PayPal</b><b class="pay-pill">Visa</b><b class="pay-pill">Mastercard</b><b class="pay-pill">Amex</b>` : ""}<b class="pay-pill cur-inr">UPI</b><b class="pay-pill cur-inr">RuPay</b><span class="pay-lock">🔒 SSL encrypted checkout</span></div>
   ${intlOn ? `<div class="wrap foot-country"><button type="button" class="foot-cc" data-country>${I.globe} Country / region: <b data-cc-name>India · ₹ INR</b> <u>Change</u></button></div>` : ""}
   ${S.address || S.phone ? `<address class="wrap copy foot-nap" style="font-style:normal">${S.address ? esc(S.address) : ""}${S.address && S.phone ? " · " : ""}${S.phone ? `<a href="tel:${esc(String(S.phone).replace(/[^+\d]/g, ""))}">${esc(S.phone)}</a>` : ""}</address>` : ""}
