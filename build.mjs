@@ -1128,6 +1128,25 @@ const descClean = (t = "") => String(t || "").split(/\n\s*\n/).map((block) => {
   if (lines.length === 1 && /^✦/.test(lines[0])) return ""; // a heading whose lines were all removed (e.g. "✦ The Bahe Promise")
   return lines.join("\n");
 }).filter(Boolean).join("\n\n");
+// blog posts: shipping / duties / custom-fit lines are said once, in the CTA under the article. Mid-article repeats are left out on the
+// page (FAQ answers and headings untouched; the saved text, FAQ schema and llms files are unchanged).
+const POST_PROMO = /free (?:express |worldwide |international |tracked )?(?:shipping|delivery)|ships? free|shipped free|shipping (?:abroad |to the usa[^.;]*?)?is free|duties|duty[- ]paid|\bddp\b|customs (?:fees?|bills?|charges?|duty|duties|clearance)|no customs|free custom[- ]fit|custom fit (?:is )?free|at no extra cost/i;
+const postClean = (body = "") => { const src = String(body || ""), m = src.match(/^## (?:Frequently asked questions|FAQs?)\b.*$/im);
+  const cut = (t) => t.split("\n").map((line) => { if (/^\s*(#|\||\d+\.\s)/.test(line) || !POST_PROMO.test(line)) return line;
+    const lead = (line.match(/^\s*(?:[-*]|\d+\.)\s+/) || [""])[0];
+    let x = line.slice(lead.length)
+      .replace(/[;,]\s*(?:and\s+)?(?:express\s+)?shipping(?: abroad)? is free[^.;]*?(?:duties[^.;]*)?(?=[.;])/gi, "")
+      .replace(/[;,]\s*(?:and\s+)?duties (?:are )?(?:included|paid)[^.;]*(?=[.;])/gi, "")
+      .replace(/,?\s*(?:all )?with free (?:express |tracked )?shipping(?: and (?:import )?duties (?:already )?(?:included|paid))?(?=[.;,])/gi, "")
+      .replace(/,?\s*(?:with|and) (?:import )?duties (?:already )?(?:paid|included)(?=[.;,])/gi, "")
+      .replace(/,?\s*and (?:import )?duties are included(?:, so [^.;]*)?(?=[.;])/gi, "");
+    const ss = x.split(/(?<=[.!?])\s+(?=[A-Z*\[(“"])/), keep = ss.map((st) => !POST_PROMO.test(st) || /\bweeks?\b/i.test(st));
+    x = ss.filter((st, k) => keep[k] && !(/\?$/.test(st) && keep[k + 1] === false)).join(" ").trim(); // no orphan "Between sizes?"
+    return x ? lead + x : null; }).filter((l) => l !== null).join("\n");
+  if (!m) return cut(src);
+  const rest = src.slice(m.index + m[0].length), n = rest.search(/^## /m);
+  return cut(src.slice(0, m.index)) + m[0] + (n < 0 ? rest : rest.slice(0, n) + cut(rest.slice(n))); };
+const postCta = () => `<p class="post-cta"><b>Shop the looks:</b> ready sizes or a <a href="${u("custom-stitched-indian-suits-made-to-measure/")}">free custom fit</a>, with free shipping${intlOn ? `<span class="cur-usd"> and duties paid to the USA, UK, Canada, UAE &amp; Australia</span><span class="cur-inr"> across India</span>` : " across India"}. <a href="${u("shop/")}">Shop all styles →</a></p>`;
 const moneyLinks = (text, self = "", max = 3) => MONEY.filter(([re, url]) => re.test(text) && url !== self).slice(0, max);
 const moneyBox = (text, self) => { const l = moneyLinks(text, self); return l.length ? `<p class="money-links"><span class="muted small">Shop the edit:</span> ${l.map(([, url, t]) => `<a class="pill" href="${u(url)}">${esc(t)}</a>`).join(" ")}</p>` : ""; };
 function listing({ file, pathname, h1, intro, items, title, description, crumbs, seo = "", links = [], guide = null, top = "" }) {
@@ -2559,7 +2578,8 @@ for (const b of posts) {
   <header class="post-head"><p class="eyebrow">${b.tags.filter(tagOk).map(tagLink).join(", ") || "Style Journal"}</p><h1>${esc(b.title)}</h1>${b.excerpt ? `<p class="lead">${esc(b.excerpt)}</p>` : ""}
   <p class="post-meta">By ${byTeam(b) ? `<a href="${u("about/")}" rel="author">${esc(TEAM)}</a>` : `<a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a>`} · <time datetime="${b.date}">${esc(niceDate(b.date))}</time>${b.updated > b.date ? ` · Updated <time datetime="${b.updated}">${esc(niceDate(b.updated))}</time>` : ""} · ${b.mins} min read</p></header>
   ${b.cover ? `<img decoding="async" class="post-cover" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" fetchpriority="high">` : ""}
-  <div class="post-body prose">${withToc(md(b.body))}</div>
+  <div class="post-body prose">${withToc(md(postClean(b.body)))}</div>
+  ${postCta()}
   ${moneyBox(b.title + " " + b.tags.join(" ") + " " + String(b.body || "").slice(0, 4000), "")}
   ${/wedding|sangeet|mehndi|mehendi|haldi|nikah|walima|anand karaj|reception|diwali|holi|eid|lohri|navratri|festival/i.test(b.title + " " + b.tags.join(" ")) ? `<p class="tool-links small">Free tools: <a href="${u("tools/indian-wedding-outfit-finder/")}">What should I wear? quiz</a> · <a href="${u("tools/indian-wedding-colour-guide/")}">wedding colour guide</a> · <a href="${u("tools/best-colours-for-your-skin-tone/")}">colours for your skin tone</a> · <a href="${u("tools/indian-size-converter/")}">size converter</a></p>` : /size|measure|fit|plus|petite|tall/i.test(b.title) ? `<p class="tool-links small">Find your size: <a href="${u("tools/indian-size-converter/")}">Indian size converter (US/UK/AU/EU)</a></p>` : ""}
   ${/wedding|sangeet|mehndi|mehendi|haldi|nikah|walima|anand karaj|reception/i.test(b.title + " " + b.tags.join(" ")) ? `<aside class="dc-promo" style="margin:28px 0;padding:18px 20px;border:1px solid #eadfe2;border-left:4px solid #6d1a36;border-radius:10px;background:#fbf5ea"><p style="margin:0 0 6px;font-weight:600">💌 Planning your own Indian wedding?</p><p style="margin:0 0 10px">Make a free dress code card for your guests – what to wear to the haldi, mehendi, sangeet, wedding and reception, with colours to wear and avoid. Share one link on Zola, The Knot, WithJoy or WhatsApp.</p><a class="btn" href="${u("tools/wedding-dress-code-card/")}">Make your free dress code card →</a></aside>` : ""}
