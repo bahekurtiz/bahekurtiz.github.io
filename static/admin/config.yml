@@ -686,6 +686,7 @@ collections:
           - { name: size_note, label: "साइज़ चार्ट के नीचे की लाइन", widget: string, required: false }
           - { name: wholesale_intro, label: "Wholesale पेज – ऊपर की लाइन", widget: text, required: false }
           - { name: wholesale_moq, label: "Wholesale – Minimum order (MOQ)", widget: string, required: false, hint: "जैसे: 30 pieces per design, mixed sizes. खाली = 'design पर निर्भर, WhatsApp पर पूछें'" }
+          - { name: print_catalogue_url, label: "Print catalogue link (88 prints – PDF / Google Drive)", widget: string, required: false, hint: "Link daalte hi French / Japanese / Russian wholesale pages par catalogue link dikhega." }
           - { name: wholesale_payment, label: "Wholesale – पेमेंट शर्तें", widget: string, required: false }
           - name: category_seo
             label: "कैटेगरी पेज का SEO टेक्स्ट (optional)"

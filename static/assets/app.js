@@ -1206,7 +1206,9 @@
   // ---------- language (EN / HI / FR / DE / ES / IT / JA / AR) – separate from country; loads only when chosen ----------
   if (BK.langs) {
     let lang = "en", manual = ""; try { manual = localStorage.getItem("bk_lang") || ""; } catch {}
+    const PAGE_LANG = String(document.documentElement.getAttribute("lang") || "").toLowerCase().split("-")[0]; // a French/Japanese/Russian/Hindi page keeps its own language
     if (manual && BK.langs[manual]) lang = manual;
+    else if (/^(fr|ja|ru|hi)$/.test(PAGE_LANG) && BK.langs[PAGE_LANG]) lang = PAGE_LANG;
     else { const base = String((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase().split("-")[0]; if (base !== "en" && BK.langs[base]) lang = base; }
     let dict = null, tt = 0;
     const SKIP = /^(SCRIPT|STYLE|TEXTAREA|CODE|PRE)$/;
@@ -1225,7 +1227,7 @@
       obs?.observe(document.body, { childList: true, subtree: true, characterData: true }); };
     const later = () => { clearTimeout(tt); tt = setTimeout(tr, 60); };
     const setLabel = () => $$("[data-lang-label]").forEach((el) => (el.textContent = lang.toUpperCase()));
-    const apply = async () => { document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"; setLabel(); if (lang === "en") return;
+    const apply = async () => { if (!(lang === "en" && /^(fr|ja|ru|hi)$/.test(PAGE_LANG))) document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"; setLabel(); if (lang === "en") return;
       try { dict = await (await fetch(url(`assets/i18n/${lang}.json`))).json(); pats = (dict.__p || []).map(([k, v]) => [new RegExp("^" + k.replace(/[.*+?^$()|[\]\\]/g, "\\$&").replace(/\{\d#\}/g, "(\\d+)").replace(/\{\d\}/g, "(.+?)") + "$"), v]); obs = new MutationObserver((ms) => { if (ms.some((m) => { const el = m.target.nodeType === 1 ? m.target : m.target.parentElement; return !el || !el.closest("[data-no-i18n]"); })) later(); }); tr(); setTimeout(tr, 1200); } catch {} };
     $$("[data-lang]").forEach((b) => b.addEventListener("click", () => { let d = $("[data-lang-dlg]"); if (!d) { d = document.createElement("dialog"); d.className = "lang-dlg"; d.dataset.langDlg = ""; d.dataset.noI18n = "";
       d.innerHTML = `<h2>Language</h2><p class="muted small">Country & currency stay as you chose. Product details are in English.</p><div class="lang-list">${Object.entries(BK.langs).map(([k, n]) => `<button type="button" data-l="${k}" lang="${k}">${n}</button>`).join("")}</div><button type="button" class="btn btn-ghost btn-sm" data-l-x>Close</button>`; document.body.appendChild(d);

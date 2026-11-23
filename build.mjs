@@ -466,6 +466,20 @@ const landDir = path.join(ROOT, "content/landing");
 const hiDir = path.join(ROOT, "content/hi");
 const HI_PAGES = fs.existsSync(hiDir) ? fs.readdirSync(hiDir).filter((f) => f.endsWith(".json")).map((f) => { const h = JSON.parse(fs.readFileSync(path.join(hiDir, f), "utf8")); return { ...h, url: "hi/" + (h.slug || f.slice(0, -5)).replace(/^hi\//, "").replace(/\/?$/, "/"), faq: Array.isArray(h.faq) ? h.faq : [] }; }).filter((h) => h.draft !== true) : [];
 const HI_TWIN = Object.fromEntries(HI_PAGES.filter((h) => h.en).map((h) => [String(h.en).replace(/^\//, ""), h.url]));
+// French / Japanese / Russian pages (content/intl/<lang>/*.json): written natively from real local search terms (not machine translated); same products, prices and facts; hreflang set with the English twin
+const INTL_UI = {
+  fr: { home: "Accueil", faq: "Questions fréquentes", more: "À lire aussi", all: "Tout voir →", from: "Notre collection", en: "Read in English", wa: "Écrire sur WhatsApp", locale: "fr-FR" },
+  ja: { home: "ホーム", faq: "よくある質問", more: "関連ページ", all: "すべて見る →", from: "コレクション", en: "Read in English", wa: "WhatsAppで問い合わせ", locale: "ja-JP" },
+  ru: { home: "Главная", faq: "Частые вопросы", more: "Читайте также", all: "Смотреть все →", from: "Наша коллекция", en: "Read in English", wa: "Написать в WhatsApp", locale: "ru-RU" },
+};
+const INTL_PAGES = Object.keys(INTL_UI).flatMap((lg) => { const d = path.join(ROOT, "content/intl", lg); return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith(".json")).map((f) => { const x = JSON.parse(fs.readFileSync(path.join(d, f), "utf8")); const sl = String(x.slug ?? f.slice(0, -5)).replace(/^\/+|\/+$/g, "");
+  return { ...x, lang: lg, url: lg + "/" + (sl && sl !== "index" ? sl + "/" : ""), en: x.en ? String(x.en).replace(/^\//, "") : "", faq: Array.isArray(x.faq) ? x.faq : [] }; }).filter((x) => x.draft !== true) : []; });
+const INTL_TWIN = {}; for (const x of INTL_PAGES) if (x.en) (INTL_TWIN[x.en] ||= []).push([x.lang, x.url]);
+const intlAlts = (pn, hasHi) => { pn = String(pn || "").replace(/^\//, ""); const L = (l, u) => `<link rel="alternate" hreflang="${l}" href="${esc(SITE_URL + "/" + u)}">`;
+  if (INTL_TWIN[pn]) return (hasHi ? "" : L("en", pn) + L("x-default", pn)) + INTL_TWIN[pn].map(([l, u]) => L(l, u)).join("");
+  const me = INTL_PAGES.find((x) => x.url === pn); if (!me) return "";
+  if (!me.en) return L(me.lang, me.url);
+  return L("en", me.en) + L("x-default", me.en) + (HI_TWIN[me.en] ? L("hi", HI_TWIN[me.en]) : "") + (INTL_TWIN[me.en] || []).map(([l, u]) => L(l, u)).join(""); };
 const landings = (fs.existsSync(landDir) ? fs.readdirSync(landDir) : []).filter((f) => f.endsWith(".json")).map((f) => {
   const l = JSON.parse(fs.readFileSync(path.join(landDir, f), "utf8"));
   l.slug = slugify(l.slug || f.replace(/\.json$/, "")).replace(/^-+|-+$/g, "");
@@ -510,7 +524,7 @@ function page({ title, description, pathname, image, body, ld = [], type = "webs
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${esc(fitTitle(title))}</title>
 <meta name="description" content="${esc(description)}">
-${noindex ? "" : `<link rel="canonical" href="${esc(canonical)}">${alt != null ? (() => { const en = lang === "hi" ? SITE_URL + "/" + alt : canonical, hi = lang === "hi" ? canonical : SITE_URL + "/" + alt; return `<link rel="alternate" hreflang="en" href="${esc(en)}"><link rel="alternate" hreflang="hi" href="${esc(hi)}"><link rel="alternate" hreflang="x-default" href="${esc(en)}">`; })() : ""}`}
+${noindex ? "" : `<link rel="canonical" href="${esc(canonical)}">${alt != null ? (() => { const en = lang === "hi" ? SITE_URL + "/" + alt : canonical, hi = lang === "hi" ? canonical : SITE_URL + "/" + alt; return `<link rel="alternate" hreflang="en" href="${esc(en)}"><link rel="alternate" hreflang="hi" href="${esc(hi)}"><link rel="alternate" hreflang="x-default" href="${esc(en)}">`; })() : ""}${lang === "hi" ? "" : intlAlts(pathname, alt != null)}`}
 <meta name="robots" content="${noindex ? "noindex" : "index,follow,max-image-preview:large"}">
 ${S.google_site_verification ? `<meta name="google-site-verification" content="${esc(S.google_site_verification)}">` : ""}
 ${S.facebook_domain_verification ? `<meta name="facebook-domain-verification" content="${esc(S.facebook_domain_verification)}">` : ""}
@@ -2696,6 +2710,40 @@ ${hub.length ? `<section class="wrap section prose" lang="hi"><h2>हिंद�
   if (h.faq.length) ld.push({ "@context": "https://schema.org", "@type": "FAQPage", inLanguage: "hi", mainEntity: h.faq.map((x) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a } })) });
   add(h.url + "index.html", page({ title: h.seo_title || `${h.h1} | ${brand}`, description: clip(h.seo_description || h.lead || h.h1), pathname: h.url, body, ld, image: items[0]?.images[0], bodyClass: "landing-page", lang: "hi", alt: enUrl || null }));
 }
+for (const x of INTL_PAGES) {
+  const T = INTL_UI[x.lang], words = String(x.match || "").toLowerCase().split(",").map((w) => w.trim()).filter(Boolean);
+  const items = x.match === undefined || x.max === 0 ? [] : (words.length ? products.filter((p) => words.some((w) => [p.title, p.category, p.fabric, p.print_work.join(" ")].join(" ").toLowerCase().includes(w))) : products).filter((p) => !p.coming && p.intl).slice(0, num(x.max) || 12);
+  const waL = waLink(x.wa_text || `Hello ${brand}! (${x.lang.toUpperCase()}) ${x.h1}`);
+  const sib = INTL_PAGES.filter((y) => y.lang === x.lang && y.url !== x.url);
+  const cat = String(S.print_catalogue_url || "").trim();
+  const F = x.form || null;
+  const form = x.type === "b2b" && F ? `<section class="wrap section b2b-form-wrap" id="enquiry"><h2>${esc(F.title)}</h2><form class="q-form intl-q" data-intl-q novalidate>
+<label>${esc(F.name)}<input name="name" required maxlength="80" autocomplete="name"></label><label>${esc(F.company)}<input name="company" maxlength="100" autocomplete="organization"></label>
+<label>${esc(F.email)}<input name="email" type="email" required maxlength="120" autocomplete="email"></label><label>${esc(F.phone)}<input name="phone" maxlength="30" autocomplete="tel" inputmode="tel"></label>
+<label>${esc(F.qty)}<input name="qty" maxlength="40" inputmode="numeric"></label><label>${esc(F.msg)}<textarea name="msg" rows="4" maxlength="1000"></textarea></label>
+<button class="btn btn-block" type="submit">${esc(F.send)}</button><p class="small muted">${esc(F.note)}</p></form>
+<script>(function(){var f=document.querySelector("[data-intl-q]");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();if(!f.checkValidity()){f.reportValidity();return}var d=new FormData(f),o={type:"wholesale_quote",lang:${JSON.stringify(x.lang)},page:location.pathname,country:${JSON.stringify(x.country || "")},ts:new Date().toISOString()};d.forEach(function(v,k){o[k]=String(v)});try{if(window.BK&&BK.sheet)fetch(BK.sheet,{method:"POST",mode:"no-cors",headers:{"content-type":"text/plain;charset=utf-8"},body:JSON.stringify(o)}).catch(function(){})}catch(x){}var t="Wholesale / private label enquiry (${x.lang.toUpperCase()})\\nName: "+o.name+"\\nCompany: "+(o.company||"-")+"\\nEmail: "+o.email+"\\nPhone: "+(o.phone||"-")+"\\nQuantity: "+(o.qty||"-")+"\\n"+(o.msg||"");${waNumber ? `window.open("https://wa.me/${waNumber}?text="+encodeURIComponent(t),"_blank","noopener");` : ""}var n=f.querySelector("[data-sent]");if(!n){n=document.createElement("p");n.setAttribute("data-sent","");n.className="note";f.appendChild(n)}n.textContent=${JSON.stringify(F.thanks || "")};})})();</script></section>` : "";
+  const body = `
+<div data-no-i18n lang="${x.lang}">
+<section class="b2b-hero land-hero"><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">${esc(T.home)}</a> / ${x.url === x.lang + "/" ? `<span>${esc(x.crumb || x.h1)}</span>` : `<a href="${u(x.lang + "/")}">${esc(INTL_PAGES.find((y) => y.url === x.lang + "/")?.crumb || x.lang.toUpperCase())}</a> / <span>${esc(x.crumb || x.h1)}</span>`}</nav>
+  ${x.eyebrow ? `<p class="eyebrow">${esc(x.eyebrow)}</p>` : ""}
+  <h1>${esc(x.h1)}</h1>
+  ${x.lead ? `<p class="lead">${esc(x.lead)}</p>` : ""}
+  <div class="hero-cta">${x.type === "b2b" && F ? `<a class="btn btn-light" href="#enquiry">${esc(F.cta || F.title)}</a>` : ""}${waL ? `<a class="btn btn-wa" href="${esc(waL)}" target="_blank" rel="noopener">${I.wa} ${esc(T.wa)}</a>` : ""}${items.length && x.type !== "b2b" ? `<a class="btn btn-light" href="#land-shop">${esc(x.cta || T.all)}</a>` : ""}</div>
+  ${x.type === "b2b" && cat ? `<p class="small" style="margin-top:10px"><a class="link" href="${esc(cat)}" target="_blank" rel="noopener">${esc(x.catalogue_label || "Print catalogue")}</a></p>` : ""}
+  ${x.en ? `<p class="small" style="margin-top:10px"><a href="${u(x.en)}" hreflang="en" lang="en">${esc(T.en)}</a></p>` : ""}
+</div></section>
+${items.length ? `<section class="wrap section" id="land-shop"><div class="section-head"><div><p class="eyebrow">${esc(T.from)}</p><h2>${esc(x.products_title || T.from)}</h2></div><a class="link" href="${u("shop/")}">${esc(T.all)}</a></div><div class="grid">${items.map((p, i) => card(p, i < 2 ? i : 9)).join("")}</div></section>` : ""}
+<section class="wrap section prose land-body">${md(x.body || "")}</section>
+${form}
+${x.faq.length ? `<section class="wrap section faq"><div class="section-head"><h2>${esc(T.faq)}</h2></div>${x.faq.map((q) => `<details><summary>${esc(q.q)}</summary><div>${paras(q.a)}</div></details>`).join("")}</section>` : ""}
+${sib.length ? `<section class="wrap section prose"><h2>${esc(T.more)}</h2><ul>${sib.map((y) => `<li><a href="${u(y.url)}">${esc(y.h1)}</a></li>`).join("")}</ul></section>` : ""}
+</div>`;
+  const ld = [{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: T.home, item: SITE_URL + "/" }, { "@type": "ListItem", position: 2, name: x.crumb || x.h1, item: SITE_URL + "/" + x.url }] }];
+  if (x.faq.length) ld.push({ "@context": "https://schema.org", "@type": "FAQPage", inLanguage: x.lang, mainEntity: x.faq.map((q) => ({ "@type": "Question", name: q.q, acceptedAnswer: { "@type": "Answer", text: q.a } })) });
+  add(x.url + "index.html", page({ title: x.seo_title || `${x.h1} | ${brand}`, description: clip(x.seo_description || x.lead || x.h1), pathname: x.url, body, ld, image: items[0]?.images[0], bodyClass: "landing-page intl-page", lang: x.lang }));
+}
 if (HI_PAGES.length) add("hi/index.html", page({ title: `बहे कुर्तीज़ – जयपुर के हाथ से बने कुर्ते, सूट और अनारकली | ${brand}`, description: "जयपुर के सांगानेर में हमारे अपने यूनिट में बने कुर्ती, कुर्ता सेट और अनारकली सूट। पूरे भारत में फ्री डिलीवरी, फ्री कस्टम फिट।", pathname: "hi/", lang: "hi", alt: "",
   body: `<section class="wrap section prose" lang="hi"><nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">होम</a> / <span>हिंदी</span></nav><h1>बहे कुर्तीज़ – हिंदी में</h1><p class="lead">हम जयपुर के सांगानेर में अपने यूनिट में कुर्ती, कुर्ता सेट, अनारकली सूट और ड्रेस बनाते हैं। बीच में कोई ट्रेडर नहीं, इसलिए हाथ का काम सही दाम पर।</p><ul>${HI_PAGES.map((x) => `<li><a href="${u(x.url)}">${esc(x.h1)}</a> – ${esc(x.lead || "")}</li>`).join("")}</ul></section>` }));
 
@@ -3387,7 +3435,7 @@ if (fs.existsSync(cfgPath)) {
 }
 
 // sitemap, robots, redirects for old shop links, headers
-const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", "help/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "gift-to-india/", "press/", ...(fs.existsSync(path.join(ROOT, "content/reports/style-report-2026.json")) ? ["indian-wedding-guest-style-report/"] : []), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), ...(HI_PAGES.length ? ["hi/", ...HI_PAGES.map((h) => h.url)] : []), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/", "accessibility/", ...(S.review_policy ? ["review-policy/"] : [])];
+const urls = ["", "shop/", ...(categories.length ? ["collections/"] : []), ...categories.map((c) => c.url), ...autoPages.map((x) => x.url), ...TOOL_URLS, ...products.map((p) => p.url), "promise/", "group-orders/", "wholesale/quote/", "help/", ...(CAL_EVENTS.some((e) => (e.end || e.date) >= TODAY_IST) ? ["festival/"] : []), ...FEST.map((f) => f.url), "gift-to-india/", "press/", ...(fs.existsSync(path.join(ROOT, "content/reports/style-report-2026.json")) ? ["indian-wedding-guest-style-report/"] : []), "blog/", ...posts.map((b) => b.url), ...tagPages.map((t) => t.url), "bahe-block/", "wholesale/", "custom/", "refer/", "gift-card/", "feed/", "craft/", ...uniq([...prints.filter((n) => craftCount("print", n)), ...fabrics.filter((n) => craftCount("fabric", n))]).map(craftUrl), ...occasions.map((o) => `occasion/${slugify(o)}/`), ...(products.some((p) => p.bestseller) ? ["bestsellers/"] : []), ...landings.map((l) => l.url), ...(HI_PAGES.length ? ["hi/", ...HI_PAGES.map((h) => h.url)] : []), "about/", "founder/", "contact/", "shipping/", "returns/", ...(S.intl_shipping_policy ? ["international-shipping/"] : []), ...(S.intl_return_policy ? ["international-returns/"] : []), "privacy/", "terms/", "accessibility/", ...(S.review_policy ? ["review-policy/"] : []), ...INTL_PAGES.map((x) => x.url)];
 urls.splice(0, urls.length, ...urls.filter((x) => !THIN.has(x) && !NOINDEXED.has(x)));
 // page fingerprints: a page's lastmod changes only when its content changes; IndexNow gets only new/changed pages.
 // Live builds read the manifest of the deploy that is live right now (/data/page-hashes.json) to compare.
