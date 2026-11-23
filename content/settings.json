@@ -102,8 +102,8 @@
   "coupons": [
     { "code": "FRIEND10", "kind": "Percent", "value": 10, "market": "Both", "active": true },
     { "code": "THANKYOU10", "kind": "Percent", "value": 10, "market": "Both", "active": true },
-    { "code": "BLACKFRIDAY10", "kind": "Percent", "value": 10, "market": "International ($)", "start": "2026-11-27", "end": "2026-12-01", "sale": "Black Friday to Cyber Monday", "active": true },
-    { "code": "BOXINGDAY10", "kind": "Percent", "value": 10, "market": "International ($)", "start": "2026-12-26", "end": "2026-12-28", "sale": "Boxing Day", "active": true },
+    { "code": "BLACKFRIDAY10", "kind": "Percent", "value": 10, "market": "International ($)", "start": "2026-11-27", "end": "2026-12-01", "sale": "Black Friday to Cyber Monday", "countries": ["US", "GB", "CA", "AU"], "active": true },
+    { "code": "BOXINGDAY10", "kind": "Percent", "value": 10, "market": "International ($)", "start": "2026-12-26", "end": "2026-12-28", "sale": "Boxing Day", "countries": ["GB", "CA", "AU", "NZ", "US", "SG", "MY"], "active": true },
     { "code": "VALENTINE10", "kind": "Percent", "value": 10, "market": "International ($)", "start": "2027-01-10", "end": "2027-01-17", "sale": "Valentine's – order by 17 Jan", "active": true },
     { "code": "EID10", "kind": "Percent", "value": 10, "market": "International ($)", "start": "2027-01-27", "end": "2027-02-09", "sale": "Eid – order by 9 Feb", "active": true },
     { "code": "DIWALI10", "kind": "Percent", "value": 10, "market": "International ($)", "start": "2027-09-17", "end": "2027-10-01", "sale": "Diwali – order by 1 Oct", "active": true }

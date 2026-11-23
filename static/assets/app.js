@@ -231,7 +231,7 @@
   if (!coupon && BK.rc) { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (r && Date.now() - r.t < 30 * 864e5 && !localStorage.getItem("bk_bought")) { coupon = BK.rc; refAuto = true; } } catch {} }
   // international welcome offer: applied automatically on the first order (shoppers abroad should never have to hunt for the code); removable in the coupon box
   // an open sale (abroad) is applied for everyone; otherwise the first-order welcome offer. One code per order. Removable in the coupon box.
-  let welcomeAuto = false, saleAuto = null; try { const d = new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10); saleAuto = isUSD() ? (BK.sl || []).find((x) => d >= x.s && d <= x.e) || null : null;
+  let welcomeAuto = false, saleAuto = null; try { const d = new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10); const cc0 = document.documentElement.getAttribute("data-cc") || ""; saleAuto = isUSD() ? (BK.sl || []).find((x) => d >= x.s && d <= x.e && (!x.m || x.m.includes(cc0))) || null : null;
     if (!coupon && sessionStorage.getItem("bk_cpn_off") !== "1") { if (saleAuto) coupon = saleAuto.c; else if (BK.wc && isUSD() && !localStorage.getItem("bk_bought")) { coupon = BK.wc; welcomeAuto = true; } } } catch {}
   const istToday = () => new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10);
   const findCoupon = (cat, code, sub) => { const c = (cat.settings.coupons || []).find((x) => x.c === String(code || "").trim().toUpperCase()); if (!c) return [null, "This code is not valid."];

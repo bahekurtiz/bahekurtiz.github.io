@@ -591,6 +591,7 @@ collections:
               - { name: start, label: "Shuru (date)", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
               - { name: end, label: "Khatam (date)", widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
               - { name: sale, label: "Sale ka naam (videsh me banner me dikhega, sirf Shuru–Khatam ke beech)", widget: string, required: false, hint: "Jaise: Black Friday to Cyber Monday. Khaali chhodo to ye sirf ek normal code hai." }
+              - { name: countries, label: "Sale sirf in deshon ko (khaali = sab videshi)", widget: select, multiple: true, required: false, options: ["US", "GB", "CA", "AU", "NZ", "IE", "SG", "MY", "AE"], hint: "Jaise Black Friday: US, GB, CA, AU. Sirf banner aur checkout ka auto-code is desh ke visitors ko." }
               - { name: active, label: "Chalu?", widget: boolean, default: true }
           - { name: prepaid_discount_percent, label: "ऑनलाइन पेमेंट पर छूट %", widget: number, value_type: int, required: false }
           - { name: upi_id, label: "UPI ID (Razorpay चालू न हो तब काम आएगी)", widget: string, required: false }
