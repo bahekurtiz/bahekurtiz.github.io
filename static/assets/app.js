@@ -1563,7 +1563,7 @@
       if (!bag.length) return; sset("bk_bn", "1");
       const items = await thumbs(1), it = items[0];
       const el = document.createElement("div"); el.className = "bag-nudge"; el.setAttribute("role", "region"); el.setAttribute("aria-label", "Items saved in your bag");
-      el.innerHTML = `${it ? `<img src="${esc(url(it.p.thumb || it.p.image))}" alt="" width="40" height="60" decoding="async">` : ""}<p><b>You left something beautiful in your bag 💛</b><span>${isUSD() ? "Free custom fit · Duties paid" : "Hand-finished in our Jaipur unit"}</span></p><button class="btn btn-sm" type="button" data-bn-view>View bag</button><button class="bn-x" type="button" aria-label="Dismiss" data-bn-x>×</button>`;
+      el.innerHTML = `${it ? `<img src="${esc(url(it.p.thumb || it.p.image))}" alt="" width="40" height="60" decoding="async">` : ""}<p><b>You left something beautiful in your bag 💛</b><span>Your picks are saved for you</span></p><button class="btn btn-sm" type="button" data-bn-view>View bag</button><button class="bn-x" type="button" aria-label="Dismiss" data-bn-x>×</button>`;
       document.body.appendChild(el); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("show")));
       const bye = () => { el.classList.remove("show"); setTimeout(() => el.remove(), 400); };
       $("[data-bn-x]", el).onclick = bye; $("[data-bn-view]", el).onclick = () => { bye(); openCart(); };

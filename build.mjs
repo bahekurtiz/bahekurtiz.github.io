@@ -619,11 +619,11 @@ ${["home", "pdp", "checkout-page"].includes(bodyClass) ? "" : `<section class="u
   <div class="wrap usp-grid">
     <div>${I.needle}<strong>Made in Jaipur</strong><span>Designed and stitched by our own team</span></div>
     <div>${I.shield}<strong>Secure prepaid payments</strong><span class="cur-inr" data-prepaid-hint hidden>UPI, cards & netbanking via Razorpay</span>${intlOn ? `<span class="cur-usd">PayPal & international cards</span>` : ""}</div>
-    <div>${intlOn ? I.globe : I.truck}<strong>${intlOn ? "Ships worldwide" : "Pan-India delivery"}</strong><span>${esc(S.dispatch_note || "Ships from Jaipur")}</span></div>
+    <div>${intlOn ? I.globe : I.truck}<strong>${intlOn ? "Ships worldwide" : "Pan-India delivery"}</strong><span>Ready sizes dispatched in ${SHIP.dMin}–${SHIP.dMax} working days</span></div>
     ${num(S.return_days) ? `<div>${I.swap}<strong>${intlOn && S.intl_return_policy ? `<span class="cur-inr">India: ${num(S.return_days)}-day returns &amp; exchange</span><span class="cur-usd">Outside India: ${num(S.intl_return_days) || 14}-day returns (ready sizes) · full refund</span>` : `${num(S.return_days)}-day returns &amp; exchange`}</strong><span>${intlOn && S.intl_return_policy ? `<a class="cur-inr" href="${u("returns/")}">See our return policy</a><a class="cur-usd" href="${u("international-returns/")}">See our international returns policy</a>` : `<a href="${u("returns/")}">See our return policy</a>`}</span></div>` : ""}
   </div>
 </section>`}
-${waNumber && bodyClass !== "checkout-page" && bodyClass !== "home" ? `<section class="join"><div class="wrap join-row"><div><h2>New designs, first on WhatsApp</h2><p>Get new arrivals and restock alerts straight on WhatsApp. No spam.</p></div><a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}! Please add me to your new arrivals updates.`))}" target="_blank" rel="noopener">${I.wa} Join on WhatsApp</a></div></section>` : ""}
+${waNumber && bodyClass !== "checkout-page" && bodyClass !== "home" ? `<section class="join"><div class="wrap join-row"><div><h2>New designs, first on WhatsApp</h2><p>New arrivals and restock alerts. No spam.</p></div><a class="btn btn-wa" href="${esc(waLink(`Hi ${brand}! Please add me to your new arrivals updates.`))}" target="_blank" rel="noopener">${I.wa} Join on WhatsApp</a></div></section>` : ""}
 ${bodyClass === "checkout-page" ? `<footer class="co-foot wrap">${intlOn && S.intl_shipping_policy ? `<a class="cur-inr" href="${u("shipping/")}">Shipping</a><a class="cur-usd" href="${u("international-shipping/")}">International Shipping</a>` : `<a href="${u("shipping/")}">Shipping</a>`} · ${intlOn && S.intl_return_policy ? `<a class="cur-inr" href="${u("returns/")}">Returns</a><a class="cur-usd" href="${u("international-returns/")}">International Returns</a>` : `<a href="${u("returns/")}">Returns</a>`} · <a href="${u("privacy/")}">Privacy</a> · <a href="${u("terms/")}">Terms</a><br>© ${year} ${esc(brand)}, Jaipur</footer>` : `<footer class="site-footer">
   ${["dash-page", "tags-page", "home"].includes(bodyClass) || String(pathname || "").startsWith("admin") ? "" : `<div class="foot-vip"><div class="wrap foot-vip-in"><div class="foot-vip-txt"><p class="eyebrow">Bahe VIP</p><h2>Join Bahe VIP – early access to new drops &amp; a free gift on your first order</h2></div><form class="vip-form" data-vip-form novalidate><div class="vip-row"><label class="sr-only" for="vip-email">Email address</label><input id="vip-email" type="email" name="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Your email address"><button class="btn btn-gold" type="submit">Join</button></div><p class="vip-msg" data-vip-msg role="status" aria-live="polite"></p><p class="vip-fine">No spam · leave anytime · <a href="${u("privacy/")}">Privacy</a></p></form></div></div>`}
   <div class="wrap foot">
@@ -708,7 +708,7 @@ const card = (p, i = 9) => {
     </div>
     <div class="card-body">
       <h3>${esc(p.title)}</h3>
-      <div class="card-price">${priceHtml(p)}</div>${p.price !== null && p.ships_abroad !== false ? `<div class="aud-intl card-ship">Free shipping · duties paid</div>` : ""}
+      <div class="card-price">${priceHtml(p)}</div>
     </div>
   </a>
   <button class="wish" type="button" data-wish="${esc(p.slug)}" aria-label="Save ${esc(p.title)} to wishlist" aria-pressed="false">${I.heart}</button>
@@ -1107,10 +1107,10 @@ const MONEY = [
 const buyAbroad = (pathname, items, h1) => { const usd = items.filter((p) => p.intl && p.price_usd && !p.coming).map((p) => Number(p.price_usd)); if (!intlOn || usd.length < 3 || !/^(collections|occasion|craft|festival)\/[^/]+\/$/.test(pathname)) return "";
   const lo = Math.min(...usd), hi = Math.max(...usd), sz = [...new Set(items.flatMap((p) => p.sizes || []))].filter((x) => /^(X*S|M|X*L|[2-6]XL)$/i.test(String(x).trim())).sort((a, b) => sizeRank(a) - sizeRank(b));
   return `<section class="craft-guide prose buy-abroad cur-usd"><h2>Ordering from the USA, UK or Canada</h2><ul>
-<li><b>Price:</b> $${lo}${hi > lo ? `–$${hi}` : ""} for the ${usd.length} styles on this page, with free express shipping and duties &amp; taxes included – nothing more to pay on delivery.</li>
+<li><b>Price:</b> $${lo}${hi > lo ? `–$${hi}` : ""} for the ${usd.length} styles on this page – the price you pay.</li>
 <li><b>Delivery:</b> ready sizes leave Jaipur in ${SHIP.dMin}–${SHIP.dMax} working days (custom fit ${SHIP.cMin}–${SHIP.cMax}), then ${SHIP.intlMin}–${SHIP.intlMax} business days to the USA, UK, Canada, UAE or Australia, tracked. See <a href="${u("international-shipping/")}">delivery times by country</a>.</li>
-<li><b>Fit:</b> ${sz.length > 1 ? `sizes ${esc(sz[0])}–${esc(sz.at(-1))}` : "ready sizes"} or free custom fit to your measurements. Not sure of your Indian size? Use the <a href="${u("tools/indian-size-converter/")}">US/UK size converter</a> or read about <a href="${u("custom-stitched-indian-suits-made-to-measure/")}">custom stitching</a>.</li>
-<li><b>Returns:</b> ${num(S.intl_return_days) || 14}-day returns with a full refund on unused ready-size pieces; custom-fit pieces are remade free if we got your measurements wrong. <a href="${u("international-returns/")}">Return policy</a>.</li>
+<li><b>Fit:</b> ${sz.length > 1 ? `sizes ${esc(sz[0])}–${esc(sz.at(-1))}` : "ready sizes"} or free custom fit. Not sure of your Indian size? Use the <a href="${u("tools/indian-size-converter/")}">US/UK size converter</a> or read about <a href="${u("custom-stitched-indian-suits-made-to-measure/")}">custom stitching</a>.</li>
+<li><b>Returns:</b> ${num(S.intl_return_days) || 14}-day returns with a full refund on unused ready-size pieces; custom-fit pieces are remade free if we got them wrong. <a href="${u("international-returns/")}">Return policy</a>.</li>
 <li><b>Payment:</b> PayPal or debit / credit card, in US$.</li></ul></section>`; };
 const moneyLinks = (text, self = "", max = 3) => MONEY.filter(([re, url]) => re.test(text) && url !== self).slice(0, max);
 const moneyBox = (text, self) => { const l = moneyLinks(text, self); return l.length ? `<p class="money-links"><span class="muted small">Shop the edit:</span> ${l.map(([, url, t]) => `<a class="pill" href="${u(url)}">${esc(t)}</a>`).join(" ")}</p>` : ""; };
@@ -1141,7 +1141,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   ${guideHtml(guide)}
   ${!guide && /^(collections|occasion|craft)\/[^/]+\/$/.test(pathname) ? autoHtml(autoCopy(h1, items), h1, pathname) : ""}
   ${thin || noindexRule(pathname) ? "" : buyAbroad(pathname, items, h1)}
-  <p class="brand-facts small muted">${esc(brand)} – women's Indian ethnic wear designed and stitched in our own unit in Sanganer, Jaipur · sizes XS–3XL (4XL in linen & velvet) or free custom fit · ${intlOn ? "free duties-paid shipping to the USA, UK, Canada, UAE & Australia · " : ""}wholesale from ${MOQ_SHORT}. <a class="link" href="${u("about/")}">About us</a></p>
+  <p class="brand-facts small muted">${esc(brand)} – women's Indian ethnic wear designed and stitched in our own unit in Sanganer, Jaipur · sizes XS–3XL (4XL in linen & velvet) or free custom fit · wholesale from ${MOQ_SHORT}. <a class="link" href="${u("about/")}">About us</a></p>
   ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
 </section>`;
   add(file, page({
