@@ -1132,7 +1132,9 @@ const descClean = (t = "") => String(t || "").split(/\n\s*\n/).map((block) => {
 // page (FAQ answers and headings untouched; the saved text, FAQ schema and llms files are unchanged).
 const POST_PROMO = /free (?:express |worldwide |international |tracked )?(?:shipping|delivery)|ships? free|shipped free|shipping (?:abroad |to the usa[^.;]*?)?is free|duties|duty[- ]paid|\bddp\b|customs (?:fees?|bills?|charges?|duty|duties|clearance)|no customs|free custom[- ]fit|custom fit (?:is )?free|at no extra cost/i;
 const postClean = (body = "") => { const src = String(body || ""), m = src.match(/^## (?:Frequently asked questions|FAQs?)\b.*$/im);
-  const cut = (t) => t.split("\n").map((line) => { if (/^\s*(#|\||\d+\.\s)/.test(line) || !POST_PROMO.test(line)) return line;
+  let keepSec = false; // a section that is about shipping/ordering itself (e.g. "## Shipping, fit and returns") stays as written
+  const cut = (t) => t.split("\n").map((line) => { if (/^## /.test(line)) keepSec = /^##\s+(?:shipping|delivery|ordering from|how to order|buying from)/i.test(line);
+    if (keepSec || /^\s*(#|\||\d+\.\s)/.test(line) || !POST_PROMO.test(line)) return line;
     const lead = (line.match(/^\s*(?:[-*]|\d+\.)\s+/) || [""])[0];
     let x = line.slice(lead.length)
       .replace(/[;,]\s*(?:and\s+)?(?:express\s+)?shipping(?: abroad)? is free[^.;]*?(?:duties[^.;]*)?(?=[.;])/gi, "")
@@ -1176,7 +1178,7 @@ function listing({ file, pathname, h1, intro, items, title, description, crumbs,
   ${guideHtml(guide)}
   ${!guide && /^(collections|occasion|craft)\/[^/]+\/$/.test(pathname) ? autoHtml(autoCopy(h1, items), h1, pathname) : ""}
   ${thin || noindexRule(pathname) ? "" : buyAbroad(pathname, items, h1)}
-  <p class="brand-facts small muted">${esc(brand)} – women's Indian ethnic wear designed and stitched in our own unit in Sanganer, Jaipur · sizes XS–3XL (4XL in linen & velvet) or free custom fit · wholesale from ${MOQ_SHORT}. <a class="link" href="${u("about/")}">About us</a></p>
+  <p class="brand-facts small muted">${esc(brand)} – women's Indian ethnic wear designed and stitched in our own unit in Sanganer, Jaipur · wholesale from ${MOQ_SHORT}. <a class="link" href="${u("about/")}">About us</a></p>
   ${seo ? `<div class="seo-text">${paras(seo)}<p><a class="link" href="${u("wholesale/")}">Wholesale & private label →</a></p></div>` : ""}
 </section>`;
   add(file, page({
@@ -2651,11 +2653,11 @@ for (const l of landings) {
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${u()}">Home</a> / <span>${esc(l.h1)}</span></nav>
   <p class="eyebrow">${esc(l.eyebrow || (l.type === "shop" ? "Made in Jaipur · Ships worldwide" : "Manufacturer · Sanganer, Jaipur"))}</p>
   <h1>${esc(l.h1)}</h1>
-  ${l.lead ? `<p class="lead">${esc(l.lead)}</p>` : ""}
+  ${l.lead ? `<p class="lead">${esc(l.type === "shop" && !/^(indian-clothes-online|custom-stitched)/.test(l.slug) ? (postClean(l.lead) || l.lead) : l.lead)}</p>` : ""}
   <div class="hero-cta">${waL ? `<a class="btn btn-wa" href="${esc(waL)}" target="_blank" rel="noopener">${I.wa} WhatsApp us</a>` : ""}${l.type === "shop" ? `<a class="btn btn-light" href="#land-shop">Shop the collection</a>` : `<a class="btn btn-light" href="${u("wholesale/")}#enquiry">Get a quotation</a>`}</div>
 </div></section>
 ${items.length ? `<section class="wrap section" id="land-shop"><div class="section-head"><div><p class="eyebrow">From our collection</p><h2>${esc(l.products_title || "Styles we make")}</h2></div><a class="link" href="${u("shop/")}">View all →</a></div><div class="grid">${items.map((p, i) => card(p, i < 4 ? i + 1 : 9)).join("")}</div></section>` : ""}
-<section class="wrap section prose land-body">${md(l.body || "")}</section>
+<section class="wrap section prose land-body">${md(l.type === "shop" && !/^(indian-clothes-online|custom-stitched)/.test(l.slug) ? postClean(l.body || "") : (l.body || ""))}</section>
 ${l.country ? (() => { const evs = CAL_EVENTS.filter((e) => e.kind === "festival" && e.audience !== "india" && (!e.markets || e.markets.includes(l.country)) && orderBy(e.date, "intl") >= TODAY_IST).slice(0, 5); return evs.length ? `<section class="wrap section prose"><h2>Last order dates for ${esc(l.h1.replace(/^Indian Clothes Online in /, "").replace(/ – .*$/, ""))}</h2><div class="tbl-scroll"><table class="ob-table"><thead><tr><th>Festival</th><th>Date</th><th>Order by (ready size)</th><th>Order by (custom fit)</th></tr></thead><tbody>${evs.map((e) => `<tr><td>${esc(e.name)}</td><td>${dShort(e.date)} ${e.date.slice(0, 4)}</td><td><b>${dShort(orderBy(e.date, "intl"))}</b></td><td>${orderBy(e.date, "intl", 1) >= TODAY_IST ? dShort(orderBy(e.date, "intl", 1)) : "passed"}</td></tr>`).join("")}</tbody></table></div><p class="small muted">Includes dispatch and the slowest delivery time. Islamic and Hindu festival dates can differ by a day.</p></section>` : ""; })() : ""}
 ${l.faq.length ? `<section class="wrap section faq"><div class="section-head"><h2>Frequently asked questions</h2></div>${l.faq.map((x) => `<details><summary>${esc(x.q)}</summary><div>${paras(x.a)}</div></details>`).join("")}</section>` : ""}`;
   const ld = [{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE_URL + "/" }, { "@type": "ListItem", position: 2, name: l.h1, item: SITE_URL + "/" + l.url }] }];
