@@ -1385,6 +1385,7 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .ship-facts{margin:0 0 10px;padding-left:18px;display:grid;gap:4px;font-size:.92rem}
 .ship-facts .cur-inr,.ship-facts .cur-usd{display:list-item}
 .buy-abroad.cur-usd{display:block}
+.intl-prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.intl-prod-grid img{width:100%;height:auto;border-radius:8px}.intl-prod-buy{max-width:520px;margin:16px auto 0}.intl-price{font-size:1.3rem;margin:0 0 6px}
 .ddp-no{display:none!important}html[data-cc="FR"] .ddp-yes,html[data-cc="JP"] .ddp-yes{display:none!important}html[data-cc="FR"] .ddp-no,html[data-cc="JP"] .ddp-no{display:revert!important}
 .ru-only{display:none!important}.announce .ru-ann{display:none!important}html[data-cc="RU"] .announce .ru-ann{display:inline-flex!important}html[data-cc="RU"] .announce .announce-track.cur-usd{display:none!important}html[data-cc="RU"] .ru-only{display:block!important}.ru-note{margin:12px 0;padding:14px 16px;border-radius:10px;background:#fff7e6;border:1px solid #f0d9a8;font-size:.92rem}.ru-note p{margin:0 0 8px}
 html[data-cc="RU"] .buy-row,html[data-cc="RU"] .sticky-buy,html[data-cc="RU"] .wa-mini,html[data-cc="RU"] .pp-express,html[data-cc="RU"] .co-form,html[data-cc="RU"] .drawer-foot a[href$="/checkout/"]{display:none!important}

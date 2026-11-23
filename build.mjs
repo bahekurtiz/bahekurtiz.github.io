@@ -2717,7 +2717,11 @@ ${hub.length ? `<section class="wrap section prose" lang="hi"><h2>हिंद�
 }
 for (const x of INTL_PAGES) {
   const T = INTL_UI[x.lang], words = String(x.match || "").toLowerCase().split(",").map((w) => w.trim()).filter(Boolean);
-  const items = x.match === undefined || x.max === 0 ? [] : (words.length ? products.filter((p) => words.some((w) => [p.title, p.category, p.fabric, p.print_work.join(" ")].join(" ").toLowerCase().includes(w))) : products).filter((p) => !p.coming && p.intl).slice(0, num(x.max) || 12);
+  const P = x.product ? products.find((q) => q.slug === x.product && !q.coming && q.price !== null) : null; if (x.product && !P) { console.log("intl page skipped (product not live):", x.url); continue; }
+  if (P && !x.en) x.en = P.url;
+  const prodBlock = P ? `<section class="wrap section intl-prod"><div class="intl-prod-grid">${P.images.slice(0, 2).map((im, k) => `<img src="${esc(u(im))}" alt="${esc(k ? x.alt2 || x.alt || x.h1 : x.alt || x.h1)}" width="1200" height="1600"${k ? ' loading="lazy"' : ' fetchpriority="high"'} decoding="async">`).join("")}</div>
+<div class="intl-prod-buy"><p class="intl-price"><b>${P.intl && P.price_usd ? `${esc(x.price_label || "")} US$ ${P.price_usd}` : ""}</b></p>${P.sizes.length ? `<p>${esc(x.sizes_label || "")} ${esc(P.sizes.filter((z) => !/custom/i.test(z)).join(" · "))}</p>` : ""}<a class="btn btn-block" href="${u(P.url)}" hreflang="en">${esc(x.buy || "Buy")}</a>${x.buy_note ? `<p class="small muted">${esc(x.buy_note)}</p>` : ""}</div></section>` : "";
+  const items = P || x.match === undefined || x.max === 0 ? [] : (words.length ? products.filter((p) => words.some((w) => [p.title, p.category, p.fabric, p.print_work.join(" ")].join(" ").toLowerCase().includes(w))) : products).filter((p) => !p.coming && p.intl).slice(0, num(x.max) || 12);
   const waL = waLink(x.wa_text || `Hello ${brand}! (${x.lang.toUpperCase()}) ${x.h1}`);
   const sib = INTL_PAGES.filter((y) => y.lang === x.lang && y.url !== x.url);
   const cat = String(S.print_catalogue_url || "").trim();
@@ -2739,7 +2743,7 @@ for (const x of INTL_PAGES) {
   ${x.type === "b2b" && cat ? `<p class="small" style="margin-top:10px"><a class="link" href="${esc(cat)}" target="_blank" rel="noopener">${esc(x.catalogue_label || "Print catalogue")}</a></p>` : ""}
   ${x.en ? `<p class="small" style="margin-top:10px"><a href="${u(x.en)}" hreflang="en" lang="en">${esc(T.en)}</a></p>` : ""}
 </div></section>
-${items.length ? `<section class="wrap section" id="land-shop"><div class="section-head"><div><p class="eyebrow">${esc(T.from)}</p><h2>${esc(x.products_title || T.from)}</h2></div><a class="link" href="${u("shop/")}">${esc(T.all)}</a></div><div class="grid">${items.map((p, i) => card(p, i < 2 ? i : 9)).join("")}</div></section>` : ""}
+${prodBlock}${items.length ? `<section class="wrap section" id="land-shop"><div class="section-head"><div><p class="eyebrow">${esc(T.from)}</p><h2>${esc(x.products_title || T.from)}</h2></div><a class="link" href="${u("shop/")}">${esc(T.all)}</a></div><div class="grid">${items.map((p, i) => card(p, i < 2 ? i : 9)).join("")}</div></section>` : ""}
 <section class="wrap section prose land-body">${md(x.body || "")}</section>
 ${form}
 ${x.faq.length ? `<section class="wrap section faq"><div class="section-head"><h2>${esc(T.faq)}</h2></div>${x.faq.map((q) => `<details><summary>${esc(q.q)}</summary><div>${paras(q.a)}</div></details>`).join("")}</section>` : ""}
