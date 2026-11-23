@@ -1385,6 +1385,8 @@ html:not(.usd) .cart-perks,html:not(.usd) .potli-note{display:none!important}
 .ship-facts{margin:0 0 10px;padding-left:18px;display:grid;gap:4px;font-size:.92rem}
 .ship-facts .cur-inr,.ship-facts .cur-usd{display:list-item}
 .buy-abroad.cur-usd{display:block}
+.ru-only{display:none!important}.announce .ru-ann{display:none!important}html[data-cc="RU"] .announce .ru-ann{display:inline-flex!important}html[data-cc="RU"] .announce .announce-track.cur-usd{display:none!important}html[data-cc="RU"] .ru-only{display:block!important}.ru-note{margin:12px 0;padding:14px 16px;border-radius:10px;background:#fff7e6;border:1px solid #f0d9a8;font-size:.92rem}.ru-note p{margin:0 0 8px}
+html[data-cc="RU"] .buy-row,html[data-cc="RU"] .sticky-buy,html[data-cc="RU"] .wa-mini,html[data-cc="RU"] .pp-express,html[data-cc="RU"] .co-form,html[data-cc="RU"] .drawer-foot a[href$="/checkout/"]{display:none!important}
 .post-cta{margin:26px 0 8px;padding:14px 16px;border-radius:10px;background:#eef6f5;border:1px solid rgba(14,91,89,.15);font-size:.95rem;line-height:1.55}.post-cta a{color:#0e5b59}.post-cta .cur-usd,.post-cta .cur-inr{display:inline}
 .pdp-icons{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 14px;font-size:.84rem}.pdp-icons li{white-space:nowrap}.pdp-icons a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .cart-eta,.co-eta{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#eef6f5;border:1px solid rgba(14,91,89,.18);font-size:.86rem;color:var(--accent-2)}

@@ -399,6 +399,7 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault(); if (btn.disabled) return; err.hidden = true;
       const f = Object.fromEntries(new FormData(form)); for (const k in f) f[k] = String(f[k]).trim();
+      if (/^(russia|russian federation|ru|россия|рф)$/i.test(f.country || "")) return fail("Sorry – we cannot deliver retail orders to Russia or take payment from there right now (PayPal, Visa/Mastercard and DHL/FedEx/UPS do not serve Russia). For wholesale, please message us on WhatsApp.");
       if (method === "paypal") {
         const ph = f.phone.replace(/[^\d+]/g, "");
         if (!form.checkValidity() || ph.replace(/\D/g, "").length < 7 || !f.country || !/^\S+@\S+\.\S+$/.test(f.email || "")) { form.reportValidity(); return fail("Please fill all delivery details, your country, phone with country code and email (for your order confirmation)."); }
