@@ -77,6 +77,18 @@
 - Google Business Profile, Instagram bio, Etsy और Myntra प्रोफ़ाइल में `bahekurtiz.com` का लिंक डालो।
 - वेबसाइट में पहले से है: हर पेज का SEO टाइटल, प्रोडक्ट schema (दाम, स्टॉक, फ़ोटो), breadcrumbs, sitemap, robots.txt, पुराने लिंक के redirect और तेज़ मोबाइल लोडिंग।
 
+## SEO का पक्का नियम – हर देश के keywords सिर्फ़ असली search data से (owner, 24 Nov 2026)
+
+हर देश (भारत भी) के keywords **सिर्फ़ असली data** से चुने जाते हैं – सीधा अनुवाद या अंदाज़ा नहीं:
+
+1. उस देश की **Google Search Console queries** (देश के हिसाब से filter)।
+2. उसी देश के Google (google.fr, google.co.jp, google.co.in …) का **autocomplete** और **"People also ask"**।
+3. उस देश के **top competitors** (दुकानें, marketplaces जैसे Rakuten, Creema, Etsy) – कौन से शब्द, categories और दाम।
+
+इन्हीं शब्दों से title, description, H1, FAQ, product नाम और alt text लिखे जाते हैं। दूसरी भाषा के पेज `content/intl/<lang>/` में native भाषा में लिखे जाते हैं (अनुवाद नहीं), English twin पेज के साथ hreflang से जुड़े होते हैं, और facts/दाम (सिर्फ़ ₹ और US$) English साइट जैसे ही रहते हैं।
+
+**हर सोमवार** weekly routine हर देश के tracked keywords की position (पिछला हफ़्ता → यह हफ़्ता) रिपोर्ट करता है।
+
 ## फ़ोल्डर में क्या है
 - `content/products/` – प्रोडक्ट (एडमिन से बदलो)
 - `content/blog/` – ब्लॉग पोस्ट (एडमिन से लिखो)
