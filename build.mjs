@@ -816,8 +816,8 @@ const CAL = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "co
 const CAL_LEAD = { intl_start: 60, intl_stop: 14, india_start: 30, india_stop: 1, ...(CAL?.lead || {}) };
 const CAL_EVENTS = (CAL?.events || []).filter((e) => e && e.id && /^\d{4}-\d\d-\d\d$/.test(e.date)).sort((a, b) => a.date.localeCompare(b.date));
 // seasonal footer links (e.g. "diwali-outfits") only show from 75 days before their festival until it has passed
-const SEASON_WORDS = ["diwali", "navratri", "eid", "holi", "karwa", "raksha", "christmas", "teej", "onam", "pongal", "lohri", "valentine"];
-const seasonOk = (slug) => { const w = SEASON_WORDS.find((k) => String(slug || "").toLowerCase().includes(k)); if (!w) return true; return CAL_EVENTS.some((e) => (e.id + " " + e.name).toLowerCase().includes(w) && e.date >= TODAY_IST && dPlus(TODAY_IST, 75) >= e.date); };
+const SEASON_WORDS = ["diwali", "navratri", "eid", "holi", "karwa", "raksha", "christmas", "teej", "onam", "pongal", "lohri", "valentine", "chinese-new-year", "black-friday"];
+const seasonOk = (slug) => { const w = SEASON_WORDS.find((k) => String(slug || "").toLowerCase().includes(k)); if (!w) return true; if (w === "black-friday") return SALES.some((x) => /black friday/i.test(x.n)); return CAL_EVENTS.some((e) => (e.id + " " + e.name).toLowerCase().includes(w) && e.date >= TODAY_IST && dPlus(TODAY_IST, 75) >= e.date); };
 const dPlus = (d, n) => new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
 const dShort = (d) => new Date(Date.parse(d + "T00:00:00Z")).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 // safe "last order date": dispatch + slowest delivery (working days, counted as calendar days ×7/5) before the festival
