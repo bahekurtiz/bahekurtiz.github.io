@@ -1,0 +1,38 @@
+{
+  "slug": "grossiste-vetements-indiens-marque-blanche",
+  "en": "wholesale/",
+  "crumb": "Grossiste & marque blanche",
+  "country": "FR",
+  "type": "b2b",
+  "h1": "Fournisseur de vêtements indiens en gros et en marque blanche – atelier à Jaipur",
+  "eyebrow": "Grossiste · Fabricant · Marque blanche · Petites quantités",
+  "lead": "Fabricant de kurtas, tuniques et ensembles en coton block print à Sanganer, Jaipur. Commande minimum 15–20 pièces par modèle, échantillons avant production, votre étiquette.",
+  "match": "block, kurta pant, tunic, co-ord",
+  "max": 8,
+  "products_title": "Exemples de modèles en production",
+  "seo_title": "Grossiste vêtements indiens Jaipur – marque blanche",
+  "seo_description": "Fournisseur de vêtements indiens en gros à Jaipur : kurtas et tuniques coton block print, marque blanche, minimum 15–20 pièces par modèle, échantillons.",
+  "wa_text": "Bonjour Bahe Kurtiz ! Je suis une boutique / marque en France et je souhaite un devis en gros / marque blanche.",
+  "catalogue_label": "Voir le catalogue des imprimés (88 motifs)",
+  "body": "## Fabricant direct, pas un revendeur\n\nNous imprimons et cousons dans **notre propre atelier à Sanganer (Jaipur)**, le berceau du block print. Boutiques, créatrices et e-shops en France travaillent avec nous pour des **kurtas, tuniques indiennes, ensembles pantalon-tunique, robes et coordonnés en coton 100 %** (lin, velours, soie, georgette, chiffon et Kota Doria sur demande).\n\n## Conditions en bref\n\n| | |\n|---|---|\n| **Commande minimum** | 15–20 pièces par modèle (tailles mélangées possibles) |\n| **Échantillon** | Photos des tissus pour validation, puis échantillon en 7–8 jours, payé d'avance ; 50 % du coût de l'échantillon est déduit de votre commande en gros |\n| **Délai de production** | Environ 15 jours pour 100 pièces après validation de l'échantillon, fabriquées exactement comme l'échantillon validé |\n| **Marque blanche** | Votre étiquette, vos étiquettes volantes et votre emballage |\n| **Paiement** | 50 % à la commande, le solde avant expédition |\n| **Livraison en France** | Fret express ou groupage chiffré pour chaque commande ; droits et TVA à l'import à la charge de l'acheteur |\n\n## Marque blanche : comment ça marche\n\n1. Vous envoyez vos modèles ou choisissez dans notre catalogue d'imprimés.\n2. Nous vous envoyons des photos des tissus et un devis.\n3. Échantillon en 7–8 jours, que vous validez.\n4. Production avec **votre marque**, contrôle qualité, photos avant l'envoi.\n\n## Pourquoi Jaipur\n\nSanganer et Bagru impriment le coton à la main depuis des siècles. En achetant à l'atelier, vous évitez les intermédiaires et vous savez exactement qui fabrique vos pièces.",
+  "form": {
+    "title": "Demande de devis",
+    "cta": "Demander un devis",
+    "name": "Nom",
+    "company": "Boutique / marque",
+    "email": "E-mail",
+    "phone": "Téléphone / WhatsApp",
+    "qty": "Quantité souhaitée (pièces)",
+    "msg": "Modèles, tissus, tailles, délai",
+    "send": "Envoyer la demande",
+    "note": "Nous répondons sous 1 jour ouvré, en anglais ou en français simple.",
+    "thanks": "Merci ! Nous avons bien reçu votre demande et répondons sous 1 jour ouvré."
+  },
+  "faq": [
+    { "q": "Quelle est la commande minimum en gros ?", "a": "15 à 20 pièces par modèle, tailles mélangées possibles." },
+    { "q": "Proposez-vous la marque blanche ?", "a": "Oui : votre étiquette cousue, vos étiquettes volantes et votre emballage." },
+    { "q": "Comment fonctionne l'échantillon ?", "a": "Nous envoyons d'abord des photos des tissus. L'échantillon est prêt en 7–8 jours et payé d'avance ; 50 % de son coût est déduit de votre commande en gros." },
+    { "q": "Quel est le délai de fabrication ?", "a": "Environ 15 jours pour 100 pièces après validation de l'échantillon." },
+    { "q": "Qui paie les droits de douane en France ?", "a": "Pour les commandes en gros, le fret est chiffré pour chaque commande et les droits et la TVA à l'importation sont à la charge de l'acheteur." }
+  ]
+}
