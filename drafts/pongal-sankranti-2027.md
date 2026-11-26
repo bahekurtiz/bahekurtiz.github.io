@@ -7,8 +7,8 @@
 > No discount is mentioned anywhere. If you want a sale for Makar Sankranti & Pongal, tell Claude first – prices are never changed automatically.
 
 ## Products to feature
-- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
-- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
+- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
+- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
 
 ## Google Business Profile post (type: Update · button: Shop / Learn more → shop link)
 Makar Sankranti & Pongal are on Friday, 15 January! Sunny yellows, greens and festive cottons for the Pongal pot, kite flying and family lunches. Colours we love for it: yellow, mustard, green, orange, white with gold.
@@ -29,8 +29,8 @@ Sunny yellows, greens and festive cottons for the Pongal pot, kite flying and fa
 ## Facebook post
 Makar Sankranti & Pongal are on Friday, 15 January! Looking for something to wear? Sunny yellows, greens and festive cottons for the Pongal pot, kite flying and family lunches.
 Our picks:
-- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
-- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
+- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
+- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
 India: order by 25 Dec · USA, UK, Canada, UAE & Australia: order by 18 Dec (free shipping, duties paid)
 Free custom fit – send your bust, waist and hip and we stitch to your measurements.
 👉 https://bahekurtiz.com/occasion/festive/
@@ -64,8 +64,8 @@ Hi {{ contact.FIRSTNAME | default : "there" }},
 Makar Sankranti & Pongal are on Friday, 15 January. Sunny yellows, greens and festive cottons for the Pongal pot, kite flying and family lunches.
 
 Three styles we would pick:
-- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
-- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
+- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
+- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
 
 **When to order:** India: order by 25 Dec · USA, UK, Canada, UAE & Australia: order by 18 Dec (free shipping, duties paid)
 

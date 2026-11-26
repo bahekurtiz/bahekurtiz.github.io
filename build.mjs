@@ -60,7 +60,7 @@ const brand = S.brand_name || "Bahe Kurtiz";
 // logo / favicon / hero: admin settings first, else the default files in static/images/site/
 const HAS_COUPONS = (Array.isArray(S.coupons) ? S.coupons : []).some((c) => c && c.active !== false && String(c.code || "").trim());
 const WELCOME_C = (Array.isArray(S.coupons) ? S.coupons : []).find((x) => x && x.active && String(x.code).toUpperCase() === String(S.intl_welcome_code || "").toUpperCase() && x.kind === "Percent" && (x.market === "Both" || x.market === "International")) || null; // intl welcome offer, shown on product page + checkout
-// Home page shows PREMIUM pieces only (owner, 21 Nov 2026): price ≥ home_premium_min (default ₹2,499 – was ₹1,499 before the +₹1000 price change of 26 Nov, same pieces) and not a tunic/top/short kurti.
+// Home page shows PREMIUM pieces only (owner, 21 Nov 2026): price ≥ home_premium_min (default ₹1,499) and not a tunic/top/short kurti.
 // Everything else is still in Shop All, collections, search and "Picked for you" (things the visitor viewed).
 // Scheduled SALES (owner, 22 Nov 2026: "10%, sale time khatam hote hi apne aap hat jaye aur agla lag jaye").
 // A sale = a coupon with a sale name + start/end date (IST days). Shown to buyers abroad only while its window is open
@@ -74,7 +74,7 @@ const FEST_ICON = { lohri: "🔥", "pongal-sankranti": "🌾", "chinese-new-year
 const festLines = () => (CAL_EVENTS || []).filter((e) => e.kind === "festival" && Array.isArray(e.markets) && e.markets.length && e.audience !== "india").map((e) => ({ e, a: dPlus(e.date, -CAL_LEAD.intl_start), b: orderBy(e.date, "intl") }))
   .filter((x) => x.b >= TODAY_IST && x.a <= dPlus(TODAY_IST, 45)).map((x) => `<span class="fest-on" data-fest-from="${x.a}" data-fest-until="${x.b}" data-fest-cc="${x.e.markets.join(" ")}" hidden>${FEST_ICON[x.e.id] || "🎉"} ${esc(x.e.name)} ${dShort(x.e.date)} – order by ${dShort(x.b)} for delivery · </span>`).join("");
 const SALE_JS = `window.bkSale=function(){try{var d=new Date(Date.now()+198e5).toISOString().slice(0,10),any=false;document.querySelectorAll("[data-sale-from]").forEach(function(e){var cc=document.documentElement.getAttribute("data-cc")||"",m=e.getAttribute("data-sale-cc"),on=d>=e.getAttribute("data-sale-from")&&d<=e.getAttribute("data-sale-until")&&(!m||(" "+m+" ").indexOf(" "+cc+" ")>-1);e.hidden=!on;if(on)any=true;});document.querySelectorAll(".welcome-when-no-sale").forEach(function(e){e.hidden=any;});document.documentElement.classList.toggle("sale-live",any);var c2=document.documentElement.getAttribute("data-cc")||"";document.querySelectorAll("[data-fest-from]").forEach(function(e){e.hidden=!(d>=e.getAttribute("data-fest-from")&&d<=e.getAttribute("data-fest-until")&&(" "+e.getAttribute("data-fest-cc")+" ").indexOf(" "+c2+" ")>-1);});}catch(e){}};bkSale();`;
-const HOME_PREMIUM = S.home_premium_only !== false, PREMIUM_MIN = Number(S.home_premium_min) || 2499;
+const HOME_PREMIUM = S.home_premium_only !== false, PREMIUM_MIN = Number(S.home_premium_min) || 1499;
 const isPremium = (p) => !!p && p.price !== null && p.price >= PREMIUM_MIN && !/tunic|top|^kurti$/i.test(String(p.category || ""));
 const homeOk = (p) => !HOME_PREMIUM || isPremium(p);
 const MIRROR_ON = !!process.env.GEMINI_API_KEY;
