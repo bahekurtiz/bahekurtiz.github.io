@@ -2535,6 +2535,8 @@ function md(src = "") {
     if ((m = line.match(/^\d+[.)]\s+(.*)$/))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(m[1]); continue; }
     if ((m = line.match(/^>\s?(.*)$/))) { flushP(); flushL(); out.push(`<blockquote>${inline(m[1])}</blockquote>`); continue; }
     if (/^!\[[^\]]*\]\([^)]+\)$/.test(line)) { flushP(); flushL(); out.push(`<figure>${inline(line)}</figure>`); continue; }
+    // linked product photo inside a post: [![alt](/images/…webp)](/products/slug/) optional caption after it – fixed size (no layout shift), lazy
+    if ((m = line.match(/^\[!\[([^\]]*)\]\(([^)\s]+)\)\]\(([^)\s]+)\)\s*(.*)$/))) { flushP(); flushL(); out.push(`<figure class="post-pic"><a href="${esc(u(safeUrl(m[3])))}"><img decoding="async" src="${esc(u(safeUrl(m[2])))}" alt="${esc(m[1])}" width="1200" height="1800" loading="lazy"></a>${m[4] ? `<figcaption>${inline(m[4])}</figcaption>` : ""}</figure>`); continue; }
     flushL(); para.push(line);
   }
   flushT(); flushP(); flushL();

@@ -1681,3 +1681,4 @@ body.is-b2b .card-ship,body.is-b2b .cart-welcome,body.is-b2b .cart-perks{display
 .sale-x .sale-fin{font-size:1rem;font-weight:600}.sale-x .sale-pct{font-weight:600}.sale-x .sale-end,.sale-x .sale-low{display:block;color:var(--muted,#666);font-size:.75rem}
 .pdp-price .sale-x{font-size:.95rem}.pdp-price .sale-x .sale-fin{font-size:1.3rem}
 .sale-note{display:block;font-weight:400;font-size:.75rem;color:var(--sale)}
+.post-pic{margin:22px auto;max-width:360px;text-align:center}.post-pic img{width:100%;height:auto;aspect-ratio:2/3;object-fit:cover;border-radius:var(--r,6px)}.post-pic figcaption{font-size:.85rem;color:var(--muted);margin-top:6px}
