@@ -24,6 +24,9 @@ const btn = (href, label) => `<p style="margin:0 0 20px;text-align:center"><a hr
 const head = (kicker, title) => `<p style="margin:0 0 6px;font-size:12px;letter-spacing:3px;color:#a8812f">${kicker}</p><h1 style="margin:0 0 12px;font-family:Georgia,serif;font-weight:normal;font-size:26px;color:${TEAL}">${title}</h1>`;
 const P = (t) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6">${t}</p>`;
 const firstName = (o) => esc(String(o.name || "").trim().split(/\s+/)[0] || "there");
+// France & Japan (owner 24 Nov 2026): no duties-paid promise until the courier service is confirmed
+export const noDdp = (o) => /^(france|fr|japan|jp)$/i.test(String(o.country || "").trim());
+export const track17 = (n) => "https://t.17track.net/en#nums=" + encodeURIComponent(String(n || "").trim());
 export const isIndia = (o) => !o.country || /^(india|in|bharat)$/i.test(String(o.country).trim());
 export function eta(o, ship = {}) {
   const n = (v, d) => (Number(v) > 0 ? Number(v) : d);
@@ -48,9 +51,10 @@ export function packedEmail(o) {
 export function shippedEmail(o, ship = {}) {
   return { subject: `Your Bahe Kurtiz order ${o.ref} has shipped 🚚`, tag: "order-shipped", inner: head("ORDER SHIPPED", `It's on its way, ${firstName(o)}!`)
     + P(`Your order <b>${esc(o.ref)}</b> has left our Jaipur studio.`)
-    + `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;background:#f3f8f6;padding:12px 14px;border-radius:8px">Courier: <b>${esc(o.courier)}</b><br>Tracking number: <b>${esc(o.tracking)}</b><br>Expected delivery: <b>${eta(o, ship)}</b> from today${isIndia(o) ? "" : " · duties & taxes paid"}</p>`
+    + `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;background:#f3f8f6;padding:12px 14px;border-radius:8px">Courier: <b>${esc(o.courier)}</b><br>Tracking number: <b>${esc(o.tracking)}</b><br>Expected delivery: <b>${eta(o, ship)}</b> from today${isIndia(o) ? "" : noDdp(o) ? "<br>Import duties/VAT may apply on delivery, as per your country's rules." : " · duties & taxes paid"}</p>`
     + (/^https:\/\//.test(o.tracking_url || "") ? btn(o.tracking_url, "TRACK WITH THE COURIER") + (String(o.tracking_url).includes(encodeURIComponent(o.tracking)) ? "" : `<p style="margin:-8px 0 16px;font-size:13px;color:#7a6f66;text-align:center">On the courier's page, enter your tracking number <b>${esc(o.tracking)}</b>.</p>`) : "")
-    + `<p style="margin:0 0 14px;font-size:13px;color:#7a6f66;line-height:1.6">The first tracking scan can take up to 24 hours to appear.</p>` + foot(o) };
+    + (o.tracking ? `<p style="margin:0 0 16px;font-size:14px;text-align:center">Or track on <a href="${esc(track17(o.tracking))}" style="color:${TEAL}">17TRACK</a> (works for every courier).</p>` : "")
+    + `<p style="margin:0 0 14px;font-size:13px;color:#7a6f66;line-height:1.6">The first tracking scan can take up to 24 hours to appear. Questions? <a href="${esc(WA + "?text=" + encodeURIComponent("Hi Bahe Kurtiz! I need help with my order " + o.ref))}" style="color:${TEAL}">WhatsApp us</a>.</p>` + foot(o) };
 }
 export function deliveredEmail(o, review) {
   const stars = [1, 2, 3, 4, 5].map(() => `<a href="${esc(review)}" style="font-size:34px;line-height:1;color:#c99a2e;text-decoration:none;padding:0 3px">★</a>`).join("");
