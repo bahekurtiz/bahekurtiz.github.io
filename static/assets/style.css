@@ -1676,3 +1676,8 @@ body.is-b2b .card-ship,body.is-b2b .cart-welcome,body.is-b2b .cart-perks{display
 .b2b-cart-note a{text-decoration:underline}
 .more-occ{margin-top:8px}.more-occ summary{cursor:pointer;font-size:.85rem;color:var(--accent,#0f5b52);text-decoration:underline;list-style:none}.more-occ summary::-webkit-details-marker{display:none}.more-occ .pills{margin-top:8px}
 .coupon-row input{min-width:0;width:100%}.coupon-row .btn{flex:none}.coupon-box{min-width:0}
+/* sale line under the price (Etsy-like; shown by app.js only while a sale is open for this visitor) */
+.sale-x{display:block;flex-basis:100%;margin-top:2px;font-size:.82rem;line-height:1.35;color:var(--sale)}
+.sale-x .sale-fin{font-size:1rem;font-weight:600}.sale-x .sale-pct{font-weight:600}.sale-x .sale-end,.sale-x .sale-low{display:block;color:var(--muted,#666);font-size:.75rem}
+.pdp-price .sale-x{font-size:.95rem}.pdp-price .sale-x .sale-fin{font-size:1.3rem}
+.sale-note{display:block;font-weight:400;font-size:.75rem;color:var(--sale)}

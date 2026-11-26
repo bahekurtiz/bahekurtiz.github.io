@@ -20,6 +20,21 @@
   const money = (n) => (isUSD() ? usd(n) : inr(n));
   const moneyH = (n) => (isUSD() ? `<span data-usdv="${n}">${usd(n)}</span>` : inr(n));
   const unit = (p) => (isUSD() ? p.price_usd : p.price);
+  // ---------- sale prices (Etsy-like): the open sale for this visitor (India ₹ / abroad $, optional countries, start–end on India time) ----------
+  const saleNow = () => { try { const d = new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10), cc = document.documentElement.getAttribute("data-cc") || "", u = isUSD();
+    return (BK.sp || []).find((x) => d >= x.s && d <= x.e && (u ? x.r !== "in" : x.r !== "intl") && (!x.m || x.m.includes(cc))) || null; } catch { return null; } };
+  const saleFinal = (v, x) => (isUSD() ? Math.round(v * (100 - x.v)) / 100 : Math.round((v * (100 - x.v)) / 100));
+  const saleEnds = (x) => { const d = Math.ceil((Date.parse(x.e + "T23:59:59+05:30") - Date.now()) / 864e5); return d <= 1 ? "Sale ends today" : `Sale ends in ${d} days`; };
+  const isEU = () => document.documentElement.hasAttribute("data-eu");
+  const salePaint = (root = document) => { const x = saleNow(); if (!x || x.min) return; const u = isUSD(), eu = u && isEU();
+    $$(u ? ".price[data-usdv]" : ".price[data-inrv]", root).forEach((el) => { if (el.dataset.sx) return; const v = +(u ? el.dataset.usdv : el.dataset.inrv); if (!v) return; el.dataset.sx = "1"; const f = saleFinal(v, x), b = document.createElement("span"); b.className = "sale-x";
+      if (eu) { const lo = +el.dataset.low; if (!lo) return; b.innerHTML = `<b>Sale price: <span data-usdv="${f}">${usd(f)}</span></b> <span class="sale-low">Lowest price in the last 30 days: <span data-usdv="${lo}">${usd(lo)}</span></span>`; } // EU (Omnibus): no "was" or % – only the 30-day low
+      else b.innerHTML = `<b class="sale-fin">${u ? `<span data-usdv="${f}">${usd(f)}</span>` : inr(f)}</b> <span class="sale-pct">Extra ${x.v}% off</span> <span class="sale-end">${saleEnds(x)}</span>`;
+      el.parentElement.appendChild(b); }); };
+  // the bag shows the sale price only when checkout will apply the sale code (no other code chosen, not removed, no referral offer)
+  const saleForBag = () => { const x = saleNow(); if (!x) return null; try { const st = sessionStorage.getItem("bk_cpn") || ""; if (sessionStorage.getItem("bk_cpn_off") === "1" || (st && st !== x.c)) return null;
+    if (!st && BK.rc) { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (r && Date.now() - r.t < 30 * 864e5 && !localStorage.getItem("bk_bought")) return null; } } catch {} return x; };
+  try { if (saleNow()) { salePaint(); if ("MutationObserver" in window) { let st; new MutationObserver(() => { clearTimeout(st); st = setTimeout(() => salePaint(), 80); }).observe(document.body, { childList: true, subtree: true }); } } } catch {}
   const url = (p) => (/^https?:/.test(p) ? p : BK.base + String(p || "").replace(/^\//, ""));
   // ---------- delivery estimate: ONE function for product page, bag and checkout (numbers = BK.ship from settings) ----------
   // today + dispatch (ready 2–4 / custom fit 10–15 working days) + transit (India 3–5 working / international 5–10 business days); Sundays skipped
@@ -128,11 +143,12 @@
     if (!bag.length) { const sb = $("[data-ship-bar]"); if (sb) sb.hidden = true; box.innerHTML = `<p class="empty">Your bag is empty.<br><a class="link" href="${url("shop/")}">Start shopping →</a></p>`; $("[data-cart-foot]").hidden = true; return; }
     let cat; try { cat = await catalog(); } catch { box.innerHTML = `<p class="empty">Could not load your bag. Check your internet and try again.</p>`; return; }
     let sub = 0;
-    const items = bag.filter((i) => cat.products[i.slug]);
+    const items = bag.filter((i) => cat.products[i.slug]); const sx = saleForBag(), sxEU = isUSD() && isEU();
     box.innerHTML = items.map((i, n) => { const p = cat.products[i.slug]; const pr = unit(p); sub += (pr || 0) * i.qty;
       return `<div class="line"><img src="${esc(url(p.thumb || p.image))}" alt="${esc(p.title)}" width="64" height="96" decoding="async"><div><a href="${url(p.url)}">${esc(p.title)}</a><small>${isCustom(i.size) ? "✂️ Custom Fit – made to your measurements (no change-of-mind returns)" : i.size ? "Size " + esc(i.size) : ""}</small>${pr == null ? `<small class="warn">${isUSD() ? "Ships within India only" : "Price on request"}</small>` : ""}
-      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : moneyH(pr * i.qty)}</strong></div>`; }).join("");
-    $("[data-cart-subtotal]").innerHTML = moneyH(sub); $("[data-cart-foot]").hidden = false; try { cartPerks(); } catch {}
+      <div class="qty"><button data-q="${n}" data-d="-1" aria-label="Less">−</button><span>${i.qty}</span><button data-q="${n}" data-d="1" aria-label="More">+</button><button class="rm" data-rm="${n}">Remove</button></div></div><strong>${pr == null ? "–" : sx ? `${sxEU ? "" : `<s class="mrp">${moneyH(pr * i.qty)}</s> `}${moneyH(saleFinal(pr, sx) * i.qty)}` : moneyH(pr * i.qty)}</strong></div>`; }).join("");
+    const sxOk = sx && !(sx.min && sub < sx.min), sxSub = sxOk ? Math.max(0, Math.round((sub - (isUSD() ? Math.round(sub * sx.v) / 100 : Math.round((sub * sx.v) / 100))) * 100) / 100) : sub; // same maths as checkout
+    $("[data-cart-subtotal]").innerHTML = moneyH(sxSub) + (sxOk ? `<small class="sale-note">🏷️ ${esc(sx.n)}: extra ${sx.v}% off – applied at checkout</small>` : ""); $("[data-cart-foot]").hidden = false; try { cartPerks(); } catch {}
     const lim = isUSD() ? cat.settings.intl_free_shipping_above_usd : cat.settings.free_shipping_above, bar = $("[data-ship-bar]");
     if (bar) { bar.hidden = !lim; if (lim) { const left = lim - sub; $("[data-ship-text]").innerHTML = left > 0 ? `Add <strong>${money(left)}</strong> more for <strong>FREE shipping</strong>` : `🎉 You have unlocked <strong>FREE shipping</strong>`; $("[data-ship-fill]").style.width = Math.min(100, (sub / lim) * 100) + "%"; } }
     $$("[data-q]", box).forEach((b) => b.onclick = () => { const b2 = [...items]; b2[b.dataset.q].qty = Math.max(0, Math.min(10, b2[b.dataset.q].qty + +b.dataset.d)); setBag(b2); });
@@ -231,7 +247,7 @@
   if (!coupon && BK.rc) { try { const r = JSON.parse(localStorage.getItem("bk_ref") || "null"); if (r && Date.now() - r.t < 30 * 864e5 && !localStorage.getItem("bk_bought")) { coupon = BK.rc; refAuto = true; } } catch {} }
   // international welcome offer: applied automatically on the first order (shoppers abroad should never have to hunt for the code); removable in the coupon box
   // an open sale (abroad) is applied for everyone; otherwise the first-order welcome offer. One code per order. Removable in the coupon box.
-  let welcomeAuto = false, saleAuto = null; try { const d = new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10); const cc0 = document.documentElement.getAttribute("data-cc") || ""; saleAuto = isUSD() ? (BK.sl || []).find((x) => d >= x.s && d <= x.e && (!x.m || x.m.includes(cc0))) || null : null;
+  let welcomeAuto = false, saleAuto = null; try { const d = new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10); const cc0 = document.documentElement.getAttribute("data-cc") || ""; saleAuto = saleNow() || (isUSD() ? (BK.sl || []).find((x) => d >= x.s && d <= x.e && (!x.m || x.m.includes(cc0))) || null : null);
     if (!coupon && sessionStorage.getItem("bk_cpn_off") !== "1") { if (saleAuto) coupon = saleAuto.c; else if (BK.wc && isUSD() && !localStorage.getItem("bk_bought")) { coupon = BK.wc; welcomeAuto = true; } } } catch {}
   const istToday = () => new Date(Date.now() + 5.5 * 36e5).toISOString().slice(0, 10);
   const findCoupon = (cat, code, sub) => { const c = (cat.settings.coupons || []).find((x) => x.c === String(code || "").trim().toUpperCase()); if (!c) return [null, "This code is not valid."];
@@ -561,7 +577,7 @@
   // ---------- small product card (wishlist / recently viewed) ----------
   const off = (a, b) => (a && b && b > a ? Math.round((1 - a / b) * 100) : 0);
   const priceBoth = (p) => {
-    const i = p.price == null ? `<span class="price ask">Price on request</span>` : `<span class="price">${inr(p.price)}</span>${off(p.price, p.mrp) ? `<s class="mrp">${inr(p.mrp)}</s>` : ""}`;
+    const i = p.price == null ? `<span class="price ask">Price on request</span>` : `<span class="price" data-inrv="${p.price}">${inr(p.price)}</span>${off(p.price, p.mrp) ? `<s class="mrp">${inr(p.mrp)}</s>` : ""}`;
     if (!BK.intl) return i;
     const u2 = p.price_usd == null ? `<span class="price ask">India only</span>` : `<span class="price" data-usdv="${p.price_usd}">${usd(p.price_usd)}</span>${off(p.price_usd, p.mrp_usd) ? `<s class="mrp" data-usdv="${p.mrp_usd}">${usd(p.mrp_usd)}</s>` : ""}`;
     return `<span class="cur-inr">${i}</span><span class="cur-usd">${u2}</span>`;

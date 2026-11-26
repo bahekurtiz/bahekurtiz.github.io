@@ -5,6 +5,7 @@ import fs from "node:fs";
 import zlib from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 
 const SHADE_HEX = { "White": "#ffffff", "Ivory": "#f5efe0", "Beige": "#d8c4a2", "Sage Green": "#a3b18a", "Sky Blue": "#9ec5e2", "Blush Pink": "#e9b7bb", "Lilac": "#c3b1d9", "Mustard": "#d9a93b", "Black": "#1f1f1f", "Navy": "#26344f", "Olive": "#7b7f4a", "Rust": "#b5563a" };
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -65,7 +66,7 @@ const WELCOME_C = (Array.isArray(S.coupons) ? S.coupons : []).find((x) => x && x
 // A sale = a coupon with a sale name + start/end date (IST days). Shown to buyers abroad only while its window is open
 // (inline SALE_JS switches it on/off on the visitor's own clock; the daily 07:00 IST rebuild refreshes the list). Real, time-bound, no fake "was" prices.
 const SALES = (Array.isArray(S.coupons) ? S.coupons : []).filter((c) => c && c.active !== false && String(c.sale || "").trim() && c.start && c.end && /Int|Both/.test(c.market || "") && String(c.end).slice(0, 10) >= new Date(Date.now() + 198e5).toISOString().slice(0, 10))
-  .map((c) => { const m = (Array.isArray(c.countries) ? c.countries : String(c.countries || "").split(/[\s,]+/)).map((x) => String(x).trim().toUpperCase()).filter((x) => /^[A-Z]{2}$/.test(x)); return { c: String(c.code).trim().toUpperCase(), n: String(c.sale).trim(), v: Number(c.value) || 0, s: String(c.start).slice(0, 10), e: String(c.end).slice(0, 10), ...(m.length ? { m } : {}) }; }).sort((a, b) => a.s.localeCompare(b.s));
+  .map((c) => { const m = (Array.isArray(c.countries) ? c.countries : String(c.countries || "").split(/[\s,]+/)).map((x) => String(x).trim().toUpperCase()).filter((x) => /^[A-Z]{2}$/.test(x)); return { c: String(c.code).trim().toUpperCase(), n: String(c.sale).trim(), v: Number(c.sale_percent) || Number(c.value) || 0, s: String(c.start).slice(0, 10), e: String(c.end).slice(0, 10), ...(m.length ? { m } : {}) }; }).sort((a, b) => a.s.localeCompare(b.s));
 const SALE_SOON = SALES.filter((x) => x.s <= new Date(Date.now() + 198e5 + 45 * 864e5).toISOString().slice(0, 10)); // render only sales starting within 45 days
 const saleSpans = (fmt) => SALE_SOON.map((x) => `<span class="sale-on" data-sale-from="${x.s}" data-sale-until="${x.e}"${x.m ? ` data-sale-cc="${x.m.join(" ")}"` : ""} hidden>${fmt(x)}</span>`).join("");
 // shows the open sale and hides the welcome-offer text next to it; runs inline (no flicker) and again from app.js
@@ -700,7 +701,7 @@ ${intlOn ? `<dialog class="country-modal" data-country-modal aria-label="Choose 
 <nav class="bnav" aria-label="Quick links"><a href="${u()}">${I.home}<span>Home</span></a><a href="${u("shop/")}">${I.grid}<span>Shop</span></a><button type="button" data-open-search>${I.search}<span>Search</span></button><a href="${u("wishlist/")}">${I.heart}<span>Wishlist</span><i class="bag-count" data-wish-count hidden>0</i></a><button type="button" data-open-cart>${I.bag}<span>Bag</span><i class="bag-count" data-bag-count hidden>0</i></button></nav>
 ${mini && !noindex && (bodyClass === "home" || bodyClass === "pdp") ? `<div class="mini-reel" data-mini><button class="mini-x" type="button" data-mini-close aria-label="Close video">×</button><button class="mini-play" type="button" data-mini-open aria-label="Watch video${mini.caption ? ": " + esc(mini.caption) : ""}"><video data-src="${esc(mini.video)}"${mini.cover ? ` poster="${esc(mini.cover)}"` : ""} muted loop playsinline preload="none" aria-hidden="true"></video><span class="mini-badge">${I.play} Watch</span></button></div>` : ""}
 <dialog class="reel-modal" data-reel-modal aria-label="Reel"><button class="icon-btn reel-x" data-reel-close aria-label="Close">${I.close}</button><div class="reel-stage" data-reel-stage></div></dialog>
-<script>window.BK=${JSON.stringify({ xp: S.exit_popup === true, sl: SALES, wc: WELCOME_C ? String(WELCOME_C.code).toUpperCase() : "", wv: WELCOME_C ? WELCOME_C.value : 0, rc: (S.coupons || []).some((c) => c && c.active !== false && String(c.code || "").trim().toUpperCase() === String(S.referral_coupon || "").toUpperCase()) ? String(S.referral_coupon).toUpperCase() : "", rv: REVIEW_URL, oapi: ORDERS_API, etsy: ETSY_URL, px: !!pixelId, bands: { inr: FLT.inr, usd: FLT.usd }, langs: S.languages_off ? null : I18N.names, noLocal: S.local_currency_display === false, lc: LC, fx: LC_FX, mk: mktRules, inr: indiaRule, mm: !!S.maintenance_mode, cp: !!S.checkout_pause, pm: String(S.pause_message || "Orders are paused for a short while. Please WhatsApp us for help."), base: BASE, wa: waNumber, brand, email: S.email || "", intl: intlOn, sheet: /^https:\/\/script\.google\.com\//.test(String(S.customer_sheet_url || "").trim()) ? String(S.customer_sheet_url).trim() : "", gid: String(S.google_client_id || "").trim(), popup: S.login_popup !== false, stories: bodyClass === "home" ? storiesData.map((st) => ({ t: st.t, s: st.s.map((x) => ({ img: x.img ? u(x.img) : "", vid: x.vid ? u(x.vid) : "", cap: x.cap, pr: x.pr || "", pu: x.pu || "", link: x.link ? u(x.link) : "", shop: x.shop })) })) : [], fests: festAll, countries: intlOn ? countryList : [], rates: Object.fromEntries((Array.isArray(S.currency_rates) ? S.currency_rates : []).map((r) => [String(r?.code || "").toUpperCase(), num(r?.per_usd)]).filter(([c, v]) => c && v)), occasions, fabrics, ship: SHIP, reels: reels.length ? reelData() : [], mini: mini || null }).replace(/</g, "\\u003c")};</script>
+<script>window.BK=${JSON.stringify({ xp: S.exit_popup === true, sl: SALES, sp: SALE_P, wc: WELCOME_C ? String(WELCOME_C.code).toUpperCase() : "", wv: WELCOME_C ? WELCOME_C.value : 0, rc: (S.coupons || []).some((c) => c && c.active !== false && String(c.code || "").trim().toUpperCase() === String(S.referral_coupon || "").toUpperCase()) ? String(S.referral_coupon).toUpperCase() : "", rv: REVIEW_URL, oapi: ORDERS_API, etsy: ETSY_URL, px: !!pixelId, bands: { inr: FLT.inr, usd: FLT.usd }, langs: S.languages_off ? null : I18N.names, noLocal: S.local_currency_display === false, lc: LC, fx: LC_FX, mk: mktRules, inr: indiaRule, mm: !!S.maintenance_mode, cp: !!S.checkout_pause, pm: String(S.pause_message || "Orders are paused for a short while. Please WhatsApp us for help."), base: BASE, wa: waNumber, brand, email: S.email || "", intl: intlOn, sheet: /^https:\/\/script\.google\.com\//.test(String(S.customer_sheet_url || "").trim()) ? String(S.customer_sheet_url).trim() : "", gid: String(S.google_client_id || "").trim(), popup: S.login_popup !== false, stories: bodyClass === "home" ? storiesData.map((st) => ({ t: st.t, s: st.s.map((x) => ({ img: x.img ? u(x.img) : "", vid: x.vid ? u(x.vid) : "", cap: x.cap, pr: x.pr || "", pu: x.pu || "", link: x.link ? u(x.link) : "", shop: x.shop })) })) : [], fests: festAll, countries: intlOn ? countryList : [], rates: Object.fromEntries((Array.isArray(S.currency_rates) ? S.currency_rates : []).map((r) => [String(r?.code || "").toUpperCase(), num(r?.per_usd)]).filter(([c, v]) => c && v)), occasions, fabrics, ship: SHIP, reels: reels.length ? reelData() : [], mini: mini || null }).replace(/</g, "\\u003c")};</script>
 <link rel="preload" as="script" href="${u("assets/app.js")}?v=${ASSET_V}" fetchpriority="low">
 <script>/* app.js runs right after the first paint, so the hero photo is never held back by script work (faster LCP) */(function(){var go=function(){var s=document.createElement("script");s.src=${JSON.stringify(u("assets/app.js"))}+"?v=${ASSET_V}";document.body.appendChild(s)};if(window.requestAnimationFrame)requestAnimationFrame(function(){setTimeout(go,0)});else setTimeout(go,0)})();</script>
 </body>
@@ -710,15 +711,31 @@ ${mini && !noindex && (bodyClass === "home" || bodyClass === "pdp") ? `<div clas
 const inrPrice = (p, cls = "") => {
   if (p.price === null) return `<span class="price ask ${cls}">Price on request</span>`;
   const off = offPct(p);
-  return `<span class="price ${cls}">${inr(p.price)}</span>${off ? `<s class="mrp">${inr(p.mrp)}</s><span class="off">${off}% OFF</span>` : ""}`;
+  return `<span class="price ${cls}"${SALE_IN ? ` data-inrv="${p.price}"` : ""}>${inr(p.price)}</span>${off ? `<s class="mrp">${inr(p.mrp)}</s><span class="off">${off}% OFF</span>` : ""}`;
 };
 const usdPrice = (p, cls = "") => {
   if (!p.ships_abroad) return `<span class="price ask ${cls}">Ships within India only</span>`;
   if (p.price_usd === null) return `<span class="price ask ${cls}">Price on request</span>`;
   const off = offUsd(p);
-  return `<span class="price ${cls}" data-usdv="${p.price_usd}">${usd(p.price_usd)}</span>${off ? `<s class="mrp" data-usdv="${p.mrp_usd}">${usd(p.mrp_usd)}</s><span class="off">${off}% OFF</span>` : ""}`;
+  return `<span class="price ${cls}" data-usdv="${p.price_usd}"${SALE_US ? ` data-low="${LOW30[p.slug] || p.price_usd}"` : ""}>${usd(p.price_usd)}</span>${off ? `<s class="mrp" data-usdv="${p.mrp_usd}">${usd(p.mrp_usd)}</s><span class="off">${off}% OFF</span>` : ""}`;
 };
 // both prices are in the page; the ₹/$ switch shows one (no flicker, works without JS)
+// ---------- sale prices (owner 26 Nov 2026, Etsy-like) ----------
+// A coupon with a sale name + start + end shows "Extra X% off · final price · Sale ends in N days" on cards, product pages and the bag,
+// for India (₹), abroad ($) or both, optionally only in chosen countries. Checkout applies the same code automatically, so the bag total matches.
+// EU visitors: no struck-through MRP; during a sale only "Lowest price in the last 30 days" (Omnibus) – from content/price-history.json + git history.
+const SALE_P = (Array.isArray(S.coupons) ? S.coupons : []).filter((c) => c && c.active !== false && String(c.sale || "").trim() && String(c.code || "").trim() && c.start && c.end && (Number(c.sale_percent) || c.kind === "Percent" || !c.kind) && (Number(c.sale_percent) || num(c.value) || 0) > 0 && (Number(c.sale_percent) || num(c.value)) < 90 && String(c.end).slice(0, 10) >= TODAY_IST)
+  .map((c) => { const m = (Array.isArray(c.countries) ? c.countries : String(c.countries || "").split(/[\s,]+/)).map((x) => String(x).trim().toUpperCase()).filter((x) => /^[A-Z]{2}$/.test(x)); return { c: String(c.code).trim().toUpperCase(), n: String(c.sale).trim(), v: Number(c.sale_percent) || num(c.value), s: String(c.start).slice(0, 10), e: String(c.end).slice(0, 10), r: /Int/.test(c.market || "") ? "intl" : /Both/.test(c.market || "") ? "both" : "in", min: num(c.min_order) || 0, ...(m.length ? { m } : {}) }; })
+  .sort((a, b) => a.s.localeCompare(b.s));
+const SALE_IN = SALE_P.some((x) => x.r !== "intl"), SALE_US = intlOn && SALE_P.some((x) => x.r !== "in");
+const LOW30 = (() => { // lowest US$ price of the last 30 days, per product
+  const lo = {}, from = new Date(Date.parse(TODAY_IST + "T00:00:00Z") - 30 * 864e5).toISOString().slice(0, 10);
+  const add = (k, v) => { v = Number(v); if (k && v > 0) lo[k] = Math.min(lo[k] ?? Infinity, v); };
+  try { const h = JSON.parse(fs.readFileSync(path.join(ROOT, "content/price-history.json"), "utf8")); for (const ch of h.changes || []) if (String(ch.until || "") >= from) for (const [k, v] of Object.entries(ch.usd || {})) add(slugify(k), v); } catch {}
+  if (SALE_US) try { let f = ""; for (const ln of execSync('git log --since="31 days ago" -p --format=%x00 -- content/products', { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }).split("\n")) {
+    const m = ln.match(/^(?:\+\+\+ b|--- a)\/content\/products\/(.+)\.json$/); if (m) { f = slugify(m[1]); continue; } const v = ln.match(/^[-+]\s*"price_usd":\s*"?([\d.]+)/); if (v && f) add(f, v[1]); } } catch {}
+  for (const p of products) if (p.price_usd) add(p.slug, p.price_usd);
+  return lo; })();
 const priceHtml = (p, cls = "") => (intlOn ? `<span class="cur-inr">${inrPrice(p, cls)}</span><span class="cur-usd">${usdPrice(p, cls)}</span>` : inrPrice(p, cls));
 
 const card = (p, i = 9) => {
@@ -3355,7 +3372,7 @@ const catalog = {
     shipping_charge: num(S.shipping_charge) || 0, free_shipping_above: num(S.free_shipping_above) || 0,
     cod_enabled: false, cod_charge: 0, prepaid_discount_percent: num(S.prepaid_discount_percent) || 0,
     checkout_pause: !!(S.checkout_pause || S.maintenance_mode), orders_api: ORDERS_API, google_review_url: REVIEW_URL, ship: SHIP, paypal_client_id: String(S.paypal_client_id || "").trim(), meta_pixel_id: pixelId,
-    coupons: (Array.isArray(S.coupons) ? S.coupons : []).filter((c) => c && c.active !== false && String(c.code || "").trim()).map((c) => ({ c: String(c.code).trim().toUpperCase(), k: c.kind || "Percent", v: num(c.value) || 0, m: /Int/.test(c.market || "") ? "intl" : /Both/.test(c.market || "") ? "both" : "in", min: num(c.min_order) || 0, s: String(c.start || "").slice(0, 10), e: String(c.end || "").slice(0, 10) })),
+    coupons: (Array.isArray(S.coupons) ? S.coupons : []).filter((c) => c && c.active !== false && String(c.code || "").trim()).map((c) => ({ c: String(c.code).trim().toUpperCase(), k: Number(c.sale_percent) ? "Percent" : c.kind || "Percent", v: Number(c.sale_percent) || num(c.value) || 0, m: /Int/.test(c.market || "") ? "intl" : /Both/.test(c.market || "") ? "both" : "in", min: num(c.min_order) || 0, s: String(c.start || "").slice(0, 10), e: String(c.end || "").slice(0, 10) })),
     upi_id: (S.upi_id || "").trim(), brand, whatsapp: waNumber, email: S.email || "",
     intl_shipping_charge_usd: num(S.intl_shipping_charge_usd) || 0, intl_free_shipping_above_usd: num(S.intl_free_shipping_above_usd) || 0,
   },
