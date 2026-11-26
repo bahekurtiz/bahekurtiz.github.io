@@ -37,7 +37,7 @@ const PH = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "con
 const phStyle = (src) => { let k = String(src || ""); try { k = decodeURI(k); } catch {} const c = PH[k.replace(/^https?:\/\/[^/]+/, "")]; return c ? ` style="background:linear-gradient(${c})"` : ""; };
 const esc = (s = "") => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 // France & Japan (owner 24 Nov 2026): no "duties paid / DDP" promise until the courier service is confirmed – visitors there (html[data-cc]) see this line instead
-const NO_DDP = ["FR", "JP"], NO_DDP_TXT = "Import duties/VAT may apply on delivery, as per your country's rules.";
+const NO_DDP = ["FR", "JP"], NO_DDP_TXT = "France & Japan only: import duties/VAT may apply on delivery, as per local rules."; // names the countries, so a crawler/AI reading both lines sees no contradiction (SEO audit 26 Nov)
 const ddp = (yes, tag = "span") => `<${tag} class="ddp-yes">${yes}</${tag}><${tag} class="ddp-no">${esc(NO_DDP_TXT)}</${tag}>`;
 const paras = (t = "") => String(t || "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
 const clip = (t, n = 155) => { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n); const s = Math.max(c.lastIndexOf(". "), c.lastIndexOf("! "), c.lastIndexOf("? ")); if (s >= 70) return c.slice(0, s + 1); const k = Math.max(c.lastIndexOf(" – "), c.lastIndexOf(", "), c.lastIndexOf("; "), c.lastIndexOf(": ")); if (k >= 70) return c.slice(0, k).replace(/[\s,;:–-]+$/, "") + "."; const d = c.slice(0, n - 1); return d.slice(0, Math.max(d.lastIndexOf(" "), 60)).replace(/[\s,;:–-]+$/, "") + "…"; }; // prefer a full sentence, then a whole clause ending with "." – "…" only as a last resort
@@ -1092,7 +1092,7 @@ ${reviews.length >= 1 ? `<section class="wrap section reviews"><div class="secti
   </div>
 </section>`;
   add("index.html", page({
-    title: `${brand} | Handmade Indian Ethnic Wear from Jaipur`,
+    title: `Handmade Anarkali Suits & Kurta Sets, Jaipur | ${brand}`, // keyword-first, brand kept (SEO audit 26 Nov)
     description: clip(intlOn ? `${brand}: hand block printed kurta sets & Anarkalis from Jaipur, stitched to your size. Free shipping to the USA, UK, Canada, UAE & Australia.` : `Hand block printed kurtis, kurta sets and dresses from Jaipur by ${brand}. Secure prepaid payment and pan-India delivery.`),
     pathname: "", body: `` + body, bodyClass: "home", alt: fs.existsSync(path.join(ROOT, "content/hi")) && fs.readdirSync(path.join(ROOT, "content/hi")).some((f) => f.endsWith(".json")) ? "hi/" : null,
     ld: [{ "@context": "https://schema.org", "@type": "WebSite", "@id": SITE_URL + "/#website", name: brand, alternateName: ["Bahe Kurti", "Bahe Kurtis", "BaheKurtiz", "Bahe Kurtiz Jaipur", "बाहे कुर्तीज़"], url: SITE_URL + "/", publisher: { "@id": SITE_URL + "/#store" }, inLanguage: "en", potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: SITE_URL + "/shop/?q={search_term_string}" }, "query-input": "required name=search_term_string" } }],
@@ -3484,7 +3484,9 @@ const LIVE_BUILD = process.env.CF_PAGES === "1" && (!process.env.CF_PAGES_BRANCH
 const PREV_HASH = LIVE_BUILD && /^https:\/\//.test(SITE_URL) ? await (async () => { try { const r = await fetch(`${SITE_URL}/data/page-hashes.json`, { signal: AbortSignal.timeout(6000) }); return r.ok ? await r.json() : null; } catch { return null; } })() : null;
 const PAGE_HTML = new Map(pages.map(([f, h]) => [f, h]));
 const pageHash = (x) => { const h = PAGE_HTML.get(x ? x.replace(/\/?$/, "/") + "index.html" : "index.html"); if (!h) return "";
-  const t = h.replace(/\?v=[a-z0-9]+/g, "").replace(/<script>\(function\(\)\{var c;try\{c=localStorage[\s\S]*?<\/script>/, "");
+  // only what the page is about counts (title, description, <main>) – a site-wide header/footer/menu edit must not make every lastmod "today" (honest sitemap, SEO audit 26 Nov)
+  const core = (h.match(/<title>[\s\S]*?<\/title>/) || [""])[0] + (h.match(/<meta name="description"[^>]*>/) || [""])[0] + ((h.match(/<main[\s\S]*<\/main>/) || [h])[0]);
+  const t = core.replace(/\?v=[a-z0-9]+/g, "").replace(/<script>\(function\(\)\{var c;try\{c=localStorage[\s\S]*?<\/script>/, "");
   let a = 2166136261; for (let i = 0; i < t.length; i++) { a ^= t.charCodeAt(i); a = Math.imul(a, 16777619) >>> 0; } return a.toString(36); };
 const HASHES = Object.fromEntries(urls.map((x) => [x, pageHash(x)]));
 const CHANGED = urls.filter((x) => !PREV_HASH || !PREV_HASH[x] || PREV_HASH[x][0] !== HASHES[x]);
