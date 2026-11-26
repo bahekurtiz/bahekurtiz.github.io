@@ -8,9 +8,9 @@
 > No discount is mentioned anywhere. If you want a sale for Christmas, tell Claude first – prices are never changed automatically.
 
 ## Products to feature
-- Gulnar – Wine Velvet Anarkali Suit Set with Organza Dupatta & Lace Trim – ₹2,400 / $52: https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
-- Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹2,400 / $52: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
-- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
+- Gulnar – Wine Velvet Anarkali Suit Set with Organza Dupatta & Lace Trim – ₹3,399 / $67: https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
+- Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹3,399 / $67: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
+- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
 
 ## Google Business Profile post (type: Update · button: Shop / Learn more → shop link)
 Christmas is on Friday, 25 December! Red, green and velvet Indian outfits for Christmas parties, church and family dinners. Colours we love for it: red, bottle green, wine, gold, ivory.
@@ -31,9 +31,9 @@ Red, green and velvet Indian outfits for Christmas parties, church and family di
 ## Facebook post
 Christmas is on Friday, 25 December! Looking for something to wear? Red, green and velvet Indian outfits for Christmas parties, church and family dinners.
 Our picks:
-- Gulnar – Wine Velvet Anarkali Suit Set with Organza Dupatta & Lace Trim – ₹2,400 / $52: https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
-- Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹2,400 / $52: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
-- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
+- Gulnar – Wine Velvet Anarkali Suit Set with Organza Dupatta & Lace Trim – ₹3,399 / $67: https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
+- Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹3,399 / $67: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
+- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
 India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 Free custom fit – send your bust, waist and hip and we stitch to your measurements.
 👉 https://bahekurtiz.com/festival/christmas-new-year/
@@ -69,9 +69,9 @@ Hi {{ contact.FIRSTNAME | default : "there" }},
 Christmas is on Friday, 25 December. Red, green and velvet Indian outfits for Christmas parties, church and family dinners.
 
 Three styles we would pick:
-- Gulnar – Wine Velvet Anarkali Suit Set with Organza Dupatta & Lace Trim – ₹2,400 / $52: https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
-- Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹2,400 / $52: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
-- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
+- Gulnar – Wine Velvet Anarkali Suit Set with Organza Dupatta & Lace Trim – ₹3,399 / $67: https://bahekurtiz.com/products/wine-velvet-anarkali-suit-set-organza-dupatta/
+- Yamini – Black Velvet Anarkali Kurta with Gold Brocade Palazzo & Potli Buttons – ₹3,399 / $67: https://bahekurtiz.com/products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/
+- Malini – Sage Green Taffeta Silk Gota Work Anarkali Suit Set with Sequin Organza Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta/
 
 **When to order:** India: order by 4 Dec · USA, UK, Canada, UAE & Australia: order by 27 Nov (free shipping, duties paid)
 

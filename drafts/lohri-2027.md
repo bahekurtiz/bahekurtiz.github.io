@@ -8,9 +8,9 @@
 > No discount is mentioned anywhere. If you want a sale for Lohri, tell Claude first – prices are never changed automatically.
 
 ## Products to feature
-- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
-- Pankhuri – Rose Pink Hand Block Print Cotton Kurta Pant Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/rose-pink-hand-block-print-cotton-kurta-pant-kota-doria-dupatta-set/
-- Kokila – Baby Pink Embroidered Cotton Kurta Pant Set with Bird Motif & Tassels – ₹1,599 / $48: https://bahekurtiz.com/products/baby-pink-bird-embroidered-cotton-kurta-pant-set/
+- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
+- Pankhuri – Rose Pink Hand Block Print Cotton Kurta Pant Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/rose-pink-hand-block-print-cotton-kurta-pant-kota-doria-dupatta-set/
+- Kokila – Baby Pink Embroidered Cotton Kurta Pant Set with Bird Motif & Tassels – ₹2,599 / $63: https://bahekurtiz.com/products/baby-pink-bird-embroidered-cotton-kurta-pant-set/
 
 ## Google Business Profile post (type: Update · button: Shop / Learn more → shop link)
 Lohri is on Wednesday, 13 January! Bright Punjabi colours with warm layers for the bonfire night. Colours we love for it: mustard, red, rani pink, orange, phulkari brights.
@@ -31,9 +31,9 @@ Bright Punjabi colours with warm layers for the bonfire night – handmade in Ja
 ## Facebook post
 Lohri is on Wednesday, 13 January! Looking for something to wear? Bright Punjabi colours with warm layers for the bonfire night.
 Our picks:
-- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
-- Pankhuri – Rose Pink Hand Block Print Cotton Kurta Pant Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/rose-pink-hand-block-print-cotton-kurta-pant-kota-doria-dupatta-set/
-- Kokila – Baby Pink Embroidered Cotton Kurta Pant Set with Bird Motif & Tassels – ₹1,599 / $48: https://bahekurtiz.com/products/baby-pink-bird-embroidered-cotton-kurta-pant-set/
+- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
+- Pankhuri – Rose Pink Hand Block Print Cotton Kurta Pant Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/rose-pink-hand-block-print-cotton-kurta-pant-kota-doria-dupatta-set/
+- Kokila – Baby Pink Embroidered Cotton Kurta Pant Set with Bird Motif & Tassels – ₹2,599 / $63: https://bahekurtiz.com/products/baby-pink-bird-embroidered-cotton-kurta-pant-set/
 India: order by 23 Dec · USA, UK, Canada, UAE & Australia: order by 16 Dec (free shipping, duties paid)
 Free custom fit – send your bust, waist and hip and we stitch to your measurements.
 👉 https://bahekurtiz.com/festival/lohri/
@@ -69,9 +69,9 @@ Hi {{ contact.FIRSTNAME | default : "there" }},
 Lohri is on Wednesday, 13 January. Bright Punjabi colours with warm layers for the bonfire night.
 
 Three styles we would pick:
-- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
-- Pankhuri – Rose Pink Hand Block Print Cotton Kurta Pant Set with Kota Doria Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/rose-pink-hand-block-print-cotton-kurta-pant-kota-doria-dupatta-set/
-- Kokila – Baby Pink Embroidered Cotton Kurta Pant Set with Bird Motif & Tassels – ₹1,599 / $48: https://bahekurtiz.com/products/baby-pink-bird-embroidered-cotton-kurta-pant-set/
+- Swarna – Mustard Floral Print Cotton Anarkali Suit Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/mustard-floral-print-cotton-anarkali-suit-set-kota-doria-dupatta/
+- Pankhuri – Rose Pink Hand Block Print Cotton Kurta Pant Set with Kota Doria Dupatta – ₹2,999 / $67: https://bahekurtiz.com/products/rose-pink-hand-block-print-cotton-kurta-pant-kota-doria-dupatta-set/
+- Kokila – Baby Pink Embroidered Cotton Kurta Pant Set with Bird Motif & Tassels – ₹2,599 / $63: https://bahekurtiz.com/products/baby-pink-bird-embroidered-cotton-kurta-pant-set/
 
 **When to order:** India: order by 23 Dec · USA, UK, Canada, UAE & Australia: order by 16 Dec (free shipping, duties paid)
 

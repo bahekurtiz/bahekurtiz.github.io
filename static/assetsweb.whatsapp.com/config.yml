@@ -166,6 +166,6 @@ collections:
               - { name: video, label: "रील का वीडियो (mp4, optional)", widget: file, required: false, media_folder: /static/media/reels, public_folder: /media/reels }
               - { name: cover, label: "कवर फ़ोटो (वीडियो न हो तो ज़रूरी)", widget: image, required: false, media_folder: /static/media/reels, public_folder: /media/reels }
               - { name: link, label: "Instagram / Facebook रील का लिंक", widget: string, required: false }
-              - { name: caption, label: "छोटी लाइन (जैसे: Rani Pink Kurti ₹599)", widget: string, required: false }
+              - { name: caption, label: "छोटी लाइन (जैसे: Rani Pink Kurti ₹1,599)", widget: string, required: false }
           - { name: currency, label: "Currency", widget: hidden, default: INR }
           - { name: github_repo, label: "GitHub repo", widget: hidden }
