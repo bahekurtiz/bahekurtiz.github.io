@@ -1482,7 +1482,9 @@ for (const a of autoPages) {
 for (const c of categories) {
   const fb = uniq(c.items.map((p) => p.fabric)).slice(0, 4), pw = uniq(c.items.flatMap((p) => p.print_work)).slice(0, 4);
   c.seoText = catSeo[c.name] || `Shop ${c.plural.toLowerCase()} for women by ${brand}, made in our own unit in Sanganer, Jaipur${pw.length ? ` – ${pw.join(", ").toLowerCase()}` : ""}${fb.length ? ` in ${fb.join(", ").toLowerCase()}` : ""}. Secure prepaid payment, shipping across India${intlOn ? " and worldwide" : ""}. Boutiques and brands can also order ${c.plural.toLowerCase()} in wholesale or under their own private label.`;
-  listing({ file: c.url + "index.html", pathname: c.url, h1: c.plural, intro: `${c.items.length} styles`, seo: c.seoText, items: c.items, links: autoPages.filter((x) => x.cat === c).sort((a, b) => b.items.length - a.items.length).slice(0, 12).map((x) => [x.label, x.url]), crumbs: `<a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span>`,
+  // Kurtis page also lists the short kurtis (category "Tunic") – they are kurtis too, and 3 styles alone made a thin page (SEO audit 26 Nov)
+  const shown = c.name === "Kurti" ? [...c.items, ...products.filter((p) => p.category === "Tunic")] : c.items;
+  listing({ file: c.url + "index.html", pathname: c.url, h1: c.plural, intro: c.name === "Kurti" && shown.length > c.items.length ? `${shown.length} styles – long kurtis and short kurtis (tunic tops)` : `${shown.length} styles`, seo: c.seoText, items: shown, links: autoPages.filter((x) => x.cat === c).sort((a, b) => b.items.length - a.items.length).slice(0, 12).map((x) => [x.label, x.url]), crumbs: `<a href="${u("shop/")}">Shop</a> / <span>${esc(c.plural)}</span>`,
     title: `${c.plural} for Women – Made in Jaipur | ${brand}`, description: `Shop ${c.plural.toLowerCase()} for women by ${brand}, Jaipur. Handcrafted designs, secure online payment and ${intlOn ? "worldwide shipping" : "pan-India delivery"}.` });
 }
 
