@@ -3,7 +3,7 @@
  *
  * Saves order STATUS + COURIER + TRACKING to your Google Sheet and answers with a real
  * success / error, so the owner dashboard can show exactly what happened.
- * Also answers the customer "Track your order" page (order number + last 4 phone digits)
+ * Also answers the customer "Track your order" page (order number + email, or the last 4 phone digits)
  * and runs the on-site Help Center (tickets + replies in a "Help" tab of the same Sheet).
  *
  * It works next to your existing Sheet script – it does NOT replace it.
@@ -16,34 +16,74 @@
  *
  * No secrets live in this file. Safe to keep in the public repo.
  */
-var VERSION = 3; // 2 = Help Center (Help tab) · 3 = Payments + Abandoned tabs (server-verified payments)
+var VERSION = 4; // 2 = Help Center (Help tab) · 3 = Payments + Abandoned tabs (server-verified payments) · 4 = Track by order number + email, Payments tab too, full courier list + 17TRACK
 
 // ---- courier → OFFICIAL tracking link (same list as the website dashboard). {n} = number in the link; without {n} = the courier's official tracking page ----
 var COURIERS = {
-  "ShipGlobal": "https://shipglobal.in/tracking/",
-  "DTDC": "https://www.dtdc.com/",
   "Delhivery": "https://www.delhivery.com/track-v2/package/{n}",
   "Blue Dart": "https://www.bluedart.com/web/guest/trackdartresultthirdparty?trackFor=0&trackNo={n}",
-  "India Post (Speed Post)": "https://www.indiapost.gov.in/",
-  "Ecom Express": "https://www.ecomexpress.in/",
+  "DTDC": "https://www.dtdc.com/track-your-shipment/",
+  "India Post (Speed Post)": "https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx",
+  "Ecom Express": "https://www.ecomexpress.in/tracking/?awb_field={n}",
   "Xpressbees": "https://www.xpressbees.com/shipment/tracking?awbNo={n}",
-  "Shiprocket": "https://shiprocket.co/tracking/{n}",
   "Ekart": "https://ekartlogistics.com/shipmenttrack/{n}",
+  "Shadowfax": "https://www.shadowfax.in/",
+  "Shiprocket": "https://shiprocket.co/tracking/{n}",
+  "Gati": "https://www.gati.com/track-by-docket/",
+  "Trackon": "https://trackon.in/",
+  "The Professional Couriers": "https://www.tpcindia.com/",
+  "ST Courier": "https://stcourier.com/track/shipment",
+  "Shree Maruti Courier": "https://www.shreemaruti.com/",
+  "Shree Anjani Courier": "https://www.shreeanjanicourier.com/",
+  "Shree Mahavir Courier": "https://www.shreemahavircourier.com/",
+  "Sky King / Skyking": "https://www.skyking.co/",
+  "Smartr Logistics": "https://smartr.in/",
+  "Safexpress": "https://www.safexpress.com/",
+  "VRL Logistics": "https://www.vrlgroup.in/",
+  "TCI Express": "https://www.tciexpress.in/",
+  "DotZot": "https://www.dotzot.in/",
+  "Overnite Express": "https://www.overnitenet.com/",
+  "Madhur Couriers": "https://www.madhurcouriers.in/",
+  "Shree Tirupati Courier": "https://www.shreetirupaticourier.net/",
+  "Shree Nandan Courier": "https://www.nandancourier.com/",
+  "ShipGlobal": "https://shipglobal.in/tracking/",
+  "Shipyaari": "https://www.shipyaari.com/",
+  "NimbusPost": "https://nimbuspost.com/",
+  "iThink Logistics": "https://www.ithinklogistics.com/",
   "DHL Express": "https://www.dhl.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id={n}",
   "FedEx": "https://www.fedex.com/fedextrack/?trknbr={n}",
   "UPS": "https://www.ups.com/track?tracknum={n}",
   "Aramex": "https://www.aramex.com/us/en/track/results?ShipmentNumber={n}",
+  "TNT": "https://www.tnt.com/express/en_gc/site/shipping-tools/tracking.html?searchType=con&cons={n}",
+  "DPD": "https://www.dpd.com/",
+  "GLS": "https://gls-group.com/",
+  "SkyNet Worldwide Express": "https://www.skynetworldwide.com/",
+  "Bombino Express": "https://www.bombinoexp.com/",
+  "Atlantic International Express": "https://www.atlanticcourier.net/",
   "USPS (USA)": "https://tools.usps.com/go/TrackConfirmAction?tLabels={n}",
   "Royal Mail (UK)": "https://www.royalmail.com/track-your-item#/tracking-results/{n}",
   "Parcelforce (UK)": "https://www.parcelforce.com/track-trace?trackNumber={n}",
+  "Evri (UK)": "https://www.evri.com/track/parcel/{n}",
   "Canada Post": "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={n}",
+  "Purolator (Canada)": "https://www.purolator.com/en/shipping/tracker?pin={n}",
   "Australia Post": "https://auspost.com.au/mypost/track/details/{n}",
+  "NZ Post": "https://www.nzpost.co.nz/tools/tracking/item/{n}",
   "Pos Malaysia": "https://www.pos.com.my/",
   "SingPost": "https://www.singpost.com/track-items",
+  "Ninja Van": "https://www.ninjavan.co/en-sg/tracking?id={n}",
   "Emirates Post": "https://www.emiratespost.ae/",
+  "Deutsche Post / DHL Paket": "https://www.dhl.de/en/privatkunden/pakete-empfangen/verfolgen.html?piececode={n}",
+  "Colissimo (France)": "https://www.laposte.fr/outils/suivre-vos-envois?code={n}",
+  "Chronopost (France)": "https://www.chronopost.fr/tracking-no-cms/suivi-page?listeNumerosLT={n}",
+  "PostNL": "https://www.postnl.nl/en/",
   "Japan Post": "https://trackings.post.japanpost.jp/services/srv/search/direct?searchKind=S004&locale=en&reqCodeNo1={n}",
-  "Deutsche Post / DHL Paket": "https://www.dhl.de/en/privatkunden/pakete-empfangen/verfolgen.html?piececode={n}"
+  "Yamato Transport (Japan)": "https://toi.kuronekoyamato.co.jp/cgi-bin/tneko",
+  "Korea Post": "https://service.epost.go.kr/trace.RetrieveEmsRigiTraceList.comm?POST_CODE={n}",
+  "China Post / EMS": "https://www.ems.com.cn/",
+  "Russian Post": "https://www.pochta.ru/tracking#{n}"
 };
+var COURIER_GROUP = {"Delhivery": "India", "Blue Dart": "India", "DTDC": "India", "India Post (Speed Post)": "India", "Ecom Express": "India", "Xpressbees": "India", "Ekart": "India", "Shadowfax": "India", "Shiprocket": "India", "Gati": "India", "Trackon": "India", "The Professional Couriers": "India", "ST Courier": "India", "Shree Maruti Courier": "India", "Shree Anjani Courier": "India", "Shree Mahavir Courier": "India", "Sky King / Skyking": "India", "Smartr Logistics": "India", "Safexpress": "India", "VRL Logistics": "India", "TCI Express": "India", "DotZot": "India", "Overnite Express": "India", "Madhur Couriers": "India", "Shree Tirupati Courier": "India", "Shree Nandan Courier": "India", "ShipGlobal": "India", "Shipyaari": "India", "NimbusPost": "India", "iThink Logistics": "India", "DHL Express": "International", "FedEx": "International", "UPS": "International", "Aramex": "International", "TNT": "International", "DPD": "International", "GLS": "International", "SkyNet Worldwide Express": "International", "Bombino Express": "International", "Atlantic International Express": "International", "USPS (USA)": "International", "Royal Mail (UK)": "International", "Parcelforce (UK)": "International", "Evri (UK)": "International", "Canada Post": "International", "Purolator (Canada)": "International", "Australia Post": "International", "NZ Post": "International", "Pos Malaysia": "International", "SingPost": "International", "Ninja Van": "International", "Emirates Post": "International", "Deutsche Post / DHL Paket": "International", "Colissimo (France)": "International", "Chronopost (France)": "International", "PostNL": "International", "Japan Post": "International", "Yamato Transport (Japan)": "International", "Korea Post": "International", "China Post / EMS": "International", "Russian Post": "International"};
+var TRACK17 = "https://t.17track.net/en#nums={n}";
 function trackingUrl(courier, num, given) {
   var t = COURIERS[courier];
   if (t && num) return t.indexOf('{n}') >= 0 ? t.replace('{n}', encodeURIComponent(num)) : t;
@@ -127,11 +167,17 @@ function doGet(e) {
       }
       return out({ ok: true, orders: res, payments: payments() });
     }
-    if (a === 'track') {
-      var f2 = findOrder(String(p.ref || '').toUpperCase()); if (!f2) return out({ ok: false, error: 'not_found' });
-      var o = read(f2), ph = String(o.phone).replace(/\D/g, ''), last4 = String(p.ph || '').replace(/\D/g, '').slice(-4);
-      if (!last4 || last4.length < 4 || ph.slice(-4) !== last4) return out({ ok: false, error: 'not_found' });
-      return out({ ok: true, ref: o.ref, status: o.status, courier: o.courier, tracking: o.tracking, tracking_url: o.tracking_url, updated: o.updated, day: o.day, note: o.note });
+    if (a === 'track') { // customer Track page: order number + email (or the last 4 phone digits); finds every paid order – Orders tab and Payments tab
+      var ref = String(p.ref || '').trim().toUpperCase(), em = String(p.email || '').trim().toLowerCase(), last4 = String(p.ph || '').replace(/\D/g, '').slice(-4);
+      if (!ref || (!em && last4.length < 4)) return out({ ok: false, error: 'not_found' });
+      var pays = payments(), pay = pays[ref] || pays[String(p.ref || '').trim()] || null;
+      var f2 = findOrder(ref) || findOrder(String(p.ref || '').trim()), o = f2 ? read(f2) : null;
+      var known = []; if (o && o.email) known.push(String(o.email).trim().toLowerCase()); if (pay && pay.email) known.push(pay.email);
+      var okEm = !!em && known.indexOf(em) >= 0, okPh = last4.length === 4 && !!o && String(o.phone).replace(/\D/g, '').slice(-4) === last4;
+      if (!okEm && !okPh) return out({ ok: false, error: 'not_found' });
+      if (!o) { if (!pay || !pay.ok) return out({ ok: false, error: 'not_found' }); return out({ ok: true, ref: ref, status: 'Paid', day: pay.at, updated: pay.at, courier: '', tracking: '', tracking_url: '', track17: '' }); }
+      var turl = o.tracking_url || trackingUrl(o.courier, o.tracking, '');
+      return out({ ok: true, ref: o.ref, status: o.status || (pay && pay.ok ? 'Paid' : ''), courier: o.courier, tracking: o.tracking, tracking_url: turl, track17: o.tracking ? TRACK17.replace('{n}', encodeURIComponent(o.tracking)) : '', group: COURIER_GROUP[o.courier] || '', updated: o.updated, day: o.day, note: o.note, country: o.country });
     }
     return out({ ok: false, error: 'action' });
   } catch (err) { return out({ ok: false, error: 'server', detail: String(err).slice(0, 200) }); }
@@ -247,7 +293,7 @@ function tab(name, head) { var b = book(), sh = b.getSheetByName(name); if (!sh)
 function serverOk(k) { var want = String(props().getProperty('SERVER_KEY') || ''); return want.length >= 16 && String(k || '') === want; }
 function payments() { // ref → latest record
   var sh = book().getSheetByName('Payments'); if (!sh) return {}; var v = sh.getDataRange().getValues(), m = {};
-  for (var r = 1; r < v.length; r++) { var ref = String(v[r][0]).trim(); if (!ref) continue; m[ref] = { ok: String(v[r][1]) === 'Yes', method: String(v[r][2]), id: String(v[r][3]), amount: v[r][4], currency: String(v[r][5]), at: fmt(v[r][8]), note: String(v[r][9]) }; }
+  for (var r = 1; r < v.length; r++) { var ref = String(v[r][0]).trim(); if (!ref) continue; m[ref] = { ok: String(v[r][1]) === 'Yes', method: String(v[r][2]), id: String(v[r][3]), amount: v[r][4], currency: String(v[r][5]), at: fmt(v[r][8]), note: String(v[r][9]), email: String(v[r][7] || '').trim().toLowerCase() }; }
   return m;
 }
 function addPayment(rec) { tab('Payments', PAY_HEAD).appendRow([rec.ref, rec.ok ? 'Yes' : 'No', rec.method || '', "'" + (rec.id || ''), rec.amount || '', rec.currency || '', rec.name || '', rec.email || '', new Date(), rec.note || '']); }

@@ -50,9 +50,22 @@ Code: is folder ki file `orders-api.gs`.
 2. Field **"Orders API – Web App लिंक"** mein Step 4 wala URL paste karo → **Publish**.
 3. 2–3 minute baad (Cloudflare deploy) dashboard kholo → kisi order ka status badlo → "✅ Saved in Google Sheet" dikhna chahiye.
 
-**Check karne ka aasaan tareeka:** browser mein `<Web app URL>?action=ping` kholo → `{"ok":true,"app":"bk-orders-api","version":2,"owner_key_set":true,"sheet_id_set":true}` dikhna chahiye. `owner_key_set` ya `sheet_id_set` false ho to Step 3 dobara dekho.
+**Check karne ka aasaan tareeka:** browser mein `<Web app URL>?action=ping` kholo → `{"ok":true,"app":"bk-orders-api","version":4,"owner_key_set":true,"sheet_id_set":true}` dikhna chahiye. `owner_key_set` ya `sheet_id_set` false ho to Step 3 dobara dekho.
 
 ---
+
+## Version 4 (26 Nov 2026) – Track page: order number + email, Payments tab, 61 couriers + 17TRACK
+
+Kya badla: customer ab **order number + email** (ya phone ke last 4 digits) se order track kar sakta hai – purane orders bhi, aur woh orders bhi jo sirf **Payments** tab mein hain. Courier list 61 companies ki ho gayi (India + International), har tracking ke saath **17TRACK** link.
+
+Kaise lagayein (5 minute):
+1. GitHub par `apps-script/orders-api.gs` kholo → **Raw** → poora code copy karo.
+2. https://script.google.com par apna **Bahe Orders API** project kholo → `Code.gs` ka poora purana code hata kar naya paste karo → **Save** (💾).
+3. **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**. (URL wahi rahega, website mein kuch nahi badalna.)
+4. Check: browser mein `<Web app URL>?action=ping` kholo → `"version":4` dikhna chahiye.
+5. Test: `<Web app URL>?action=track&ref=BK261028-IAMO&email=<us order ka email>` kholo → `"ok":true` aur status dikhna chahiye.
+
+Courier list badalni ho to: `content/couriers.json` badlo → `node scripts/sync-couriers.mjs` chalao → upar wale steps se naya version deploy karo.
 
 ## Baad mein code update karna (naya version) – URL wahi rahega
 Jab bhi `orders-api.gs` GitHub par badle:
