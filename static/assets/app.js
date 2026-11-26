@@ -1010,12 +1010,12 @@
     const steps = [
       { k: "occ", q: "What is the occasion?", opts: () => (BK.occasions?.length ? BK.occasions : ["Daily", "Office", "Festive"]).concat(["Anything"]) },
       { k: "fab", q: "Which fabric do you like?", opts: () => (BK.fabrics?.length ? BK.fabrics : ["Cotton", "Rayon"]).slice(0, 8).concat(["Any fabric"]) },
-      { k: "bud", q: "Your budget?", opts: () => (isUSD() ? ["Under $20", "$20–40", "$40+", "Any budget"] : ["Under ₹999", "₹1,000–1,999", "₹2,000+", "Any budget"]) },
+      { k: "bud", q: "Your budget?", opts: () => (isUSD() ? ["Under $50", "$50–70", "$70+", "Any budget"] : ["Under ₹2,000", "₹2,000–3,499", "₹3,500+", "Any budget"]) },
     ];
     const show = async (n) => {
       if (n < steps.length) { const st = steps[n]; fb.innerHTML = `<p class="eyebrow">Step ${n + 1} of 3</p><h2>${esc(st.q)}</h2><div class="finder-opts">${st.opts().map((o) => `<button class="pill" type="button" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div>`; $$("[data-o]", fb).forEach((b) => b.onclick = () => { ans[st.k] = b.dataset.o; show(n + 1); }); return; }
       const cat = await catalog().catch(() => null); if (!cat) { fb.innerHTML = "<p>Please check your internet and try again.</p>"; return; }
-      const inBud = (p) => { const v = isUSD() ? p.price_usd : p.price; if (v == null) return false; const b = ans.bud || ""; if (/Any/.test(b)) return true; if (isUSD()) return /Under/.test(b) ? v < 20 : /20/.test(b) && /40/.test(b) ? v >= 20 && v <= 40 : v > 40; return /Under/.test(b) ? v < 1000 : /1,000/.test(b) ? v >= 1000 && v < 2000 : v >= 2000; };
+      const inBud = (p) => { const v = isUSD() ? p.price_usd : p.price; if (v == null) return false; const b = ans.bud || ""; if (/Any/.test(b)) return true; if (isUSD()) return /Under/.test(b) ? v < 50 : /–/.test(b) ? v >= 50 && v <= 70 : v > 70; return /Under/.test(b) ? v < 2000 : /–/.test(b) ? v >= 2000 && v < 3500 : v >= 3500; };
       let hits = Object.entries(cat.products).filter(([, p]) => (/Anything/.test(ans.occ) || (p.occ || []).includes(ans.occ)) && (/Any fabric/.test(ans.fab) || p.fabric === ans.fab) && inBud(p));
       let note = ""; if (!hits.length) { hits = Object.entries(cat.products).filter(([, p]) => inBud(p)); note = `<p class="muted">No exact match yet – here are styles in your budget.</p>`; }
       fb.innerHTML = `<p class="eyebrow">Your picks</p><h2>${hits.length} styles for you</h2>${note}<div class="grid finder-grid">${hits.slice(0, 12).map(([k, p]) => miniCard(k, p)).join("")}</div><button class="btn btn-ghost" type="button" data-f-again>Start again</button>`;
