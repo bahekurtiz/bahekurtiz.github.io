@@ -1682,3 +1682,6 @@ body.is-b2b .card-ship,body.is-b2b .cart-welcome,body.is-b2b .cart-perks{display
 .pdp-price .sale-x{font-size:.95rem}.pdp-price .sale-x .sale-fin{font-size:1.3rem}
 .sale-note{display:block;font-weight:400;font-size:.75rem;color:var(--sale)}
 .post-pic{margin:22px auto;max-width:360px;text-align:center}.post-pic img{width:100%;height:auto;aspect-ratio:2/3;object-fit:cover;border-radius:var(--r,6px)}.post-pic figcaption{font-size:.85rem;color:var(--muted);margin-top:6px}
+/* dead-click fixes (Clarity, 26 Nov): text people tap now does something */
+.sz-lbl,.fit-line[data-open-size]{cursor:pointer}.fit-line[data-open-size]{text-decoration:underline dotted;text-underline-offset:3px}
+.post-body figure img,.post-cover{cursor:zoom-in}

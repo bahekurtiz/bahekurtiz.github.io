@@ -654,7 +654,7 @@
 
   // ---------- size chart ----------
   const sm = $("[data-size-modal]");
-  $$("[data-open-size]").forEach((b) => b.addEventListener("click", () => { if (sm?.showModal) sm.showModal(); }));
+  $$("[data-open-size]").forEach((b) => { b.addEventListener("click", () => { if (sm?.showModal) sm.showModal(); }); if (b.tagName !== "BUTTON") b.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && sm?.showModal) { e.preventDefault(); sm.showModal(); } }); });
   $$("[data-close-size]").forEach((b) => b.addEventListener("click", () => sm?.close()));
   sm?.addEventListener("click", (e) => { if (e.target === sm) sm.close(); });
 
@@ -1278,7 +1278,8 @@
     out.innerHTML = `<div class="track-card"><p><b>Thank you! ✓</b> ${type === "review" ? "Your review will appear after we check it." : "We have your request and will reply on WhatsApp within 1–2 working days."}</p>${BK.wa && type !== "review" ? `<a class="btn btn-wa" href="https://wa.me/${BK.wa}?text=${encodeURIComponent(`Return/exchange request ${d.ref_order}: ${d.want} – ${d.items || ""}`)}" target="_blank" rel="noopener">Also send on WhatsApp</a>` : ""}</div>`; }));
 
   // ---------- image zoom (tap a product photo) ----------
-  $$(".gallery img").forEach((im) => im.addEventListener("click", () => { let d = $("[data-zoom]"); if (!d) { d = document.createElement("dialog"); d.className = "zoom-dlg"; d.dataset.zoom = ""; d.innerHTML = `<button type="button" class="icon-btn zoom-x" aria-label="Close">✕</button><div class="zoom-wrap"><img alt=""></div>`; document.body.appendChild(d); d.addEventListener("click", (e) => { if (e.target.closest(".zoom-x") || e.target === d) d.close(); }); $(".zoom-wrap img", d).addEventListener("click", (e) => e.currentTarget.classList.toggle("big")); }
+  // product photos + photos inside guides (Clarity dead clicks, 26 Nov)
+  $$(".gallery img, .post-body figure:not(.post-pic) img, img.post-cover").forEach((im) => im.addEventListener("click", () => { let d = $("[data-zoom]"); if (!d) { d = document.createElement("dialog"); d.className = "zoom-dlg"; d.dataset.zoom = ""; d.innerHTML = `<button type="button" class="icon-btn zoom-x" aria-label="Close">✕</button><div class="zoom-wrap"><img alt=""></div>`; document.body.appendChild(d); d.addEventListener("click", (e) => { if (e.target.closest(".zoom-x") || e.target === d) d.close(); }); $(".zoom-wrap img", d).addEventListener("click", (e) => e.currentTarget.classList.toggle("big")); }
     const z = $(".zoom-wrap img", d); z.classList.remove("big"); z.src = (im.srcset ? im.srcset.split(",").pop().trim().split(" ")[0] : "") || im.currentSrc || im.src; z.alt = im.alt; d.showModal(); }));
 
   // ---------- speed: Instagram reels load only on tap; hover photo only on mouse devices ----------
