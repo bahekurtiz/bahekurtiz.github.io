@@ -1685,3 +1685,4 @@ body.is-b2b .card-ship,body.is-b2b .cart-welcome,body.is-b2b .cart-perks{display
 /* dead-click fixes (Clarity, 26 Nov): text people tap now does something */
 .sz-lbl,.fit-line[data-open-size]{cursor:pointer}.fit-line[data-open-size]{text-decoration:underline dotted;text-underline-offset:3px}
 .post-body figure img,.post-cover{cursor:zoom-in}
+.trk-tl{margin-top:1rem}.trk-ev{list-style:none;margin:.75rem 0;padding:0 0 0 1.1rem;border-left:2px solid var(--line,#e5e0d8)}.trk-ev li{position:relative;padding:.1rem 0 .9rem .6rem;display:flex;flex-direction:column;gap:.1rem}.trk-ev li::before{content:"";position:absolute;left:-1.55rem;top:.35rem;width:.7rem;height:.7rem;border-radius:50%;background:var(--line,#d8d2c8)}.trk-ev li.now::before{background:var(--brand,#0e6b5c)}.trk-t{font-size:.8rem;color:var(--muted,#6b6b6b)}.trk-d{font-weight:500}.trk-l{font-size:.85rem}

@@ -1253,10 +1253,18 @@
   }
 
   // ---------- order tracking + service forms (Google Sheet) ----------
-  // live tracking for 3,600+ couriers worldwide (17TRACK widget, loaded only when a number is tracked)
-  const live17 = (num, id) => { const go = () => { try { window.YQV5.trackSingle({ YQ_ContainerId: id, YQ_Height: 560, YQ_Fc: "0", YQ_Lang: "en", YQ_Num: String(num).trim() }); } catch {} };
+  // live tracking for 3,600+ couriers worldwide: our own /api/track-live (17TRACK API) drawn in our design; 17TRACK widget/link only as a fallback
+  const ST17 = { InfoReceived: "Label created", InTransit: "In transit", PickedUp: "Picked up", OutForDelivery: "Out for delivery", AvailableForPickup: "Ready for pickup", Delivered: "Delivered ✅", DeliveryFailure: "Delivery attempt failed", Exception: "Courier exception – we are checking", Expired: "No recent update", NotFound: "Waiting for the first courier scan" };
+  const w17 = (num, id) => { const go = () => { try { window.YQV5.trackSingle({ YQ_ContainerId: id, YQ_Height: 560, YQ_Fc: "0", YQ_Lang: "en", YQ_Num: String(num).trim() }); } catch {} };
     if (window.YQV5) return go(); const s = document.createElement("script"); s.src = "https://www.17track.net/externalcall.js"; s.async = true; s.onload = go; s.onerror = () => { const b = document.getElementById(id); if (b) b.innerHTML = `<p class="muted small"><a class="link" href="https://t.17track.net/en#nums=${encodeURIComponent(num)}" target="_blank" rel="noopener">Open live tracking →</a></p>`; }; document.head.appendChild(s); };
-  const tn = $("[data-trk-num]"); if (tn) tn.addEventListener("submit", (e) => { e.preventDefault(); const n = tn.num.value.trim(); if (n.length < 5) { tn.num.focus(); return; } const b = $("[data-trk-num-out]"); b.innerHTML = `<div id="trk-live-n"></div>`; live17(n, "trk-live-n"); });
+  const fdt = (s) => { const d = new Date(s); return isNaN(d) ? esc(String(s || "")) : d.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); };
+  const live17 = async (num, id, pc) => { const box = document.getElementById(id); if (!box) return; box.innerHTML = `<p class="muted small">Getting live courier updates…</p>`;
+    try { const r = await (await fetch(url("api/track-live") + "?num=" + encodeURIComponent(num) + (pc ? "&pc=" + encodeURIComponent(pc) : ""))).json();
+      if (r.ok && r.events && r.events.length) { box.innerHTML = `<div class="trk-tl"><p><b>${esc(ST17[r.status] || r.status || "Tracking")}</b>${r.carrier ? ` · <span class="muted">${esc(r.carrier)}</span>` : ""}</p><ol class="trk-ev">${r.events.slice(0, 40).map((e, k) => `<li class="${k ? "" : "now"}"><span class="trk-t">${fdt(e.t)}</span><span class="trk-d">${esc(e.desc)}</span>${e.loc ? `<span class="trk-l muted">${esc(e.loc)}</span>` : ""}</li>`).join("")}</ol><p class="muted small">Live from the courier · updated every 20 minutes · <a class="link" href="https://t.17track.net/en#nums=${encodeURIComponent(num)}" target="_blank" rel="noopener">full details</a></p></div>`; return; }
+      if (r.ok && r.pending) { box.innerHTML = `<p class="muted small">The courier has not shared any scans for this number yet. The first scan can take up to 24 hours after pickup – please check again later. <a class="link" href="https://t.17track.net/en#nums=${encodeURIComponent(num)}" target="_blank" rel="noopener">Check on 17TRACK →</a></p>`; return; }
+    } catch {}
+    w17(num, id); };
+  const tn = $("[data-trk-num]"); if (tn) tn.addEventListener("submit", (e) => { e.preventDefault(); const n = tn.num.value.trim(); if (n.length < 5) { tn.num.focus(); return; } const b = $("[data-trk-num-out]"); b.innerHTML = `<div id="trk-live-n"></div>`; live17(n, "trk-live-n", tn.pc ? tn.pc.value.trim() : ""); });
   const tf = $("[data-track-form]");
   if (tf) { const out = $("[data-track-out]"); try { const q = new URLSearchParams(location.search); if (q.get("ref")) tf.ref.value = q.get("ref"); } catch {}
     tf.addEventListener("submit", async (e) => { e.preventDefault(); const ref = tf.ref.value.trim().toUpperCase(), who = tf.ph.value.trim(), isEm = /@/.test(who), ph = who.replace(/\D/g, "").slice(-4);
