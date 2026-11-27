@@ -3570,7 +3570,13 @@ ${items.join("\n")}
   // dress-code cards as pins (reach, 27 Nov 2026): one pin per card → /wedding-guest-dress-codes/#<card>
   const dcPins = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/dress-codes.json"), "utf8")).cards || []; } catch { return []; } })().map((c) => { const pr = products.find((x) => x.slug === c.product); if (!pr || !pr.images[0]) return "";
     return item({ title: `${c.name.replace(/(^|[\s(\/])(\w)/g, (m, x, y) => x + y.toUpperCase())} Guest Dress Code: What to Wear & What to Avoid`, url: `${SITE_URL}/wedding-guest-dress-codes/#${c.id}`, desc: `What to wear to a ${c.name.toLowerCase()} as a guest: ${c.wear}. Colours: ${c.colours}. Avoid: ${c.avoid}. Tip: ${c.tip}.`, img: pr.images[1] || pr.images[0], date: "2026-11-28" }); }).filter(Boolean);
-  fs.writeFileSync(path.join(OUT, "feeds/pinterest-guides.xml"), rss(`${brand} – Style guides`, SITE_URL + "/blog/", "Indian wedding guest outfit guides and Jaipur craft guides", [...pinGuides, ...dcPins]));
+  // extra guide pins (reach, 28 Nov 2026): each in-text product photo of a guide becomes its own pin titled with the guide's
+  // question + the piece, linking to the guide (#look-N). One new pin per guide every 4 days from 28 Nov (only dates that have come).
+  const guideExtra = posts.flatMap((b) => { const imgs = [...String(b.body || "").matchAll(/\[!\[([^\]]*)\]\((\/images\/[^)\s]+)\)\]\(\/products\/([a-z0-9-]+)\/\)/g)].map((m) => ({ img: m[2], slug: m[3] })).filter((x) => x.img !== b.cover).slice(0, 3);
+    const start = b.date > "2026-11-28" ? b.date : "2026-11-28";
+    return imgs.map((x, k) => { const date = dPlus(start, 4 * (k + 1)); if (date > TODAY_IST) return ""; const pr = products.find((q) => q.slug === x.slug); if (!pr) return "";
+      return item({ title: `${pr.title.split(" with ")[0].split(" for Women")[0]} | From our guide: ${String(b.title).split(":")[0].split(" (")[0]}`, url: `${SITE_URL}/${b.url}#look-${k + 2}`, desc: `${b.seo_description || b.excerpt || b.title} Featured: ${pr.title} – handmade in our Jaipur unit, sizes ${pr.sizes[0] || "XS"}–${pr.sizes[pr.sizes.length - 1] || "3XL"} or free custom fit.`, img: x.img, date }); }).filter(Boolean); });
+  fs.writeFileSync(path.join(OUT, "feeds/pinterest-guides.xml"), rss(`${brand} – Style guides`, SITE_URL + "/blog/", "Indian wedding guest outfit guides and Jaipur craft guides", [...pinGuides, ...dcPins, ...guideExtra]));
 }
 fs.writeFileSync(path.join(OUT, "blog/feed.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>${esc(brand)} Blog</title><link>${SITE_URL}/blog/</link><description>${esc(S.tagline || "")}</description><atom:link href="${SITE_URL}/blog/feed.xml" rel="self" type="application/rss+xml"/><lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
