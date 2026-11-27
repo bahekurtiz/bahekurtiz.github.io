@@ -12,6 +12,22 @@
    "markets": "all"
   },
   {
+   "id": "destination-wedding",
+   "name": "Destination wedding outfits (Goa, Udaipur, Jaipur)",
+   "pattern": "destination|\\bgoa\\b|udaipur",
+   "owner": "/blog/destination-wedding-outfits-goa-udaipur-jaipur/",
+   "intent": "guide",
+   "markets": "IN AE UK US"
+  },
+  {
+   "id": "hindi-wedding",
+   "name": "शादी के लिए सूट (Hindi / Hinglish)",
+   "pattern": "[\\u0900-\\u097f]|lehenge|lehenga ka|shaadi|shadi",
+   "owner": "/hi/shadi-ke-liye-suit/",
+   "intent": "intl",
+   "markets": "IN"
+  },
+  {
    "id": "tamil-wedding",
    "name": "Tamil wedding guest outfit",
    "pattern": "tamil",
@@ -1670,6 +1686,85 @@
    ]
   },
   {
+   "id": "hindi-wedding",
+   "name": "शादी के लिए सूट (Hindi / Hinglish)",
+   "pattern": "[\\u0900-\\u097f]|lehenge|lehenga ka|shaadi|shadi",
+   "owner": "/hi/shadi-ke-liye-suit/",
+   "intent": "intl",
+   "markets": "IN",
+   "owner_exists": true,
+   "impressions": 76,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 4.3,
+   "status": "page 1",
+   "owner_share": 0.0,
+   "cannibalisation": [
+    {
+     "page": "/blog/velvet-anarkali-for-winter-weddings-how-to-choose-style-and-care/",
+     "share": 0.42
+    },
+    {
+     "page": "/indian-wedding-guest-outfits/",
+     "share": 0.39
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "India": 192
+   },
+   "top_queries": [
+    {
+     "q": "लहंगे का बजट नहीं है, इन्हीं में से बेस्ट फ्रेंड की शादी के लिए सेलेब वाला लुक बनाओ",
+     "impressions": 48,
+     "position": 4.1
+    },
+    {
+     "q": "lehenge ka budget nahi hai, inhi mein se best friend ki shaadi ke liye celeb wala look banao.",
+     "impressions": 16,
+     "position": 5.5
+    },
+    {
+     "q": "shaadi ke liye",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "shadi ke liye",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "फ़ोटो में दिखाओ।",
+     "impressions": 2,
+     "position": 3.0
+    },
+    {
+     "q": "बहे",
+     "impressions": 2,
+     "position": 2.5
+    },
+    {
+     "q": "शादी के लिए",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "सूट बताइए",
+     "impressions": 2,
+     "position": 1.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 4.3,
+     "impressions": 76,
+     "clicks": 0
+    }
+   ]
+  },
+  {
    "id": "mehndi",
    "name": "Mehndi outfits for guests",
    "pattern": "mehndi|mehendi|henna party",
@@ -3089,6 +3184,51 @@
    ]
   },
   {
+   "id": "destination-wedding",
+   "name": "Destination wedding outfits (Goa, Udaipur, Jaipur)",
+   "pattern": "destination|\\bgoa\\b|udaipur",
+   "owner": "/blog/destination-wedding-outfits-goa-udaipur-jaipur/",
+   "intent": "guide",
+   "markets": "IN AE UK US",
+   "owner_exists": true,
+   "impressions": 20,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 15.3,
+   "status": "page 2",
+   "owner_share": 0.5,
+   "cannibalisation": [
+    {
+     "page": "/indian-wedding-guest-outfits/",
+     "share": 0.4
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "India": 48
+   },
+   "top_queries": [
+    {
+     "q": "didi ki destination wedding ke liye kaise outfits khareedun?",
+     "impressions": 16,
+     "position": 2.5
+    },
+    {
+     "q": "what to wear for a wedding in goa",
+     "impressions": 4,
+     "position": 66.5
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 15.3,
+     "impressions": 20,
+     "clicks": 0
+    }
+   ]
+  },
+  {
    "id": "engagement",
    "name": "Roka / engagement outfit",
    "pattern": "roka|engagement",
@@ -3932,18 +4072,6 @@
  ],
  "unassigned_top": [
   {
-   "q": "लहंगे का बजट नहीं है, इन्हीं में से बेस्ट फ्रेंड की शादी के लिए सेलेब वाला लुक बनाओ",
-   "impressions": 48
-  },
-  {
-   "q": "didi ki destination wedding ke liye kaise outfits khareedun?",
-   "impressions": 16
-  },
-  {
-   "q": "lehenge ka budget nahi hai, inhi mein se best friend ki shaadi ke liye celeb wala look banao.",
-   "impressions": 16
-  },
-  {
    "q": "bhajan jamming outfit ideas",
    "impressions": 8
   },
@@ -3957,10 +4085,6 @@
   },
   {
    "q": "jam silk",
-   "impressions": 4
-  },
-  {
-   "q": "what to wear for a wedding in goa",
    "impressions": 4
   },
   {
@@ -4029,6 +4153,22 @@
   },
   {
    "q": "g",
+   "impressions": 2
+  },
+  {
+   "q": "girl",
+   "impressions": 2
+  },
+  {
+   "q": "give me in image",
+   "impressions": 2
+  },
+  {
+   "q": "give me some pic",
+   "impressions": 2
+  },
+  {
+   "q": "give more ideas",
    "impressions": 2
   }
  ]
