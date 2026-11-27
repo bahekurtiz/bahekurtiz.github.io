@@ -73,7 +73,7 @@
     "2027-02": [2, 3, 9, 10, 14, 15, 25, 26, 27, 28]
   },
   "pages": {
-    "christmas-new-year": {
+    "christmas-new-year": { "post_match": "christmas|new year|holiday party",
       "h1": "Indian Outfits for Christmas & New Year's Eve",
       "title": "Christmas Ethnic Wear for Women – Indian Outfits {year}",
       "description": "Our Christmas ethnic wear collection: velvet Anarkalis, red and green suits and black-and-gold sets for Christmas and New Year's Eve, with last order dates.",
@@ -93,7 +93,7 @@
         ]
       }
     },
-    "lohri": {
+    "lohri": { "post_match": "lohri",
       "h1": "Lohri Outfits for Women",
       "title": "Lohri Outfits {year}: Punjabi Suits – Canada, UK & India",
       "description": "Punjabi suits, kurta sets and Anarkalis for Lohri in Canada, the UK and India – mustard, red and rani pink, warm layers for the bonfire, last order dates.",
@@ -113,7 +113,7 @@
         ]
       }
     },
-    "pongal-makar-sankranti": {
+    "pongal-makar-sankranti": { "post_match": "pongal|sankranti",
       "h1": "Pongal & Makar Sankranti Outfits",
       "title": "Pongal & Makar Sankranti Outfits for Women {year}",
       "description": "Yellow, green and festive cotton kurta sets and Anarkalis for Pongal, Makar Sankranti and Uttarayan – plus last order dates for India and abroad.",
