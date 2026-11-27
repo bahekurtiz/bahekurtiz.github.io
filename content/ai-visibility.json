@@ -1,0 +1,196 @@
+{
+ "_help": "20 real questions (Search Console queries + buying intents) checked every Monday in a web search that AI assistants use (ChatGPT/Copilot read Bing-type indexes). found = bahekurtiz.com appears in the results or the answer. Add the week's result to 'history' – never guess.",
+ "questions": [
+  {
+   "q": "best handmade kurta set from Jaipur",
+   "our_page": "/hand-block-print-kurta-sets/"
+  },
+  {
+   "q": "where to buy hand block print kurta sets online USA",
+   "our_page": "/indian-clothes-online-uk-canada-australia-uae/"
+  },
+  {
+   "q": "Jaipur block print kurta online",
+   "our_page": "/hand-block-print-kurta-sets/"
+  },
+  {
+   "q": "Anarkali suits online with free shipping to USA",
+   "our_page": "/collections/anarkali-suits/"
+  },
+  {
+   "q": "what to wear to a Tamil wedding as a guest",
+   "our_page": "/blog/what-to-wear-to-a-tamil-wedding-as-a-guest/"
+  },
+  {
+   "q": "what to wear to a Bengali wedding as a female guest",
+   "our_page": "/blog/what-to-wear-to-a-bengali-wedding-as-a-guest/"
+  },
+  {
+   "q": "best fabrics cotton chiffon georgette suits summer",
+   "our_page": "/blog/georgette-vs-chiffon-vs-organza/"
+  },
+  {
+   "q": "which anarkali suit styles suit tall women best",
+   "our_page": "/blog/indian-wedding-guest-outfits-for-tall-women/"
+  },
+  {
+   "q": "what anarkali suit fabric works best for winter weddings",
+   "our_page": "/blog/velvet-anarkali-for-winter-weddings-how-to-choose-style-and-care/"
+  },
+  {
+   "q": "custom stitched salwar kameez online made to measure",
+   "our_page": "/custom-stitched-indian-suits-made-to-measure/"
+  },
+  {
+   "q": "plus size Indian wedding guest dresses",
+   "our_page": "/blog/plus-size-indian-wedding-guest-outfits/"
+  },
+  {
+   "q": "linen vs cotton dresses which is better for hot weather",
+   "our_page": "/blog/linen-vs-cotton-dresses-which-is-better-for-hot-weather/"
+  },
+  {
+   "q": "hand block print kurti manufacturer Jaipur",
+   "our_page": "/hand-block-print-kurti-manufacturer-jaipur/"
+  },
+  {
+   "q": "private label kurti manufacturer India small MOQ",
+   "our_page": "/private-label-kurti-manufacturer-india/"
+  },
+  {
+   "q": "what to wear to a Bangladeshi wedding as a guest",
+   "our_page": "/blog/what-to-wear-to-a-bangladeshi-wedding-as-a-guest/"
+  },
+  {
+   "q": "what jewellery to wear with an anarkali",
+   "our_page": "/blog/jewellery-to-wear-with-an-anarkali/"
+  },
+  {
+   "q": "buy Indian clothes online Australia free shipping duties paid",
+   "our_page": "/indian-clothes-online-uk-canada-australia-uae/"
+  },
+  {
+   "q": "velvet anarkali suit for winter wedding buy online UK",
+   "our_page": "/collections/anarkali-suits/"
+  },
+  {
+   "q": "Bahe Kurtiz",
+   "our_page": "/"
+  },
+  {
+   "q": "what to wear to a Punjabi wedding as a guest",
+   "our_page": "/blog/what-to-wear-to-a-punjabi-wedding-as-a-guest/"
+  }
+ ],
+ "history": [
+  {
+   "date": "2026-11-27",
+   "tool": "web search (US index) used by AI assistants",
+   "found": 0,
+   "of": 20,
+   "note": "Even the brand query 'Bahe Kurtiz' does not return bahekurtiz.com – the site is not in this index yet. Fix: Bing Webmaster Tools (import from Search Console + submit sitemap); IndexNow already pings Bing on each deploy.",
+   "results": [
+    {
+     "q": "best handmade kurta set from Jaipur",
+     "found": false,
+     "shown_instead": "Aza Fashions blog, Pernia's, The Jaipur Studio"
+    },
+    {
+     "q": "where to buy hand block print kurta sets online USA",
+     "found": false,
+     "shown_instead": "Anita Dongre US, Aza, Kalki"
+    },
+    {
+     "q": "Jaipur block print kurta online",
+     "found": false,
+     "shown_instead": "Gulabo Jaipur, iTokri, Gulbhahar, Aza"
+    },
+    {
+     "q": "Anarkali suits online with free shipping to USA",
+     "found": false,
+     "shown_instead": "Fabricoz, Kaash, Walmart, Etsy, Biba"
+    },
+    {
+     "q": "what to wear to a Tamil wedding as a guest",
+     "found": false,
+     "shown_instead": "Aza, Zola, HuffPost, David's Bridal"
+    },
+    {
+     "q": "what to wear to a Bengali wedding as a female guest",
+     "found": false,
+     "shown_instead": "The Knot, Aza, Manyavar, Who What Wear"
+    },
+    {
+     "q": "best fabrics cotton chiffon georgette suits summer",
+     "found": false,
+     "shown_instead": "Nykaa, Aza, Bullion Knot"
+    },
+    {
+     "q": "which anarkali suit styles suit tall women best",
+     "found": false,
+     "shown_instead": "Libas, Lashkaraa, Hansh Couture, Hatkay"
+    },
+    {
+     "q": "what anarkali suit fabric works best for winter weddings",
+     "found": false,
+     "shown_instead": "Libas, Aza, House of Indya"
+    },
+    {
+     "q": "custom stitched salwar kameez online made to measure",
+     "found": false,
+     "shown_instead": "Utsav Fashion, Shobitam, Exotic India"
+    },
+    {
+     "q": "plus size Indian wedding guest dresses",
+     "found": false,
+     "shown_instead": "Aza, House of Indya, Gulbhahar, Hatkay"
+    },
+    {
+     "q": "linen vs cotton dresses which is better for hot weather",
+     "found": false,
+     "shown_instead": "Aza, brand blogs"
+    },
+    {
+     "q": "hand block print kurti manufacturer Jaipur",
+     "found": false,
+     "shown_instead": "IndiaMART, textileinfomedia listings"
+    },
+    {
+     "q": "private label kurti manufacturer India small MOQ",
+     "found": false,
+     "shown_instead": "Alibaba, IndiaMART, fibre2fashion, Globallinker"
+    },
+    {
+     "q": "what to wear to a Bangladeshi wedding as a guest",
+     "found": false,
+     "shown_instead": "Daily Star, Asia News Network, Remitly"
+    },
+    {
+     "q": "what jewellery to wear with an anarkali",
+     "found": false,
+     "shown_instead": "Tanishq, Tyaani, Boldsky"
+    },
+    {
+     "q": "buy Indian clothes online Australia free shipping duties paid",
+     "found": false,
+     "shown_instead": "House of Indya, Pernia's, Shoppre"
+    },
+    {
+     "q": "velvet anarkali suit for winter wedding buy online UK",
+     "found": false,
+     "shown_instead": "House of Indya UK, Kalki UK, Libas"
+    },
+    {
+     "q": "Bahe Kurtiz",
+     "found": false,
+     "shown_instead": "site not found at all – results show Tuncel Kurtiz (Turkish actor)"
+    },
+    {
+     "q": "what to wear to a Punjabi wedding as a guest",
+     "found": false,
+     "shown_instead": "Aza, Lashkaraa, WeddingWire"
+    }
+   ]
+  }
+ ]
+}
