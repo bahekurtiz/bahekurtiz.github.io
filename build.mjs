@@ -3565,7 +3565,10 @@ ${items.join("\n")}
     const img = b.cover || rp?.images[0]; if (!img) return "";
     return item({ title: b.seo_title || b.title, url: `${SITE_URL}/${b.url}`, desc: b.seo_description || b.excerpt || b.title, img, date: b.date });
   }).filter(Boolean);
-  fs.writeFileSync(path.join(OUT, "feeds/pinterest-guides.xml"), rss(`${brand} – Style guides`, SITE_URL + "/blog/", "Indian wedding guest outfit guides and Jaipur craft guides", pinGuides));
+  // dress-code cards as pins (reach, 27 Nov 2026): one pin per card → /wedding-guest-dress-codes/#<card>
+  const dcPins = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/dress-codes.json"), "utf8")).cards || []; } catch { return []; } })().map((c) => { const pr = products.find((x) => x.slug === c.product); if (!pr || !pr.images[0]) return "";
+    return item({ title: `${c.name.replace(/(^|[\s(\/])(\w)/g, (m, x, y) => x + y.toUpperCase())} Guest Dress Code: What to Wear & What to Avoid`, url: `${SITE_URL}/wedding-guest-dress-codes/#${c.id}`, desc: `What to wear to a ${c.name.toLowerCase()} as a guest: ${c.wear}. Colours: ${c.colours}. Avoid: ${c.avoid}. Tip: ${c.tip}.`, img: pr.images[1] || pr.images[0], date: "2026-11-28" }); }).filter(Boolean);
+  fs.writeFileSync(path.join(OUT, "feeds/pinterest-guides.xml"), rss(`${brand} – Style guides`, SITE_URL + "/blog/", "Indian wedding guest outfit guides and Jaipur craft guides", [...pinGuides, ...dcPins]));
 }
 fs.writeFileSync(path.join(OUT, "blog/feed.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>${esc(brand)} Blog</title><link>${SITE_URL}/blog/</link><description>${esc(S.tagline || "")}</description><atom:link href="${SITE_URL}/blog/feed.xml" rel="self" type="application/rss+xml"/><lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
