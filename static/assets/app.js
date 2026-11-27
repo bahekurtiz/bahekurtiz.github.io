@@ -1253,6 +1253,10 @@
   }
 
   // ---------- order tracking + service forms (Google Sheet) ----------
+  // live tracking for 3,600+ couriers worldwide (17TRACK widget, loaded only when a number is tracked)
+  const live17 = (num, id) => { const go = () => { try { window.YQV5.trackSingle({ YQ_ContainerId: id, YQ_Height: 560, YQ_Fc: "0", YQ_Lang: "en", YQ_Num: String(num).trim() }); } catch {} };
+    if (window.YQV5) return go(); const s = document.createElement("script"); s.src = "https://www.17track.net/externalcall.js"; s.async = true; s.onload = go; s.onerror = () => { const b = document.getElementById(id); if (b) b.innerHTML = `<p class="muted small"><a class="link" href="https://t.17track.net/en#nums=${encodeURIComponent(num)}" target="_blank" rel="noopener">Open live tracking →</a></p>`; }; document.head.appendChild(s); };
+  const tn = $("[data-trk-num]"); if (tn) tn.addEventListener("submit", (e) => { e.preventDefault(); const n = tn.num.value.trim(); if (n.length < 5) { tn.num.focus(); return; } const b = $("[data-trk-num-out]"); b.innerHTML = `<div id="trk-live-n"></div>`; live17(n, "trk-live-n"); });
   const tf = $("[data-track-form]");
   if (tf) { const out = $("[data-track-out]"); try { const q = new URLSearchParams(location.search); if (q.get("ref")) tf.ref.value = q.get("ref"); } catch {}
     tf.addEventListener("submit", async (e) => { e.preventDefault(); const ref = tf.ref.value.trim().toUpperCase(), who = tf.ph.value.trim(), isEm = /@/.test(who), ph = who.replace(/\D/g, "").slice(-4);
@@ -1268,6 +1272,7 @@
           ${r.courier || r.tracking ? `<div class="track-courier"><p><b>Courier:</b> ${esc(r.courier || "–")}</p>${r.tracking ? `<p><b>Tracking number:</b> <code data-trk>${esc(r.tracking)}</code> <button class="btn btn-ghost btn-sm" type="button" data-copy-trk>Copy</button></p>` : ""}<div class="track-links">${/^https:\/\//.test(r.tracking_url || "") ? `<a class="btn btn-sm" href="${esc(r.tracking_url)}" target="_blank" rel="noopener">Track on ${esc(r.courier || "courier")} →</a>` : ""}${t17 ? `<a class="btn btn-ghost btn-sm" href="${esc(t17)}" target="_blank" rel="noopener">Track on 17TRACK →</a>` : ""}</div>${r.tracking ? `<p class="muted small">The first scan can take up to 24 hours to appear.</p>` : ""}</div>` : (i >= 0 && i < 3 ? `<p class="muted small">You will get the courier and tracking number by email as soon as it ships.</p>` : "")}
           ${/^delivered$/i.test(st) ? `<div class="track-review"><p><b>Delivered 💚</b> We hope you love it! If you have a minute, an honest review helps a small Jaipur studio a lot.</p><a class="btn" href="${url("review/")}?ref=${encodeURIComponent(r.ref || ref)}">⭐ Leave a review</a></div>` : ""}
           ${help ? `<p class="small"><a class="link" href="${help}" target="_blank" rel="noopener">💬 Questions? WhatsApp us about this order</a></p>` : ""}</div>`;
+        if (r.tracking) { out.insertAdjacentHTML("beforeend", `<div class="trk-live"><h2 class="h3">Live courier updates</h2><div id="trk-live-o"></div></div>`); live17(r.tracking, "trk-live-o"); }
         const cb = $("[data-copy-trk]", out); if (cb) cb.addEventListener("click", async () => { try { await navigator.clipboard.writeText(r.tracking); cb.textContent = "Copied ✓"; } catch { cb.textContent = "Select & copy"; } });
       } catch { out.innerHTML = `<p class="paused-note">Tracking is not reachable right now. Please try again or WhatsApp us.</p>`; } }); }
   try { const q0 = new URLSearchParams(location.search).get("ref"); if (q0) $$("form[data-svc] [name=ref_order]").forEach((i) => { if (!i.value) i.value = q0.slice(0, 24); }); } catch {}
