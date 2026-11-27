@@ -545,7 +545,7 @@ ${S.pinterest_verification ? `<meta name="p:domain_verify" content="${esc(S.pint
 ${trackHead}
 <meta property="og:site_name" content="${esc(brand)}"><meta property="og:type" content="${type}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}">
-${og}${(pathname || "") === "" && LOGO_SQ ? `<meta property="og:logo" content="${esc(abs(LOGO_SQ))}">` : ""}<meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(abs(image || S.hero_image || "images/site/hero.jpg"))}">
+${og}${(pathname || "") === "" && LOGO_SQ ? `<meta property="og:logo" content="${esc(abs(LOGO_SQ))}">` : ""}<meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(abs(image || S.hero_image || "images/site/hero.jpg"))}">${(() => { const d = imgDims(image || S.hero_image || "images/site/hero.jpg"); return d ? `<meta property="og:image:width" content="${d[0]}"><meta property="og:image:height" content="${d[1]}">` : ""; })()}<meta property="og:image:alt" content="${esc(String(title || brand).replace(/ \| .*$/, ""))}">
 <meta property="og:locale" content="en_IN"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0e5b59">
 ${favImg ? `<link rel="icon" href="${esc(u(favImg))}" type="image/png" sizes="96x96">${LOGO_SQ ? `<link rel="icon" href="${esc(u(LOGO_SQ))}" type="image/png" sizes="512x512">` : ""}<link rel="apple-touch-icon" sizes="180x180" href="${esc(fs.existsSync(path.join(ROOT, "static/apple-touch-icon.png")) ? u("apple-touch-icon.png") : u(fs.existsSync(path.join(ROOT, "static/images/_r/site/favicon-180.png")) && /favicon-96\.png$/.test(favImg) ? "/images/_r/site/favicon-180.png" : favImg))}">` : `<link rel="icon" href="${u("favicon.ico")}" sizes="48x48">`}
@@ -849,6 +849,18 @@ const lcpPreload = (html) => {
   return html.replace(/<link rel="stylesheet" href="[^"]*assets\/style\.css/, (x) => link + "\n" + x);
 };
 const REMOVED = new Set(["mirror/index.html", "studio/index.html", "print-kundli/index.html"]); // features switched off
+// image width/height from the file header (WebP / PNG / JPEG) – for og:image:width/height (Discover, social previews); cached
+const IMG_DIMS = new Map();
+function imgDims(src) { try { let rel = decodeURI(String(src || "")).replace(/^https?:\/\/[^/]+/, "").replace(/^\//, ""); if (!rel) return null; if (IMG_DIMS.has(rel)) return IMG_DIMS.get(rel);
+  const f = path.join(ROOT, "static", rel); let out = null;
+  if (fs.existsSync(f)) { const b = Buffer.alloc(64); const fd = fs.openSync(f, "r"); fs.readSync(fd, b, 0, 64, 0); fs.closeSync(fd);
+    if (b.toString("ascii", 0, 4) === "RIFF" && b.toString("ascii", 8, 12) === "WEBP") { const k = b.toString("ascii", 12, 16);
+      if (k === "VP8X") out = [1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3)];
+      else if (k === "VP8 ") out = [b.readUInt16LE(26) & 0x3fff, b.readUInt16LE(28) & 0x3fff];
+      else if (k === "VP8L") { const n = b.readUInt32LE(21); out = [(n & 0x3fff) + 1, ((n >> 14) & 0x3fff) + 1]; } }
+    else if (b.readUInt32BE(0) === 0x89504e47) out = [b.readUInt32BE(16), b.readUInt32BE(20)];
+    else if (b[0] === 0xff && b[1] === 0xd8) { const buf = fs.readFileSync(f); let i = 2; while (i < buf.length) { if (buf[i] !== 0xff) break; const m = buf[i + 1], len = buf.readUInt16BE(i + 2); if (m >= 0xc0 && m <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(m)) { out = [buf.readUInt16BE(i + 7), buf.readUInt16BE(i + 5)]; break; } i += 2 + len; } } }
+  if (out && !(out[0] > 0 && out[1] > 0)) out = null; IMG_DIMS.set(rel, out); return out; } catch { return null; } }
 const add = (file, html) => { if (!REMOVED.has(file)) pages.push([file, lcpPreload(withSrcset(html))]); };
 
 // ---------- automatic weekly banner + "Trending this week" strip ----------
