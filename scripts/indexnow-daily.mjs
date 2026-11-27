@@ -19,7 +19,12 @@ try {
   const list = (all ? entries : entries.filter((e) => e.lm && e.lm >= since)).map((e) => e.loc).slice(0, 10000);
   console.log(`IndexNow: ${entries.length} sitemap URLs, sending ${list.length} (${all ? "all – weekly full ping" : "changed since " + since})`);
   if (!list.length) process.exit(0);
-  const r = await fetch("https://api.indexnow.org/indexnow", { method: "POST", headers: { "content-type": "application/json; charset=utf-8" }, body: JSON.stringify({ host: new URL(SITE_URL).host, key, keyLocation: `${SITE_URL}/${key}.txt`, urlList: list }) });
-  console.log(`IndexNow → ${r.status} ${r.status === 200 || r.status === 202 ? "accepted" : await r.text()}`);
-  if (![200, 202].includes(r.status)) process.exit(1);
+  const kr = await fetch(`${SITE_URL}/${key}.txt`, { headers: { "user-agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)" } });
+  console.log(`key file as bingbot: ${kr.status} ${kr.headers.get("content-type")} cf-mitigated=${kr.headers.get("cf-mitigated") || "-"} server=${kr.headers.get("server")}`);
+  const body = JSON.stringify({ host: new URL(SITE_URL).host, key, keyLocation: `${SITE_URL}/${key}.txt`, urlList: list });
+  let ok = 0; // each search engine shares IndexNow pings with the others – one acceptance is enough
+  for (const ep of ["https://api.indexnow.org/indexnow", "https://www.bing.com/indexnow", "https://yandex.com/indexnow"]) {
+    try { const r = await fetch(ep, { method: "POST", headers: { "content-type": "application/json; charset=utf-8" }, body }); const t = [200, 202].includes(r.status) ? "accepted" : (await r.text()).slice(0, 200); console.log(`${ep} → ${r.status} ${t}`); if ([200, 202].includes(r.status)) ok++; } catch (e) { console.log(`${ep} → ${e.message}`); }
+  }
+  if (!ok) process.exit(1);
 } catch (e) { console.error("IndexNow failed:", e.message); process.exit(1); }
