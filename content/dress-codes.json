@@ -1,0 +1,165 @@
+{
+ "_help": "Shareable 'Indian wedding guest dress code' cards (owner 27 Nov 2026 – reach). One card per community or function; every line comes from the quick answer of the linked guide – change the guide and this card together. product = a live product slug whose photo is shown.",
+ "cards": [
+  {
+   "id": "tamil",
+   "name": "Tamil wedding",
+   "wear": "Silk saree (Kanjivaram) or a silk-look kurta set / Anarkali; men: kurta or veshti",
+   "colours": "Mustard, magenta, emerald, maroon, peacock blue",
+   "avoid": "All black, plain white",
+   "tip": "The muhurtham is early in the morning – shoulders covered, jasmine in your hair",
+   "guide": "blog/what-to-wear-to-a-tamil-wedding-as-a-guest/",
+   "product": "coral-pink-chanderi-hand-embroidered-kurta-pant-dupatta-set"
+  },
+  {
+   "id": "bengali",
+   "name": "Bengali wedding",
+   "wear": "Silk saree, a rich Anarkali or an embroidered kurta set",
+   "colours": "Emerald, royal blue, magenta, purple, mustard",
+   "avoid": "Head-to-toe red (the bride's colour), plain white",
+   "tip": "The main wedding is usually in the evening – a little shine works",
+   "guide": "blog/what-to-wear-to-a-bengali-wedding-as-a-guest/",
+   "product": "royal-blue-georgette-anarkali-suit-gota-handwork-dupatta"
+  },
+  {
+   "id": "bangladeshi",
+   "name": "Bangladeshi wedding",
+   "wear": "Saree, salwar kameez, Anarkali or sharara, arms and shoulders covered",
+   "colours": "Yellow, orange or green for the gaye holud; jewel tones for the biye",
+   "avoid": "Bridal red, plain white, all black at the main ceremony",
+   "tip": "Carry a dupatta or scarf if the nikah is in a mosque",
+   "guide": "blog/what-to-wear-to-a-bangladeshi-wedding-as-a-guest/",
+   "product": "sage-green-taffeta-silk-gota-work-anarkali-suit-set-with-sequin-organza-dupatta"
+  },
+  {
+   "id": "punjabi",
+   "name": "Punjabi wedding",
+   "wear": "Jewel-toned Anarkalis and embroidered kurta sets with a generous dupatta",
+   "colours": "Bright, festive jewel tones",
+   "avoid": "All black, stark white",
+   "tip": "Cover your head in the gurdwara and pick something you can dance in until midnight",
+   "guide": "blog/what-to-wear-to-a-punjabi-wedding-as-a-guest/",
+   "product": "magenta-georgette-angrakha-anarkali-suit-set-zardozi-handwork-dupatta"
+  },
+  {
+   "id": "sikh",
+   "name": "Sikh wedding (Anand Karaj)",
+   "wear": "A modest kurta set or salwar suit with a dupatta to cover the head",
+   "colours": "Soft or cheerful colours for the morning ceremony",
+   "avoid": "Short skirts, bare arms, uncovered hair inside the gurdwara",
+   "tip": "You will sit cross-legged on the floor – save the shine for the evening reception",
+   "guide": "blog/what-to-wear-to-a-sikh-anand-karaj-as-a-guest/",
+   "product": "off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set"
+  },
+  {
+   "id": "pakistani",
+   "name": "Pakistani wedding",
+   "wear": "Shalwar kameez, Anarkali frock, sharara or gharara with a dupatta",
+   "colours": "Yellow, green, orange for the mehndi; jewel tones for the baraat; pastels or rich evening colours for the walima",
+   "avoid": "Bridal red at the baraat",
+   "tip": "Keep arms and legs covered and carry your dupatta for the nikah",
+   "guide": "blog/what-to-wear-to-a-pakistani-wedding-as-a-guest/",
+   "product": "wine-velvet-anarkali-suit-set-organza-dupatta"
+  },
+  {
+   "id": "marathi",
+   "name": "Marathi wedding",
+   "wear": "Paithani or silk saree; or a chanderi kurta set, embroidered kurti or taffeta Anarkali",
+   "colours": "Green and yellow first; also pink, magenta, peacock blue, orange",
+   "avoid": "Black at the ceremony",
+   "tip": "Keep your hands free for the akshata (rice) and pin the dupatta to one shoulder",
+   "guide": "blog/what-to-wear-to-a-marathi-wedding-as-a-guest/",
+   "product": "green-embroidered-kurti"
+  },
+  {
+   "id": "gujarati",
+   "name": "Gujarati wedding",
+   "wear": "Flared Anarkali for garba, washable cotton for the pithi, a graceful kurta set or saree for the wedding day",
+   "colours": "Yellow or cheerful shades for the pithi",
+   "avoid": "Delicate silk or dry-clean-only pieces at the pithi",
+   "tip": "Drape the dupatta seedha-pallu style over the right shoulder on the wedding day",
+   "guide": "blog/what-to-wear-to-a-gujarati-wedding-as-a-guest/",
+   "product": "purple-bandhani-chiffon-anarkali-suit-set"
+  },
+  {
+   "id": "rajasthani",
+   "name": "Rajasthani / Marwari wedding",
+   "wear": "A flared georgette or chiffon Anarkali for ghoomar; a structured taffeta or gota suit for the pheras",
+   "colours": "Bright, bold colour with gota patti, bandhani or leheriya",
+   "avoid": "Pale beige and greige",
+   "tip": "Keep a dupatta handy to cover your head during rituals if the family does",
+   "guide": "blog/what-to-wear-to-a-rajasthani-marwari-wedding/",
+   "product": "lavender-taffeta-silk-gota-work-anarkali-suit-set-with-organza-dupatta"
+  },
+  {
+   "id": "kerala",
+   "name": "Kerala (Malayali) wedding",
+   "wear": "Cream kasavu saree with a gold border, set-mundu, silk saree – or a cream or pastel kurta set with gold detail",
+   "colours": "Cream and gold are traditional and welcome here",
+   "avoid": "All black, bare shoulders",
+   "tip": "The ceremony is short and in the morning, followed by a sadya feast",
+   "guide": "blog/what-to-wear-to-a-kerala-malayali-wedding-as-a-guest/",
+   "product": "off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set"
+  },
+  {
+   "id": "nepali",
+   "name": "Nepali wedding",
+   "wear": "Saree or kurta suruwal; Anarkali, lehenga or a festive gown for the reception",
+   "colours": "Pink, green, yellow, orange, maroon, royal blue",
+   "avoid": "Red (the bride's colour), all white, all black",
+   "tip": "Bright, happy colours are the norm",
+   "guide": "blog/what-to-wear-to-a-nepali-wedding-as-a-guest/",
+   "product": "magenta-georgette-angrakha-anarkali-suit-set-zardozi-handwork-dupatta"
+  },
+  {
+   "id": "mehndi",
+   "name": "Mehndi",
+   "wear": "Cotton or georgette kurta set, Anarkali, sharara set or a light lehenga",
+   "colours": "Yellow, green, orange, pink, mustard – bandhani, leheriya and block print",
+   "avoid": "Long tight sleeves (your henna needs to dry)",
+   "tip": "Choose something you can sit on the floor in",
+   "guide": "blog/what-to-wear-to-a-mehndi-as-a-guest/",
+   "product": "mint-green-hand-block-print-cotton-kurta-pant-dupatta-set-with-hand-work-yoke"
+  },
+  {
+   "id": "haldi",
+   "name": "Haldi",
+   "wear": "A bright, breathable, washable cotton kurta set",
+   "colours": "Yellow, mint, coral or florals",
+   "avoid": "Heavy embellishment and dry-clean-only fabric",
+   "tip": "It is daytime and messy with turmeric – comfort first",
+   "guide": "blog/haldi-outfit-ideas-for-guests/",
+   "product": "yellow-black-embroidered-cotton-tunic-top"
+  },
+  {
+   "id": "sangeet",
+   "name": "Sangeet",
+   "wear": "A flared Anarkali or gown, a light suit set, a sharara or a georgette lehenga",
+   "colours": "Rani pink, teal, royal blue, emerald, purple, wine, gold",
+   "avoid": "Bridal red (unless the couple asks), stiff heavy fabric",
+   "tip": "Block heels, wedges or juttis – you will dance for hours",
+   "guide": "blog/sangeet-outfit-ideas-for-guests/",
+   "product": "teal-bandhani-chiffon-anarkali-gown-with-belt"
+  },
+  {
+   "id": "reception",
+   "name": "Reception",
+   "wear": "A well-cut Anarkali or embroidered suit with one statement element",
+   "colours": "Refined colours with subtle shine",
+   "avoid": "Loud, over-busy looks",
+   "tip": "It is the most formal evening – graceful lines and polished accessories",
+   "guide": "blog/reception-outfit-ideas-for-women/",
+   "product": "wine-jam-silk-anarkali-suit-set-hand-embroidered-organza-cutwork-dupatta"
+  },
+  {
+   "id": "winter",
+   "name": "Winter wedding",
+   "wear": "A velvet Anarkali (dry clean only) with a light organza dupatta",
+   "colours": "Wine, plum, emerald, navy, black",
+   "avoid": "Thin summer fabric without a warm layer",
+   "tip": "For day functions, taffeta silk or a lined georgette Anarkali is lighter",
+   "guide": "blog/velvet-anarkali-for-winter-weddings-how-to-choose-style-and-care/",
+   "product": "black-velvet-anarkali-kurta-gold-brocade-palazzo-set"
+  }
+ ]
+}
