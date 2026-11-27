@@ -6,7 +6,7 @@
 
 - **Board:** Jaipur Block Print Kurta Sets
 - **Pin title:** Navy Blue Kota Doria Embroidered Kurta Pant Dupatta Set – Tara | Handmade in Jaipur
-- **Description:** Tara means “star” – white embroidery that shines on navy like stars in the night sky. Kota Doria, Embroidered. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: indian kurta sets online usa, ready to ship kurta sets, women's kurta set.
+- **Description:** Tara means “star” – white embroidery that shines on navy like stars in the night sky. Kota Doria, Embroidered. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: indian kurta sets online usa, women's kurta set, indian wedding guest.
 - **Link:** https://bahekurtiz.com/products/navy-blue-kota-doria-embroidered-kurta-pant-dupatta-set/
 - **Image:** https://bahekurtiz.com/images/products/v2/navy-blue-kota-doria-embroidered-kurta-pant-dupatta-set-1.webp (vertical 2:3 – already this size)
 - **Alt text:** Tara – Navy Blue Kota Doria Embroidered Kurta Pant Dupatta Set, Kota Doria, made in Jaipur by Bahe Kurtiz
@@ -33,7 +33,7 @@
 
 - **Board:** Jaipur Block Print Kurta Sets
 - **Pin title:** Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – Shubhra | Handmade i
-- **Description:** Shubhra means “pure white” – fresh off-white with soft embroidery, simple and serene. Cotton Flex, Embroidered, Thread Work. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: indian kurta sets online usa, ready to ship kurta sets, women's kurta set.
+- **Description:** Shubhra means “pure white” – fresh off-white with soft embroidery, simple and serene. Cotton Flex, Embroidered, Thread Work. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: indian kurta sets online usa, women's kurta set, indian wedding guest.
 - **Link:** https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
 - **Image:** https://bahekurtiz.com/images/products/v2/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set-1.webp (vertical 2:3 – already this size)
 - **Alt text:** Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta in Off White, Cotton Flex, made in Jaipur by Bahe Kurtiz
@@ -60,7 +60,7 @@
 
 - **Board:** Jaipur Block Print Kurta Sets
 - **Pin title:** Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – Gulnaz | Handmade i
-- **Description:** Gulnaz means “delicate as a rose” – soft peach pink with graceful embroidery. Cotton Flex, Embroidered, Thread Work. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: indian kurta sets online usa, ready to ship kurta sets, women's kurta set.
+- **Description:** Gulnaz means “delicate as a rose” – soft peach pink with graceful embroidery. Cotton Flex, Embroidered, Thread Work. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: indian kurta sets online usa, women's kurta set, indian wedding guest.
 - **Link:** https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
 - **Image:** https://bahekurtiz.com/images/products/v2/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set-1.webp (vertical 2:3 – already this size)
 - **Alt text:** Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta, Cotton Flex, made in Jaipur by Bahe Kurtiz

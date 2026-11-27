@@ -36,7 +36,7 @@ const fam = (p) => { const c = String(p.category || "").toLowerCase(), f = Strin
   return [/block/.test(w) ? "block-print" : "kurta-set", "kurta-set", "wedding-guest"]; };
 const realQ = (ids, p) => { const words = [String(p.category || "").toLowerCase().replace(/ set$| suit$/, ""), String(p.fabric || "").toLowerCase(), ...(p.print_work || []).map((w) => w.toLowerCase().split(" ")[0]), "kurta set", "kurti", "anarkali", "dress", "co-ord", "palazzo", "block print", "jaipur", "wedding guest", "tunic"].filter((w) => w && w.length > 2);
   const keep = (q) => words.some((w) => q.includes(w)) && (!/anarkali/.test(q) || /anarkali/i.test(p.category)) && (!/dress/.test(q) || /dress/i.test(p.category)) && (!/kurti|tunic/.test(q) || /kurti|tunic|top/i.test(p.category));
-  return [...new Set(ids.flatMap((id) => (KM.map.find((x) => x.id === id)?.top_queries || []).map((q) => q.q)))].filter((q) => q.length < 60 && !/[?]/.test(q) && !/^is it\b/.test(q) && keep(q)).slice(0, 4); };
+  return [...new Set(ids.flatMap((id) => (KM.map.find((x) => x.id === id)?.top_queries || []).map((q) => q.q)))].filter((q) => q.length < 60 && !/[?]/.test(q) && !/^is it\b/.test(q) && !/ready to ship|next day|same day|fast (delivery|shipping)|cheap|free gift/.test(q) && keep(q)).slice(0, 4); };
 const money = (p) => `₹${Number(p.price).toLocaleString("en-IN")}${p.ships_abroad && p.price_usd ? ` · US$${p.price_usd}` : ""}`;
 const plain = (s) => String(s || "").replace(/\s+/g, " ").trim();
 const firstLine = (p) => plain(String(p.description || "").split("\n").find((l) => l.trim() && !/^✦|^•/.test(l.trim())) || p.title);

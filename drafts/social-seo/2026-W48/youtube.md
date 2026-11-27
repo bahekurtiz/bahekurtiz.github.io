@@ -11,9 +11,9 @@
   Tara means “star” – white embroidery that shines on navy like stars in the night sky.
   Kota Doria · Embroidered · sizes XS–3XL + free custom fit · made in our Jaipur unit.
   Shop: https://bahekurtiz.com/products/navy-blue-kota-doria-embroidered-kurta-pant-dupatta-set/
-  Searches this answers: indian kurta sets online usa · ready to ship kurta sets · women's kurta set
+  Searches this answers: indian kurta sets online usa · women's kurta set · indian wedding guest
 
-- **Tags:** Bahe Kurtiz, Kurta Pant Dupatta Set, Kota Doria, Embroidered, Jaipur, Indian ethnic wear, indian kurta sets online usa, ready to ship kurta sets, women's kurta set, indian wedding guest
+- **Tags:** Bahe Kurtiz, Kurta Pant Dupatta Set, Kota Doria, Embroidered, Jaipur, Indian ethnic wear, indian kurta sets online usa, women's kurta set, indian wedding guest, indian wedding guest outfits
 
 ## Saanjh
 
@@ -50,9 +50,9 @@
   Shubhra means “pure white” – fresh off-white with soft embroidery, simple and serene.
   Cotton Flex · Embroidered · Thread Work · sizes XS–3XL + free custom fit · made in our Jaipur unit.
   Shop: https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-  Searches this answers: indian kurta sets online usa · ready to ship kurta sets · women's kurta set
+  Searches this answers: indian kurta sets online usa · women's kurta set · indian wedding guest
 
-- **Tags:** Bahe Kurtiz, Kurta Pant Dupatta Set, Cotton Flex, Embroidered, Thread Work, Jaipur, Indian ethnic wear, indian kurta sets online usa, ready to ship kurta sets, women's kurta set, indian wedding guest
+- **Tags:** Bahe Kurtiz, Kurta Pant Dupatta Set, Cotton Flex, Embroidered, Thread Work, Jaipur, Indian ethnic wear, indian kurta sets online usa, women's kurta set, indian wedding guest, indian wedding guest outfits
 
 ## Vanya
 
@@ -89,9 +89,9 @@
   Gulnaz means “delicate as a rose” – soft peach pink with graceful embroidery.
   Cotton Flex · Embroidered · Thread Work · sizes XS–3XL + free custom fit · made in our Jaipur unit.
   Shop: https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-  Searches this answers: indian kurta sets online usa · ready to ship kurta sets · women's kurta set
+  Searches this answers: indian kurta sets online usa · women's kurta set · indian wedding guest
 
-- **Tags:** Bahe Kurtiz, Kurta Pant Dupatta Set, Cotton Flex, Embroidered, Thread Work, Jaipur, Indian ethnic wear, indian kurta sets online usa, ready to ship kurta sets, women's kurta set, indian wedding guest
+- **Tags:** Bahe Kurtiz, Kurta Pant Dupatta Set, Cotton Flex, Embroidered, Thread Work, Jaipur, Indian ethnic wear, indian kurta sets online usa, women's kurta set, indian wedding guest, indian wedding guest outfits
 
 ## Chapters for a 60–90 second walkthrough video (any product above)
 

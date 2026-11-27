@@ -23,7 +23,7 @@ Tap the link in bio or DM "TARA" for your size 💬
 
 **Alt text (Instagram → Advanced settings → Accessibility):** Tara – Navy Blue Kota Doria Embroidered Kurta Pant Dupatta Set, Kota Doria, made in Jaipur by Bahe Kurtiz
 
-**Searchable words to keep in the first line** (real Google searches): indian kurta sets online usa · ready to ship kurta sets · women's kurta set · indian wedding guest
+**Searchable words to keep in the first line** (real Google searches): indian kurta sets online usa · women's kurta set · indian wedding guest · indian wedding guest outfits
 
 ---
 
@@ -98,7 +98,7 @@ Tap the link in bio or DM "SHUBHRA" for your size 💬
 
 **Alt text (Instagram → Advanced settings → Accessibility):** Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta in Off White, Cotton Flex, made in Jaipur by Bahe Kurtiz
 
-**Searchable words to keep in the first line** (real Google searches): indian kurta sets online usa · ready to ship kurta sets · women's kurta set · indian wedding guest
+**Searchable words to keep in the first line** (real Google searches): indian kurta sets online usa · women's kurta set · indian wedding guest · indian wedding guest outfits
 
 ---
 
@@ -173,7 +173,7 @@ Tap the link in bio or DM "GULNAZ" for your size 💬
 
 **Alt text (Instagram → Advanced settings → Accessibility):** Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta, Cotton Flex, made in Jaipur by Bahe Kurtiz
 
-**Searchable words to keep in the first line** (real Google searches): indian kurta sets online usa · ready to ship kurta sets · women's kurta set · indian wedding guest
+**Searchable words to keep in the first line** (real Google searches): indian kurta sets online usa · women's kurta set · indian wedding guest · indian wedding guest outfits
 
 ---
 
