@@ -3634,7 +3634,9 @@ console.log(`Built ${pages.length} pages, ${products.length} products, ${categor
 
 // ---------- IndexNow: tell Bing, Yandex, Seznam & Naver (and ChatGPT search, which uses Bing) about new/changed pages, on each live deploy ----------
 {
-  const key = [...(SITE_URL + "|bahe-indexnow")].reduce((h, c) => (h * 33 + c.charCodeAt(0)) >>> 0, 5381).toString(16).padStart(8, "0").repeat(4);
+  const key0 = [...(SITE_URL + "|bahe-indexnow")].reduce((h, c) => (h * 33 + c.charCodeAt(0)) >>> 0, 5381).toString(16).padStart(8, "0").repeat(4); // first key (Bing answered 403 for it)
+  fs.writeFileSync(path.join(OUT, key0 + ".txt"), key0);
+  const key = (() => { try { const k = fs.readFileSync(path.join(ROOT, "content/indexnow-key.txt"), "utf8").trim(); return /^[a-f0-9]{32}$/.test(k) ? k : key0; } catch { return key0; } })(); // current key (27 Nov 2026), also read by scripts/indexnow-daily.mjs
   fs.writeFileSync(path.join(OUT, key + ".txt"), key);
   const list = PREV_HASH ? CHANGED : urls;   // only pages that are new or changed since the live deploy
   console.log(`IndexNow: ${PREV_HASH ? `${CHANGED.length} new/changed of ${urls.length} pages` : `no previous manifest – all ${urls.length} pages`}`);

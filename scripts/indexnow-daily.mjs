@@ -6,7 +6,8 @@
 //   node scripts/indexnow-daily.mjs            (normal run)
 //   node scripts/indexnow-daily.mjs --all      (send every sitemap URL)
 const SITE_URL = "https://bahekurtiz.com";
-const key = [...(SITE_URL + "|bahe-indexnow")].reduce((h, c) => (h * 33 + c.charCodeAt(0)) >>> 0, 5381).toString(16).padStart(8, "0").repeat(4);
+import fs from "node:fs";
+const key = fs.readFileSync(new URL("../content/indexnow-key.txt", import.meta.url), "utf8").trim(); // same key build.mjs serves at /<key>.txt
 const ist = new Date(Date.now() + 5.5 * 36e5);
 const all = process.argv.includes("--all") || ist.getUTCDay() === 1;
 const since = new Date(ist.getTime() - 2 * 864e5).toISOString().slice(0, 10);
