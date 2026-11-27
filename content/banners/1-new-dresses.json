@@ -1,14 +1,14 @@
 {
   "title": "The Velvet Edit",
-  "image": "/images/banners/velvet-edit-tall.webp",
+  "image": "/images/banners/velvet-edit-clean.webp",
   "image_desktop": "",
-  "eyebrow": "Winter Weddings 2026",
-  "subtitle": "Rich velvet Anarkalis with lace, brocade and organza – stitched to your size.",
-  "button": "Shop Velvet",
+  "eyebrow": "Winter Weddings",
+  "subtitle": "Velvet Anarkalis finished with lace, brocade and organza – stitched to your size.",
+  "button": "Shop the Edit",
   "link": "craft/velvet/",
   "start": "",
   "end": "",
-  "image_has_text": true,
+  "image_has_text": false,
   "order": 0,
-  "active": true
+  "active": false
 }

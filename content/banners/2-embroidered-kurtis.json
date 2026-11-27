@@ -1,14 +1,14 @@
 {
-  "title": "Regal in Velvet",
-  "image": "/images/banners/black-velvet-tall.webp",
+  "title": "The Velvet Edit",
+  "image": "/images/banners/black-velvet-clean.webp",
   "image_desktop": "",
-  "eyebrow": "New · Black & Gold",
-  "subtitle": "Black velvet Anarkali with gold brocade palazzo and potli buttons.",
-  "button": "Shop the Look",
-  "link": "products/black-velvet-anarkali-kurta-gold-brocade-palazzo-set/",
+  "eyebrow": "Winter Weddings · Black & Gold",
+  "subtitle": "Velvet Anarkalis finished with brocade, lace and organza – stitched to your size.",
+  "button": "Shop Velvet",
+  "link": "craft/velvet/",
   "start": "",
   "end": "",
-  "image_has_text": true,
+  "image_has_text": false,
   "order": 1,
   "active": true
 }
