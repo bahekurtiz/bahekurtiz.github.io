@@ -6,6 +6,7 @@ Made by `node scripts/social-seo.mjs` (weekly routine). 7 products this week: Ta
 - pinterest.md – pin title, description, board, alt text
 - youtube.md – Shorts title, description, tags, chapters for a walkthrough video + one guide-video idea
 - ../tiktok/2026-W48.md – TikTok caption, on-screen text, words to say, hashtags, profile bio
+- reels-formats.md – one viral short-video format per product (hook, shots, audio idea, cover text) for Reels, TikTok and Shorts
 - profiles.md – name / bio / about with real keywords (update once, then only when it changes)
 
 Nothing is posted automatically. Post 3–4 a week; put the keyword words in the first line; always add the alt text.
