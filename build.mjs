@@ -3530,7 +3530,26 @@ ${items.join("\n")}
     const desc = `${pinKw}. ${plainTxt(p.description) || p.title}${craft ? ` ${craft}${p.fabric ? " on " + p.fabric.toLowerCase() : ""}.` : ""} Free custom fit, made in Jaipur, India. Free duties-paid shipping to the USA, UK, Canada, UAE & Australia.${p.price_usd ? ` $${p.price_usd}.` : ""}`;
     return item({ title: `${p.feed_title}${p.color && !p.feed_title.toLowerCase().includes(String(p.color_base || "").toLowerCase()) ? " – " + (p.color_base || p.color) : ""}`, url: `${SITE_URL}/${p.url}`, desc, img: p.images[0], date: p.launchDay || "" });
   });
-  fs.writeFileSync(path.join(OUT, "feeds/pinterest-products.xml"), rss(`${brand} – New arrivals`, SITE_URL + "/shop/", "Hand block print kurta sets, Anarkalis and co-ords from Jaipur", pinProducts));
+  // extra pins (owner 27 Nov 2026 – reach): photo 2–5 of every product as its own pin, each titled with a different real
+  // Search Console query for that kind of piece (content/keyword-map.json). One new extra pin per product every 3 days
+  // from 27 Nov 2026 (only pins whose date has come are in the feed), so Pinterest gets ~18 fresh pins a day. The first pin
+  // (guid = product URL) is unchanged; extra pins use url#look-N so Pinterest sees them as new items but no new URLs exist.
+  const PIN_START = "2026-11-27", KMQ = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/keyword-map.json"), "utf8")).map || []; } catch { return []; } })();
+  const famQ = (p) => { const c = String(p.category || "").toLowerCase(), f = String(p.fabric || "").toLowerCase();
+    const ids = /linen/.test(f) ? ["linen-dress", "maxi-dress"] : /dress/.test(c) ? ["maxi-dress", "linen-dress"] : /anarkali/.test(c) ? [/velvet/.test(f) ? "anarkali-winter" : "anarkali", "wedding-guest"] : /co-ord/.test(c) ? ["co-ord", "block-print"] : /palazzo/.test(c) ? ["kurta-palazzo", "block-print"] : /tunic|top/.test(c) ? ["tunic", "kurti"] : /kurti/.test(c) ? ["kurti"] : ["block-print", "kurta-set", "wedding-guest"];
+    const need = /dress/.test(c) ? /dress|linen|sundress|maxi|midi/ : /anarkali/.test(c) ? /anarkali|wedding|gota|velvet/ : /tunic|top/.test(c) ? /tunic|kurti|top/ : /kurti/.test(c) ? /kurti/ : /kurta|suit|block print|jaipur|wedding|co-?ord|palazzo/;
+    return [...new Set(ids.flatMap((id) => (KMQ.find((x) => x.id === id)?.top_queries || []).map((q) => q.q)))].filter((q) => q.length < 50 && need.test(q) && !/[?]|^(is|are|how|what|which|can|does|do|why|should)\b|ready to ship|next day|same day|fast|cheap|online usa$|\bsite\b|market|aesthetic|rope|\bpic|photo|image|pose|material|flipkart|amazon|myntra|meesho/.test(q) && q.trim().split(/\s+/).length >= 2 && facts(p, q)); };
+  // a query that names a fabric or craft is used only for a piece that really has it (no 'gota' title on a piece without gota)
+  const FACT_WORDS = ["gota", "velvet", "linen", "bandhani", "chanderi", "kota", "zardozi", "taffeta", "silk", "georgette", "chiffon", "organza", "block print", "ikat", "aari", "sequin", "mirror", "chikankari", "cotton", "yellow", "blue", "pink", "red", "green", "black", "white", "navy", "mustard", "peach", "purple", "lavender", "teal", "maroon", "wine", "beige", "grey", "orange", "magenta", "coral", "mint", "sage", "olive", "ivory", "cream", "violet", "salwar", "halter", "tie up", "side knot", "side tying", "knot", "sheer", "plus size", "maxi", "midi"];
+  function facts(p, q) { const have = [p.fabric, ...p.print_work, p.title, p.color, p.color_base, p.neckline, p.length_type].join(" ").toLowerCase().replace(/tie-up/g, "tie up") + (/tie-up|tie up/i.test(p.title) ? " side knot side tying knot" : ""); return FACT_WORDS.every((w) => !q.includes(w) || have.includes(w)); }
+  const tCase = (q) => q.replace(/(^|[\s-])(\w)/g, (m, a, c) => a + c.toUpperCase());
+  const extraPins = products.filter((p) => !p.coming && p.intl && p.images.length > 1).flatMap((p) => { const qs = famQ(p), start = p.launchDay && p.launchDay > PIN_START ? p.launchDay : PIN_START;
+    return p.images.slice(1, 5).map((img, k) => { const date = dPlus(start, 3 * (k + 1)); if (date > TODAY_IST) return "";
+      const q = qs[k % Math.max(1, qs.length)] || ""; const name = p.style_name && !String(p.feed_title).includes(p.style_name) ? `${p.style_name} – ` : "";
+      const title = q ? `${tCase(q)}: ${name}${p.feed_title}` : `${name}${p.feed_title} – look ${k + 2}`;
+      const desc = `${q ? tCase(q) + ". " : ""}${plainTxt(p.description) || p.title} Handmade in our Jaipur unit, sizes ${p.sizes[0] || "XS"}–${p.sizes[p.sizes.length - 1] || "3XL"} or free custom fit. Free duties-paid shipping to the USA, UK, Canada, UAE & Australia.${p.price_usd ? ` $${p.price_usd}.` : ""}`;
+      return item({ title, url: `${SITE_URL}/${p.url}#look-${k + 2}`, desc, img, date }); }).filter(Boolean); });
+  fs.writeFileSync(path.join(OUT, "feeds/pinterest-products.xml"), rss(`${brand} – New arrivals`, SITE_URL + "/shop/", "Hand block print kurta sets, Anarkalis and co-ords from Jaipur", [...pinProducts, ...extraPins]));
   const pinGuides = posts.filter((b) => b.cover || (b.related_products || []).length).map((b) => {
     const rp = products.find((p) => (b.related_products || []).includes(p.slug));
     const img = b.cover || rp?.images[0]; if (!img) return "";
