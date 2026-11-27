@@ -620,6 +620,7 @@ collections:
           - { name: terms, label: "Terms & Conditions", widget: text }
           - { name: site_url, label: "वेबसाइट का पता", widget: string }
           - { name: google_site_verification, label: "📈 Google Search Console कोड", widget: string, required: false }
+          - { name: bing_site_verification, label: "Bing Webmaster verification code (msvalidate.01 ka content – ChatGPT/Copilot Bing se padhte hain)", widget: string, required: false }
           - { name: referral_offer, label: "Refer & Earn – रेफर करने वाले को क्या मिलेगा", widget: string, required: false, hint: "जैसे: ₹150 off on your next order. खाली = 'a thank-you discount on your next order'" }
           - { name: referral_friend_offer, label: "Refer & Earn – नए दोस्त को क्या मिलेगा", widget: string, required: false, hint: "जैसे: ₹100 off on the first order" }
           - { name: referral_terms, label: "Refer & Earn – और शर्तें (optional)", widget: string, required: false }

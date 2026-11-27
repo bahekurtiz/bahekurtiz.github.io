@@ -538,7 +538,7 @@ function page({ title, description, pathname, image, body, ld = [], type = "webs
 <meta name="description" content="${esc(description)}">
 ${noindex ? "" : `<link rel="canonical" href="${esc(canonical)}">${alt != null ? (() => { const en = lang === "hi" ? SITE_URL + "/" + alt : canonical, hi = lang === "hi" ? canonical : SITE_URL + "/" + alt; return `<link rel="alternate" hreflang="en" href="${esc(en)}"><link rel="alternate" hreflang="hi" href="${esc(hi)}"><link rel="alternate" hreflang="x-default" href="${esc(en)}">`; })() : ""}${lang === "hi" ? (INTL_TWIN[String(alt || "").replace(/^\//, "")] || []).map(([l, x]) => `<link rel="alternate" hreflang="${l}" href="${esc(SITE_URL + "/" + x)}">`).join("") : intlAlts(pathname, alt != null)}`}
 <meta name="robots" content="${noindex ? "noindex" : "index,follow,max-image-preview:large"}">
-${S.google_site_verification ? `<meta name="google-site-verification" content="${esc(S.google_site_verification)}">` : ""}
+${S.google_site_verification ? `<meta name="google-site-verification" content="${esc(S.google_site_verification)}">` : ""}${S.bing_site_verification ? `<meta name="msvalidate.01" content="${esc(S.bing_site_verification)}">` : ""}
 ${S.facebook_domain_verification ? `<meta name="facebook-domain-verification" content="${esc(S.facebook_domain_verification)}">` : ""}
 ${S.pinterest_verification ? `<meta name="p:domain_verify" content="${esc(S.pinterest_verification)}">` : ""}
 ${trackHead}
