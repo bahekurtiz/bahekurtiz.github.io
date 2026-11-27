@@ -162,7 +162,7 @@
     const slug = prod.dataset.product; let size = "";
     const shadeBtns = $$(".shade", prod); let shade = shadeBtns[0]?.dataset.shade || "";
     shadeBtns.forEach((b) => b.addEventListener("click", () => { shade = b.dataset.shade; shadeBtns.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const n = $("[data-shade-name]", prod); if (n) n.textContent = shade; }));
-    const fullSize = () => (shadeBtns.length && shade && shade !== shadeBtns[0].dataset.shade ? `${size} · ${shade}` : size);
+    const fullSize = () => (shadeBtns.length && shade && (shade !== shadeBtns[0].dataset.shade || $("[data-always]", prod)) ? `${size} · ${shade}` : size);
     const sizes = $$(".size", prod); let wantCustom = false;
     const pick = (b) => { size = b ? b.dataset.size : ""; sizes.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); const e = $("[data-size-error]"); if (e && b) e.hidden = true; if (b && !isCustom(size) && /Custom Fit/.test(fitNote?.innerHTML || "")) paintFit(false); document.dispatchEvent(new CustomEvent("bk:size", { detail: size })); };
     sizes.forEach((b) => b.addEventListener("click", () => { if (b.dataset.out) { openNotify(slug, b.dataset.size); return; }
