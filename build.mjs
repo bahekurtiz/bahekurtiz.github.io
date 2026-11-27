@@ -2565,6 +2565,7 @@ function md(src = "") {
   flushT(); flushP(); flushL();
   return out.join("\n");
 }
+const DC_CARDS = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "content/dress-codes.json"), "utf8")).cards || []; } catch { return []; } })(); // dress-code cards → linked from their guides
 const blogDir = path.join(ROOT, "content/blog");
 const posts = (fs.existsSync(blogDir) ? fs.readdirSync(blogDir) : []).filter((f) => f.endsWith(".json")).map((f) => {
   const b = JSON.parse(fs.readFileSync(path.join(blogDir, f), "utf8"));
@@ -2656,7 +2657,7 @@ for (const b of posts) {
   <header class="post-head"><p class="eyebrow">${b.tags.filter(tagOk).map(tagLink).join(", ") || "Style Journal"}</p><h1>${esc(b.title)}</h1>${b.excerpt ? `<p class="lead">${esc(b.excerpt)}</p>` : ""}
   <p class="post-meta">By ${byTeam(b) ? `<a href="${u("about/")}" rel="author">${esc(TEAM)}</a>` : `<a href="${u("founder/")}" rel="author">${esc(FOUNDER)}</a>`} · <time datetime="${b.date}">${esc(niceDate(b.date))}</time>${b.updated > b.date ? ` · Updated <time datetime="${b.updated}">${esc(niceDate(b.updated))}</time>` : ""} · ${b.mins} min read</p></header>
   ${b.cover ? `<img decoding="async" class="post-cover" src="${esc(u(b.cover))}" alt="${esc(b.title)}" width="1200" height="800" fetchpriority="high">` : ""}
-  <div class="post-body prose">${withToc(md(postClean(b.body)))}</div>
+  <div class="post-body prose">${withToc(md(postClean(b.body)))}</div>${(() => { const c = DC_CARDS.find((x) => x.guide === b.url); return c ? `<p class="dc-save"><a class="share-btn" href="${u("wedding-guest-dress-codes/")}#${esc(c.id)}">📌 Save the ${esc(c.name)} dress-code card</a> <a class="link" href="${u("wedding-guest-dress-codes/")}">All wedding dress codes →</a></p>` : ""; })()}
   ${postCta()}
   ${moneyBox(b.title + " " + b.tags.join(" ") + " " + String(b.body || "").slice(0, 4000), "")}
   ${(() => { const f = FEST.find((x) => (FEST_POSTS[x.slug] || []).some((p) => p.slug === b.slug)); return f ? `<p class="small">Shop the full edit: <a class="link" href="${u(f.url)}">${esc(String(f.pg.h1).replace(/\s*\{year\}/g, ""))} →</a></p>` : ""; })()}
