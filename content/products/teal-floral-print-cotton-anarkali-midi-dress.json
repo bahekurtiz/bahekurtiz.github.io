@@ -35,9 +35,10 @@
   "fit": "Fitted bodice, flared",
   "fabric": "Cotton",
   "print_work": [
+    "Screen Print",
     "Floral Print"
   ],
-  "description": "Feroza means “turquoise” – a fresh teal dress that moves with you.\n\nA soft cotton midi dress in teal, printed all over with white florals and trailing vines.\n\n• Round neck and 3/4 sleeves – easy, covered and comfortable\n• Fitted bodice with a gathered empire waist that opens into a full Anarkali-style flare\n• Calf length, light and breathable for warm days, brunch, office and holidays\n• Sizes XS–3XL, or stitched to your measurements free of charge\n\nCare: gentle hand wash in cold water, dry in shade.",
+  "description": "Feroza means “turquoise” – a fresh teal dress that moves with you.\n\nA soft cotton midi dress in teal, screen printed all over with white florals and trailing vines.\n\n• Round neck and 3/4 sleeves – easy, covered and comfortable\n• Fitted bodice with a gathered empire waist that opens into a full Anarkali-style flare\n• Calf length (48 inches), a single light layer of cotton – no lining needed, so it stays airy on warm days, at brunch, office and on holidays\n• Sizes XS–3XL, or stitched to your measurements free of charge\n\nCare: gentle hand wash in cold water, dry in shade.",
   "images": [
     "/images/products/v2/teal-floral-print-cotton-anarkali-midi-dress-1.webp",
     "/images/products/v2/teal-floral-print-cotton-anarkali-midi-dress-2.webp",
@@ -56,12 +57,12 @@
   "sku": "bahe52",
   "old_url": "",
   "set_items": [
-    "Dress (cotton, floral print)"
+    "Dress (cotton, screen print)"
   ],
   "care": "Gentle hand wash in cold water, dry in shade.",
   "processing_days": "",
   "return_override": "Default",
-  "garment_length": null,
+  "garment_length": 48,
   "sale_paused": false,
   "in_stock": true,
   "featured": true,
