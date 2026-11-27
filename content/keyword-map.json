@@ -1,0 +1,4035 @@
+{
+ "_help": "One owner page per keyword cluster. Built by scripts/keyword-map.py from Search Console (last 3 months). Edit 'clusters' (pattern / owner) and re-run; the Monday report reads 'map'. position = impression-weighted average; cannibalisation = another URL with >= 20% of the cluster's impressions; story_twin = the cluster's web story taking >= 20% (owner decision 12 Nov keeps 13 stories).",
+ "source": "Search Console via Windsor, data pulled 2026-11-20",
+ "updated": "2026-11-20",
+ "clusters": [
+  {
+   "id": "brand",
+   "name": "Bahe Kurtiz (brand)",
+   "pattern": "\\bbahe\\b|bahevip|bahe kurti",
+   "owner": "/",
+   "intent": "brand",
+   "markets": "all"
+  },
+  {
+   "id": "tamil-wedding",
+   "name": "Tamil wedding guest outfit",
+   "pattern": "tamil",
+   "owner": "/blog/what-to-wear-to-a-tamil-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK CA AU SG MY IN"
+  },
+  {
+   "id": "south-indian-wedding",
+   "name": "South Indian wedding guest outfit",
+   "pattern": "south indian",
+   "owner": "/blog/what-to-wear-to-a-south-indian-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK CA AU SG MY"
+  },
+  {
+   "id": "kerala-wedding",
+   "name": "Kerala / Malayali wedding guest outfit",
+   "pattern": "kerala|malayali",
+   "owner": "/blog/what-to-wear-to-a-kerala-malayali-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK AE IN"
+  },
+  {
+   "id": "bengali-wedding",
+   "name": "Bengali wedding guest outfit",
+   "pattern": "bengali|biyer|gaye holud|bou bhaat",
+   "owner": "/blog/what-to-wear-to-a-bengali-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK IN"
+  },
+  {
+   "id": "bangladeshi-wedding",
+   "name": "Bangladeshi wedding guest outfit",
+   "pattern": "bangladesh",
+   "owner": "/blog/what-to-wear-to-a-bangladeshi-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US CA"
+  },
+  {
+   "id": "punjabi-wedding",
+   "name": "Punjabi wedding guest outfit",
+   "pattern": "punjabi",
+   "owner": "/blog/what-to-wear-to-a-punjabi-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK CA US AU"
+  },
+  {
+   "id": "sikh-wedding",
+   "name": "Sikh wedding / Anand Karaj guest outfit",
+   "pattern": "sikh|anand karaj",
+   "owner": "/blog/what-to-wear-to-a-sikh-anand-karaj-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK CA US AU"
+  },
+  {
+   "id": "gurpurab",
+   "name": "Gurpurab / Guru Nanak Jayanti outfit",
+   "pattern": "gurpurab|guru nanak|gurupurab",
+   "owner": "/blog/guru-nanak-gurpurab-outfit-ideas-for-women/",
+   "intent": "guide",
+   "markets": "UK CA US IN"
+  },
+  {
+   "id": "gurdwara",
+   "name": "Gurdwara outfit (wedding / visit)",
+   "pattern": "gurdwara",
+   "owner": "/blog/what-to-wear-to-a-sikh-anand-karaj-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK CA US IN"
+  },
+  {
+   "id": "marathi-wedding",
+   "name": "Marathi wedding guest outfit",
+   "pattern": "marathi|maharashtrian",
+   "owner": "/blog/what-to-wear-to-a-marathi-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "IN US UK"
+  },
+  {
+   "id": "gujarati-wedding",
+   "name": "Gujarati wedding guest outfit",
+   "pattern": "gujarati|garba",
+   "owner": "/blog/what-to-wear-to-a-gujarati-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US IN"
+  },
+  {
+   "id": "rajasthani-wedding",
+   "name": "Rajasthani / Marwari wedding guest outfit",
+   "pattern": "rajasthani|marwari",
+   "owner": "/blog/what-to-wear-to-a-rajasthani-marwari-wedding/",
+   "intent": "guide",
+   "markets": "IN US UK AE"
+  },
+  {
+   "id": "nepali-wedding",
+   "name": "Nepali wedding guest outfit",
+   "pattern": "nepali|nepal",
+   "owner": "/blog/what-to-wear-to-a-nepali-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US AU"
+  },
+  {
+   "id": "pakistani-wedding",
+   "name": "Pakistani wedding / nikah / walima guest outfit",
+   "pattern": "pakistan|walima|nikah",
+   "owner": "/blog/what-to-wear-to-a-pakistani-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US CA AE"
+  },
+  {
+   "id": "mehndi",
+   "name": "Mehndi outfits for guests",
+   "pattern": "mehndi|mehendi|henna party",
+   "owner": "/blog/what-to-wear-to-a-mehndi-as-a-guest/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "haldi",
+   "name": "Haldi outfits for guests",
+   "pattern": "haldi|pithi",
+   "owner": "/blog/haldi-outfit-ideas-for-guests/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "sangeet",
+   "name": "Sangeet outfits",
+   "pattern": "sangeet",
+   "owner": "/blog/sangeet-outfit-ideas-for-guests/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "reception",
+   "name": "Reception outfit for women",
+   "pattern": "reception",
+   "owner": "/blog/reception-outfit-ideas-for-women/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "engagement",
+   "name": "Roka / engagement outfit",
+   "pattern": "roka|engagement",
+   "owner": "/blog/roka-and-engagement-outfit-ideas/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "teen-wedding",
+   "name": "Teen girl wedding outfit",
+   "pattern": "teen",
+   "owner": "/blog/teen-girl-indian-wedding-outfit-ideas/",
+   "intent": "guide",
+   "markets": "US UK CA"
+  },
+  {
+   "id": "plus-size-diwali",
+   "name": "Plus size Diwali outfits",
+   "pattern": "(plus size|plus-size|chubby|curvy).*(diwali)|diwali.*(plus size|chubby|curvy)",
+   "owner": "/blog/diwali-outfits-for-plus-size-women/",
+   "intent": "guide",
+   "markets": "US UK CA AU"
+  },
+  {
+   "id": "plus-size-wedding",
+   "name": "Plus size wedding guest outfits",
+   "pattern": "(plus size|plus-size|curvy).*(wedding)",
+   "owner": "/blog/plus-size-indian-wedding-guest-outfits/",
+   "intent": "guide",
+   "markets": "US UK CA AU"
+  },
+  {
+   "id": "plus-size",
+   "name": "Plus size Indian outfits",
+   "pattern": "plus size|plus-size|chubby|curvy|4xl|5xl",
+   "owner": "/plus-size-indian-outfits/",
+   "intent": "collection",
+   "markets": "US UK CA AU"
+  },
+  {
+   "id": "tall-women",
+   "name": "Anarkali / Indian outfits for tall women",
+   "pattern": "\\btall\\b",
+   "owner": "/blog/indian-wedding-guest-outfits-for-tall-women/",
+   "intent": "guide",
+   "markets": "US UK CA AU"
+  },
+  {
+   "id": "over-50",
+   "name": "Indian wedding outfits for women over 50 / mother of the bride",
+   "pattern": "over 50|mother of the bride|older women",
+   "owner": "/blog/indian-wedding-guest-outfits-for-women-over-50/",
+   "intent": "guide",
+   "markets": "US UK CA AU"
+  },
+  {
+   "id": "dhanteras",
+   "name": "Dhanteras outfits & colours",
+   "pattern": "dhanteras|dantheras|dhantersa",
+   "owner": "/blog/dhanteras-outfit-ideas/",
+   "intent": "guide",
+   "markets": "IN US UK"
+  },
+  {
+   "id": "bhai-dooj",
+   "name": "Bhai Dooj outfits",
+   "pattern": "bhai dooj|bhaidooj",
+   "owner": "/blog/bhai-dooj-outfit-ideas-for-sisters/",
+   "intent": "guide",
+   "markets": "IN US UK"
+  },
+  {
+   "id": "diwali",
+   "name": "Diwali / Dhanteras / Bhai Dooj outfits",
+   "pattern": "diwali|deepavali|lakshmi puja|laxmi puja",
+   "owner": "/diwali-outfits-for-women/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "christmas",
+   "name": "Christmas & New Year Indian outfits",
+   "pattern": "christmas|new year",
+   "owner": "/blog/christmas-outfit-ideas-indian-ethnic-wear-for-women/",
+   "intent": "collection",
+   "markets": "US UK CA AU"
+  },
+  {
+   "id": "lohri",
+   "name": "Lohri outfits",
+   "pattern": "lohri",
+   "owner": "/festival/lohri/",
+   "intent": "guide",
+   "markets": "IN UK CA"
+  },
+  {
+   "id": "eid",
+   "name": "Eid outfits",
+   "pattern": "\\beid\\b",
+   "owner": "/blog/eid-outfit-ideas-anarkali-and-kurta-sets-abroad/",
+   "intent": "guide",
+   "markets": "UK US AE MY SG"
+  },
+  {
+   "id": "anarkali-jewellery",
+   "name": "Jewellery with an Anarkali",
+   "pattern": "jewel|earring|necklace|jhumka",
+   "owner": "/blog/jewellery-to-wear-with-an-anarkali/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "anarkali-winter",
+   "name": "Anarkali fabric for winter weddings / velvet",
+   "pattern": "winter|velvet",
+   "owner": "/blog/velvet-anarkali-for-winter-weddings-how-to-choose-style-and-care/",
+   "intent": "guide",
+   "markets": "UK US CA IN"
+  },
+  {
+   "id": "anarkali-choose",
+   "name": "How to choose an Anarkali",
+   "pattern": "choose an anarkali|anarkali suit.*worth|luxury anarkali",
+   "owner": "/blog/how-to-choose-an-anarkali-for-a-wedding/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "georgette-chiffon",
+   "name": "Georgette vs chiffon vs organza",
+   "pattern": "georgette|chiffon|organza",
+   "owner": "/blog/georgette-vs-chiffon-vs-organza/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "chanderi-fabric",
+   "name": "What is chanderi fabric",
+   "pattern": "chanderi",
+   "owner": "/blog/what-is-chanderi-fabric-how-to-style-a-chanderi-kurta-set/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "chanderi",
+   "name": "Chanderi kurta sets",
+   "pattern": "chanderi (kurta|kurti|set|suit)|chanderi kurtis",
+   "owner": "/craft/chanderi/",
+   "intent": "collection",
+   "markets": "IN US UK"
+  },
+  {
+   "id": "kota-doria",
+   "name": "Kota doria",
+   "pattern": "kota doria|kota cloth|kota fabric",
+   "owner": "/blog/what-is-kota-doria-fabric-styling-and-care/",
+   "intent": "guide",
+   "markets": "IN US UK"
+  },
+  {
+   "id": "block-print-types",
+   "name": "Sanganeri, Bagru & Dabu print",
+   "pattern": "sanganeri|bagru|dabu|bhagat",
+   "owner": "/blog/sanganeri-bagru-and-dabu-print-a-simple-guide-to-jaipur-block-prints/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "wholesale",
+   "name": "Kurti wholesale / manufacturer",
+   "pattern": "wholesale|manufacturer|supplier|bulk|private label|import",
+   "owner": "/wholesale/",
+   "intent": "b2b",
+   "markets": "all"
+  },
+  {
+   "id": "block-print",
+   "name": "Jaipur hand block print kurta / kurti",
+   "pattern": "block print|jaipur print|jaipuri|hand block",
+   "owner": "/hand-block-print-kurta-sets/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "wedding-guest",
+   "name": "Indian wedding guest outfits (general)",
+   "pattern": "wedding guest|indian wedding|wedding wear|wedding attire|wedding outfit|what to wear to an indian wedding|clothes for indian wedding|wedding dress for guest",
+   "owner": "/indian-wedding-guest-outfits/",
+   "intent": "collection",
+   "markets": "US UK CA AU AE"
+  },
+  {
+   "id": "linen-dress",
+   "name": "Linen dresses / linen vs cotton",
+   "pattern": "linen|sundress|resort",
+   "owner": "/blog/linen-vs-cotton-dresses-which-is-better-for-hot-weather/",
+   "intent": "guide",
+   "markets": "US UK AU AE"
+  },
+  {
+   "id": "maxi-dress",
+   "name": "Cotton maxi / midi dresses",
+   "pattern": "maxi|midi|dress for summer|summer dress",
+   "owner": "/collections/dresses/",
+   "intent": "collection",
+   "markets": "US UK AU AE"
+  },
+  {
+   "id": "co-ord",
+   "name": "Co-ord sets",
+   "pattern": "co-?ord|coord|two piece|2 piece",
+   "owner": "/collections/co-ord-sets/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "kurta-palazzo",
+   "name": "Kurta palazzo sets",
+   "pattern": "palazzo",
+   "owner": "/collections/kurta-palazzo-sets/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "anarkali",
+   "name": "Anarkali suits (buy)",
+   "pattern": "anarkali|gota patti|frock suit",
+   "owner": "/collections/anarkali-suits/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "kurta-set",
+   "name": "Kurta sets / suit sets",
+   "pattern": "kurta set|kurta pant|suit set|salwar|3 piece|three piece|\\bsuits?\\b",
+   "owner": "/collections/kurta-pant-dupatta-sets/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "sheer-kurti",
+   "name": "Sheer embroidered kurti",
+   "pattern": "sheer",
+   "owner": "/blog/5-ways-to-style-a-sheer-embroidered-kurti/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "tunic",
+   "name": "Short kurtis / tunic tops for jeans",
+   "pattern": "tunic|short kurti|kurti for jeans|top for jeans",
+   "owner": "/cotton-tunic-tops-short-kurtis-for-jeans/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "kurti",
+   "name": "Kurtis",
+   "pattern": "kurti|kurtis",
+   "owner": "/collections/kurtis/",
+   "intent": "collection",
+   "markets": "all"
+  },
+  {
+   "id": "custom-fit",
+   "name": "Custom stitched / made to measure",
+   "pattern": "custom|made to measure|stitched|tailor",
+   "owner": "/custom-stitched-indian-suits-made-to-measure/",
+   "intent": "collection",
+   "markets": "US UK CA AU"
+  },
+  {
+   "id": "buy-abroad",
+   "name": "Buy Indian clothes online abroad",
+   "pattern": "online.*(usa|uk|canada|australia|uae|us\\b)|(usa|uk|canada|australia|uae).*online|fast (shipping|delivery)|next day|indian clothes",
+   "owner": "/indian-clothes-online-uk-canada-australia-uae/",
+   "intent": "collection",
+   "markets": "US UK CA AU AE"
+  },
+  {
+   "id": "dupatta",
+   "name": "How to drape a dupatta",
+   "pattern": "dupatta",
+   "owner": "/blog/how-to-drape-a-dupatta-7-ways/",
+   "intent": "guide",
+   "markets": "all"
+  },
+  {
+   "id": "dubai",
+   "name": "Indian outfits in Dubai / UAE",
+   "pattern": "dubai|abu dhabi|uae",
+   "owner": "/blog/indian-wedding-guest-outfits-in-dubai-and-abu-dhabi/",
+   "intent": "guide",
+   "markets": "AE"
+  },
+  {
+   "id": "france",
+   "name": "Tenue indienne (France)",
+   "pattern": "tenue|robe|indienne|femme",
+   "owner": "/fr/",
+   "intent": "intl",
+   "markets": "FR"
+  },
+  {
+   "id": "japan",
+   "name": "インド服 (Japan)",
+   "pattern": "[぀-ヿ一-鿿]",
+   "owner": "/ja/",
+   "intent": "intl",
+   "markets": "JP"
+  },
+  {
+   "id": "russia",
+   "name": "Индийская одежда (Russia)",
+   "pattern": "[Ѐ-ӿ]",
+   "owner": "/ru/",
+   "intent": "intl",
+   "markets": "RU"
+  }
+ ],
+ "map": [
+  {
+   "id": "brand",
+   "name": "Bahe Kurtiz (brand)",
+   "pattern": "\\bbahe\\b|bahevip|bahe kurti",
+   "owner": "/",
+   "intent": "brand",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 965,
+   "clicks": 82,
+   "ctr": 0.085,
+   "position": 13.4,
+   "status": "page 2",
+   "owner_share": 0.25,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 456,
+    "Bangladesh": 42,
+    "United States": 30
+   },
+   "top_queries": [
+    {
+     "q": "bahe kurtiz",
+     "impressions": 865,
+     "position": 14.3
+    },
+    {
+     "q": "bahevip",
+     "impressions": 76,
+     "position": 6.7
+    },
+    {
+     "q": "bahe dresses",
+     "impressions": 16,
+     "position": 2.6
+    },
+    {
+     "q": "bahe",
+     "impressions": 6,
+     "position": 3.5
+    },
+    {
+     "q": "bahe jeans",
+     "impressions": 2,
+     "position": 4.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 13.4,
+     "impressions": 965,
+     "clicks": 82
+    }
+   ]
+  },
+  {
+   "id": "tamil-wedding",
+   "name": "Tamil wedding guest outfit",
+   "pattern": "tamil",
+   "owner": "/blog/what-to-wear-to-a-tamil-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK CA AU SG MY IN",
+   "owner_exists": true,
+   "impressions": 736,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 5.7,
+   "status": "page 1",
+   "owner_share": 0.61,
+   "cannibalisation": [
+    {
+     "page": "/blog/what-to-wear-to-a-south-indian-wedding-as-a-guest/",
+     "share": 0.39
+    }
+   ],
+   "story_twin": [
+    {
+     "page": "/stories/what-to-wear-to-a-tamil-wedding-as-a-guest/",
+     "share": 0.46
+    }
+   ],
+   "countries": {
+    "India": 372,
+    "Brazil": 240,
+    "Ukraine": 90,
+    "Indonesia": 84,
+    "Vietnam": 84,
+    "France": 82
+   },
+   "top_queries": [
+    {
+     "q": "what to wear to a tamil wedding as a guest",
+     "impressions": 702,
+     "position": 5.6
+    },
+    {
+     "q": "tamil wedding guest look",
+     "impressions": 10,
+     "position": 7.2
+    },
+    {
+     "q": "tamil wedding guest outfit female",
+     "impressions": 10,
+     "position": 5.4
+    },
+    {
+     "q": "tamil wedding attire",
+     "impressions": 8,
+     "position": 9.8
+    },
+    {
+     "q": "tamil wedding guest outfit",
+     "impressions": 4,
+     "position": 4.5
+    },
+    {
+     "q": "tamil wedding dress for guest",
+     "impressions": 2,
+     "position": 5.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 5.7,
+     "impressions": 736,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "bengali-wedding",
+   "name": "Bengali wedding guest outfit",
+   "pattern": "bengali|biyer|gaye holud|bou bhaat",
+   "owner": "/blog/what-to-wear-to-a-bengali-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK IN",
+   "owner_exists": true,
+   "impressions": 644,
+   "clicks": 6,
+   "ctr": 0.009,
+   "position": 6.9,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United Kingdom": 270,
+    "India": 270,
+    "United States": 156,
+    "Canada": 24,
+    "Bulgaria": 24
+   },
+   "top_queries": [
+    {
+     "q": "what to wear to a bengali wedding as a female guest",
+     "impressions": 246,
+     "position": 6.6
+    },
+    {
+     "q": "bengali wedding guest outfit",
+     "impressions": 216,
+     "position": 7.3
+    },
+    {
+     "q": "bengali wedding guest look",
+     "impressions": 34,
+     "position": 8.2
+    },
+    {
+     "q": "bengali wedding dress for guest",
+     "impressions": 32,
+     "position": 8.8
+    },
+    {
+     "q": "what to wear to a bengali wedding",
+     "impressions": 32,
+     "position": 5.8
+    },
+    {
+     "q": "bengali wedding guest dress",
+     "impressions": 22,
+     "position": 5.6
+    },
+    {
+     "q": "bengali wedding guest attire",
+     "impressions": 12,
+     "position": 2.8
+    },
+    {
+     "q": "what should i wear to a bengali wedding as a hijabi guest? i want something modern, not a full sari",
+     "impressions": 12,
+     "position": 9.5
+    },
+    {
+     "q": "bengali wedding outfit women",
+     "impressions": 8,
+     "position": 7.2
+    },
+    {
+     "q": "bengali wedding",
+     "impressions": 6,
+     "position": 3.7
+    },
+    {
+     "q": "bengali wedding dress",
+     "impressions": 4,
+     "position": 2.0
+    },
+    {
+     "q": "bengali wedding guest",
+     "impressions": 4,
+     "position": 6.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 6.9,
+     "impressions": 644,
+     "clicks": 6
+    }
+   ]
+  },
+  {
+   "id": "georgette-chiffon",
+   "name": "Georgette vs chiffon vs organza",
+   "pattern": "georgette|chiffon|organza",
+   "owner": "/blog/georgette-vs-chiffon-vs-organza/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 518,
+   "clicks": 6,
+   "ctr": 0.012,
+   "position": 15.5,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United States": 1170,
+    "United Kingdom": 132,
+    "Pakistan": 54,
+    "India": 30
+   },
+   "top_queries": [
+    {
+     "q": "best fabrics cotton chiffon georgette suits summer",
+     "impressions": 376,
+     "position": 4.8
+    },
+    {
+     "q": "chiffon and georgette",
+     "impressions": 18,
+     "position": 7.4
+    },
+    {
+     "q": "chiffon vs organza",
+     "impressions": 16,
+     "position": 89.0
+    },
+    {
+     "q": "georgette and chiffon",
+     "impressions": 16,
+     "position": 6.9
+    },
+    {
+     "q": "what is the difference between chiffon and georgette",
+     "impressions": 16,
+     "position": 57.8
+    },
+    {
+     "q": "chiffon vs georgette",
+     "impressions": 14,
+     "position": 38.0
+    },
+    {
+     "q": "organza vs chiffon",
+     "impressions": 14,
+     "position": 80.1
+    },
+    {
+     "q": "which is better chiffon or georgette",
+     "impressions": 14,
+     "position": 43.6
+    },
+    {
+     "q": "organza vs chiffon vs georgette",
+     "impressions": 10,
+     "position": 11.6
+    },
+    {
+     "q": "what is the difference between chiffon and organza",
+     "impressions": 8,
+     "position": 95.0
+    },
+    {
+     "q": "chiffon vs georgette fabric",
+     "impressions": 4,
+     "position": 43.5
+    },
+    {
+     "q": "georgette chiffon",
+     "impressions": 2,
+     "position": 4.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 15.5,
+     "impressions": 518,
+     "clicks": 6
+    }
+   ]
+  },
+  {
+   "id": "dhanteras",
+   "name": "Dhanteras outfits & colours",
+   "pattern": "dhanteras|dantheras|dhantersa",
+   "owner": "/blog/dhanteras-outfit-ideas/",
+   "intent": "guide",
+   "markets": "IN US UK",
+   "owner_exists": true,
+   "impressions": 488,
+   "clicks": 2,
+   "ctr": 0.004,
+   "position": 7.1,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [
+    {
+     "page": "/stories/dhanteras-outfit-ideas/",
+     "share": 0.77
+    }
+   ],
+   "countries": {
+    "India": 1116,
+    "Canada": 42,
+    "United Kingdom": 24
+   },
+   "top_queries": [
+    {
+     "q": "what to wear on dhanteras",
+     "impressions": 160,
+     "position": 8.4
+    },
+    {
+     "q": "dhanteras outfit ideas",
+     "impressions": 82,
+     "position": 4.6
+    },
+    {
+     "q": "which color to wear on dhanteras 2026",
+     "impressions": 78,
+     "position": 10.8
+    },
+    {
+     "q": "which colour dress to wear on dhanteras",
+     "impressions": 24,
+     "position": 5.2
+    },
+    {
+     "q": "dhanteras outfit",
+     "impressions": 16,
+     "position": 8.1
+    },
+    {
+     "q": "what color to wear on dhanteras",
+     "impressions": 14,
+     "position": 1.0
+    },
+    {
+     "q": "dhanteras dress",
+     "impressions": 12,
+     "position": 2.5
+    },
+    {
+     "q": "what colour to wear on dhanteras 2026",
+     "impressions": 10,
+     "position": 5.4
+    },
+    {
+     "q": "dhanteras",
+     "impressions": 8,
+     "position": 1.8
+    },
+    {
+     "q": "what colour to wear on dhanteras",
+     "impressions": 8,
+     "position": 3.8
+    },
+    {
+     "q": "what to wear in dhanteras",
+     "impressions": 8,
+     "position": 6.0
+    },
+    {
+     "q": "dhanteras 2026",
+     "impressions": 6,
+     "position": 2.3
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 7.1,
+     "impressions": 488,
+     "clicks": 2
+    }
+   ]
+  },
+  {
+   "id": "tall-women",
+   "name": "Anarkali / Indian outfits for tall women",
+   "pattern": "\\btall\\b",
+   "owner": "/blog/indian-wedding-guest-outfits-for-tall-women/",
+   "intent": "guide",
+   "markets": "US UK CA AU",
+   "owner_exists": true,
+   "impressions": 384,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 4.1,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [
+    {
+     "page": "/stories/indian-wedding-guest-outfits-for-tall-women/",
+     "share": 0.8
+    }
+   ],
+   "countries": {
+    "United Kingdom": 186,
+    "Canada": 126,
+    "Germany": 114,
+    "Australia": 108,
+    "Spain": 96,
+    "Singapore": 96
+   },
+   "top_queries": [
+    {
+     "q": "which anarkali suit styles suit tall women best?",
+     "impressions": 374,
+     "position": 3.9
+    },
+    {
+     "q": "is it which anarkali suit styles suit tall women best?",
+     "impressions": 8,
+     "position": 9.5
+    },
+    {
+     "q": "indian clothes for tall women",
+     "impressions": 2,
+     "position": 11.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 4.1,
+     "impressions": 384,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "anarkali-winter",
+   "name": "Anarkali fabric for winter weddings / velvet",
+   "pattern": "winter|velvet",
+   "owner": "/blog/velvet-anarkali-for-winter-weddings-how-to-choose-style-and-care/",
+   "intent": "guide",
+   "markets": "UK US CA IN",
+   "owner_exists": true,
+   "impressions": 188,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 5.3,
+   "status": "page 1",
+   "owner_share": 0.69,
+   "cannibalisation": [
+    {
+     "page": "/blog/how-to-choose-an-anarkali-for-a-wedding/",
+     "share": 0.26
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "United Kingdom": 180,
+    "Canada": 60,
+    "Singapore": 54,
+    "Australia": 30,
+    "Germany": 24,
+    "Netherlands": 24
+   },
+   "top_queries": [
+    {
+     "q": "what anarkali suit fabric works best for winter weddings?",
+     "impressions": 172,
+     "position": 5.4
+    },
+    {
+     "q": "what anarkali suit fabric works best for winter weddings? comparison",
+     "impressions": 4,
+     "position": 1.0
+    },
+    {
+     "q": "what anarkali suit fabric works best for winter weddings? review",
+     "impressions": 4,
+     "position": 1.0
+    },
+    {
+     "q": "doria fabric is for summer or winter",
+     "impressions": 2,
+     "position": 8.0
+    },
+    {
+     "q": "is it what anarkali suit fabric works best for winter weddings?",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "velvet anarkali suit",
+     "impressions": 2,
+     "position": 2.0
+    },
+    {
+     "q": "winter anarkali suit",
+     "impressions": 2,
+     "position": 6.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 5.3,
+     "impressions": 190,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "bangladeshi-wedding",
+   "name": "Bangladeshi wedding guest outfit",
+   "pattern": "bangladesh",
+   "owner": "/blog/what-to-wear-to-a-bangladeshi-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US CA",
+   "owner_exists": true,
+   "impressions": 134,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 9.4,
+   "status": "page 1",
+   "owner_share": 0.48,
+   "cannibalisation": [
+    {
+     "page": "/blog/what-to-wear-to-a-bengali-wedding-as-a-guest/",
+     "share": 0.51
+    }
+   ],
+   "story_twin": [
+    {
+     "page": "/stories/what-to-wear-to-a-bangladeshi-wedding-as-a-guest/",
+     "share": 0.45
+    }
+   ],
+   "countries": {
+    "United Kingdom": 108,
+    "United States": 48
+   },
+   "top_queries": [
+    {
+     "q": "what to wear to a bangladeshi wedding",
+     "impressions": 74,
+     "position": 11.7
+    },
+    {
+     "q": "bangladesh wedding guest attire",
+     "impressions": 34,
+     "position": 6.0
+    },
+    {
+     "q": "bangladeshi wedding guest outfit",
+     "impressions": 24,
+     "position": 7.3
+    },
+    {
+     "q": "bangladeshi wedding attire",
+     "impressions": 2,
+     "position": 10.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 9.4,
+     "impressions": 134,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "anarkali-jewellery",
+   "name": "Jewellery with an Anarkali",
+   "pattern": "jewel|earring|necklace|jhumka",
+   "owner": "/blog/jewellery-to-wear-with-an-anarkali/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 132,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 9.7,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [
+    {
+     "page": "/stories/jewellery-to-wear-with-an-anarkali/",
+     "share": 0.71
+    }
+   ],
+   "countries": {
+    "India": 282,
+    "Japan": 5
+   },
+   "top_queries": [
+    {
+     "q": "jewellery for anarkali dress",
+     "impressions": 24,
+     "position": 10.4
+    },
+    {
+     "q": "jewellery with anarkali suit",
+     "impressions": 16,
+     "position": 3.8
+    },
+    {
+     "q": "anarkali dress matching jewellery",
+     "impressions": 14,
+     "position": 7.4
+    },
+    {
+     "q": "anarkali suit jewellery",
+     "impressions": 10,
+     "position": 6.0
+    },
+    {
+     "q": "what jewellery to wear with anarkali",
+     "impressions": 10,
+     "position": 9.2
+    },
+    {
+     "q": "jewellery for anarkali suit",
+     "impressions": 8,
+     "position": 4.0
+    },
+    {
+     "q": "jewellery on anarkali suit",
+     "impressions": 8,
+     "position": 10.5
+    },
+    {
+     "q": "anarkali jewellery",
+     "impressions": 6,
+     "position": 8.7
+    },
+    {
+     "q": "earrings for anarkali dress",
+     "impressions": 6,
+     "position": 30.0
+    },
+    {
+     "q": "anarkali dress jewellery ideas",
+     "impressions": 4,
+     "position": 12.0
+    },
+    {
+     "q": "anarkali suit with jewellery",
+     "impressions": 4,
+     "position": 7.0
+    },
+    {
+     "q": "necklace for anarkali dress",
+     "impressions": 4,
+     "position": 9.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 9.7,
+     "impressions": 132,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "diwali",
+   "name": "Diwali / Dhanteras / Bhai Dooj outfits",
+   "pattern": "diwali|deepavali|lakshmi puja|laxmi puja",
+   "owner": "/diwali-outfits-for-women/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 122,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 38.6,
+   "status": "beyond page 2",
+   "owner_share": 0.64,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 114
+   },
+   "top_queries": [
+    {
+     "q": "suit for women on diwali",
+     "impressions": 12,
+     "position": 69.0
+    },
+    {
+     "q": "women's suits for diwali",
+     "impressions": 12,
+     "position": 63.2
+    },
+    {
+     "q": "diwali festival suit for women",
+     "impressions": 8,
+     "position": 86.0
+    },
+    {
+     "q": "diwali suit set",
+     "impressions": 8,
+     "position": 62.0
+    },
+    {
+     "q": "diwali suit sets women",
+     "impressions": 8,
+     "position": 41.2
+    },
+    {
+     "q": "diwali suit for women",
+     "impressions": 6,
+     "position": 1.0
+    },
+    {
+     "q": "women suit for diwali",
+     "impressions": 6,
+     "position": 51.0
+    },
+    {
+     "q": "suit diwali women",
+     "impressions": 4,
+     "position": 67.5
+    },
+    {
+     "q": "suits diwali",
+     "impressions": 4,
+     "position": 93.0
+    },
+    {
+     "q": "which color to wear in laxmi puja",
+     "impressions": 4,
+     "position": 8.0
+    },
+    {
+     "q": "which colour to wear on lakshmi puja",
+     "impressions": 4,
+     "position": 7.0
+    },
+    {
+     "q": "anarkalis for diwali",
+     "impressions": 2,
+     "position": 24.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 9.1,
+     "impressions": 560,
+     "clicks": 2
+    }
+   ]
+  },
+  {
+   "id": "wedding-guest",
+   "name": "Indian wedding guest outfits (general)",
+   "pattern": "wedding guest|indian wedding|wedding wear|wedding attire|wedding outfit|what to wear to an indian wedding|clothes for indian wedding|wedding dress for guest",
+   "owner": "/indian-wedding-guest-outfits/",
+   "intent": "collection",
+   "markets": "US UK CA AU AE",
+   "owner_exists": true,
+   "impressions": 108,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 28.9,
+   "status": "beyond page 2",
+   "owner_share": 0.09,
+   "cannibalisation": [
+    {
+     "page": "/blog/what-to-wear-to-an-indian-wedding-in-the-uk/",
+     "share": 0.41
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "United Kingdom": 78,
+    "United States": 18,
+    "France": 5
+   },
+   "top_queries": [
+    {
+     "q": "clothes for indian wedding",
+     "impressions": 14,
+     "position": 38.6
+    },
+    {
+     "q": "indian wedding wear for guests",
+     "impressions": 12,
+     "position": 43.3
+    },
+    {
+     "q": "indian wedding attire",
+     "impressions": 6,
+     "position": 33.0
+    },
+    {
+     "q": "indian wedding guest",
+     "impressions": 6,
+     "position": 24.0
+    },
+    {
+     "q": "indian wedding guest outfits",
+     "impressions": 6,
+     "position": 34.0
+    },
+    {
+     "q": "what should an american wear to an indian wedding",
+     "impressions": 6,
+     "position": 44.7
+    },
+    {
+     "q": "where to buy indian wedding guest outfits",
+     "impressions": 6,
+     "position": 31.0
+    },
+    {
+     "q": "indian wedding guest attire",
+     "impressions": 4,
+     "position": 35.0
+    },
+    {
+     "q": "indian wedding guest clothes",
+     "impressions": 4,
+     "position": 39.0
+    },
+    {
+     "q": "indian wedding guest outfit",
+     "impressions": 4,
+     "position": 9.0
+    },
+    {
+     "q": "wedding guest outfits indian",
+     "impressions": 4,
+     "position": 7.5
+    },
+    {
+     "q": "best online stores to buy indian wedding outfits in the usa",
+     "impressions": 2,
+     "position": 12.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 28.9,
+     "impressions": 108,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "punjabi-wedding",
+   "name": "Punjabi wedding guest outfit",
+   "pattern": "punjabi",
+   "owner": "/blog/what-to-wear-to-a-punjabi-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK CA US AU",
+   "owner_exists": true,
+   "impressions": 106,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 18.2,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United States": 138,
+    "United Kingdom": 66
+   },
+   "top_queries": [
+    {
+     "q": "what to wear to a punjabi wedding",
+     "impressions": 56,
+     "position": 18.5
+    },
+    {
+     "q": "punjabi wedding outfits for guests",
+     "impressions": 22,
+     "position": 22.2
+    },
+    {
+     "q": "punjabi wedding guest outfit",
+     "impressions": 10,
+     "position": 3.6
+    },
+    {
+     "q": "punjabi wedding attire",
+     "impressions": 6,
+     "position": 22.7
+    },
+    {
+     "q": "punjabi wedding guest outfit female",
+     "impressions": 4,
+     "position": 25.0
+    },
+    {
+     "q": "punjabi wedding dress code",
+     "impressions": 2,
+     "position": 49.0
+    },
+    {
+     "q": "punjabi wedding dresses for guests",
+     "impressions": 2,
+     "position": 7.0
+    },
+    {
+     "q": "what to wear in punjabi wedding",
+     "impressions": 2,
+     "position": 9.0
+    },
+    {
+     "q": "what to wear to punjabi wedding",
+     "impressions": 2,
+     "position": 5.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 18.2,
+     "impressions": 106,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "linen-dress",
+   "name": "Linen dresses / linen vs cotton",
+   "pattern": "linen|sundress|resort",
+   "owner": "/blog/linen-vs-cotton-dresses-which-is-better-for-hot-weather/",
+   "intent": "guide",
+   "markets": "US UK AU AE",
+   "owner_exists": true,
+   "impressions": 106,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 5.0,
+   "status": "page 1",
+   "owner_share": 0.98,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United States": 72,
+    "Italy": 18,
+    "Austria": 18,
+    "Germany": 18,
+    "Spain": 18,
+    "France": 5
+   },
+   "top_queries": [
+    {
+     "q": "is it cotton and linen dresses for warm weather",
+     "impressions": 48,
+     "position": 2.8
+    },
+    {
+     "q": "how to choose between cotton and linen midi dresses for summer comfort?",
+     "impressions": 30,
+     "position": 5.1
+    },
+    {
+     "q": "are linen or cotton resort pieces better for hot weather?",
+     "impressions": 18,
+     "position": 4.8
+    },
+    {
+     "q": "linen vs cotton dresses for summer – which is better?",
+     "impressions": 4,
+     "position": 1.0
+    },
+    {
+     "q": "casual sundress for women",
+     "impressions": 2,
+     "position": 57.0
+    },
+    {
+     "q": "linen vs cotton dress",
+     "impressions": 2,
+     "position": 8.0
+    },
+    {
+     "q": "linen vs cotton poplin dresses for hot weather",
+     "impressions": 2,
+     "position": 9.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 5.0,
+     "impressions": 106,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "block-print",
+   "name": "Jaipur hand block print kurta / kurti",
+   "pattern": "block print|jaipur print|jaipuri|hand block",
+   "owner": "/hand-block-print-kurta-sets/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 96,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 26.1,
+   "status": "beyond page 2",
+   "owner_share": 0.77,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 228
+   },
+   "top_queries": [
+    {
+     "q": "jaipur block print kurta",
+     "impressions": 46,
+     "position": 15.2
+    },
+    {
+     "q": "block print kurtis jaipur",
+     "impressions": 22,
+     "position": 44.9
+    },
+    {
+     "q": "hand block print kurtis jaipur",
+     "impressions": 14,
+     "position": 15.1
+    },
+    {
+     "q": "jaipur block print kurtis online",
+     "impressions": 8,
+     "position": 51.0
+    },
+    {
+     "q": "azure blue hand block top",
+     "impressions": 2,
+     "position": 47.0
+    },
+    {
+     "q": "hand block printed kurta set",
+     "impressions": 2,
+     "position": 51.0
+    },
+    {
+     "q": "jaipur block print kurta set",
+     "impressions": 2,
+     "position": 1.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 26.1,
+     "impressions": 96,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "sikh-wedding",
+   "name": "Sikh wedding / Anand Karaj guest outfit",
+   "pattern": "sikh|anand karaj",
+   "owner": "/blog/what-to-wear-to-a-sikh-anand-karaj-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK CA US AU",
+   "owner_exists": true,
+   "impressions": 88,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 29.5,
+   "status": "beyond page 2",
+   "owner_share": 0.89,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United Kingdom": 168,
+    "France": 5
+   },
+   "top_queries": [
+    {
+     "q": "what to wear to a sikh wedding as a guest",
+     "impressions": 18,
+     "position": 40.6
+    },
+    {
+     "q": "what to wear to a sikh wedding",
+     "impressions": 12,
+     "position": 33.2
+    },
+    {
+     "q": "what to wear to sikh temple wedding",
+     "impressions": 10,
+     "position": 28.0
+    },
+    {
+     "q": "what to wear to sikh wedding",
+     "impressions": 10,
+     "position": 30.4
+    },
+    {
+     "q": "sikh wedding what to wear",
+     "impressions": 6,
+     "position": 38.3
+    },
+    {
+     "q": "what do you wear to a sikh wedding",
+     "impressions": 6,
+     "position": 27.7
+    },
+    {
+     "q": "sikh wedding attire for guests",
+     "impressions": 4,
+     "position": 15.5
+    },
+    {
+     "q": "sikh wedding outfits for guests",
+     "impressions": 4,
+     "position": 10.5
+    },
+    {
+     "q": "what to wear to a sikh wedding ceremony",
+     "impressions": 4,
+     "position": 40.5
+    },
+    {
+     "q": "what to wear to a sikh wedding reception",
+     "impressions": 4,
+     "position": 26.5
+    },
+    {
+     "q": "anand karaj",
+     "impressions": 2,
+     "position": 3.0
+    },
+    {
+     "q": "anand karaj dress code guest",
+     "impressions": 2,
+     "position": 12.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 29.5,
+     "impressions": 88,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "mehndi",
+   "name": "Mehndi outfits for guests",
+   "pattern": "mehndi|mehendi|henna party",
+   "owner": "/blog/what-to-wear-to-a-mehndi-as-a-guest/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 68,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 16.6,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United States": 54
+   },
+   "top_queries": [
+    {
+     "q": "can i wear an anarkali suit to a mehendi event?",
+     "impressions": 14,
+     "position": 7.3
+    },
+    {
+     "q": "mehendi outfits for guests",
+     "impressions": 12,
+     "position": 10.2
+    },
+    {
+     "q": "what to wear to a mehndi",
+     "impressions": 10,
+     "position": 34.2
+    },
+    {
+     "q": "what to wear to a mehndi party as a guest female",
+     "impressions": 10,
+     "position": 7.4
+    },
+    {
+     "q": "mehndi outfits for guests",
+     "impressions": 8,
+     "position": 12.2
+    },
+    {
+     "q": "mehndi guest outfit",
+     "impressions": 4,
+     "position": 10.0
+    },
+    {
+     "q": "mehendi guest outfits",
+     "impressions": 2,
+     "position": 13.0
+    },
+    {
+     "q": "mehndi guest outfit ideas",
+     "impressions": 2,
+     "position": 6.0
+    },
+    {
+     "q": "what to wear to a henna party as a guest",
+     "impressions": 2,
+     "position": 12.0
+    },
+    {
+     "q": "what to wear to a mehndi party as a guest",
+     "impressions": 2,
+     "position": 61.0
+    },
+    {
+     "q": "what to wear to mehndi",
+     "impressions": 2,
+     "position": 82.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 16.6,
+     "impressions": 68,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "kurti",
+   "name": "Kurtis",
+   "pattern": "kurti|kurtis",
+   "owner": "/collections/kurtis/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 49,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 11.7,
+   "status": "page 2",
+   "owner_share": 0.0,
+   "cannibalisation": [
+    {
+     "page": "/",
+     "share": 0.67
+    },
+    {
+     "page": "/products/rani-pink-embroidered-kurti/",
+     "share": 0.24
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "India": 78,
+    "Russia": 5
+   },
+   "top_queries": [
+    {
+     "q": "tie up kurti",
+     "impressions": 20,
+     "position": 8.7
+    },
+    {
+     "q": "rani pink kurti",
+     "impressions": 8,
+     "position": 30.5
+    },
+    {
+     "q": "tie up kurti for women",
+     "impressions": 6,
+     "position": 10.7
+    },
+    {
+     "q": "kurti",
+     "impressions": 4,
+     "position": 6.5
+    },
+    {
+     "q": "neck tie up kurti for women",
+     "impressions": 2,
+     "position": 14.0
+    },
+    {
+     "q": "rope kurti for women",
+     "impressions": 2,
+     "position": 8.0
+    },
+    {
+     "q": "side knot kurti for women",
+     "impressions": 2,
+     "position": 2.0
+    },
+    {
+     "q": "side rope kurti",
+     "impressions": 2,
+     "position": 4.0
+    },
+    {
+     "q": "side tying kurti",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "kurti pose",
+     "impressions": 1,
+     "position": 5.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 11.7,
+     "impressions": 75,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "chanderi-fabric",
+   "name": "What is chanderi fabric",
+   "pattern": "chanderi",
+   "owner": "/blog/what-is-chanderi-fabric-how-to-style-a-chanderi-kurta-set/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 46,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 17.3,
+   "status": "page 2",
+   "owner_share": 0.61,
+   "cannibalisation": [
+    {
+     "page": "/blog/chanderi-kurta-set-buying-guide/",
+     "share": 0.39
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "India": 36,
+    "Malaysia": 24
+   },
+   "top_queries": [
+    {
+     "q": "are chanderi kurta sets good for wedding functions?",
+     "impressions": 18,
+     "position": 4.3
+    },
+    {
+     "q": "chanderi fabric kurta",
+     "impressions": 8,
+     "position": 20.8
+    },
+    {
+     "q": "chanderi kurtis",
+     "impressions": 6,
+     "position": 18.3
+    },
+    {
+     "q": "chanderi kurta",
+     "impressions": 4,
+     "position": 24.5
+    },
+    {
+     "q": "chanderi",
+     "impressions": 2,
+     "position": 30.0
+    },
+    {
+     "q": "chanderi dress material",
+     "impressions": 2,
+     "position": 51.0
+    },
+    {
+     "q": "chanderi kurta set",
+     "impressions": 2,
+     "position": 12.0
+    },
+    {
+     "q": "chanderi kurti",
+     "impressions": 2,
+     "position": 68.0
+    },
+    {
+     "q": "chanderi kurti for women",
+     "impressions": 2,
+     "position": 11.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 17.3,
+     "impressions": 46,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "bhai-dooj",
+   "name": "Bhai Dooj outfits",
+   "pattern": "bhai dooj|bhaidooj",
+   "owner": "/blog/bhai-dooj-outfit-ideas-for-sisters/",
+   "intent": "guide",
+   "markets": "IN US UK",
+   "owner_exists": true,
+   "impressions": 44,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 35.0,
+   "status": "beyond page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 54
+   },
+   "top_queries": [
+    {
+     "q": "bhai dooj dress for women",
+     "impressions": 18,
+     "position": 39.9
+    },
+    {
+     "q": "bhai dooj outfit ideas",
+     "impressions": 10,
+     "position": 20.4
+    },
+    {
+     "q": "bhai dooj outfits for women",
+     "impressions": 10,
+     "position": 47.8
+    },
+    {
+     "q": "bhai dooj outfits",
+     "impressions": 4,
+     "position": 18.5
+    },
+    {
+     "q": "bhai dooj dresses for women",
+     "impressions": 2,
+     "position": 32.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 35.0,
+     "impressions": 44,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "christmas",
+   "name": "Christmas & New Year Indian outfits",
+   "pattern": "christmas|new year",
+   "owner": "/blog/christmas-outfit-ideas-indian-ethnic-wear-for-women/",
+   "intent": "collection",
+   "markets": "US UK CA AU",
+   "owner_exists": true,
+   "impressions": 42,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 8.2,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United States": 90
+   },
+   "top_queries": [
+    {
+     "q": "christmas ethnic wear collection",
+     "impressions": 20,
+     "position": 11.0
+    },
+    {
+     "q": "indian christmas outfit",
+     "impressions": 10,
+     "position": 7.8
+    },
+    {
+     "q": "indian christmas dress",
+     "impressions": 6,
+     "position": 4.7
+    },
+    {
+     "q": "indian christmas outfit ideas",
+     "impressions": 6,
+     "position": 3.3
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 8.2,
+     "impressions": 42,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "anarkali",
+   "name": "Anarkali suits (buy)",
+   "pattern": "anarkali|gota patti|frock suit",
+   "owner": "/collections/anarkali-suits/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 42,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 19.5,
+   "status": "page 2",
+   "owner_share": 0.0,
+   "cannibalisation": [
+    {
+     "page": "/shop/gota-patti-anarkali-suits/",
+     "share": 0.24
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "India": 18
+   },
+   "top_queries": [
+    {
+     "q": "gota patti anarkali",
+     "impressions": 6,
+     "position": 60.0
+    },
+    {
+     "q": "anarkali suit",
+     "impressions": 4,
+     "position": 9.5
+    },
+    {
+     "q": "dreamy anarkali suit",
+     "impressions": 4,
+     "position": 1.0
+    },
+    {
+     "q": "gota patti anarkali suit",
+     "impressions": 4,
+     "position": 57.0
+    },
+    {
+     "q": "anarkali",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "anarkali dress for dance",
+     "impressions": 2,
+     "position": 3.0
+    },
+    {
+     "q": "anarkali dress material",
+     "impressions": 2,
+     "position": 17.0
+    },
+    {
+     "q": "anarkali suit for women",
+     "impressions": 2,
+     "position": 6.0
+    },
+    {
+     "q": "anarkali suit for women deep neck",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "bandhani anarkali",
+     "impressions": 2,
+     "position": 8.0
+    },
+    {
+     "q": "bandhani anarkali suit",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "deep neck anarkali suit for women",
+     "impressions": 2,
+     "position": 1.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 19.7,
+     "impressions": 46,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "nepali-wedding",
+   "name": "Nepali wedding guest outfit",
+   "pattern": "nepali|nepal",
+   "owner": "/blog/what-to-wear-to-a-nepali-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US AU",
+   "owner_exists": true,
+   "impressions": 40,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 13.1,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "United States": 30,
+    "United Kingdom": 24
+   },
+   "top_queries": [
+    {
+     "q": "what to wear to a nepali wedding as a guest",
+     "impressions": 28,
+     "position": 9.8
+    },
+    {
+     "q": "what to wear to a nepali wedding",
+     "impressions": 8,
+     "position": 25.5
+    },
+    {
+     "q": "nepalese wedding guest attire",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "nepali wedding guest dress",
+     "impressions": 2,
+     "position": 12.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 13.1,
+     "impressions": 40,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "plus-size-diwali",
+   "name": "Plus size Diwali outfits",
+   "pattern": "(plus size|plus-size|chubby|curvy).*(diwali)|diwali.*(plus size|chubby|curvy)",
+   "owner": "/blog/diwali-outfits-for-plus-size-women/",
+   "intent": "guide",
+   "markets": "US UK CA AU",
+   "owner_exists": true,
+   "impressions": 36,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 14.7,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 36
+   },
+   "top_queries": [
+    {
+     "q": "diwali outfit ideas for chubby girl",
+     "impressions": 12,
+     "position": 10.5
+    },
+    {
+     "q": "plus size diwali outfits for women",
+     "impressions": 8,
+     "position": 11.2
+    },
+    {
+     "q": "diwali dress plus size",
+     "impressions": 4,
+     "position": 37.0
+    },
+    {
+     "q": "diwali outfits for women plus size",
+     "impressions": 4,
+     "position": 3.0
+    },
+    {
+     "q": "diwali dress for plus size women",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "diwali outfit plus size",
+     "impressions": 2,
+     "position": 9.0
+    },
+    {
+     "q": "plus size diwali outfit",
+     "impressions": 2,
+     "position": 50.0
+    },
+    {
+     "q": "plus size diwali outfits",
+     "impressions": 2,
+     "position": 7.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 14.7,
+     "impressions": 36,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "pakistani-wedding",
+   "name": "Pakistani wedding / nikah / walima guest outfit",
+   "pattern": "pakistan|walima|nikah",
+   "owner": "/blog/what-to-wear-to-a-pakistani-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US CA AE",
+   "owner_exists": true,
+   "impressions": 34,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 31.6,
+   "status": "beyond page 2",
+   "owner_share": 0.71,
+   "cannibalisation": [
+    {
+     "page": "/blog/what-to-wear-to-a-nikah-or-walima-as-a-guest/",
+     "share": 0.24
+    }
+   ],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "what to wear to a walima guest female",
+     "impressions": 8,
+     "position": 23.5
+    },
+    {
+     "q": "can you wear black to a pakistani wedding",
+     "impressions": 4,
+     "position": 59.0
+    },
+    {
+     "q": "pakistani wedding outfits for guests",
+     "impressions": 4,
+     "position": 23.5
+    },
+    {
+     "q": "what should a guest wear to a pakistani wedding",
+     "impressions": 4,
+     "position": 37.5
+    },
+    {
+     "q": "what to wear to a pakistani muslim wedding",
+     "impressions": 4,
+     "position": 30.0
+    },
+    {
+     "q": "what to wear to a pakistani wedding",
+     "impressions": 4,
+     "position": 38.5
+    },
+    {
+     "q": "for walima",
+     "impressions": 2,
+     "position": 2.0
+    },
+    {
+     "q": "what to wear to a nikah ceremony as a guest",
+     "impressions": 2,
+     "position": 24.0
+    },
+    {
+     "q": "what to wear to a pakistani wedding reception",
+     "impressions": 2,
+     "position": 41.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 31.6,
+     "impressions": 34,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "marathi-wedding",
+   "name": "Marathi wedding guest outfit",
+   "pattern": "marathi|maharashtrian",
+   "owner": "/blog/what-to-wear-to-a-marathi-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "IN US UK",
+   "owner_exists": true,
+   "impressions": 32,
+   "clicks": 2,
+   "ctr": 0.062,
+   "position": 5.4,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [
+    {
+     "page": "/stories/what-to-wear-to-a-marathi-wedding-as-a-guest/",
+     "share": 0.69
+    }
+   ],
+   "countries": {
+    "India": 60,
+    "Japan": 5
+   },
+   "top_queries": [
+    {
+     "q": "marathi wedding guest outfit",
+     "impressions": 18,
+     "position": 4.9
+    },
+    {
+     "q": "maharashtrian wedding guest look",
+     "impressions": 8,
+     "position": 6.0
+    },
+    {
+     "q": "marathi wedding guest look",
+     "impressions": 6,
+     "position": 6.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 5.4,
+     "impressions": 32,
+     "clicks": 2
+    }
+   ]
+  },
+  {
+   "id": "south-indian-wedding",
+   "name": "South Indian wedding guest outfit",
+   "pattern": "south indian",
+   "owner": "/blog/what-to-wear-to-a-south-indian-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK CA AU SG MY",
+   "owner_exists": true,
+   "impressions": 30,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 14.3,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 36
+   },
+   "top_queries": [
+    {
+     "q": "what to wear in south indian wedding as a guest female",
+     "impressions": 12,
+     "position": 11.3
+    },
+    {
+     "q": "south indian wedding attire",
+     "impressions": 6,
+     "position": 15.0
+    },
+    {
+     "q": "south indian dress for wedding",
+     "impressions": 4,
+     "position": 21.5
+    },
+    {
+     "q": "south indian wedding guest look",
+     "impressions": 4,
+     "position": 12.5
+    },
+    {
+     "q": "south indian wedding guest attire",
+     "impressions": 2,
+     "position": 25.0
+    },
+    {
+     "q": "what to wear in south indian wedding as a guest",
+     "impressions": 2,
+     "position": 9.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 14.3,
+     "impressions": 30,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "reception",
+   "name": "Reception outfit for women",
+   "pattern": "reception",
+   "owner": "/blog/reception-outfit-ideas-for-women/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 30,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 26.9,
+   "status": "beyond page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 24
+   },
+   "top_queries": [
+    {
+     "q": "what to wear to a reception",
+     "impressions": 8,
+     "position": 42.2
+    },
+    {
+     "q": "reception guest outfit women",
+     "impressions": 4,
+     "position": 8.0
+    },
+    {
+     "q": "reception outfit for women",
+     "impressions": 4,
+     "position": 67.0
+    },
+    {
+     "q": "reception outfit ideas for guest",
+     "impressions": 4,
+     "position": 6.5
+    },
+    {
+     "q": "reception look for women",
+     "impressions": 2,
+     "position": 25.0
+    },
+    {
+     "q": "reception outfit for women guest",
+     "impressions": 2,
+     "position": 8.0
+    },
+    {
+     "q": "reception outfit ideas for women",
+     "impressions": 2,
+     "position": 10.0
+    },
+    {
+     "q": "reception outfits for women",
+     "impressions": 2,
+     "position": 20.0
+    },
+    {
+     "q": "what to wear for evening wedding reception woman",
+     "impressions": 2,
+     "position": 9.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 26.9,
+     "impressions": 30,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "kurta-set",
+   "name": "Kurta sets / suit sets",
+   "pattern": "kurta set|kurta pant|suit set|salwar|3 piece|three piece|\\bsuits?\\b",
+   "owner": "/collections/kurta-pant-dupatta-sets/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 30,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 30.3,
+   "status": "beyond page 2",
+   "owner_share": 0.0,
+   "cannibalisation": [
+    {
+     "page": "/indian-kurta-sets-for-women-usa/",
+     "share": 0.33
+    },
+    {
+     "page": "/blog/how-to-drape-a-dupatta-7-ways/",
+     "share": 0.27
+    }
+   ],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "how to drape dupatta on suit",
+     "impressions": 4,
+     "position": 8.5
+    },
+    {
+     "q": "indian kurta sets online usa",
+     "impressions": 4,
+     "position": 29.0
+    },
+    {
+     "q": "aesthetic suit",
+     "impressions": 2,
+     "position": 6.0
+    },
+    {
+     "q": "bandhani suit",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "how to carry dupatta on salwar kameez",
+     "impressions": 2,
+     "position": 87.0
+    },
+    {
+     "q": "how to take dupatta on suit",
+     "impressions": 2,
+     "position": 9.0
+    },
+    {
+     "q": "ready to ship kurta sets",
+     "impressions": 2,
+     "position": 20.0
+    },
+    {
+     "q": "royal blue salwar suit",
+     "impressions": 2,
+     "position": 4.0
+    },
+    {
+     "q": "sanganer suit market",
+     "impressions": 2,
+     "position": 68.0
+    },
+    {
+     "q": "site:instagram.com/reel/ the girl from suits",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "suits",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "women's kurta set",
+     "impressions": 2,
+     "position": 73.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 46.7,
+     "impressions": 116,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "kerala-wedding",
+   "name": "Kerala / Malayali wedding guest outfit",
+   "pattern": "kerala|malayali",
+   "owner": "/blog/what-to-wear-to-a-kerala-malayali-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "US UK AE IN",
+   "owner_exists": true,
+   "impressions": 28,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 10.9,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [
+    {
+     "page": "/stories/what-to-wear-to-a-kerala-malayali-wedding-as-a-guest/",
+     "share": 0.29
+    }
+   ],
+   "countries": {
+    "India": 18
+   },
+   "top_queries": [
+    {
+     "q": "dress code for wedding kerala",
+     "impressions": 8,
+     "position": 15.8
+    },
+    {
+     "q": "kerala wedding guest look",
+     "impressions": 4,
+     "position": 10.5
+    },
+    {
+     "q": "kerala wedding guest outfit",
+     "impressions": 4,
+     "position": 7.5
+    },
+    {
+     "q": "dress code for marriage function in kerala",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "dress code for wedding kerala hindu",
+     "impressions": 2,
+     "position": 5.0
+    },
+    {
+     "q": "kerala wedding dress for guest",
+     "impressions": 2,
+     "position": 6.0
+    },
+    {
+     "q": "kerala wedding guest attire",
+     "impressions": 2,
+     "position": 14.0
+    },
+    {
+     "q": "malayali marriage dress code",
+     "impressions": 2,
+     "position": 6.0
+    },
+    {
+     "q": "malayali wedding dress",
+     "impressions": 2,
+     "position": 11.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 10.9,
+     "impressions": 28,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "buy-abroad",
+   "name": "Buy Indian clothes online abroad",
+   "pattern": "online.*(usa|uk|canada|australia|uae|us\\b)|(usa|uk|canada|australia|uae).*online|fast (shipping|delivery)|next day|indian clothes",
+   "owner": "/indian-clothes-online-uk-canada-australia-uae/",
+   "intent": "collection",
+   "markets": "US UK CA AU AE",
+   "owner_exists": true,
+   "impressions": 28,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 45.2,
+   "status": "beyond page 2",
+   "owner_share": 0.0,
+   "cannibalisation": [
+    {
+     "page": "/indian-clothes-online-usa/",
+     "share": 0.29
+    },
+    {
+     "page": "/indian-clothes-online-singapore/",
+     "share": 0.21
+    }
+   ],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "fast delivery indian clothes uk",
+     "impressions": 4,
+     "position": 69.0
+    },
+    {
+     "q": "next day indian clothes delivery",
+     "impressions": 4,
+     "position": 41.0
+    },
+    {
+     "q": "where can i buy indian clothes online with fast shipping to the us",
+     "impressions": 4,
+     "position": 9.0
+    },
+    {
+     "q": "cheap indian clothes online shopping",
+     "impressions": 2,
+     "position": 7.0
+    },
+    {
+     "q": "indian clothes online",
+     "impressions": 2,
+     "position": 10.0
+    },
+    {
+     "q": "indian clothes online canada",
+     "impressions": 2,
+     "position": 89.0
+    },
+    {
+     "q": "indian clothes singapore online",
+     "impressions": 2,
+     "position": 55.0
+    },
+    {
+     "q": "indian dress online canada",
+     "impressions": 2,
+     "position": 85.0
+    },
+    {
+     "q": "online indian clothes",
+     "impressions": 2,
+     "position": 30.0
+    },
+    {
+     "q": "ship indian clothes abroad",
+     "impressions": 2,
+     "position": 84.0
+    },
+    {
+     "q": "singapore indian clothes online",
+     "impressions": 2,
+     "position": 35.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 45.2,
+     "impressions": 28,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "dupatta",
+   "name": "How to drape a dupatta",
+   "pattern": "dupatta",
+   "owner": "/blog/how-to-drape-a-dupatta-7-ways/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 28,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 10.0,
+   "status": "page 1",
+   "owner_share": 0.93,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "how to drape dupatta",
+     "impressions": 6,
+     "position": 8.3
+    },
+    {
+     "q": "how to wear indian dupatta",
+     "impressions": 4,
+     "position": 9.5
+    },
+    {
+     "q": "guide me through different traditional and modern ways to drape a dupatta",
+     "impressions": 2,
+     "position": 10.0
+    },
+    {
+     "q": "how to put on a dupatta",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "how to take dupatta",
+     "impressions": 2,
+     "position": 11.0
+    },
+    {
+     "q": "how to wear a dupatta",
+     "impressions": 2,
+     "position": 9.0
+    },
+    {
+     "q": "how to wear rajputi dupatta",
+     "impressions": 2,
+     "position": 8.0
+    },
+    {
+     "q": "how to wrap a dupatta",
+     "impressions": 2,
+     "position": 9.0
+    },
+    {
+     "q": "light dupatta",
+     "impressions": 2,
+     "position": 19.0
+    },
+    {
+     "q": "ways to drape a dupatta",
+     "impressions": 2,
+     "position": 9.0
+    },
+    {
+     "q": "ways to drape dupatta",
+     "impressions": 2,
+     "position": 10.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 10.0,
+     "impressions": 28,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "plus-size-wedding",
+   "name": "Plus size wedding guest outfits",
+   "pattern": "(plus size|plus-size|curvy).*(wedding)",
+   "owner": "/blog/plus-size-indian-wedding-guest-outfits/",
+   "intent": "guide",
+   "markets": "US UK CA AU",
+   "owner_exists": true,
+   "impressions": 26,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 15.4,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [
+    {
+     "page": "/stories/plus-size-indian-wedding-guest-outfits/",
+     "share": 0.69
+    }
+   ],
+   "countries": {
+    "United States": 30
+   },
+   "top_queries": [
+    {
+     "q": "plus size indian wedding guest dresses",
+     "impressions": 24,
+     "position": 16.0
+    },
+    {
+     "q": "plus size indian wedding guest outfits",
+     "impressions": 2,
+     "position": 8.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 15.4,
+     "impressions": 26,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "anarkali-choose",
+   "name": "How to choose an Anarkali",
+   "pattern": "choose an anarkali|anarkali suit.*worth|luxury anarkali",
+   "owner": "/blog/how-to-choose-an-anarkali-for-a-wedding/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 26,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 3.1,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "Italy": 18,
+    "France": 5
+   },
+   "top_queries": [
+    {
+     "q": "are luxury anarkali suits worth buying for weddings?",
+     "impressions": 26,
+     "position": 3.1
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 3.1,
+     "impressions": 26,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "sheer-kurti",
+   "name": "Sheer embroidered kurti",
+   "pattern": "sheer",
+   "owner": "/blog/5-ways-to-style-a-sheer-embroidered-kurti/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 26,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 11.7,
+   "status": "page 2",
+   "owner_share": 0.92,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 42
+   },
+   "top_queries": [
+    {
+     "q": "sheer embroidered kurti",
+     "impressions": 16,
+     "position": 11.9
+    },
+    {
+     "q": "sheer kurti with blouse",
+     "impressions": 4,
+     "position": 17.0
+    },
+    {
+     "q": "sheer kurti with embroidery blouse",
+     "impressions": 4,
+     "position": 11.0
+    },
+    {
+     "q": "sheer kurti for women",
+     "impressions": 2,
+     "position": 1.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 11.7,
+     "impressions": 26,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "gujarati-wedding",
+   "name": "Gujarati wedding guest outfit",
+   "pattern": "gujarati|garba",
+   "owner": "/blog/what-to-wear-to-a-gujarati-wedding-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK US IN",
+   "owner_exists": true,
+   "impressions": 22,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 12.3,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 30
+   },
+   "top_queries": [
+    {
+     "q": "gujarati wedding dress for guest",
+     "impressions": 14,
+     "position": 11.7
+    },
+    {
+     "q": "gujarati wedding attire",
+     "impressions": 4,
+     "position": 17.5
+    },
+    {
+     "q": "gujarati wedding guest outfits",
+     "impressions": 4,
+     "position": 9.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 12.3,
+     "impressions": 22,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "block-print-types",
+   "name": "Sanganeri, Bagru & Dabu print",
+   "pattern": "sanganeri|bagru|dabu|bhagat",
+   "owner": "/blog/sanganeri-bagru-and-dabu-print-a-simple-guide-to-jaipur-block-prints/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 22,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 8.4,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 54
+   },
+   "top_queries": [
+    {
+     "q": "bagru and sanganeri print",
+     "impressions": 6,
+     "position": 1.0
+    },
+    {
+     "q": "difference between dabu and bagru print",
+     "impressions": 6,
+     "position": 1.0
+    },
+    {
+     "q": "sanganeri and bagru print",
+     "impressions": 6,
+     "position": 1.0
+    },
+    {
+     "q": "bhagat prints sanganer",
+     "impressions": 4,
+     "position": 41.5
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 8.4,
+     "impressions": 22,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "engagement",
+   "name": "Roka / engagement outfit",
+   "pattern": "roka|engagement",
+   "owner": "/blog/roka-and-engagement-outfit-ideas/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 20,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 10.2,
+   "status": "page 2",
+   "owner_share": 0.6,
+   "cannibalisation": [
+    {
+     "page": "/blog/how-to-choose-an-anarkali-for-a-wedding/",
+     "share": 0.4
+    }
+   ],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "how do i choose an anarkali suit for an engagement?",
+     "impressions": 8,
+     "position": 7.8
+    },
+    {
+     "q": "roka ceremony outfit",
+     "impressions": 4,
+     "position": 11.0
+    },
+    {
+     "q": "roka ceremony dress for couple",
+     "impressions": 2,
+     "position": 7.0
+    },
+    {
+     "q": "roka outfits",
+     "impressions": 2,
+     "position": 13.0
+    },
+    {
+     "q": "roka outfits for women",
+     "impressions": 2,
+     "position": 20.0
+    },
+    {
+     "q": "roka outfits women",
+     "impressions": 2,
+     "position": 9.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 10.2,
+     "impressions": 20,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "teen-wedding",
+   "name": "Teen girl wedding outfit",
+   "pattern": "teen",
+   "owner": "/blog/teen-girl-indian-wedding-outfit-ideas/",
+   "intent": "guide",
+   "markets": "US UK CA",
+   "owner_exists": true,
+   "impressions": 20,
+   "clicks": 2,
+   "ctr": 0.1,
+   "position": 6.4,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 54
+   },
+   "top_queries": [
+    {
+     "q": "wedding outfits for teenage girl guest indian",
+     "impressions": 12,
+     "position": 8.8
+    },
+    {
+     "q": "wedding outfit ideas for teenage girl",
+     "impressions": 6,
+     "position": 3.0
+    },
+    {
+     "q": "teen ager",
+     "impressions": 2,
+     "position": 2.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 6.4,
+     "impressions": 20,
+     "clicks": 2
+    }
+   ]
+  },
+  {
+   "id": "lohri",
+   "name": "Lohri outfits",
+   "pattern": "lohri",
+   "owner": "/festival/lohri/",
+   "intent": "guide",
+   "markets": "IN UK CA",
+   "owner_exists": true,
+   "impressions": 18,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 29.1,
+   "status": "beyond page 2",
+   "owner_share": 0.56,
+   "cannibalisation": [
+    {
+     "page": "/blog/what-to-wear-for-lohri-outfit-ideas/",
+     "share": 0.44
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "Canada": 24
+   },
+   "top_queries": [
+    {
+     "q": "lohri outfits",
+     "impressions": 8,
+     "position": 24.0
+    },
+    {
+     "q": "lohri dress for ladies",
+     "impressions": 4,
+     "position": 13.0
+    },
+    {
+     "q": "lohri dress",
+     "impressions": 2,
+     "position": 50.0
+    },
+    {
+     "q": "lohri dress online",
+     "impressions": 2,
+     "position": 23.0
+    },
+    {
+     "q": "lohri wear for women",
+     "impressions": 2,
+     "position": 67.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 29.1,
+     "impressions": 18,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "tunic",
+   "name": "Short kurtis / tunic tops for jeans",
+   "pattern": "tunic|short kurti|kurti for jeans|top for jeans",
+   "owner": "/cotton-tunic-tops-short-kurtis-for-jeans/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 18,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 24.8,
+   "status": "beyond page 2",
+   "owner_share": 0.33,
+   "cannibalisation": [
+    {
+     "page": "/products/yellow-black-embroidered-cotton-tunic-top/",
+     "share": 0.33
+    },
+    {
+     "page": "/products/olive-green-white-embroidered-cotton-tunic-top/",
+     "share": 0.22
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "India": 18
+   },
+   "top_queries": [
+    {
+     "q": "short tunic tops for jeans",
+     "impressions": 6,
+     "position": 6.0
+    },
+    {
+     "q": "tunic",
+     "impressions": 4,
+     "position": 4.0
+    },
+    {
+     "q": "yellow tunic",
+     "impressions": 4,
+     "position": 47.0
+    },
+    {
+     "q": "sky blue tunics for women",
+     "impressions": 2,
+     "position": 60.0
+    },
+    {
+     "q": "yellow tunics",
+     "impressions": 2,
+     "position": 43.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 24.8,
+     "impressions": 18,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "rajasthani-wedding",
+   "name": "Rajasthani / Marwari wedding guest outfit",
+   "pattern": "rajasthani|marwari",
+   "owner": "/blog/what-to-wear-to-a-rajasthani-marwari-wedding/",
+   "intent": "guide",
+   "markets": "IN US UK AE",
+   "owner_exists": true,
+   "impressions": 16,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 12.9,
+   "status": "page 2",
+   "owner_share": 0.88,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "India": 24
+   },
+   "top_queries": [
+    {
+     "q": "rajasthani wedding dress for guest",
+     "impressions": 8,
+     "position": 7.5
+    },
+    {
+     "q": "rajasthani wedding guest outfit",
+     "impressions": 4,
+     "position": 5.5
+    },
+    {
+     "q": "marwari wedding",
+     "impressions": 2,
+     "position": 6.0
+    },
+    {
+     "q": "rajasthani anarkali suits",
+     "impressions": 2,
+     "position": 56.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 12.9,
+     "impressions": 16,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "plus-size",
+   "name": "Plus size Indian outfits",
+   "pattern": "plus size|plus-size|chubby|curvy|4xl|5xl",
+   "owner": "/plus-size-indian-outfits/",
+   "intent": "collection",
+   "markets": "US UK CA AU",
+   "owner_exists": true,
+   "impressions": 16,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 43.2,
+   "status": "beyond page 2",
+   "owner_share": 0.88,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "indian clothes for plus size",
+     "impressions": 2,
+     "position": 56.0
+    },
+    {
+     "q": "indian clothing plus size",
+     "impressions": 2,
+     "position": 62.0
+    },
+    {
+     "q": "indian plus size clothes",
+     "impressions": 2,
+     "position": 76.0
+    },
+    {
+     "q": "plus size indian clothing",
+     "impressions": 2,
+     "position": 44.0
+    },
+    {
+     "q": "plus size indian costume",
+     "impressions": 2,
+     "position": 44.0
+    },
+    {
+     "q": "plus size indian costumes",
+     "impressions": 2,
+     "position": 28.0
+    },
+    {
+     "q": "plus size indian dresses",
+     "impressions": 2,
+     "position": 35.0
+    },
+    {
+     "q": "which indian ethnic wear styles suit curvy women best?",
+     "impressions": 2,
+     "position": 1.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 20.8,
+     "impressions": 78,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "haldi",
+   "name": "Haldi outfits for guests",
+   "pattern": "haldi|pithi",
+   "owner": "/blog/haldi-outfit-ideas-for-guests/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 14,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 15.4,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {
+    "Japan": 5
+   },
+   "top_queries": [
+    {
+     "q": "haldi outfits for guests",
+     "impressions": 4,
+     "position": 13.5
+    },
+    {
+     "q": "what to wear to a haldi ceremony as a guest",
+     "impressions": 4,
+     "position": 11.0
+    },
+    {
+     "q": "haldi guest outfit ideas",
+     "impressions": 2,
+     "position": 5.0
+    },
+    {
+     "q": "haldi guest outfits",
+     "impressions": 2,
+     "position": 24.0
+    },
+    {
+     "q": "haldi outfits for women guests",
+     "impressions": 2,
+     "position": 30.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 15.4,
+     "impressions": 14,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "gurdwara",
+   "name": "Gurdwara outfit (wedding / visit)",
+   "pattern": "gurdwara",
+   "owner": "/blog/what-to-wear-to-a-sikh-anand-karaj-as-a-guest/",
+   "intent": "guide",
+   "markets": "UK CA US IN",
+   "owner_exists": true,
+   "impressions": 8,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 12.3,
+   "status": "page 2",
+   "owner_share": 0.75,
+   "cannibalisation": [
+    {
+     "page": "/blog/guru-nanak-gurpurab-outfit-ideas-for-women/",
+     "share": 0.25
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "Canada": 18
+   },
+   "top_queries": [
+    {
+     "q": "gurdwara outfits",
+     "impressions": 6,
+     "position": 13.7
+    },
+    {
+     "q": "gurdwara outfit women",
+     "impressions": 2,
+     "position": 8.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 12.3,
+     "impressions": 8,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "kota-doria",
+   "name": "Kota doria",
+   "pattern": "kota doria|kota cloth|kota fabric",
+   "owner": "/blog/what-is-kota-doria-fabric-styling-and-care/",
+   "intent": "guide",
+   "markets": "IN US UK",
+   "owner_exists": true,
+   "impressions": 8,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 17.5,
+   "status": "page 2",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "kota doria cloth",
+     "impressions": 4,
+     "position": 29.0
+    },
+    {
+     "q": "what is kota doria fabric",
+     "impressions": 2,
+     "position": 1.0
+    },
+    {
+     "q": "what is kota fabric",
+     "impressions": 2,
+     "position": 11.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 17.5,
+     "impressions": 8,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "wholesale",
+   "name": "Kurti wholesale / manufacturer",
+   "pattern": "wholesale|manufacturer|supplier|bulk|private label|import",
+   "owner": "/wholesale/",
+   "intent": "b2b",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 5,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 86.0,
+   "status": "beyond page 2",
+   "owner_share": 0.0,
+   "cannibalisation": [
+    {
+     "page": "/",
+     "share": 1.0
+    }
+   ],
+   "story_twin": [],
+   "countries": {
+    "India": 9
+   },
+   "top_queries": [
+    {
+     "q": "sanganer kurti manufacturer",
+     "impressions": 3,
+     "position": 93.0
+    },
+    {
+     "q": "kurti manufacturer in jaipur",
+     "impressions": 2,
+     "position": 75.5
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 86.0,
+     "impressions": 5,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "kurta-palazzo",
+   "name": "Kurta palazzo sets",
+   "pattern": "palazzo",
+   "owner": "/collections/kurta-palazzo-sets/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 2,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 2.0,
+   "status": "top 3",
+   "owner_share": 0.0,
+   "cannibalisation": [
+    {
+     "page": "/products/sage-teal-block-print-cotton-kurta-palazzo-set/",
+     "share": 1.0
+    }
+   ],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "halter neck kurta palazzo set",
+     "impressions": 2,
+     "position": 2.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 2.0,
+     "impressions": 2,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "dubai",
+   "name": "Indian outfits in Dubai / UAE",
+   "pattern": "dubai|abu dhabi|uae",
+   "owner": "/blog/indian-wedding-guest-outfits-in-dubai-and-abu-dhabi/",
+   "intent": "guide",
+   "markets": "AE",
+   "owner_exists": true,
+   "impressions": 2,
+   "clicks": 0,
+   "ctr": 0.0,
+   "position": 10.0,
+   "status": "page 1",
+   "owner_share": 1.0,
+   "cannibalisation": [],
+   "story_twin": [
+    {
+     "page": "/stories/indian-wedding-guest-outfits-in-dubai-and-abu-dhabi/",
+     "share": 1.0
+    }
+   ],
+   "countries": {},
+   "top_queries": [
+    {
+     "q": "what to wear to a wedding in dubai",
+     "impressions": 2,
+     "position": 10.0
+    }
+   ],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 10.0,
+     "impressions": 2,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "gurpurab",
+   "name": "Gurpurab / Guru Nanak Jayanti outfit",
+   "pattern": "gurpurab|guru nanak|gurupurab",
+   "owner": "/blog/guru-nanak-gurpurab-outfit-ideas-for-women/",
+   "intent": "guide",
+   "markets": "UK CA US IN",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "sangeet",
+   "name": "Sangeet outfits",
+   "pattern": "sangeet",
+   "owner": "/blog/sangeet-outfit-ideas-for-guests/",
+   "intent": "guide",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "over-50",
+   "name": "Indian wedding outfits for women over 50 / mother of the bride",
+   "pattern": "over 50|mother of the bride|older women",
+   "owner": "/blog/indian-wedding-guest-outfits-for-women-over-50/",
+   "intent": "guide",
+   "markets": "US UK CA AU",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "eid",
+   "name": "Eid outfits",
+   "pattern": "\\beid\\b",
+   "owner": "/blog/eid-outfit-ideas-anarkali-and-kurta-sets-abroad/",
+   "intent": "guide",
+   "markets": "UK US AE MY SG",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "chanderi",
+   "name": "Chanderi kurta sets",
+   "pattern": "chanderi (kurta|kurti|set|suit)|chanderi kurtis",
+   "owner": "/craft/chanderi/",
+   "intent": "collection",
+   "markets": "IN US UK",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": [
+    {
+     "date": "2026-11-20",
+     "position": 17.3,
+     "impressions": 46,
+     "clicks": 0
+    }
+   ]
+  },
+  {
+   "id": "maxi-dress",
+   "name": "Cotton maxi / midi dresses",
+   "pattern": "maxi|midi|dress for summer|summer dress",
+   "owner": "/collections/dresses/",
+   "intent": "collection",
+   "markets": "US UK AU AE",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "co-ord",
+   "name": "Co-ord sets",
+   "pattern": "co-?ord|coord|two piece|2 piece",
+   "owner": "/collections/co-ord-sets/",
+   "intent": "collection",
+   "markets": "all",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "custom-fit",
+   "name": "Custom stitched / made to measure",
+   "pattern": "custom|made to measure|stitched|tailor",
+   "owner": "/custom-stitched-indian-suits-made-to-measure/",
+   "intent": "collection",
+   "markets": "US UK CA AU",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "france",
+   "name": "Tenue indienne (France)",
+   "pattern": "tenue|robe|indienne|femme",
+   "owner": "/fr/",
+   "intent": "intl",
+   "markets": "FR",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "japan",
+   "name": "インド服 (Japan)",
+   "pattern": "[぀-ヿ一-鿿]",
+   "owner": "/ja/",
+   "intent": "intl",
+   "markets": "JP",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  },
+  {
+   "id": "russia",
+   "name": "Индийская одежда (Russia)",
+   "pattern": "[Ѐ-ӿ]",
+   "owner": "/ru/",
+   "intent": "intl",
+   "markets": "RU",
+   "owner_exists": true,
+   "impressions": 0,
+   "clicks": 0,
+   "ctr": null,
+   "position": null,
+   "status": "no data yet",
+   "owner_share": null,
+   "cannibalisation": [],
+   "story_twin": [],
+   "countries": {},
+   "top_queries": [],
+   "history": []
+  }
+ ],
+ "unassigned_top": [
+  {
+   "q": "लहंगे का बजट नहीं है, इन्हीं में से बेस्ट फ्रेंड की शादी के लिए सेलेब वाला लुक बनाओ",
+   "impressions": 48
+  },
+  {
+   "q": "didi ki destination wedding ke liye kaise outfits khareedun?",
+   "impressions": 16
+  },
+  {
+   "q": "lehenge ka budget nahi hai, inhi mein se best friend ki shaadi ke liye celeb wala look banao.",
+   "impressions": 16
+  },
+  {
+   "q": "bhajan jamming outfit ideas",
+   "impressions": 8
+  },
+  {
+   "q": "canadian indian clothing online",
+   "impressions": 4
+  },
+  {
+   "q": "how to measure for a kurta",
+   "impressions": 4
+  },
+  {
+   "q": "jam silk",
+   "impressions": 4
+  },
+  {
+   "q": "what to wear for a wedding in goa",
+   "impressions": 4
+  },
+  {
+   "q": "as guests",
+   "impressions": 2
+  },
+  {
+   "q": "bridesmaid outfit ideas",
+   "impressions": 2
+  },
+  {
+   "q": "can i rewear indian ethnic wear for different occasions?",
+   "impressions": 2
+  },
+  {
+   "q": "cocktail party unique party wear indo western dress",
+   "impressions": 2
+  },
+  {
+   "q": "colors to wear at night wedding",
+   "impressions": 2
+  },
+  {
+   "q": "dip",
+   "impressions": 2
+  },
+  {
+   "q": "doria fabric season",
+   "impressions": 2
+  },
+  {
+   "q": "dress design",
+   "impressions": 2
+  },
+  {
+   "q": "dress link",
+   "impressions": 2
+  },
+  {
+   "q": "festival",
+   "impressions": 2
+  },
+  {
+   "q": "find this dress",
+   "impressions": 2
+  },
+  {
+   "q": "find this dress in pink",
+   "impressions": 2
+  },
+  {
+   "q": "find this dresss",
+   "impressions": 2
+  },
+  {
+   "q": "flipkart",
+   "impressions": 2
+  },
+  {
+   "q": "for dance practice",
+   "impressions": 2
+  },
+  {
+   "q": "for festival",
+   "impressions": 2
+  },
+  {
+   "q": "g",
+   "impressions": 2
+  }
+ ]
+}
