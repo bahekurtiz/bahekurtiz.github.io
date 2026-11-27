@@ -24,9 +24,9 @@
   Saanjh means “evening” – navy florals for slow summer evenings.
   Cotton · Hand Block Print · Sanganeri Print · Floral Print · sizes XS–3XL + free custom fit · made in our Jaipur unit.
   Shop: https://bahekurtiz.com/products/navy-floral-hand-block-print-cotton-maxi-dress/
-  Searches this answers: is it cotton and linen dresses for warm weather · casual sundress for women · linen vs cotton dress
+  Searches this answers: casual sundress for women · linen vs cotton dress · linen vs cotton poplin dresses for hot weather
 
-- **Tags:** Bahe Kurtiz, Dress, Cotton, Hand Block Print, Sanganeri Print, Floral Print, Jaipur, Indian ethnic wear, is it cotton and linen dresses for warm weather, casual sundress for women, linen vs cotton dress, linen vs cotton poplin dresses for hot weather
+- **Tags:** Bahe Kurtiz, Dress, Cotton, Hand Block Print, Sanganeri Print, Floral Print, Jaipur, Indian ethnic wear, casual sundress for women, linen vs cotton dress, linen vs cotton poplin dresses for hot weather
 
 ## Noor
 
@@ -93,3 +93,17 @@
 
 - **Tags:** Bahe Kurtiz, Kurta Pant Dupatta Set, Cotton Flex, Embroidered, Thread Work, Jaipur, Indian ethnic wear, indian kurta sets online usa, ready to ship kurta sets, women's kurta set, indian wedding guest
 
+## Chapters for a 60–90 second walkthrough video (any product above)
+
+Paste at the end of the description (YouTube turns them into chapters):
+
+```
+0:00 The full look
+0:10 Fabric & craft close-up
+0:25 Neckline, sleeves & details
+0:40 Fit, sizes & free custom fit
+0:50 How to style it
+1:00 Where to buy (link in description)
+```
+
+Weekly guide video idea (the most-searched guide topic right now, from Search Console): **Tamil wedding guest outfit** – film 3 of this week's pieces, title it with the exact search words, and use chapters: 0:00 Quick answer · 0:20 Look 1 · 0:45 Look 2 · 1:10 Look 3 · 1:35 What to avoid · 1:50 Sizes & ordering.

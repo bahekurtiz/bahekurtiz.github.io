@@ -48,7 +48,7 @@ Tap the link in bio or DM "SAANJH" for your size 💬
 
 **Alt text (Instagram → Advanced settings → Accessibility):** Saanjh – Navy Floral Hand Block Print Cotton Maxi Dress, Cotton, made in Jaipur by Bahe Kurtiz
 
-**Searchable words to keep in the first line** (real Google searches): is it cotton and linen dresses for warm weather · casual sundress for women · linen vs cotton dress · linen vs cotton poplin dresses for hot weather
+**Searchable words to keep in the first line** (real Google searches): casual sundress for women · linen vs cotton dress · linen vs cotton poplin dresses for hot weather
 
 ---
 

@@ -15,7 +15,7 @@
 
 - **Board:** Summer & Linen Dresses
 - **Pin title:** Navy Floral Hand Block Print Cotton Maxi Dress – Saanjh | Handmade in Jaipur
-- **Description:** Saanjh means “evening” – navy florals for slow summer evenings. Cotton, Hand Block Print, Sanganeri Print, Floral Print. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: is it cotton and linen dresses for warm weather, casual sundress for women, linen vs cotton dress.
+- **Description:** Saanjh means “evening” – navy florals for slow summer evenings. Cotton, Hand Block Print, Sanganeri Print, Floral Print. Sizes XS–3XL or free custom fit. Free shipping to the USA, UK, Canada, UAE and Australia. Ideas for: casual sundress for women, linen vs cotton dress, linen vs cotton poplin dresses for hot weather.
 - **Link:** https://bahekurtiz.com/products/navy-floral-hand-block-print-cotton-maxi-dress/
 - **Image:** https://bahekurtiz.com/images/products/v2/navy-floral-hand-block-print-cotton-maxi-dress-1.webp (vertical 2:3 – already this size)
 - **Alt text:** Saanjh – Navy Floral Hand Block Print Cotton Maxi Dress, Cotton, made in Jaipur by Bahe Kurtiz

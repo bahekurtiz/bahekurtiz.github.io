@@ -4,7 +4,8 @@ Made by `node scripts/social-seo.mjs` (weekly routine). 7 products this week: Ta
 
 - instagram-facebook.md – caption, hashtags, alt text, searchable first line
 - pinterest.md – pin title, description, board, alt text
-- youtube.md – Shorts title, description, tags
+- youtube.md – Shorts title, description, tags, chapters for a walkthrough video + one guide-video idea
+- ../tiktok/2026-W48.md – TikTok caption, on-screen text, words to say, hashtags, profile bio
 - profiles.md – name / bio / about with real keywords (update once, then only when it changes)
 
 Nothing is posted automatically. Post 3–4 a week; put the keyword words in the first line; always add the alt text.
