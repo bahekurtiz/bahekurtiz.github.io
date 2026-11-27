@@ -1,6 +1,7 @@
 {
- "_help": "Web stories (owner decision 12 Nov 2026): only stories that had Search Console impressions are kept; the others 301 to their blog post. New blog posts get no story.",
- "slugs": [
+ "_help": "Web stories: owner decision 27 Nov 2026 – all web stories now 301 to their blog post (they took most impressions from their own posts with ~0 clicks). Earlier (12 Nov) 13 were kept. Add a slug here only if the owner asks for a story again.",
+ "slugs": [],
+ "retired_2026_11_27": [
   "dhanteras-outfit-ideas",
   "diwali-puja-outfit-ideas-for-women",
   "guru-nanak-gurpurab-outfit-ideas-for-women",

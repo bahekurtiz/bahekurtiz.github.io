@@ -570,12 +570,7 @@
      "share": 0.39
     }
    ],
-   "story_twin": [
-    {
-     "page": "/stories/what-to-wear-to-a-tamil-wedding-as-a-guest/",
-     "share": 0.46
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "India": 372,
     "Brazil": 240,
@@ -827,12 +822,7 @@
    "status": "page 1",
    "owner_share": 1.0,
    "cannibalisation": [],
-   "story_twin": [
-    {
-     "page": "/stories/dhanteras-outfit-ideas/",
-     "share": 0.77
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "India": 1116,
     "Canada": 42,
@@ -924,12 +914,7 @@
    "status": "page 1",
    "owner_share": 1.0,
    "cannibalisation": [],
-   "story_twin": [
-    {
-     "page": "/stories/indian-wedding-guest-outfits-for-tall-women/",
-     "share": 0.8
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "United Kingdom": 186,
     "Canada": 126,
@@ -1056,15 +1041,10 @@
    "cannibalisation": [
     {
      "page": "/blog/what-to-wear-to-a-bengali-wedding-as-a-guest/",
-     "share": 0.51
+     "share": 0.52
     }
    ],
-   "story_twin": [
-    {
-     "page": "/stories/what-to-wear-to-a-bangladeshi-wedding-as-a-guest/",
-     "share": 0.45
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "United Kingdom": 108,
     "United States": 48
@@ -1115,12 +1095,7 @@
    "status": "page 1",
    "owner_share": 1.0,
    "cannibalisation": [],
-   "story_twin": [
-    {
-     "page": "/stories/jewellery-to-wear-with-an-anarkali/",
-     "share": 0.71
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "India": 282,
     "Japan": 5
@@ -2434,12 +2409,7 @@
    "status": "page 1",
    "owner_share": 1.0,
    "cannibalisation": [],
-   "story_twin": [
-    {
-     "page": "/stories/what-to-wear-to-a-marathi-wedding-as-a-guest/",
-     "share": 0.69
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "India": 60,
     "Japan": 5
@@ -2717,12 +2687,7 @@
    "status": "page 2",
    "owner_share": 1.0,
    "cannibalisation": [],
-   "story_twin": [
-    {
-     "page": "/stories/what-to-wear-to-a-kerala-malayali-wedding-as-a-guest/",
-     "share": 0.29
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "India": 18
    },
@@ -2972,12 +2937,7 @@
    "status": "page 2",
    "owner_share": 1.0,
    "cannibalisation": [],
-   "story_twin": [
-    {
-     "page": "/stories/plus-size-indian-wedding-guest-outfits/",
-     "share": 0.69
-    }
-   ],
+   "story_twin": [],
    "countries": {
     "United States": 30
    },
@@ -3819,12 +3779,7 @@
    "status": "page 1",
    "owner_share": 1.0,
    "cannibalisation": [],
-   "story_twin": [
-    {
-     "page": "/stories/indian-wedding-guest-outfits-in-dubai-and-abu-dhabi/",
-     "share": 1.0
-    }
-   ],
+   "story_twin": [],
    "countries": {},
    "top_queries": [
     {
