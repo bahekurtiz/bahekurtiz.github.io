@@ -11,6 +11,10 @@ const ist = new Date(Date.now() + 5.5 * 36e5);
 const all = process.argv.includes("--all") || ist.getUTCDay() === 1;
 const since = new Date(ist.getTime() - 2 * 864e5).toISOString().slice(0, 10);
 const get = async (u) => { const r = await fetch(u, { headers: { "user-agent": "bahe-indexnow/1.0" } }); if (!r.ok) throw new Error(`${u} → ${r.status}`); return r.text(); };
+// host check (logged daily): www and http must 301 to https://bahekurtiz.com/ so Google keeps one copy of every page
+for (const u of ["http://www.bahekurtiz.com/", "https://www.bahekurtiz.com/", "http://bahekurtiz.com/", "https://www.bahekurtiz.com/collections/anarkali-suits/"]) {
+  try { const r = await fetch(u, { redirect: "manual" }); console.log(`host check ${u} → ${r.status} ${r.headers.get("location") || ""}`); } catch (e) { console.log(`host check ${u} → ${e.message}`); }
+}
 try {
   const keyTxt = (await get(`${SITE_URL}/${key}.txt`)).trim();
   if (keyTxt !== key) throw new Error("live key file does not match – IndexNow would reject the ping");
