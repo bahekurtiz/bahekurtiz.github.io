@@ -1,6 +1,6 @@
 # Dress-code carousels & 'save this' videos (Instagram, Facebook, Pinterest, TikTok) – week 2026-W48
 
-> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-28; check the site before posting. No discount is mentioned (ask Claude before any sale).
+> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-27; check the site before posting. No discount is mentioned (ask Claude before any sale).
 
 People save and forward dress-code posts before weddings. One carousel per card: 5 slides, big text, one product photo. Link: https://bahekurtiz.com/wedding-guest-dress-codes/
 

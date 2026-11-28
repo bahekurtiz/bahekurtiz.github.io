@@ -1,6 +1,6 @@
 # Instagram & Facebook captions – week 2026-W48
 
-> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-28; check the site before posting. No discount is mentioned (ask Claude before any sale).
+> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-27; check the site before posting. No discount is mentioned (ask Claude before any sale).
 
 ## Tara
 
@@ -15,7 +15,7 @@ Tara means “star” – white embroidery that shines on navy like stars in the
 • Kota Doria · Embroidered
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹2,899 · US$63 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹1,899 · US$52 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "TARA" for your size 💬
 
@@ -40,7 +40,7 @@ Saanjh means “evening” – navy florals for slow summer evenings.
 • Cotton · Hand Block Print · Sanganeri Print · Floral Print
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹2,699 · US$61 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹1,699 · US$50 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "SAANJH" for your size 💬
 
@@ -65,7 +65,7 @@ Noor means “light” – bright florals on navy that light up a summer day.
 • Cotton · Floral Print
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹2,199 · US$47 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹1,199 · US$36 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "NOOR" for your size 💬
 
@@ -90,7 +90,7 @@ Shubhra means “pure white” – fresh off-white with soft embroidery, simple 
 • Cotton Flex · Embroidered · Thread Work
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹2,799 · US$63 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹1,799 · US$52 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "SHUBHRA" for your size 💬
 
@@ -115,7 +115,7 @@ Vanya means “of the forest” – earthy olive green with a white floral yoke.
 • Cotton · Embroidered · Thread Work
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹699 · US$29 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹499 · US$27 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "VANYA" for your size 💬
 
@@ -140,7 +140,7 @@ Komal means “soft” – a gentle peach kurti, light and easy to wear.
 • Georgette · Embroidered
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹799 · US$27 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹599 · US$25 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "KOMAL" for your size 💬
 
@@ -165,7 +165,7 @@ Gulnaz means “delicate as a rose” – soft peach pink with graceful embroide
 • Cotton Flex · Embroidered · Thread Work
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹2,799 · US$63 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹1,799 · US$52 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "GULNAZ" for your size 💬
 
