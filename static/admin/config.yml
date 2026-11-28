@@ -519,7 +519,6 @@ collections:
           - { name: hero_subtitle, label: "होमपेज छोटी लाइन", widget: string, required: false }
           - { name: hero_image, label: "होमपेज बड़ी फ़ोटो", widget: image, required: false }
           - { name: hero_image_desktop, label: "होमपेज चौड़ी फ़ोटो – कंप्यूटर के लिए (1920×760, optional)", widget: image, required: false, media_folder: /static/images/site, public_folder: /images/site }
-          - { name: show_mrp, label: "कटी हुई MRP और % OFF दिखाएँ (EU में अपने-आप छुपेगी)", widget: boolean, required: false, default: true }
           - { name: budget_price, label: "होमपेज 'Under ₹___' सेक्शन की लिमिट", widget: number, value_type: int, required: false, default: 999 }
           - { name: about_title, label: "Our Story हेडिंग", widget: string }
           - { name: about_text, label: "Our Story टेक्स्ट", widget: text }
