@@ -1,6 +1,6 @@
 # Instagram & Facebook captions – week 2026-W48
 
-> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-27; check the site before posting. No discount is mentioned (ask Claude before any sale).
+> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-28; check the site before posting. No discount is mentioned (ask Claude before any sale).
 
 ## Tara
 
@@ -40,7 +40,7 @@ Saanjh means “evening” – navy florals for slow summer evenings.
 • Cotton · Hand Block Print · Sanganeri Print · Floral Print
 • Sizes XS–3XL + free custom fit
 • Handmade in our Jaipur unit (Sanganer)
-• ₹1,699 · US$50 · free shipping to the USA, UK, Canada, UAE & Australia
+• ₹999 · US$35 · free shipping to the USA, UK, Canada, UAE & Australia
 
 Tap the link in bio or DM "SAANJH" for your size 💬
 

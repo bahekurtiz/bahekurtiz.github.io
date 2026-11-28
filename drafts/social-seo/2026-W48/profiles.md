@@ -1,6 +1,6 @@
 # Profile names and bios (Instagram, Facebook, Pinterest, YouTube, TikTok) – week 2026-W48
 
-> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-27; check the site before posting. No discount is mentioned (ask Claude before any sale).
+> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-28; check the site before posting. No discount is mentioned (ask Claude before any sale).
 
 Use the same name, city and link everywhere (Google and AI assistants match them).
 
