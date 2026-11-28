@@ -1,6 +1,6 @@
 # Viral Reels / Shorts / TikTok formats – week 2026-W48
 
-> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-27; check the site before posting. No discount is mentioned (ask Claude before any sale).
+> Drafts only – copy, check and post yourself. Prices are the live prices on 2026-11-28; check the site before posting. No discount is mentioned (ask Claude before any sale).
 
 Post the same video on Instagram Reels, Facebook Reels, TikTok and YouTube Shorts (take the caption and hashtags from instagram-facebook.md / tiktok). Hook text on screen in the first second, captions on, 7–15 seconds, end with a clear "link in bio".
 
@@ -35,7 +35,7 @@ Post the same video on Instagram Reels, Facebook Reels, TikTok and YouTube Short
   - Slow reveal from the hem up
   - Details: embroidery / print
   - Text: 'Handmade in Jaipur, free custom fit'
-  - Reveal: ₹1,199 · US$36
+  - Reveal: ₹2,199 · US$47
 - **Audio:** a trending 'reveal' sound
 - **Cover text:** Noor – handmade in Jaipur
 - **Video already shot:** no – film this week

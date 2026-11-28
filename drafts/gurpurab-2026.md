@@ -8,9 +8,9 @@
 > No discount is mentioned anywhere. If you want a sale for Guru Nanak Gurpurab, tell Claude first – prices are never changed automatically.
 
 ## Products to feature
-- Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52: https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-- Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52: https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-- Neelima – Indigo Hand Block Print Kota Doria Kurta Set with Printed Cotton Pants & Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set/
+- Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹2,799 / $63: https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
+- Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹2,799 / $63: https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
+- Neelima – Indigo Hand Block Print Kota Doria Kurta Set with Printed Cotton Pants & Dupatta – ₹2,999 / $63: https://bahekurtiz.com/products/indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set/
 
 ## Google Business Profile post (type: Update · button: Shop / Learn more → shop link)
 Gurpurab is on 24 November! Soft colours, full sleeves and a dupatta to cover your head in the gurdwara. Colours we love for it: ivory, white, peach, pastel pink, saffron accents.
@@ -31,9 +31,9 @@ Soft colours, full sleeves and a dupatta to cover your head in the gurdwara – 
 ## Facebook post
 Gurpurab is on 24 November! Looking for something to wear? Soft colours, full sleeves and a dupatta to cover your head in the gurdwara.
 Our picks:
-- Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52: https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-- Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52: https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-- Neelima – Indigo Hand Block Print Kota Doria Kurta Set with Printed Cotton Pants & Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set/
+- Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹2,799 / $63: https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
+- Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹2,799 / $63: https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
+- Neelima – Indigo Hand Block Print Kota Doria Kurta Set with Printed Cotton Pants & Dupatta – ₹2,999 / $63: https://bahekurtiz.com/products/indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set/
 Ask us on WhatsApp for the delivery time to your city.
 Free custom fit – send your bust, waist and hip and we stitch to your measurements.
 👉 https://bahekurtiz.com/blog/guru-nanak-gurpurab-outfit-ideas-for-women/
@@ -52,7 +52,7 @@ Gurpurab is on 24 November. Soft colours, full sleeves and a dupatta to cover yo
 Soft colours, full sleeves and a dupatta to cover your head in the gurdwara.
 • Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52
 https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-• Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52
+• Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹2,799 / $52
 https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
 • Neelima – Indigo Hand Block Print Kota Doria Kurta Set with Printed Cotton Pants & Dupatta – ₹1,999 / $52
 https://bahekurtiz.com/products/indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set/
@@ -69,9 +69,9 @@ Hi {{ contact.FIRSTNAME | default : "there" }},
 Gurpurab is on 24 November. Soft colours, full sleeves and a dupatta to cover your head in the gurdwara.
 
 Three styles we would pick:
-- Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52: https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-- Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹1,799 / $52: https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
-- Neelima – Indigo Hand Block Print Kota Doria Kurta Set with Printed Cotton Pants & Dupatta – ₹1,999 / $52: https://bahekurtiz.com/products/indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set/
+- Shubhra – Off-White Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹2,799 / $63: https://bahekurtiz.com/products/off-white-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
+- Gulnaz – Peach Pink Embroidered Cotton Kurta Set for Women with Cutwork Organza Dupatta – ₹2,799 / $63: https://bahekurtiz.com/products/peach-pink-embroidered-cotton-flex-kurta-pant-organza-dupatta-set/
+- Neelima – Indigo Hand Block Print Kota Doria Kurta Set with Printed Cotton Pants & Dupatta – ₹2,999 / $63: https://bahekurtiz.com/products/indigo-hand-block-print-kota-doria-kurta-pant-dupatta-set/
 
 **When to order:** Ask us on WhatsApp for the delivery time to your city.
 
